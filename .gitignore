@@ -1,0 +1,104 @@
+# ============================
+# Unity 2025 - .gitignore
+# ============================
+
+# --- Unity Generated Folders ---
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Mm]emoryCaptures/
+[Bb]urstCache/
+
+# Cache adicional de Unity
+Library/ScriptAssemblies/
+Library/ShaderCache/
+Library/assetDatabase/
+Library/PackageCache/
+Library/ApplicationCache/
+Library/Artifacts/
+
+# --- UserSettings ---
+UserSettings/
+
+# --- Unity Package Manager ---
+Packages/packages-lock.json
+
+# --- Asset Store / UPM caches ---
+Assets/AssetStoreTools*
+Assets/StreamingAssets/aa/ (Addressables)
+
+# --- IDE / Editor ---
+.vs/
+.vscode/
+.idea/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.iml
+*.dotSettings
+
+# --- Unity Generated Files ---
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.tscn.cache
+
+# --- Builds / Ejecutables ---
+*.apk
+*.aab
+*.unitypackage
+*.exe
+*.app
+*.ipa
+*.xcodeproj
+*.xcworkspace
+*.xcuserdata
+*.xcconfig
+*.dSYM/
+
+# WebGL
+Build/*
+Builds/*
+*/Build/*
+*/Builds/*
+
+# --- Sistemas Operativos ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Rider Logs ---
+.idea/
+*.iml
+
+# --- Otros caches ---
+*.orig
+*.tmp
+*.lock
+
+# --- TextMeshPro (solo archivos conflictivos) ---
+# Estos assets cambian automáticamente y generan conflictos si se suben
+Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF - Fallback.asset
+
+# --- Addressables ---
+Assets/AddressableAssetsData/*/*.bin*
+Assets/AddressableAssetsData/*/*.hash
+Assets/AddressableAssetsData/*/*.json.meta
+
+# --- Shader Variants ---
+Assets/**/ShaderCache/
+Library/ShaderCache/
+
+# --- UnityHub Logs ---
+UnityHub/
