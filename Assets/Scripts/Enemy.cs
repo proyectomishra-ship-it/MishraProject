@@ -5,44 +5,46 @@ public class Enemy : Character
     [SerializeField] private int experienceReward = 50;
     [SerializeField] private float classMultiplier = 1f;
 
+    private EnemyAIController aiController;
+
+    protected override void Awake()
+    {
+        base.Awake();
+
+        aiController = GetComponent<EnemyAIController>();
+        aiController ??= gameObject.AddComponent<EnemyAIController>();
+
+        aiController.Initialize(this);
+    }
+
     public int GetExperienceReward(int playerLevel)
     {
         return ExperienceCalculator.CalculateXP(
             experienceReward,
             classMultiplier,
-            stats.Level,
+            GetLevel(),
             playerLevel
         );
     }
-    public override void Move(Vector3 direction)
-    {
-        
-    }
-
-    public override void Attack(Character target)
-    {
-        base.Attack(target);
-    }
-
-
 
     private void DistributeExperience()
     {
+        var contributors = damageReceiver.GetDamageContributors();
+
         float totalDamage = 0f;
 
-        foreach (var entry in damageContributors)
+        foreach (var entry in contributors)
             totalDamage += entry.Value;
 
         if (totalDamage <= 0f) return;
 
-        foreach (var entry in damageContributors)
+        foreach (var entry in contributors)
         {
             if (entry.Key is Player player)
             {
                 float damageShare = entry.Value / totalDamage;
 
                 int baseXP = GetExperienceReward(player.GetLevel());
-
                 int finalXP = Mathf.RoundToInt(baseXP * damageShare);
 
                 player.AddExp(finalXP);

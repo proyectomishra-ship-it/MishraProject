@@ -15,13 +15,15 @@ public class CharacterStats
     public Stat Luck { get; protected set; }
 
     public Stat MaxHealth { get; protected set; }
-    public float CurrentHealth { get; protected set; }
+    public float CurrentHealth { get; set; }
+   
+    
 
     public Stat MaxMana { get; protected set; }
-    public float CurrentMana { get; protected set; }
 
+    public float CurrentMana { get; set; }
     public Stat Resistance { get; protected set; }
-    public float CurrentResistance { get; protected set; }
+    public float CurrentResistance { get; set; }
 
     public WeaponType WeaponType { get; protected set; }
 
@@ -50,58 +52,5 @@ public class CharacterStats
         WeaponType = data.WeaponType;
     }
 
-    // -------------------------
-    // HEALTH
-    // -------------------------
-
-    public void TakeDamage(float amount)
-    {
-        float finalDamage = Mathf.Max(amount - Defense.Value, 0);
-        CurrentHealth -= finalDamage;
-        CurrentHealth = Mathf.Clamp(CurrentHealth, 0, MaxHealth.Value);
-    }
-
-    public void Heal(float amount)
-    {
-        CurrentHealth += amount;
-        CurrentHealth = Mathf.Clamp(CurrentHealth, 0, MaxHealth.Value);
-    }
-
-    // -------------------------
-    // MANA
-    // -------------------------
-
-    public bool UseMana(float amount)
-    {
-        if (CurrentMana < amount)
-            return false;
-
-        CurrentMana -= amount;
-        return true;
-    }
-
-    public void AddMana(float amount)
-    {
-        CurrentMana += amount;
-        CurrentMana = Mathf.Clamp(CurrentMana, 0, MaxMana.Value);
-    }
-
-    // -------------------------
-    // RESISTANCE (Stamina)
-    // -------------------------
-
-    public bool UseResistance(float amount)
-    {
-        if (CurrentResistance < amount)
-            return false;
-
-        CurrentResistance -= amount;
-        return true;
-    }
-
-    public void RecoverResistance(float amount)
-    {
-        CurrentResistance += amount;
-        CurrentResistance = Mathf.Clamp(CurrentResistance, 0, Resistance.Value);
-    }
+   
 }

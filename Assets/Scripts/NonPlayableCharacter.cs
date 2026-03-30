@@ -3,7 +3,7 @@ using UnityEngine;
 public class NonPlayableCharacter : Character
 {
     private bool isHostile = false;
-
+    private Character currentTarget;
     protected override void OnDamaged(Character attacker)
     {
         base.OnDamaged(attacker);
