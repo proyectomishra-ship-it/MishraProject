@@ -23,7 +23,7 @@ public class CharacterData : ScriptableObject
     [Header("Equipment")]
     [SerializeField] private WeaponType weaponType;
 
-    // GETTERS Permiten leer los datos desde otros metodos
+  
     public float Attack => attack;
     public float Defense => defense;
     public float MaxHealth => maxHealth;

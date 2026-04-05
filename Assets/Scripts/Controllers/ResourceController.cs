@@ -15,19 +15,14 @@ public class ResourceController : MonoBehaviour
     // HEALTH
     // -------------------------
 
-    public void TakeDamage(float amount)
-    {
-        float defense = stats.Defense.Value;
-        float finalDamage = Mathf.Max(amount - defense, 0);
-
-        stats.CurrentHealth -= finalDamage;
-        stats.CurrentHealth = Mathf.Clamp(stats.CurrentHealth, 0, stats.MaxHealth.Value);
-    }
-
     public void Heal(float amount)
     {
-        stats.CurrentHealth += amount;
-        stats.CurrentHealth = Mathf.Clamp(stats.CurrentHealth, 0, stats.MaxHealth.Value);
+        stats.Heal(amount);
+    }
+
+    public void TakeDamage(float amount)
+    {
+        stats.TakeDamage(amount);
     }
 
     // -------------------------
@@ -36,35 +31,25 @@ public class ResourceController : MonoBehaviour
 
     public bool UseMana(float amount)
     {
-        if (stats.CurrentMana < amount)
-            return false;
-
-        stats.CurrentMana -= amount;
-        return true;
+        return stats.UseMana(amount);
     }
 
     public void AddMana(float amount)
     {
-        stats.CurrentMana += amount;
-        stats.CurrentMana = Mathf.Clamp(stats.CurrentMana, 0, stats.MaxMana.Value);
+        stats.AddMana(amount);
     }
 
     // -------------------------
-    // RESISTANCE (Stamina)
+    // RESISTANCE
     // -------------------------
 
     public bool UseResistance(float amount)
     {
-        if (stats.CurrentResistance < amount)
-            return false;
-
-        stats.CurrentResistance -= amount;
-        return true;
+        return stats.UseResistance(amount);
     }
 
     public void RecoverResistance(float amount)
     {
-        stats.CurrentResistance += amount;
-        stats.CurrentResistance = Mathf.Clamp(stats.CurrentResistance, 0, stats.Resistance.Value);
+        stats.RecoverResistance(amount);
     }
 }

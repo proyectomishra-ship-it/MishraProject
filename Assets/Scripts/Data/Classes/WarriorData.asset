@@ -12,11 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98727d11479810f4687270010e84878e, type: 3}
   m_Name: WarriorData
   m_EditorClassIdentifier: Assembly-CSharp::PlayerClassData
-  attackPerLevel: 3
-  defensePerLevel: 0.5
-  maxHealthPerLevel: 1
-  maxManaPerLevel: 0.25
-  dexterityPerLevel: 1
-  intelligencePerLevel: 0.5
-  vitalityPerLevel: 1
-  luckPerLevel: 0.1
+  levelScaling:
+  - stat: 0
+    value: 3
+  - stat: 2
+    value: 2
+  - stat: 8
+    value: 1
+  multipliers:
+  - stat: 0
+    value: 20
+  - stat: 1
+    value: 15
+  - stat: 2
+    value: 10
+  - stat: 4
+    value: -5

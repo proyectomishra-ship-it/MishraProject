@@ -1,36 +1,31 @@
-using System;
+using UnityEngine;
 
-[Serializable]
+[System.Serializable]
 public class Stat
 {
     private float baseValue;
-    private float bonusValue;
+    private float bonus;
     private float multiplier = 1f;
 
-    public float Value => (baseValue + bonusValue) * multiplier;
+    public float Value => (baseValue + bonus) * multiplier;
 
     public Stat(float baseValue)
     {
         this.baseValue = baseValue;
     }
 
-    public void SetBase(float value)
-    {
-        baseValue = value;
-    }
-
     public void AddBonus(float value)
     {
-        bonusValue += value;
+        bonus += value;
     }
 
     public void RemoveBonus(float value)
     {
-        bonusValue -= value;
+        bonus -= value;
     }
 
-    public void SetMultiplier(float value)
+    public void AddMultiplier(float value)
     {
-        multiplier = value;
+        multiplier += value;
     }
 }
