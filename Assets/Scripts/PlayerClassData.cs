@@ -1,24 +1,23 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "PlayerClassData", menuName = "RPG/Player Class Data")]
 public class PlayerClassData : ScriptableObject
 {
-    [Header("Level Scaling")]
-    [SerializeField] private float attackPerLevel;
-    [SerializeField] private float defensePerLevel;
-    [SerializeField] private float maxHealthPerLevel;
-    [SerializeField] private float maxManaPerLevel;
-    [SerializeField] private float dexterityPerLevel;
-    [SerializeField] private float intelligencePerLevel;
-    [SerializeField] private float vitalityPerLevel;
-    [SerializeField] private float luckPerLevel;
+    [Serializable]
+    public struct StatModifier
+    {
+        public StatType stat;
+        public float value;
+    }
 
-    public float AttackPerLevel => attackPerLevel;
-    public float DefensePerLevel => defensePerLevel;
-    public float MaxHealthPerLevel => maxHealthPerLevel;
-    public float MaxManaPerLevel => maxManaPerLevel;
-    public float DexterityPerLevel => dexterityPerLevel;
-    public float IntelligencePerLevel => intelligencePerLevel;
-    public float VitalityPerLevel => vitalityPerLevel;
-    public float LuckPerLevel => luckPerLevel;
+    [Header("Level Scaling")]
+    [SerializeField] private List<StatModifier> levelScaling;
+
+    [Header("Multipliers")]
+    [SerializeField] private List<StatModifier> multipliers;
+
+    public List<StatModifier> LevelScaling => levelScaling;
+    public List<StatModifier> Multipliers => multipliers;
 }

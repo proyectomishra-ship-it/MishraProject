@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "EquipmentData", menuName = "RPG/Equipment")]
@@ -6,16 +7,15 @@ public class EquipmentData : ItemData
     [Header("Equipment")]
     [SerializeField] private EquipmentSlot slot;
 
-    [Header("Stat Bonuses")]
+    [Header("Legacy Bonuses (opcional)")]
     [SerializeField] private float attackBonus;
     [SerializeField] private float defenseBonus;
     [SerializeField] private float maxHealthBonus;
     [SerializeField] private float maxManaBonus;
 
-    public EquipmentSlot Slot => slot;
+    [Header("Modifiers (NUEVO SISTEMA)")]
+    [SerializeField] private List<StatModifier> modifiers;
 
-    public float AttackBonus => attackBonus;
-    public float DefenseBonus => defenseBonus;
-    public float MaxHealthBonus => maxHealthBonus;
-    public float MaxManaBonus => maxManaBonus;
+    public EquipmentSlot Slot => slot;
+    public List<StatModifier> Modifiers => modifiers;
 }

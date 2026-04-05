@@ -15,6 +15,8 @@ public class PlayerStats : CharacterStats
     {
         this.classData = classData;
 
+        ApplyMultipliers();
+
         Experience = 0;
         ExperienceRequired = baseExperienceRequired;
     }
@@ -34,22 +36,26 @@ public class PlayerStats : CharacterStats
     {
         Level++;
 
-        ApplyClassScaling();
+        ApplyLevelScaling();
 
         ExperienceRequired = Mathf.RoundToInt(
             baseExperienceRequired * Mathf.Pow(experienceGrowthFactor, Level - 1)
         );
     }
 
-    private void ApplyClassScaling()
+    private void ApplyLevelScaling()
     {
-        Attack.AddBonus(classData.AttackPerLevel);
-        Defense.AddBonus(classData.DefensePerLevel);
-        MaxHealth.AddBonus(classData.MaxHealthPerLevel);
-        MaxMana.AddBonus(classData.MaxManaPerLevel);
-        Dexterity.AddBonus(classData.DexterityPerLevel);
-        Intelligence.AddBonus(classData.IntelligencePerLevel);
-        Vitality.AddBonus(classData.VitalityPerLevel);
-        Luck.AddBonus(classData.LuckPerLevel);
+        foreach (var mod in classData.LevelScaling)
+        {
+            AddBonus(mod.stat, mod.value);
+        }
+    }
+
+    private void ApplyMultipliers()
+    {
+        foreach (var mod in classData.Multipliers)
+        {
+            AddMultiplier(mod.stat, mod.value);
+        }
     }
 }
