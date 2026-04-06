@@ -6,6 +6,11 @@ public class MovementController : MonoBehaviour
     private CharacterController controller;
 
     [SerializeField] private float speed = 5f;
+    [SerializeField] private float jumpForce = 5f;
+    [SerializeField] private float gravity = -9.81f;
+    [SerializeField] private float runMultiplier = 5f;
+
+    private float verticalVelocity = 0f;
 
     public void Initialize(Character character)
     {
@@ -15,26 +20,31 @@ public class MovementController : MonoBehaviour
 
     public void Move(Vector3 direction)
     {
-        Debug.Log("MovementController.Move: " + direction);
-
-        if (controller == null)
-        {
-            Debug.LogError("NO HAY CharacterController");
-            return;
-        }
-
+        if (controller == null) return;
         controller.Move(direction * speed * Time.deltaTime);
     }
 
     public void Run(Vector3 direction)
     {
         if (controller == null) return;
-
-        controller.Move(direction * speed * 1.5f * Time.deltaTime);
+        controller.Move(direction * speed * runMultiplier * Time.deltaTime);
     }
 
     public void Jump()
     {
-        // lo dejamos pendiente (requiere gravedad)
+        if (controller == null) return;
+        if (controller.isGrounded)
+            verticalVelocity = jumpForce;
+    }
+
+    public void ApplyGravity()
+    {
+        if (controller == null) return;
+
+        if (controller.isGrounded && verticalVelocity < 0f)
+            verticalVelocity = -2f; 
+
+        verticalVelocity += gravity * Time.deltaTime;
+        controller.Move(Vector3.up * verticalVelocity * Time.deltaTime);
     }
 }

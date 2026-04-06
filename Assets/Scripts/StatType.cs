@@ -1,6 +1,7 @@
 public enum StatType
 {
     Attack,
+    AttackRange,
     Defense,
     MaxHealth,
     MaxMana,
