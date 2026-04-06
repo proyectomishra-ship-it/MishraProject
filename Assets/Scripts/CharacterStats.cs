@@ -5,6 +5,8 @@ public class CharacterStats
     public int Level { get; protected set; }
 
     public Stat Attack { get; protected set; }
+    public Stat AttackRange { get; protected set; }
+
     public Stat Defense { get; protected set; }
     public Stat Speed { get; protected set; }
     public Stat Agility { get; protected set; }
@@ -29,6 +31,7 @@ public class CharacterStats
         Level = data.BaseLevel;
 
         Attack = new Stat(data.Attack);
+        AttackRange = new Stat(data.AttackRange);
         Defense = new Stat(data.Defense);
         Speed = new Stat(data.Speed);
         Agility = new Stat(data.Agility);
@@ -54,6 +57,7 @@ public class CharacterStats
         switch (type)
         {
             case StatType.Attack: return Attack;
+            case StatType.AttackRange: return AttackRange;
             case StatType.Defense: return Defense;
             case StatType.MaxHealth: return MaxHealth;
             case StatType.MaxMana: return MaxMana;

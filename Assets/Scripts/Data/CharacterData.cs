@@ -5,6 +5,7 @@ public class CharacterData : ScriptableObject
 {
     [Header("Core Stats")]
     [SerializeField] private float attack;
+    [SerializeField] private float attackRange;
     [SerializeField] private float defense;
     [SerializeField] private float maxHealth;
     [SerializeField] private float maxMana;
@@ -16,6 +17,7 @@ public class CharacterData : ScriptableObject
     [SerializeField] private float vitality;
     [SerializeField] private float resistance;
     [SerializeField] private float luck;
+    
 
     [Header("Progression")]
     [SerializeField] private int baseLevel;
@@ -25,6 +27,8 @@ public class CharacterData : ScriptableObject
 
   
     public float Attack => attack;
+
+    public float AttackRange => attackRange;
     public float Defense => defense;
     public float MaxHealth => maxHealth;
     public float MaxMana => maxMana;
