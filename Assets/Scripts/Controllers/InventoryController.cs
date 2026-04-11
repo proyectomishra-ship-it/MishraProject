@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
-public class InventoryController : MonoBehaviour
+public class InventoryController : NetworkBehaviour
 {
     private Character character;
 
@@ -18,9 +19,11 @@ public class InventoryController : MonoBehaviour
     // ADD ITEM
     // -------------------------
 
+  
     public bool AddItem(ItemData itemData, int amount = 1)
     {
-        // Stack si se puede
+        if (!IsServer) return false;
+
         if (itemData.Stackable)
         {
             foreach (var item in items)
@@ -28,16 +31,19 @@ public class InventoryController : MonoBehaviour
                 if (item.Data == itemData)
                 {
                     item.Add(amount);
+                    NotifyInventoryChangedClientRpc(BuildInventorySnapshot(),
+                        BuildOwnerRpcParams());
                     return true;
                 }
             }
         }
 
-        // Nuevo slot
         if (items.Count >= maxSlots)
             return false;
 
         items.Add(new ItemInstance(itemData, amount));
+        NotifyInventoryChangedClientRpc(BuildInventorySnapshot(),
+            BuildOwnerRpcParams());
         return true;
     }
 
@@ -47,6 +53,8 @@ public class InventoryController : MonoBehaviour
 
     public bool RemoveItem(ItemData itemData, int amount = 1)
     {
+        if (!IsServer) return false;
+
         foreach (var item in items)
         {
             if (item.Data == itemData)
@@ -59,10 +67,11 @@ public class InventoryController : MonoBehaviour
                 if (item.Quantity <= 0)
                     items.Remove(item);
 
+                NotifyInventoryChangedClientRpc(BuildInventorySnapshot(),
+                    BuildOwnerRpcParams());
                 return true;
             }
         }
-
         return false;
     }
 
@@ -74,4 +83,43 @@ public class InventoryController : MonoBehaviour
     {
         return items;
     }
+
+    // -------------------------
+    // NETWORKING
+    // -------------------------
+
+ 
+    private int[] BuildInventorySnapshot()
+    {
+        var snapshot = new int[items.Count * 2];
+        for (int i = 0; i < items.Count; i++)
+        {
+            snapshot[i * 2] = items[i].Data is EquipmentData eq ? eq.ItemId : -1;
+            snapshot[i * 2 + 1] = items[i].Quantity;
+        }
+        return snapshot;
+    }
+
+  
+    private ClientRpcParams BuildOwnerRpcParams()
+    {
+        return new ClientRpcParams
+        {
+            Send = new ClientRpcSendParams
+            {
+                TargetClientIds = new ulong[] { OwnerClientId }
+            }
+        };
+    }
+
+
+    [ClientRpc]
+    private void NotifyInventoryChangedClientRpc(int[] snapshot, ClientRpcParams rpcParams = default)
+    {
+        if (IsServer) return;
+        OnInventoryChanged(snapshot);
+    }
+
+
+    protected virtual void OnInventoryChanged(int[] snapshot) { }
 }

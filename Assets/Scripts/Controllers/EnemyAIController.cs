@@ -1,6 +1,7 @@
 using UnityEngine;
+using Unity.Netcode;
 
-public class EnemyAIController : MonoBehaviour
+public class EnemyAIController : NetworkBehaviour
 {
     private Enemy enemy;
 
@@ -11,6 +12,9 @@ public class EnemyAIController : MonoBehaviour
 
     private void Update()
     {
+        
+        if (!IsServer) return;
+
         // IA futura
     }
 }
