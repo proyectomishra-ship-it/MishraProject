@@ -4,6 +4,9 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "EquipmentData", menuName = "RPG/Equipment")]
 public class EquipmentData : ItemData
 {
+    [Header("Network")]
+    [SerializeField] private int itemId;
+
     [Header("Equipment")]
     [SerializeField] private EquipmentSlot slot;
 
@@ -16,6 +19,7 @@ public class EquipmentData : ItemData
     [Header("Modifiers (NUEVO SISTEMA)")]
     [SerializeField] private List<StatModifier> modifiers;
 
+    public int ItemId => itemId;
     public EquipmentSlot Slot => slot;
     public List<StatModifier> Modifiers => modifiers;
 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Netcode;
 
 public class Enemy : Character
 {
@@ -12,9 +13,12 @@ public class Enemy : Character
         base.Awake();
 
         aiController = GetComponent<EnemyAIController>();
-        aiController ??= gameObject.AddComponent<EnemyAIController>();
 
-        aiController.Initialize(this);
+      
+        if (aiController == null)
+            Debug.LogError($"[Enemy] Falta EnemyAIController en el prefab de {gameObject.name}");
+
+        aiController?.Initialize(this);
     }
 
     public int GetExperienceReward(int playerLevel)
@@ -27,12 +31,14 @@ public class Enemy : Character
         );
     }
 
+
     private void DistributeExperience()
     {
+        if (!IsServer) return;
+
         var contributors = damageReceiver.GetDamageContributors();
 
         float totalDamage = 0f;
-
         foreach (var entry in contributors)
             totalDamage += entry.Value;
 
@@ -43,15 +49,14 @@ public class Enemy : Character
             if (entry.Key is Player player)
             {
                 float damageShare = entry.Value / totalDamage;
-
                 int baseXP = GetExperienceReward(player.GetLevel());
                 int finalXP = Mathf.RoundToInt(baseXP * damageShare);
-
                 player.AddExp(finalXP);
             }
         }
     }
 
+   
     protected override void Die()
     {
         DistributeExperience();

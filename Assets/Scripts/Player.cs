@@ -1,29 +1,114 @@
-using UnityEngine;
+﻿using UnityEngine;
+using Unity.Netcode;
+
 public class Player : Character
 {
     [SerializeField] private PlayerClassData classData;
+
     private PlayerInputController inputController;
+
     protected override void Awake()
     {
         base.Awake();
+
         inputController = GetComponent<PlayerInputController>();
-        inputController ??= gameObject.AddComponent<PlayerInputController>();
-        inputController.Initialize(this);
+
+        if (inputController == null)
+            Debug.LogError($"[Player] Falta PlayerInputController en el prefab de {gameObject.name}");
     }
+
+    public override void OnNetworkSpawn()
+    {
+      
+        if (IsOwner)
+            inputController?.Initialize(this);
+    }
+
     protected override CharacterStats CreateStats()
     {
         return new PlayerStats(characterData, classData);
     }
+
+
     public void AddExp(int amount)
     {
+        if (!IsServer) return;
         ((PlayerStats)stats).AddExperience(amount);
     }
-    public override void Move(Vector3 direction) => base.Move(direction);
-    public override void Run(Vector3 direction) => base.Run(direction);
-    public override void Jump() => base.Jump();
-    public override void ApplyGravity() => base.ApplyGravity();
-    public override void OnAttackPressed() => base.OnAttackPressed();
-    public override void OnAttackHeld() => base.OnAttackHeld();
-    public override void OnAttackReleased() => base.OnAttackReleased();
-    public override void SpecialAttack() => base.SpecialAttack();
+
+    #region Movement - Owner → ServerRpc → Server
+
+
+
+    public override void Move(Vector3 direction)
+    {
+        if (IsOwner) MoveServerRpc(direction);
+    }
+
+    public override void Run(Vector3 direction)
+    {
+        if (IsOwner) RunServerRpc(direction);
+    }
+
+    public override void Jump()
+    {
+        if (IsOwner) JumpServerRpc();
+    }
+
+    public override void ApplyGravity()
+    {
+        if (IsOwner) ApplyGravityServerRpc();
+    }
+
+    [ServerRpc]
+    private void MoveServerRpc(Vector3 direction) => base.Move(direction);
+
+    [ServerRpc]
+    private void RunServerRpc(Vector3 direction) => base.Run(direction);
+
+    [ServerRpc]
+    private void JumpServerRpc() => base.Jump();
+
+    [ServerRpc]
+    private void ApplyGravityServerRpc() => base.ApplyGravity();
+
+    #endregion
+
+    #region Combat - Owner → ServerRpc → Server
+
+
+
+    public override void OnAttackPressed()
+    {
+        if (IsOwner) OnAttackPressedServerRpc();
+    }
+
+    public override void OnAttackHeld()
+    {
+        if (IsOwner) OnAttackHeldServerRpc();
+    }
+
+    public override void OnAttackReleased()
+    {
+        if (IsOwner) OnAttackReleasedServerRpc();
+    }
+
+    public override void SpecialAttack()
+    {
+        if (IsOwner) SpecialAttackServerRpc();
+    }
+
+    [ServerRpc]
+    private void OnAttackPressedServerRpc() => base.OnAttackPressed();
+
+    [ServerRpc]
+    private void OnAttackHeldServerRpc() => base.OnAttackHeld();
+
+    [ServerRpc]
+    private void OnAttackReleasedServerRpc() => base.OnAttackReleased();
+
+    [ServerRpc]
+    private void SpecialAttackServerRpc() => base.SpecialAttack();
+
+    #endregion
 }

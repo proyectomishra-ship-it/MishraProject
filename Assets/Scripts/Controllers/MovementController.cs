@@ -1,6 +1,7 @@
 using UnityEngine;
+using Unity.Netcode;
 
-public class MovementController : MonoBehaviour
+public class MovementController : NetworkBehaviour
 {
     private Character character;
     private CharacterController controller;
@@ -18,33 +19,50 @@ public class MovementController : MonoBehaviour
         controller = character.GetComponent<CharacterController>();
     }
 
+    // -------------------------
+    // MOVEMENT
+    // -------------------------
+
+  
     public void Move(Vector3 direction)
     {
         if (controller == null) return;
-        controller.Move(direction * speed * Time.deltaTime);
+
+        if (IsOwner || IsServer)
+            controller.Move(direction * speed * Time.deltaTime);
     }
 
     public void Run(Vector3 direction)
     {
         if (controller == null) return;
-        controller.Move(direction * speed * runMultiplier * Time.deltaTime);
+
+        if (IsOwner || IsServer)
+            controller.Move(direction * speed * runMultiplier * Time.deltaTime);
     }
 
     public void Jump()
     {
         if (controller == null) return;
-        if (controller.isGrounded)
-            verticalVelocity = jumpForce;
+
+        if (IsOwner || IsServer)
+        {
+            if (controller.isGrounded)
+                verticalVelocity = jumpForce;
+        }
     }
 
     public void ApplyGravity()
     {
         if (controller == null) return;
 
-        if (controller.isGrounded && verticalVelocity < 0f)
-            verticalVelocity = -2f; 
+     
+        if (IsOwner || IsServer)
+        {
+            if (controller.isGrounded && verticalVelocity < 0f)
+                verticalVelocity = -2f;
 
-        verticalVelocity += gravity * Time.deltaTime;
-        controller.Move(Vector3.up * verticalVelocity * Time.deltaTime);
+            verticalVelocity += gravity * Time.deltaTime;
+            controller.Move(Vector3.up * verticalVelocity * Time.deltaTime);
+        }
     }
 }
