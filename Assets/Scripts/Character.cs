@@ -55,6 +55,9 @@ public abstract class Character : NetworkBehaviour
         inventoryController?.Initialize(this);
         equipmentController?.Initialize(this);
         targetingController?.Initialize(this);
+
+        Debug.Log($"[Character.Awake] Buscando componentes en: {gameObject.name} " +
+          $"| IsInstance: {gameObject.scene.IsValid()}");
     }
 
     protected virtual CharacterStats CreateStats()
