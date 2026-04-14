@@ -1,5 +1,10 @@
 # Mishra
+Género: Aventura, RPG
+Plataforma: 🖥️ PC
 
+Descripción del Proyecto
+
+Presentación breve
 
 ## 👥 Integrantes
 
@@ -8,4 +13,5 @@
 - Alexis Emiliano Barrera Torrico
 - Alvaro Ezequiel Pereyra Pereira
 - Paula Sabrina Melones
+
 
