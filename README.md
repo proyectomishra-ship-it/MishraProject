@@ -6,7 +6,10 @@ Descripción del Proyecto
 
 Presentación breve
 
-## 👥 Integrantes
+🎮 Controles
+✨ Características Clave
+📜 Referencias e Inspiración
+👥 Equipo del Proyecto
 
 - Adrian Laborde
 - Abigail Juncos
@@ -15,3 +18,5 @@ Presentación breve
 - Paula Sabrina Melones
 
 
+🚧 Estado del Proyecto
+Proyecto en desarrollo.
