@@ -565,7 +565,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
   GlobalObjectIdHash: 1847947354
-  InScenePlacedSourceGlobalObjectIdHash: 0
+  InScenePlacedSourceGlobalObjectIdHash: 2434155723
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
@@ -664,6 +664,7 @@ MonoBehaviour:
   jumpForce: 5
   gravity: -9.81
   runMultiplier: 5
+  rotationSpeed: 10
 --- !u!114 &6619556240134149546
 MonoBehaviour:
   m_ObjectHideFlags: 0

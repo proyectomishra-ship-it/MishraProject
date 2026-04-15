@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using Unity.Netcode;
+using UnityEngine.InputSystem;
 
 public class Player : Character
 {
@@ -15,6 +16,10 @@ public class Player : Character
 
         if (inputController == null)
             Debug.LogError($"[Player] Falta PlayerInputController en el prefab de {gameObject.name}");
+
+        Cursor.lockState = CursorLockMode.Locked;
+        // Oculta el cursor
+        Cursor.visible = false;
     }
 
     public override void OnNetworkSpawn()
