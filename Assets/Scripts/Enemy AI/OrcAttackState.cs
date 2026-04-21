@@ -6,8 +6,6 @@ public class OrcAttackState : EnemyStateAttack
     private float heavyAttackCooldown = 4f;
     private float heavyAttackTimer;
 
- 
-
     public OrcAttackState(Enemy enemy, EnemyAIController ai)
         : base(enemy, ai, attackCooldown: 1.8f)
     {
@@ -17,14 +15,12 @@ public class OrcAttackState : EnemyStateAttack
     public override void OnEnter()
     {
         base.OnEnter();
-       
         ai.Agent.angularSpeed = 80f;
         ai.Agent.speed = enemy.GetStats().Speed.Value;
     }
 
     public override void OnUpdate()
     {
-       
         if (ShouldRetreat())
         {
             ai.StateMachine.ChangeState(ai.FleeState);
@@ -33,12 +29,16 @@ public class OrcAttackState : EnemyStateAttack
 
         if (ai.CurrentTarget == null) return;
 
-   
+        
+        Vector3 destination = CombatSlotManager.Instance != null
+            ? CombatSlotManager.Instance.GetTankSlotPosition(ai, ai.CurrentTarget.transform)
+            : ai.CurrentTarget.transform.position;
+
         float distanceToTarget = Vector3.Distance(
             enemy.transform.position, ai.CurrentTarget.transform.position);
 
         if (distanceToTarget > enemy.GetStats().AttackRange.Value)
-            ai.Agent.SetDestination(ai.CurrentTarget.transform.position);
+            ai.Agent.SetDestination(destination);
         else
             ai.Agent.ResetPath();
 
@@ -46,7 +46,7 @@ public class OrcAttackState : EnemyStateAttack
         if (heavyAttackTimer >= heavyAttackCooldown)
         {
             heavyAttackTimer = 0f;
-            enemy.Attack(ai.CurrentTarget); 
+            enemy.Attack(ai.CurrentTarget);
             return;
         }
 
@@ -55,6 +55,10 @@ public class OrcAttackState : EnemyStateAttack
 
     public override void OnExit()
     {
+        
+        if (ai.CurrentTarget != null)
+            CombatSlotManager.Instance?.RemoveTank(ai, ai.CurrentTarget.transform);
+
         ai.Agent.angularSpeed = 120f;
     }
 

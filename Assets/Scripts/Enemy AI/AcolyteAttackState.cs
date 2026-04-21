@@ -4,6 +4,7 @@ using UnityEngine.AI;
 public class AcolyteAttackState : EnemyStateAttack
 {
     private AcolyteAIController acolyteAI;
+
     private float specialAttackCooldown = 8f;
     private float specialAttackTimer;
     private float repositionTimer;
@@ -23,6 +24,13 @@ public class AcolyteAttackState : EnemyStateAttack
         Debug.Log($"[Acolyte] Preparando hechizo.");
     }
 
+    public override void OnExit()
+    {
+       
+        if (ai.CurrentTarget != null)
+            CombatSlotManager.Instance?.RemoveRanged(ai, ai.CurrentTarget.transform);
+    }
+
     public override void OnUpdate()
     {
         if (ai.ShouldFlee)
@@ -33,15 +41,13 @@ public class AcolyteAttackState : EnemyStateAttack
 
         if (ai.CurrentTarget == null) return;
 
-      
         repositionTimer += Time.deltaTime;
         if (repositionTimer >= repositionInterval)
         {
             repositionTimer = 0f;
-            MaintainDistance();
+            UpdateSlotPosition();
         }
 
-       
         specialAttackTimer += Time.deltaTime;
         if (specialAttackTimer >= specialAttackCooldown)
         {
@@ -64,10 +70,36 @@ public class AcolyteAttackState : EnemyStateAttack
         Vector3 direction = (ai.CurrentTarget.transform.position
             + Vector3.up - spawnPos).normalized;
 
-        UnityEngine.Object.Instantiate(
+        Object.Instantiate(
             acolyteAI.SpellPrefab, spawnPos, Quaternion.LookRotation(direction));
 
         Debug.Log($"[Acolyte] Hechizo lanzado hacia {ai.CurrentTarget.name}");
+    }
+
+    // -------------------------
+    // POSICIONAMIENTO
+    // -------------------------
+
+    private void UpdateSlotPosition()
+    {
+        if (ai.CurrentTarget == null) return;
+
+        
+        if (CombatSlotManager.Instance != null)
+        {
+            Vector3 slotPos = CombatSlotManager.Instance.GetRangedSlotPosition(
+                ai, ai.CurrentTarget.transform, acolyteAI.PreferredCombatDistance);
+
+            if (NavMesh.SamplePosition(slotPos, out NavMeshHit slotHit,
+                acolyteAI.PreferredCombatDistance, NavMesh.AllAreas))
+            {
+                ai.Agent.SetDestination(slotHit.position);
+                return;
+            }
+        }
+
+        
+        MaintainDistance();
     }
 
     private void MaintainDistance()
@@ -91,12 +123,12 @@ public class AcolyteAttackState : EnemyStateAttack
         }
         else if (dist > acolyteAI.PreferredCombatDistance * 1.5f)
         {
-            
+           
             ai.Agent.SetDestination(ai.CurrentTarget.transform.position);
         }
         else
         {
-            
+           
             Vector3 lateral = enemy.transform.right
                 * (Mathf.Sin(Time.time * 0.8f) * 2f);
             Vector3 strafePos = enemy.transform.position + lateral;

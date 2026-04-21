@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8731ddff7988a0e4aadf66c7e3a9d798, type: 3}
+  m_Name: OrcData
+  m_EditorClassIdentifier: Assembly-CSharp::OrcData
+  attack: 25
+  attackRange: 1.8
+  defense: 20
+  maxHealth: 300
+  maxMana: 0
+  speed: 3.5
+  agility: 5
+  criticalChance: 0.05
+  dexterity: 20
+  intelligence: 5
+  vitality: 20
+  resistance: 25
+  luck: 0
+  baseLevel: 5
+  weaponType: 0
+  attackType: 0
+  attackCooldown: 1.5
+  heavyAttackCooldown: 1.8
+  specialAttackCooldown: 8
+  hasHeavyAttack: 1
+  hasSpecialAttack: 0
+  baseExperienceReward: 80
+  classMultiplier: 1.2
+  fleeHealthThreshold: 0.3
+  canFlee: 1
+  availableStrategies: 
+  preferredCombatDistance: 8
+  projectilePrefab: {fileID: 0}

@@ -19,7 +19,7 @@ public class GoblinAIController : EnemyAIController
     {
         if (CurrentTarget != null)
         {
-            GoblinSlotManager.Instance?.RemoveGoblin(this, CurrentTarget.transform);
+            CombatSlotManager.Instance?.RemoveFlanker(this, CurrentTarget.transform);
         }
     }
 }

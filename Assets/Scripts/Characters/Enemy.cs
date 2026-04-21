@@ -7,18 +7,23 @@ public class Enemy : Character
     [SerializeField] private float classMultiplier = 1f;
 
     private EnemyAIController aiController;
-
+    private EnemyGroupMember groupMember;
     protected override void Awake()
     {
         base.Awake();
 
         aiController = GetComponent<EnemyAIController>();
 
+
       
         if (aiController == null)
             Debug.LogError($"[Enemy] Falta EnemyAIController en el prefab de {gameObject.name}");
 
         aiController?.Initialize(this);
+
+        groupMember = GetComponent<EnemyGroupMember>();
+        if (groupMember == null)
+            Debug.LogError($"[Enemy] Falta EnemyGroupMember en el prefab de {gameObject.name}");
     }
 
     public int GetExperienceReward(int playerLevel)
@@ -59,6 +64,7 @@ public class Enemy : Character
    
     protected override void Die()
     {
+        groupMember?.NotifyDeath();
         DistributeExperience();
         base.Die();
     }
