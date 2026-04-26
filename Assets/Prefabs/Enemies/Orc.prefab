@@ -58,7 +58,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1063562434
+  GlobalObjectIdHash: 1488730395
   InScenePlacedSourceGlobalObjectIdHash: 1488730395
   DeferredDespawnTick: 0
   Ownership: 1
@@ -261,6 +261,11 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   heavyAttackMultiplier: 2
   holdThreshold: 0.4
+  attackConeAngle: 60
+  sphereCastRadius: 0.5
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 8
 --- !u!114 &5574018545802562280
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -322,6 +327,9 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 8
+  updateInterval: 0.05
+  sphereRadius: 0.6
+  loseTargetDelay: 0.3
 --- !u!1 &4345575999677381695
 GameObject:
   m_ObjectHideFlags: 0

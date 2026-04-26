@@ -12,26 +12,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 558aab3952adc36469d91503603fbf67, type: 3}
   m_Name: OrcArcherData
   m_EditorClassIdentifier: Assembly-CSharp::OrcArcherData
-  attack: 0
-  attackRange: 0
-  defense: 0
-  maxHealth: 0
+  attack: 25
+  attackRange: 5
+  defense: 20
+  maxHealth: 300
   maxMana: 0
-  speed: 0
-  agility: 0
-  criticalChance: 0
-  dexterity: 0
-  intelligence: 0
-  vitality: 0
-  resistance: 0
+  speed: 3.5
+  agility: 5
+  criticalChance: 0.05
+  dexterity: 20
+  intelligence: 5
+  vitality: 20
+  resistance: 25
   luck: 0
-  baseLevel: 0
-  weaponType: 0
-  attackType: 0
+  baseLevel: 5
+  weaponType: 2
+  attackType: 1
   attackCooldown: 1.5
   heavyAttackCooldown: 4
   specialAttackCooldown: 8
-  hasHeavyAttack: 0
+  hasHeavyAttack: 1
   hasSpecialAttack: 0
   baseExperienceReward: 50
   classMultiplier: 1
@@ -39,4 +39,4 @@ MonoBehaviour:
   canFlee: 1
   availableStrategies: 
   preferredCombatDistance: 8
-  projectilePrefab: {fileID: 0}
+  projectilePrefab: {fileID: 4267693198055553237, guid: 5e61c7a0ae152484ab8431f2d4ab964e, type: 3}

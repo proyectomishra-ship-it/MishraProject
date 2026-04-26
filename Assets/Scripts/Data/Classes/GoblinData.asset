@@ -12,20 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f312a5169b02ef429f16b67f67566d8, type: 3}
   m_Name: GoblinData
   m_EditorClassIdentifier: Assembly-CSharp::GoblinData
-  attack: 0
-  attackRange: 0
-  defense: 0
-  maxHealth: 0
+  attack: 25
+  attackRange: 1.8
+  defense: 10
+  maxHealth: 150
   maxMana: 0
-  speed: 0
-  agility: 0
-  criticalChance: 0
-  dexterity: 0
-  intelligence: 0
-  vitality: 0
-  resistance: 0
+  speed: 6
+  agility: 5
+  criticalChance: 0.05
+  dexterity: 20
+  intelligence: 5
+  vitality: 20
+  resistance: 25
   luck: 0
-  baseLevel: 0
+  baseLevel: 5
   weaponType: 0
   attackType: 0
   attackCooldown: 1.5
@@ -33,10 +33,10 @@ MonoBehaviour:
   specialAttackCooldown: 8
   hasHeavyAttack: 0
   hasSpecialAttack: 0
-  baseExperienceReward: 50
+  baseExperienceReward: 25
   classMultiplier: 1
   fleeHealthThreshold: 0.25
-  canFlee: 1
+  canFlee: 0
   availableStrategies: 
   preferredCombatDistance: 8
   projectilePrefab: {fileID: 0}

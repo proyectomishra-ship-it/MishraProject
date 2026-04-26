@@ -15,20 +15,32 @@ public class EnemyGroupMember : NetworkBehaviour
         enemy = GetComponent<Enemy>();
         aiController = GetComponent<EnemyAIController>();
 
-       
+        if (enemy == null)
+            Debug.LogError("[EnemyGroupMember] Enemy es NULL");
+
+        if (aiController == null)
+            Debug.LogError("[EnemyGroupMember] AIController es NULL");
+
         Role = DetectRole();
     }
 
     public override void OnNetworkSpawn()
     {
         if (!IsServer) return;
-       
-        EnemyGroupCoordinator.Instance?.RegisterEnemy(this);
+
+        if (EnemyGroupCoordinator.Instance == null)
+        {
+            Debug.LogError("[EnemyGroupMember] Coordinator NULL en spawn");
+            return;
+        }
+
+        EnemyGroupCoordinator.Instance.RegisterEnemy(this);
     }
 
     public override void OnNetworkDespawn()
     {
         if (!IsServer) return;
+
         NotifyDeath();
     }
 
@@ -40,12 +52,15 @@ public class EnemyGroupMember : NetworkBehaviour
     public void NotifyDeath()
     {
         if (!IsAlive) return;
+
         IsAlive = false;
+
         CurrentGroup?.OnMemberDied(this);
-        EnemyGroupCoordinator.Instance?.UnregisterEnemy(this);
+
+        if (EnemyGroupCoordinator.Instance != null)
+            EnemyGroupCoordinator.Instance.UnregisterEnemy(this);
     }
 
-   
     public void OnGroupTankDied()
     {
         if (!IsServer) return;
@@ -54,13 +69,11 @@ public class EnemyGroupMember : NetworkBehaviour
         switch (Role)
         {
             case EnemyRole.Ranged:
-              
-                Debug.Log($"[{enemy.name}] Tank muerto — aumentando distancia.");
+                Debug.Log($"[{enemy?.name}] Tank muerto — aumentando distancia.");
                 break;
 
             case EnemyRole.Flanker:
-             
-                Debug.Log($"[{enemy.name}] Tank muerto — flanqueo más agresivo.");
+                Debug.Log($"[{enemy?.name}] Tank muerto — flanqueo más agresivo.");
                 break;
         }
     }

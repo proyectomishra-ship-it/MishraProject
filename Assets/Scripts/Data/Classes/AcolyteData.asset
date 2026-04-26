@@ -12,26 +12,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95731b8d0d3236f4991984d7d992733a, type: 3}
   m_Name: AcolyteData
   m_EditorClassIdentifier: Assembly-CSharp::AcolyteData
-  attack: 0
-  attackRange: 0
-  defense: 0
-  maxHealth: 0
-  maxMana: 0
-  speed: 0
-  agility: 0
-  criticalChance: 0
-  dexterity: 0
-  intelligence: 0
-  vitality: 0
-  resistance: 0
+  attack: 30
+  attackRange: 6
+  defense: 10
+  maxHealth: 300
+  maxMana: 300
+  speed: 2.5
+  agility: 5
+  criticalChance: 0.04
+  dexterity: 20
+  intelligence: 5
+  vitality: 20
+  resistance: 25
   luck: 0
-  baseLevel: 0
-  weaponType: 0
-  attackType: 0
-  attackCooldown: 1.5
+  baseLevel: 5
+  weaponType: 4
+  attackType: 2
+  attackCooldown: 2
   heavyAttackCooldown: 4
   specialAttackCooldown: 8
-  hasHeavyAttack: 0
+  hasHeavyAttack: 1
   hasSpecialAttack: 0
   baseExperienceReward: 50
   classMultiplier: 1
@@ -39,4 +39,4 @@ MonoBehaviour:
   canFlee: 1
   availableStrategies: 
   preferredCombatDistance: 8
-  projectilePrefab: {fileID: 0}
+  projectilePrefab: {fileID: 3272488517719803676, guid: 81b95ce514956ff478d426dca39245a5, type: 3}

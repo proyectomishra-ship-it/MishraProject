@@ -4,6 +4,7 @@ public class DemiGodPhase1State : EnemyStateAttack
 {
     private float heavyAttackCooldown = 5f;
     private float heavyAttackTimer;
+
     private float specialAttackCooldown = 15f;
     private float specialAttackTimer;
 
@@ -15,15 +16,17 @@ public class DemiGodPhase1State : EnemyStateAttack
     public override void OnEnter()
     {
         base.OnEnter();
+
         heavyAttackTimer = 0f;
         specialAttackTimer = 0f;
+
         ai.Agent.speed = enemy.GetStats().Speed.Value;
-        Debug.Log("[DemiGod] Fase 1 — Melee agresivo.");
+
+        Debug.Log("[DemiGod] Fase 1 — Melee agresivo");
     }
 
     public override void OnUpdate()
     {
-        
         if (ai.CurrentTarget == null) return;
 
         float dist = Vector3.Distance(
@@ -35,33 +38,38 @@ public class DemiGodPhase1State : EnemyStateAttack
         else
             ai.Agent.ResetPath();
 
-      
         heavyAttackTimer += Time.deltaTime;
         specialAttackTimer += Time.deltaTime;
 
         if (heavyAttackTimer >= heavyAttackCooldown)
         {
             heavyAttackTimer = 0f;
-           
-            enemy.Attack(ai.CurrentTarget);
-            Debug.Log("[DemiGod] Heavy Attack!");
+
+            Debug.Log("[DemiGod] HEAVY ATTACK (simulado)");
+
+            enemy.OnAttackPressed();
             return;
         }
 
         if (specialAttackTimer >= specialAttackCooldown)
         {
             specialAttackTimer = 0f;
+
+            Debug.Log("[DemiGod] SPECIAL ATTACK");
+
             enemy.SpecialAttack();
-            Debug.Log("[DemiGod] Special Attack!");
             return;
         }
-
 
         base.OnUpdate();
     }
 
     protected override void PerformAttack()
     {
-        enemy.Attack(ai.CurrentTarget);
+        if (ai.CurrentTarget == null) return;
+
+        Debug.Log("[DemiGod] ATTACK base");
+
+        enemy.OnAttackPressed();
     }
 }

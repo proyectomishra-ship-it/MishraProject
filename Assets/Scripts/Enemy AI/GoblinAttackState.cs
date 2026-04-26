@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using Unity.Netcode;
 
 public class GoblinAttackState : EnemyStateAttack
 {
@@ -9,8 +10,6 @@ public class GoblinAttackState : EnemyStateAttack
     private float repositionInterval = 0.3f;
     private float repositionTimer;
 
-    private float attackRange = 1.6f;
-
     private float separationRadius = 1.2f;
     private float separationStrength = 1.5f;
 
@@ -19,10 +18,11 @@ public class GoblinAttackState : EnemyStateAttack
     private float feintTimer;
     private float feintDuration = 0.5f;
 
+    private float originalSpeed;
+
     public GoblinAttackState(Enemy enemy, GoblinAIController ai)
         : base(enemy, ai, attackCooldown: 0.8f)
     {
-        this.enemy = enemy;
         this.controller = ai;
         this.agent = ai.Agent;
     }
@@ -30,39 +30,65 @@ public class GoblinAttackState : EnemyStateAttack
     public override void OnEnter()
     {
         base.OnEnter();
+
+        if (!enemy.IsServer) return;
+
         repositionTimer = 0f;
         isFeinting = false;
+
+        originalSpeed = agent.speed;
         agent.speed *= 1.4f;
         agent.angularSpeed = 360f;
+
+        Debug.Log($"[{enemy.name}] Goblin Attack ENTER");
     }
 
     public override void OnExit()
     {
-        agent.speed /= 1.4f;
+        if (!enemy.IsServer) return;
 
-        
+        agent.speed = originalSpeed;
+
         if (controller.CurrentTarget != null)
-            CombatSlotManager.Instance?.RemoveFlanker(controller, controller.CurrentTarget.transform);
+        {
+            CombatSlotManager.Instance?.RemoveFlanker(
+                controller,
+                controller.CurrentTarget.transform
+            );
+        }
     }
 
     public override void OnUpdate()
     {
+        if (!enemy.IsServer) return;
+
         if (ai.ShouldFlee)
         {
-            agent.speed /= 1.4f;
+            agent.speed = originalSpeed;
             ai.StateMachine.ChangeState(ai.FleeState);
             return;
         }
 
         if (ai.CurrentTarget == null) return;
 
+    
+        enemy.GetComponent<TargetingController>()?.ForceTarget(ai.CurrentTarget);
+
         repositionTimer += Time.deltaTime;
+
+        // =========================
+        // FEINT
+        // =========================
 
         if (isFeinting)
         {
             UpdateFeint();
             return;
         }
+
+        // =========================
+        // MOVIMIENTO TÁCTICO
+        // =========================
 
         if (repositionTimer >= repositionInterval)
         {
@@ -79,29 +105,37 @@ public class GoblinAttackState : EnemyStateAttack
 
         RotateTowards(ai.CurrentTarget.transform.position);
 
-        float dist = Vector3.Distance(
-            enemy.transform.position, ai.CurrentTarget.transform.position);
-
-        if (dist <= attackRange)
-            PerformAttack();
-
+       
         base.OnUpdate();
     }
 
     protected override void PerformAttack()
     {
-        enemy.Attack(ai.CurrentTarget);
+        if (!enemy.IsServer) return;
+
+        if (ai.CurrentTarget == null)
+        {
+            Debug.LogWarning("[Goblin] Attack sin target");
+            return;
+        }
+
+      
+        enemy.GetComponent<TargetingController>()?.ForceTarget(ai.CurrentTarget);
+
+        Debug.Log($"[Goblin] ATAQUE -> {ai.CurrentTarget.name}");
+
+        enemy.OnAttackPressed();
+        enemy.OnAttackReleased();
     }
 
-    // -------------------------
+    // =========================
     // SLOT SYSTEM
-    // -------------------------
+    // =========================
 
     private void MoveToSlot()
     {
         Transform target = ai.CurrentTarget.transform;
 
-        // Usar CombatSlotManager en lugar de GoblinSlotManager.
         Vector3 slotPos = CombatSlotManager.Instance != null
             ? CombatSlotManager.Instance.GetFlankerSlotPosition(controller, target)
             : target.position;
@@ -109,12 +143,14 @@ public class GoblinAttackState : EnemyStateAttack
         slotPos += CalculateSeparation();
 
         if (NavMesh.SamplePosition(slotPos, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+        {
             agent.SetDestination(hit.position);
+        }
     }
 
-    // -------------------------
-    // SEPARACIÓN
-    // -------------------------
+    // =========================
+    // SEPARACIÓN (SWARM FEEL)
+    // =========================
 
     private Vector3 CalculateSeparation()
     {
@@ -140,33 +176,43 @@ public class GoblinAttackState : EnemyStateAttack
         return separation * separationStrength;
     }
 
-    // -------------------------
-    // FEINT
-    // -------------------------
+    // =========================
+    // FEINT SYSTEM
+    // =========================
 
     private void StartFeint()
     {
         isFeinting = true;
         feintTimer = 0f;
 
-        Vector3 forward = (ai.CurrentTarget.transform.position
-            - enemy.transform.position).normalized;
+        Vector3 forward = (
+            ai.CurrentTarget.transform.position
+            - enemy.transform.position
+        ).normalized;
+
         Vector3 pos = enemy.transform.position + forward * 1.5f;
 
         if (NavMesh.SamplePosition(pos, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+        {
             agent.SetDestination(hit.position);
+        }
+
+        Debug.Log("[Goblin] FEINT");
     }
 
     private void UpdateFeint()
     {
         feintTimer += Time.deltaTime;
+
         if (feintTimer >= feintDuration)
+        {
             isFeinting = false;
+        }
     }
 
-    // -------------------------
+    // =========================
     // ROTACIÓN
-    // -------------------------
+    // =========================
 
     private void RotateTowards(Vector3 targetPos)
     {
@@ -176,6 +222,7 @@ public class GoblinAttackState : EnemyStateAttack
         if (dir.sqrMagnitude < 0.01f) return;
 
         Quaternion rot = Quaternion.LookRotation(dir);
+
         enemy.transform.rotation = Quaternion.Slerp(
             enemy.transform.rotation,
             rot,

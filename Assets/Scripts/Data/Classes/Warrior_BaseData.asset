@@ -12,17 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d08779c0e155827439d110ec5d8bf5dd, type: 3}
   m_Name: Warrior_BaseData
   m_EditorClassIdentifier: Assembly-CSharp::CharacterData
-  attack: 0
-  defense: 0
-  maxHealth: 0
+  attack: 30
+  attackRange: 2
+  defense: 20
+  maxHealth: 300
   maxMana: 0
-  speed: 0
-  agility: 0
-  criticalChance: 0
-  dexterity: 0
-  intelligence: 0
-  vitality: 0
-  resistance: 0
+  speed: 4
+  agility: 5
+  criticalChance: 0.05
+  dexterity: 20
+  intelligence: 5
+  vitality: 20
+  resistance: 25
   luck: 0
-  baseLevel: 0
+  baseLevel: 1
   weaponType: 0

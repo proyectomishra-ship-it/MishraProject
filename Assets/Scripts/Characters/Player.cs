@@ -36,7 +36,7 @@ public class Player : Character
         ((PlayerStats)stats).AddExperience(amount);
     }
 
-    #region Movement - Owner → ServerRpc → Server
+    #region Movement
 
 
 
@@ -74,7 +74,7 @@ public class Player : Character
 
     #endregion
 
-    #region Combat - Owner → ServerRpc → Server
+    #region Combat 
 
 
 

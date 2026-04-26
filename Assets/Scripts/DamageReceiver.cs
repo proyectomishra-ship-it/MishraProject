@@ -25,17 +25,19 @@ public class DamageReceiver : NetworkBehaviour
     {
         if (!IsServer)
         {
-            Debug.LogWarning($"[DamageReceiver] TakeDamage fue llamado en un cliente. " +
-                             $"Debe ejecutarse solo en el servidor.");
+            Debug.LogWarning("[DamageReceiver] Llamado en cliente (IGNORADO)");
             return;
         }
 
         if (character.GetStats().CurrentHealth <= 0) return;
 
+        Debug.Log($"<color=red>[Damage] {character.name} recibe {amount} de {attacker?.name}</color>");
+
         if (attacker != null)
         {
             if (!damageContributors.ContainsKey(attacker))
                 damageContributors[attacker] = 0f;
+
             damageContributors[attacker] += amount;
         }
 
@@ -43,6 +45,9 @@ public class DamageReceiver : NetworkBehaviour
         character.HandleDamaged(attacker);
 
         if (character.GetStats().CurrentHealth <= 0)
+        {
+            Debug.Log($"<color=magenta>[Damage] {character.name} MURIÓ</color>");
             character.HandleDeath();
+        }
     }
 }
