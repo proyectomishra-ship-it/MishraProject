@@ -8,13 +8,12 @@ public class EnemyGroupCoordinator : NetworkBehaviour
     public static EnemyGroupCoordinator Instance { get; private set; }
 
     [Header("Group Formation")]
-    
     [SerializeField] private float groupFormationRadius = 20f;
-  
     [SerializeField] private float groupUpdateInterval = 3f;
 
     private Dictionary<int, EnemyGroup> groups = new();
-    private List<EnemyGroupMember> allEnemies = new();
+    private HashSet<EnemyGroupMember> allEnemies = new();
+
     private int nextGroupId = 0;
     private float updateTimer;
 
@@ -53,13 +52,22 @@ public class EnemyGroupCoordinator : NetworkBehaviour
 
     public void RegisterEnemy(EnemyGroupMember member)
     {
+        if (member == null) return;
+
         if (allEnemies.Contains(member)) return;
+
         allEnemies.Add(member);
-        Debug.Log($"[Coordinator] Registrado: {member.GetEnemy().name} ({member.Role})");
+
+        if (member.GetEnemy() == null)
+            Debug.LogError("[Coordinator] RegisterEnemy -> member sin Enemy!");
+
+        Debug.Log($"[Coordinator] Registrado: {member.GetEnemy()?.name} ({member.Role})");
     }
 
     public void UnregisterEnemy(EnemyGroupMember member)
     {
+        if (member == null) return;
+
         allEnemies.Remove(member);
     }
 
@@ -67,31 +75,49 @@ public class EnemyGroupCoordinator : NetworkBehaviour
     // FORMACIÓN DE GRUPOS
     // -------------------------
 
- 
     private void UpdateGroups()
     {
+        //  LIMPIEZA GLOBAL 
+        allEnemies.RemoveWhere(m =>
+            m == null ||
+            !m.IsAlive ||
+            m.GetEnemy() == null);
+
         var ungrouped = allEnemies
-            .Where(m => m.IsAlive && m.CurrentGroup == null)
+            .Where(m =>
+                m != null &&
+                m.IsAlive &&
+                m.CurrentGroup == null &&
+                m.GetEnemy() != null)
             .ToList();
 
         foreach (var member in ungrouped)
         {
+            if (member == null || member.GetEnemy() == null)
+            {
+                Debug.LogError("[Coordinator] Member inválido en ungrouped");
+                continue;
+            }
+
             if (member.CurrentGroup != null) continue;
 
-            
+            var memberEnemy = member.GetEnemy();
+
             var neighbors = allEnemies
                 .Where(other =>
+                    other != null &&
                     other != member &&
                     other.IsAlive &&
+                    other.GetEnemy() != null &&
+                    memberEnemy != null &&
                     Vector3.Distance(
-                        member.GetEnemy().transform.position,
+                        memberEnemy.transform.position,
                         other.GetEnemy().transform.position)
                     <= groupFormationRadius)
                 .ToList();
 
             if (neighbors.Count == 0) continue;
 
-         
             var existingGroup = neighbors
                 .Where(n => n.CurrentGroup != null)
                 .Select(n => n.CurrentGroup)
@@ -103,16 +129,27 @@ public class EnemyGroupCoordinator : NetworkBehaviour
             }
             else
             {
-            
                 var newGroup = CreateGroup();
                 newGroup.AddMember(member);
 
                 foreach (var neighbor in neighbors.Where(n => n.CurrentGroup == null))
+                {
+                    if (neighbor == null || neighbor.GetEnemy() == null)
+                    {
+                        Debug.LogError("[Coordinator] Neighbor inválido al agregar a grupo");
+                        continue;
+                    }
+
                     newGroup.AddMember(neighbor);
+                }
             }
         }
 
-        var emptyGroups = groups.Where(g => g.Value.IsEmpty).Select(g => g.Key).ToList();
+        var emptyGroups = groups
+            .Where(g => g.Value == null || g.Value.IsEmpty)
+            .Select(g => g.Key)
+            .ToList();
+
         foreach (var id in emptyGroups)
             groups.Remove(id);
     }
@@ -121,17 +158,21 @@ public class EnemyGroupCoordinator : NetworkBehaviour
     {
         var group = new EnemyGroup(nextGroupId++);
         groups[group.GroupId] = group;
+
         Debug.Log($"[Coordinator] Grupo {group.GroupId} creado.");
+
         return group;
     }
 
     // -------------------------
-    // COORDINACIÓN DE ROLES
+    // COORDINACIÓN
     // -------------------------
-
 
     public Vector3 GetTacticalPosition(EnemyGroupMember member)
     {
+        if (member == null || member.GetEnemy() == null)
+            return Vector3.zero;
+
         var group = member.CurrentGroup;
         if (group == null) return member.GetEnemy().transform.position;
 
@@ -143,44 +184,38 @@ public class EnemyGroupCoordinator : NetworkBehaviour
 
         return member.Role switch
         {
-          
             EnemyRole.Tank => targetPos,
 
-           
             EnemyRole.Ranged => GetRangedPosition(group, targetPos),
 
-           
             EnemyRole.Flanker => CombatSlotManager.Instance != null
                 ? CombatSlotManager.Instance.GetFlankerSlotPosition(
                     member.GetAIController() as GoblinAIController,
                     target.transform)
                 : enemyPos,
 
-           
             EnemyRole.Leader => GetLeaderPosition(targetPos),
 
             _ => enemyPos
         };
     }
 
-
     private Vector3 GetRangedPosition(EnemyGroup group, Vector3 targetPos)
     {
-        if (group.HasTank)
+        if (group.HasTank && group.ActiveTank?.GetEnemy() != null)
         {
             Vector3 tankPos = group.ActiveTank.GetEnemy().transform.position;
-            Vector3 dirFromTarget = (tankPos - targetPos).normalized;
-         
-            return tankPos + dirFromTarget * 5f;
+            Vector3 dir = (tankPos - targetPos).normalized;
+            return tankPos + dir * 5f;
         }
 
-        return targetPos + (targetPos - targetPos).normalized * 10f;
+        return targetPos;
     }
-
 
     private Vector3 GetLeaderPosition(Vector3 targetPos)
     {
-        
+        if (Camera.main == null) return targetPos;
+
         return targetPos - Camera.main.transform.forward * 15f;
     }
 
@@ -192,40 +227,7 @@ public class EnemyGroupCoordinator : NetworkBehaviour
         groups.TryGetValue(id, out var group) ? group : null;
 
     public int GroupCount => groups.Count;
-    public int TotalEnemies => allEnemies.Count(m => m.IsAlive);
 
-    // -------------------------
-    // GIZMOS
-    // -------------------------
-
-    private void OnDrawGizmos()
-    {
-        if (!Application.isPlaying) return;
-
-        foreach (var group in groups.Values)
-        {
-            if (group.IsEmpty) continue;
-
-          
-            var members = group.Members.Where(m => m.IsAlive).ToList();
-            for (int i = 0; i < members.Count; i++)
-            {
-                for (int j = i + 1; j < members.Count; j++)
-                {
-                    Gizmos.color = group.HasTank ? Color.green : Color.red;
-                    Gizmos.DrawLine(
-                        members[i].GetEnemy().transform.position,
-                        members[j].GetEnemy().transform.position);
-                }
-            }
-
-            
-            if (group.HasTank)
-            {
-                Gizmos.color = Color.blue;
-                Gizmos.DrawWireSphere(
-                    group.ActiveTank.GetEnemy().transform.position, 1f);
-            }
-        }
-    }
+    public int TotalEnemies =>
+        allEnemies.Count(m => m != null && m.IsAlive && m.GetEnemy() != null);
 }

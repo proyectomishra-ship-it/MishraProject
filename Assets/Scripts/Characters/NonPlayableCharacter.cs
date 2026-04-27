@@ -53,10 +53,11 @@ public class NonPlayableCharacter : Character
     {
         if (!IsServer) return;
         if (!isHostile.Value) return;
+        if (currentTarget == null) return;
 
-        if (currentTarget != null)
-        {
-            Attack(currentTarget);
-        }
+        // Simular targeting para AI
+        targetingController?.ForceTarget(currentTarget);
+
+        combatController?.Attack();
     }
 }

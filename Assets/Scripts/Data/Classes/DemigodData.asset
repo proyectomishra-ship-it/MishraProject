@@ -12,31 +12,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eea6663a964b54d4da562c2ba700b074, type: 3}
   m_Name: DemigodData
   m_EditorClassIdentifier: Assembly-CSharp::DemigodData
-  attack: 0
-  attackRange: 0
-  defense: 0
-  maxHealth: 0
-  maxMana: 0
-  speed: 0
-  agility: 0
-  criticalChance: 0
-  dexterity: 0
-  intelligence: 0
-  vitality: 0
-  resistance: 0
-  luck: 0
-  baseLevel: 0
+  attack: 50
+  attackRange: 3
+  defense: 30
+  maxHealth: 300
+  maxMana: 100
+  speed: 3.5
+  agility: 5
+  criticalChance: 0.09
+  dexterity: 20
+  intelligence: 20
+  vitality: 20
+  resistance: 25
+  luck: 5
+  baseLevel: 5
   weaponType: 0
   attackType: 0
   attackCooldown: 1.5
   heavyAttackCooldown: 4
   specialAttackCooldown: 8
-  hasHeavyAttack: 0
-  hasSpecialAttack: 0
-  baseExperienceReward: 50
+  hasHeavyAttack: 1
+  hasSpecialAttack: 1
+  baseExperienceReward: 100
   classMultiplier: 1
   fleeHealthThreshold: 0.25
-  canFlee: 1
+  canFlee: 0
   availableStrategies: 
   preferredCombatDistance: 8
-  projectilePrefab: {fileID: 0}
+  projectilePrefab: {fileID: 3272488517719803676, guid: 81b95ce514956ff478d426dca39245a5, type: 3}

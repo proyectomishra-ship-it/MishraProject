@@ -1,16 +1,21 @@
 ﻿using UnityEngine;
 using Unity.Netcode;
+using System.Collections.Generic;
 
 public class CombatController : NetworkBehaviour
 {
     private Character character;
     private CharacterStats stats;
-    private TargetingController targeting;
 
+    [Header("Attack Config")]
     [SerializeField] private float heavyAttackMultiplier = 2f;
     [SerializeField] private float holdThreshold = 0.4f;
 
- 
+    [Header("Validation")]
+    [SerializeField] private float attackConeAngle = 60f;
+    [SerializeField] private float sphereCastRadius = 0.8f;
+    [SerializeField] private LayerMask enemyLayer;
+
     private float attackHeldTime = 0f;
     private bool isHoldingAttack = false;
     private bool heavyConsumed = false;
@@ -19,80 +24,213 @@ public class CombatController : NetworkBehaviour
     {
         this.character = character;
         this.stats = character.GetStats();
-        targeting = character.GetComponent<TargetingController>();
     }
 
-
+    // =========================
+    // INPUT (CLIENTE)
+    // =========================
 
     public void OnAttackPressed()
     {
-        if (!IsServer) return;
+        if (!IsOwner) return;
+        AttackPressedServerRpc();
+    }
 
+    public void OnAttackHeld(float deltaTime)
+    {
+        if (!IsOwner) return;
+        AttackHeldServerRpc(deltaTime);
+    }
+
+    public void OnAttackReleased()
+    {
+        if (!IsOwner) return;
+        AttackReleasedServerRpc();
+    }
+
+    // =========================
+    // SERVER RPC
+    // =========================
+
+    [ServerRpc]
+    private void AttackPressedServerRpc(ServerRpcParams rpcParams = default)
+    {
         isHoldingAttack = true;
         attackHeldTime = 0f;
         heavyConsumed = false;
     }
 
-    public void OnAttackHeld(float deltaTime)
+    [ServerRpc]
+    private void AttackHeldServerRpc(float deltaTime)
     {
-        if (!IsServer) return;
         if (!isHoldingAttack || heavyConsumed) return;
 
         attackHeldTime += deltaTime;
 
         if (attackHeldTime >= holdThreshold)
         {
-            Character target = targeting?.CurrentTarget;
-            HeavyAttack(target);
+            PerformAttack(true);
             heavyConsumed = true;
             isHoldingAttack = false;
         }
     }
 
-    public void OnAttackReleased()
+    [ServerRpc]
+    private void AttackReleasedServerRpc()
     {
-        if (!IsServer) return;
         if (!isHoldingAttack) return;
 
         isHoldingAttack = false;
 
         if (!heavyConsumed)
         {
-            Character target = targeting?.CurrentTarget;
-            Attack(target);
+            PerformAttack(false);
         }
     }
 
-    public void Attack(Character target)
+    // =========================
+    // CORE COMBAT (SERVER)
+    // =========================
+
+    private void PerformAttack(bool heavy)
     {
+
         if (!IsServer) return;
-        if (target == null) return;
 
-        float damage = stats.Attack.Value;
-        target.TakeDamage(damage, character);
+        Character target = CombatTargetingSystem.FindBestTarget(
+        character,
+        stats.AttackRange.Value,
+        attackConeAngle,
+        enemyLayer
+        );
 
-        Debug.Log($"<color=yellow>ATTACK → {target.name} | Daño: {damage}</color>");
+        if (target == null)
+        {
+            Debug.LogWarning("[Combat] Sin target válido");
+            return;
+        }
+
+        if (!ValidateHitWithSphereCast(target))
+        {
+            Debug.LogWarning("[Combat] SphereCast falló");
+            return;
+        }
+
+        float damage = stats.Attack.Value * (heavy ? heavyAttackMultiplier : 1f);
+
+        var receiver = target.GetComponent<DamageReceiver>();
+
+        if (receiver == null)
+        {
+            Debug.LogError("[Combat] Target sin DamageReceiver");
+            return;
+        }
+        Debug.Log($"[Combat] Target elegido: {target.name} | Dist: {Vector3.Distance(transform.position, target.transform.position):F2}");
+        receiver.TakeDamage(damage, character);
+
+        Debug.Log($"[Combat] {character.name} hizo {damage} a {target.name}");
     }
 
-    public void HeavyAttack(Character target)
+
+    private bool ValidateHitWithSphereCast(Character target)
     {
-        if (!IsServer) return;
-        if (target == null) return;
+       
+        Vector3 origin = transform.position + Vector3.up * 1.0f;
 
-        float damage = stats.Attack.Value * heavyAttackMultiplier;
-        target.TakeDamage(damage, character);
+        // Dirección hacia el target
+        Vector3 targetPos = target.transform.position + Vector3.up * 1.0f;
+        Vector3 dir = (targetPos - origin).normalized;
 
-        Debug.Log($"<color=orange>HEAVY ATTACK → {target.name} | Daño: {damage}</color>");
+        // Distancia REAL entre centros
+        float distance = Vector3.Distance(origin, targetPos);
+
+        // Ajuste por tamaño de cápsulas (MUY IMPORTANTE)
+        float effectiveRange = distance + 0.5f;
+
+        Debug.Log($"[Combat] Cast -> Dist: {distance:F2} | Range: {stats.AttackRange.Value}");
+
+        if (Physics.SphereCast(
+            origin,
+            sphereCastRadius,
+            dir,
+            out RaycastHit hit,
+            effectiveRange,
+            enemyLayer,
+            QueryTriggerInteraction.Ignore))
+        {
+            Character hitChar = hit.collider.GetComponent<Character>();
+
+            Debug.Log($"[Combat] Hit: {hit.collider.name}");
+
+            return hitChar != null && hitChar == target;
+        }
+
+        Debug.DrawLine(origin, origin + dir * effectiveRange, Color.red, 1f);
+
+        return false;
+    }
+    // =========================
+    // DEBUG
+    // =========================
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, stats != null ? stats.AttackRange.Value : 2f);
     }
 
-    public void SpecialAttack(Character target)
+    // =========================
+    // PUBLIC API 
+    // =========================
+
+    public void Attack()
+    {
+        OnAttackPressed();
+        OnAttackReleased();
+    }
+
+    public void SpecialAttack()
+    {
+        if (!IsOwner) return;
+        SpecialAttackServerRpc();
+    }
+
+    [ServerRpc]
+    private void SpecialAttackServerRpc()
+    {
+        PerformSpecialAttack();
+    }
+
+    private void PerformSpecialAttack()
     {
         if (!IsServer) return;
-        if (target == null) return;
+
+        Character target = CombatTargetingSystem.FindBestTarget(
+            character,
+            stats.AttackRange.Value,
+            attackConeAngle,
+            enemyLayer
+        );
+
+        if (target == null)
+        {
+            Debug.LogWarning("[Combat] SpecialAttack sin target");
+            return;
+        }
+
+        if (!ValidateHitWithSphereCast(target))
+        {
+            Debug.LogWarning("[Combat] SpecialAttack spherecast falló");
+            return;
+        }
 
         float damage = stats.Attack.Value * 1.5f;
-        target.TakeDamage(damage, character);
 
-        Debug.Log($"<color=cyan>SPECIAL ATTACK → {target.name} | Daño: {damage}</color>");
+        var receiver = target.GetComponent<DamageReceiver>();
+        if (receiver == null) return;
+
+        receiver.TakeDamage(damage, character);
+
+        Debug.Log($"[Combat] SPECIAL {character.name} hizo {damage} a {target.name}");
     }
 }

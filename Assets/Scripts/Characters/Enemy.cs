@@ -1,3 +1,4 @@
+﻿using System;
 using UnityEngine;
 using Unity.Netcode;
 
@@ -8,14 +9,16 @@ public class Enemy : Character
 
     private EnemyAIController aiController;
     private EnemyGroupMember groupMember;
+
+    // evento de muerte
+    public event Action<Enemy> OnEnemyDeath;
+
     protected override void Awake()
     {
         base.Awake();
 
         aiController = GetComponent<EnemyAIController>();
 
-
-      
         if (aiController == null)
             Debug.LogError($"[Enemy] Falta EnemyAIController en el prefab de {gameObject.name}");
 
@@ -36,7 +39,6 @@ public class Enemy : Character
         );
     }
 
-
     private void DistributeExperience()
     {
         if (!IsServer) return;
@@ -56,16 +58,30 @@ public class Enemy : Character
                 float damageShare = entry.Value / totalDamage;
                 int baseXP = GetExperienceReward(player.GetLevel());
                 int finalXP = Mathf.RoundToInt(baseXP * damageShare);
+
                 player.AddExp(finalXP);
+
+                Debug.Log($"[XP] {player.name} recibe {finalXP} XP ({damageShare:P1})");
             }
         }
     }
 
-   
     protected override void Die()
     {
+        if (!IsServer)
+        {
+            base.Die();
+            return;
+        }
+
+        Debug.Log($"[Enemy] Die -> {name}");
+ 
         groupMember?.NotifyDeath();
+
         DistributeExperience();
+               
+        OnEnemyDeath?.Invoke(this);
+
         base.Die();
     }
 }

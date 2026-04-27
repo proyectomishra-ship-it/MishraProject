@@ -1,5 +1,6 @@
-using UnityEngine;
 using Unity.Netcode;
+using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerInputController : NetworkBehaviour
 {
@@ -16,7 +17,8 @@ public class PlayerInputController : NetworkBehaviour
     }
 
     public override void OnNetworkSpawn()
-    {
+    { 
+
         if (!IsOwner) return;
 
         if (player == null)
@@ -51,12 +53,14 @@ public class PlayerInputController : NetworkBehaviour
         inputActions.Player.SpecialAttack.performed += ctx => player.SpecialAttack();
 
         inputActions.Enable();
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     public override void OnNetworkDespawn()
     {
-        if (!IsOwner) return;
 
+        if (!IsOwner) return;
         inputActions?.Player.Move.Reset();
         inputActions?.Player.Jump.Reset();
         inputActions?.Player.Sprint.Reset();
@@ -81,6 +85,12 @@ public class PlayerInputController : NetworkBehaviour
 
         if (isHoldingAttack)
             player.OnAttackHeld();
+
+        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
     }
 
     private Vector3 GetCameraRelativeMovement()
@@ -97,5 +107,16 @@ public class PlayerInputController : NetworkBehaviour
         camRight.Normalize();
 
         return (camForward * moveInput.y + camRight * moveInput.x);
+    }
+
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        if (!IsOwner) return;
+
+        if (hasFocus)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
     }
 }

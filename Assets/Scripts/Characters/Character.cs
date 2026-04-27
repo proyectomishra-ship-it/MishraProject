@@ -3,10 +3,19 @@ using Unity.Netcode;
 
 public abstract class Character : NetworkBehaviour
 {
+    // =========================
+    // DATA
+    // =========================
+
     [Header("Data")]
     [SerializeField] protected CharacterData characterData;
 
     protected CharacterStats stats;
+
+    // =========================
+    // CONTROLLERS
+    // =========================
+
     protected MovementController movementController;
     protected CombatController combatController;
     protected DamageReceiver damageReceiver;
@@ -15,10 +24,20 @@ public abstract class Character : NetworkBehaviour
     protected EquipmentController equipmentController;
     protected TargetingController targetingController;
 
+    // =========================
+    // GETTERS
+    // =========================
+
     public CharacterStats GetStats() => stats;
     public ResourceController GetResourceController() => resourceController;
     public InventoryController GetInventory() => inventoryController;
     public EquipmentController GetEquipment() => equipmentController;
+
+    public int GetLevel() => stats.Level;
+
+    // =========================
+    // LIFECYCLE
+    // =========================
 
     protected virtual void Awake()
     {
@@ -32,22 +51,16 @@ public abstract class Character : NetworkBehaviour
         equipmentController = GetComponent<EquipmentController>();
         targetingController = GetComponent<TargetingController>();
 
-      
-        if (movementController == null)
-            Debug.LogError($"[{nameof(Character)}] Falta MovementController en el prefab de {gameObject.name}");
-        if (combatController == null)
-            Debug.LogError($"[{nameof(Character)}] Falta CombatController en el prefab de {gameObject.name}");
-        if (damageReceiver == null)
-            Debug.LogError($"[{nameof(Character)}] Falta DamageReceiver en el prefab de {gameObject.name}");
-        if (resourceController == null)
-            Debug.LogError($"[{nameof(Character)}] Falta ResourceController en el prefab de {gameObject.name}");
-        if (inventoryController == null)
-            Debug.LogError($"[{nameof(Character)}] Falta InventoryController en el prefab de {gameObject.name}");
-        if (equipmentController == null)
-            Debug.LogError($"[{nameof(Character)}] Falta EquipmentController en el prefab de {gameObject.name}");
-        if (targetingController == null)
-            Debug.LogError($"[{nameof(Character)}] Falta TargetingController en el prefab de {gameObject.name}");
+        // Validación fuerte
+        ValidateComponent(movementController, nameof(MovementController));
+        ValidateComponent(combatController, nameof(CombatController));
+        ValidateComponent(damageReceiver, nameof(DamageReceiver));
+        ValidateComponent(resourceController, nameof(ResourceController));
+        ValidateComponent(inventoryController, nameof(InventoryController));
+        ValidateComponent(equipmentController, nameof(EquipmentController));
+        ValidateComponent(targetingController, nameof(TargetingController));
 
+        // Inicialización
         movementController?.Initialize(this);
         combatController?.Initialize(this);
         damageReceiver?.Initialize(this);
@@ -56,8 +69,7 @@ public abstract class Character : NetworkBehaviour
         equipmentController?.Initialize(this);
         targetingController?.Initialize(this);
 
-        Debug.Log($"[Character.Awake] Buscando componentes en: {gameObject.name} " +
-          $"| IsInstance: {gameObject.scene.IsValid()}");
+        Debug.Log($"[Character.Awake] {gameObject.name} | SceneInstance: {gameObject.scene.IsValid()}");
     }
 
     protected virtual CharacterStats CreateStats()
@@ -65,20 +77,15 @@ public abstract class Character : NetworkBehaviour
         return new CharacterStats(characterData);
     }
 
-    #region Combat
-
-    public virtual void Attack(Character target)
+    private void ValidateComponent(Component comp, string name)
     {
-        if (!IsServer) return;
-        combatController?.Attack(target);
+        if (comp == null)
+            Debug.LogError($"[Character] Falta {name} en {gameObject.name}");
     }
 
-    public virtual void SpecialAttack()
-    {
-        if (!IsServer) return;
-        targetingController?.UpdateTarget();
-        combatController?.SpecialAttack(targetingController?.CurrentTarget);
-    }
+    // =========================
+    // COMBAT (INPUT WRAPPER)
+    // =========================
 
     public virtual void OnAttackPressed()
     {
@@ -92,58 +99,62 @@ public abstract class Character : NetworkBehaviour
 
     public virtual void OnAttackReleased()
     {
-        targetingController?.UpdateTarget();
         combatController?.OnAttackReleased();
     }
 
-  
-    public virtual void TakeDamage(float amount, Character attacker)
+    public virtual void SpecialAttack()
     {
-        if (!IsServer) return;
-        damageReceiver?.TakeDamage(amount, attacker);
+        combatController?.SpecialAttack();
+    }
+
+    // =========================
+    // DAMAGE FLOW (CORE SYSTEM)
+    // =========================
+
+    public void HandleDamaged(Character attacker)
+    {
+        Debug.Log($"[Character] {name} fue dañado por {attacker?.name}");
+        OnDamaged(attacker);
+    }
+
+    public void HandleDeath()
+    {
+        Debug.Log($"[Character] {name} HandleDeath()");
+        Die();
     }
 
     protected virtual void OnDamaged(Character attacker) { }
 
-    public void HandleDamaged(Character attacker)
-    {
-        OnDamaged(attacker);
-    }
+    // =========================
+    // DEATH SYSTEM
+    // =========================
 
     protected virtual void Die()
     {
         if (!IsServer) return;
 
+        Debug.Log($"[Character] {name} murió");
+
         NotifyDeathClientRpc();
 
-    
         if (NetworkObject != null && NetworkObject.IsSpawned)
             NetworkObject.Despawn();
         else
             Destroy(gameObject);
     }
 
-   
     [ClientRpc]
     protected virtual void NotifyDeathClientRpc()
     {
-        
         OnDeath();
     }
 
-   
     protected virtual void OnDeath() { }
 
-    public void HandleDeath()
-    {
-        Die();
-    }
+    // =========================
+    // RESOURCES
+    // =========================
 
-    #endregion
-
-    #region Resources
-
-   
     public virtual void Heal(float amount)
     {
         if (!IsServer) return;
@@ -162,9 +173,9 @@ public abstract class Character : NetworkBehaviour
         resourceController?.AddMana(amount);
     }
 
-    #endregion
-
-    #region Movement
+    // =========================
+    // MOVEMENT
+    // =========================
 
     public virtual void Move(Vector3 direction)
     {
@@ -185,12 +196,4 @@ public abstract class Character : NetworkBehaviour
     {
         movementController?.ApplyGravity();
     }
-
-    #endregion
-
-    #region Getters
-
-    public int GetLevel() => stats.Level;
-
-    #endregion
 }
