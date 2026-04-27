@@ -4,8 +4,12 @@ using Unity.Netcode;
 public class Player : Character
 {
     [SerializeField] private PlayerClassData classData;
+    [SerializeField] private PlayerHUD hud;
+    [SerializeField] private CharacterStatsSyncController statsSync;
+
 
     private PlayerInputController inputController;
+
 
     protected override void Awake()
     {
@@ -19,9 +23,16 @@ public class Player : Character
 
     public override void OnNetworkSpawn()
     {
-      
         if (IsOwner)
+        {
             inputController?.Initialize(this);
+
+            statsSync = GetComponent<CharacterStatsSyncController>();
+
+            hud = FindFirstObjectByType<PlayerHUD>(); 
+
+            hud.Initialize(statsSync);
+        }
     }
 
     protected override CharacterStats CreateStats()

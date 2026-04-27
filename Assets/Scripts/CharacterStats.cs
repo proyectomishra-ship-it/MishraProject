@@ -1,7 +1,24 @@
+using System;
 using UnityEngine;
 
 public class CharacterStats
 {
+    // =========================
+    // EVENTS
+    // =========================
+
+    public event Action<float, float> OnHealthChanged;
+    public event Action<float, float> OnManaChanged;
+    public event Action<float, float> OnResistanceChanged;
+
+    public event Action<int> OnLevelChanged;
+
+    public event Action<StatType, float> OnStatChanged;
+
+    // =========================
+    // CORE STATS
+    // =========================
+
     public int Level { get; protected set; }
 
     public Stat Attack { get; protected set; }
@@ -23,8 +40,11 @@ public class CharacterStats
     public Stat MaxMana { get; protected set; }
     public float CurrentMana { get; protected set; }
 
-    
     public float CurrentResistance { get; protected set; }
+
+    // =========================
+    // CONSTRUCTOR
+    // =========================
 
     public CharacterStats(CharacterData data)
     {
@@ -47,10 +67,31 @@ public class CharacterStats
 
         CurrentHealth = MaxHealth.Value;
         CurrentMana = MaxMana.Value;
-
-        
         CurrentResistance = Resistance.Value;
+
+        RaiseAllEvents();
     }
+
+    // =========================
+    // EVENT EMITTERS
+    // =========================
+
+    protected void RaiseAllEvents()
+    {
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth.Value);
+        OnManaChanged?.Invoke(CurrentMana, MaxMana.Value);
+        OnResistanceChanged?.Invoke(CurrentResistance, Resistance.Value);
+        OnLevelChanged?.Invoke(Level);
+    }
+
+    protected void RaiseStatChanged(StatType type, float value)
+    {
+        OnStatChanged?.Invoke(type, value);
+    }
+
+    // =========================
+    // STAT ACCESS
+    // =========================
 
     public Stat GetStat(StatType type)
     {
@@ -73,58 +114,147 @@ public class CharacterStats
         }
     }
 
+    // =========================
+    // MODIFIERS
+    // =========================
+
     public void AddBonus(StatType type, float value)
     {
-        GetStat(type)?.AddBonus(value);
+        var stat = GetStat(type);
+        if (stat == null) return;
+
+        stat.AddBonus(value);
+        RaiseStatChanged(type, stat.Value);
+
+        HandleDerivedStats(type);
     }
 
     public void AddMultiplier(StatType type, float value)
     {
-        GetStat(type)?.AddMultiplier(value);
+        var stat = GetStat(type);
+        if (stat == null) return;
+
+        stat.AddMultiplier(value);
+        RaiseStatChanged(type, stat.Value);
+
+        HandleDerivedStats(type);
     }
 
+    // =========================
+    // DERIVED STATS 
+    // =========================
+
+    private void HandleDerivedStats(StatType type)
+    {
+        if (type == StatType.MaxHealth)
+        {
+            CurrentHealth = Mathf.Clamp(CurrentHealth, 0, MaxHealth.Value);
+            OnHealthChanged?.Invoke(CurrentHealth, MaxHealth.Value);
+        }
+
+        if (type == StatType.MaxMana)
+        {
+            CurrentMana = Mathf.Clamp(CurrentMana, 0, MaxMana.Value);
+            OnManaChanged?.Invoke(CurrentMana, MaxMana.Value);
+        }
+
+        if (type == StatType.Resistance)
+        {
+            CurrentResistance = Mathf.Clamp(CurrentResistance, 0, Resistance.Value);
+            OnResistanceChanged?.Invoke(CurrentResistance, Resistance.Value);
+        }
+    }
+
+    // =========================
+    // HEALTH SYSTEM
+    // =========================
 
     public void TakeDamage(float amount)
     {
         float finalDamage = Mathf.Max(amount - Defense.Value, 0);
-        CurrentHealth -= finalDamage;
-        CurrentHealth = Mathf.Clamp(CurrentHealth, 0, MaxHealth.Value);
+
+        SetHealth(CurrentHealth - finalDamage);
     }
 
     public void Heal(float amount)
     {
-        CurrentHealth += amount;
-        CurrentHealth = Mathf.Clamp(CurrentHealth, 0, MaxHealth.Value);
+        SetHealth(CurrentHealth + amount);
     }
 
+    protected void SetHealth(float value)
+    {
+        float old = CurrentHealth;
+
+        CurrentHealth = Mathf.Clamp(value, 0, MaxHealth.Value);
+
+        if (!Mathf.Approximately(old, CurrentHealth))
+            OnHealthChanged?.Invoke(CurrentHealth, MaxHealth.Value);
+    }
+
+    // =========================
+    // MANA SYSTEM
+    // =========================
 
     public bool UseMana(float amount)
     {
         if (CurrentMana < amount) return false;
 
-        CurrentMana -= amount;
+        SetMana(CurrentMana - amount);
         return true;
     }
 
     public void AddMana(float amount)
     {
-        CurrentMana += amount;
-        CurrentMana = Mathf.Clamp(CurrentMana, 0, MaxMana.Value);
+        SetMana(CurrentMana + amount);
     }
 
+    protected void SetMana(float value)
+    {
+        float old = CurrentMana;
+
+        CurrentMana = Mathf.Clamp(value, 0, MaxMana.Value);
+
+        if (!Mathf.Approximately(old, CurrentMana))
+            OnManaChanged?.Invoke(CurrentMana, MaxMana.Value);
+    }
+
+    // =========================
+    // RESISTANCE SYSTEM
+    // =========================
 
     public bool UseResistance(float amount)
     {
         if (CurrentResistance < amount)
             return false;
 
-        CurrentResistance -= amount;
+        SetResistance(CurrentResistance - amount);
         return true;
     }
 
     public void RecoverResistance(float amount)
     {
-        CurrentResistance += amount;
-        CurrentResistance = Mathf.Clamp(CurrentResistance, 0, Resistance.Value);
+        SetResistance(CurrentResistance + amount);
+    }
+
+    protected void SetResistance(float value)
+    {
+        float old = CurrentResistance;
+
+        CurrentResistance = Mathf.Clamp(value, 0, Resistance.Value);
+
+        if (!Mathf.Approximately(old, CurrentResistance))
+            OnResistanceChanged?.Invoke(CurrentResistance, Resistance.Value);
+    }
+
+    // =========================
+    // LEVEL SYSTEM 
+    // =========================
+
+    protected void SetLevel(int newLevel)
+    {
+        if (Level == newLevel) return;
+
+        Level = newLevel;
+        OnLevelChanged?.Invoke(Level);
     }
 }
