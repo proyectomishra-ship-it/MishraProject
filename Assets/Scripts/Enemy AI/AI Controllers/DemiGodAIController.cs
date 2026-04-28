@@ -17,7 +17,7 @@ public class DemiGodAIController : EnemyAIController
     [SerializeField] private float phase2SummonCooldown = 20f;
     public GameObject OrcPrefab => orcPrefab;
 
-   
+
 
     [Header("Summon Goblin")]
     [SerializeField] private GameObject goblinPrefab;
@@ -26,7 +26,7 @@ public class DemiGodAIController : EnemyAIController
     public GameObject GoblinPrefab => goblinPrefab;
 
     [Header("Defense")]
-    
+
     [SerializeField] private float tooCloseDistance = 3f;
 
     public GameObject SpellPrefab => spellPrefab;
@@ -45,11 +45,11 @@ public class DemiGodAIController : EnemyAIController
 
         demiGodEnemy = GetComponent<Enemy>();
 
-     
+
         FleeState = null;
     }
 
-    private void Update()
+    protected override void Update()
     {
         if (!IsServer) return;
         CheckPhaseTransition();
@@ -67,7 +67,11 @@ public class DemiGodAIController : EnemyAIController
         var rc = demiGodEnemy.GetResourceController();
         if (rc == null) return;
 
-        float hp = rc.CurrentHealth / demiGodEnemy.GetStats().MaxHealth.Value;
+        // FIX: GetStats() puede ser null si characterData no está asignado en el prefab
+        var stats = demiGodEnemy.GetStats();
+        if (stats == null) return;
+
+        float hp = rc.CurrentHealth / stats.MaxHealth.Value;
 
         if (currentPhase == 1 && hp <= phase2Threshold)
         {
@@ -83,7 +87,7 @@ public class DemiGodAIController : EnemyAIController
 
     private void EnterPhase2()
     {
-        Debug.Log("[DemiGod] ¡Fase 2 — Magia + Aliados!");
+        Debug.Log("[DemiGod] Â¡Fase 2 â Magia + Aliados!");
         SummonAllies(orcPrefab, phase2SummonCount, spawnRadius: 5f);
         AttackState = new DemiGodPhase2State(demiGodEnemy, this);
 
@@ -93,7 +97,7 @@ public class DemiGodAIController : EnemyAIController
 
     private void EnterPhase3()
     {
-        Debug.Log("[DemiGod] ¡Fase 3 — Berserker Mágico!");
+        Debug.Log("[DemiGod] Â¡Fase 3 â Berserker MÃ¡gico!");
         SummonAllies(goblinPrefab, phase3SummonCount, spawnRadius: 4f);
         AttackState = new DemiGodPhase3State(demiGodEnemy, this);
 
@@ -120,6 +124,6 @@ public class DemiGodAIController : EnemyAIController
                 netObj.Spawn();
         }
 
-        Debug.Log($"[DemiGod] Convocó {count} aliados.");
+        Debug.Log($"[DemiGod] ConvocÃ³ {count} aliados.");
     }
 }

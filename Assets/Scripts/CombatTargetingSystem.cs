@@ -26,7 +26,8 @@ public static class CombatTargetingSystem
 
         foreach (var hit in hits)
         {
-            Character candidate = hit.GetComponent<Character>();
+            // FIX: GetComponentInParent para soportar colliders en GameObjects hijos del prefab
+            Character candidate = hit.GetComponentInParent<Character>();
             if (candidate == null || candidate == attacker)
                 continue;
 

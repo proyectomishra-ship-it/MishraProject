@@ -17,14 +17,11 @@ public class EnemyGroupCoordinator : NetworkBehaviour
     private int nextGroupId = 0;
     private float updateTimer;
 
-    public override void OnNetworkSpawn()
+    // FIX: Instance se asigna en Awake para que esté disponible
+    // antes de que cualquier EnemyGroupMember llame a OnNetworkSpawn.
+    // OnNetworkSpawn no está garantizado antes que el spawn de otros objetos.
+    private void Awake()
     {
-        if (!IsServer)
-        {
-            enabled = false;
-            return;
-        }
-
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -32,6 +29,16 @@ public class EnemyGroupCoordinator : NetworkBehaviour
         }
 
         Instance = this;
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        if (!IsServer)
+        {
+            enabled = false;
+            return;
+        }
+        // Instance ya fue asignado en Awake — nada más que hacer aquí.
     }
 
     private void Update()

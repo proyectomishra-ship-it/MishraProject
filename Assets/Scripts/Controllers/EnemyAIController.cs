@@ -25,7 +25,7 @@ public class EnemyAIController : NetworkBehaviour
     [SerializeField] private float randomPatrolRadius = 10f;
 
     [Header("Flee")]
- 
+
     [SerializeField] private float fleeHealthThreshold = 0.25f;
     [SerializeField] private float fleeDistance = 15f;
 
@@ -53,7 +53,7 @@ public class EnemyAIController : NetworkBehaviour
     public bool HasPatrolPoints =>
         (waypoints != null && waypoints.Length > 0) || useRandomPatrol;
 
-   
+
     public bool ShouldFlee
     {
         get
@@ -105,7 +105,7 @@ public class EnemyAIController : NetworkBehaviour
         return null;
     }
 
-    private void Update()
+    protected virtual void Update()
     {
         if (!IsServer) return;
         StateMachine?.Update();
@@ -181,7 +181,7 @@ public class EnemyAIController : NetworkBehaviour
         Gizmos.DrawLine(transform.position, transform.position + fovLeft);
         Gizmos.DrawLine(transform.position, transform.position + fovRight);
 
-        
+
         if (!canFlee) return;
         Gizmos.color = Color.magenta;
         Gizmos.DrawWireSphere(transform.position, fleeDistance);
