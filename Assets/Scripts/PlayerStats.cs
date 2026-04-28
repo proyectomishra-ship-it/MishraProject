@@ -1,7 +1,18 @@
+using System;
 using UnityEngine;
 
 public class PlayerStats : CharacterStats
 {
+    // =========================
+    // EVENTS 
+    // =========================
+
+    public event Action<int, int> OnExperienceChanged;
+
+    // =========================
+    // DATA
+    // =========================
+
     private PlayerClassData classData;
 
     public int Experience { get; private set; }
@@ -9,6 +20,10 @@ public class PlayerStats : CharacterStats
 
     private float experienceGrowthFactor = 1.5f;
     private int baseExperienceRequired = 100;
+
+    // =========================
+    // CONSTRUCTOR
+    // =========================
 
     public PlayerStats(CharacterData data, PlayerClassData classData)
         : base(data)
@@ -18,30 +33,66 @@ public class PlayerStats : CharacterStats
         ApplyMultipliers();
 
         Experience = 0;
-        ExperienceRequired = baseExperienceRequired;
+        ExperienceRequired = CalculateRequiredXP(Level);
+
+        RaiseXPEvent();
     }
+
+    // =========================
+    // EXPERIENCE SYSTEM
+    // =========================
 
     public void AddExperience(int amount)
     {
+        if (amount <= 0) return;
+
         Experience += amount;
 
+       
+        RaiseXPEvent();
+
+        ProcessLevelUps();
+    }
+
+    private void ProcessLevelUps()
+    {
+       
         while (Experience >= ExperienceRequired)
         {
             Experience -= ExperienceRequired;
-            LevelUp();
+
+            LevelUpInternal();
         }
     }
 
-    private void LevelUp()
+    private void LevelUpInternal()
     {
-        Level++;
+        int newLevel = Level + 1;
+
+        SetLevel(newLevel);
 
         ApplyLevelScaling();
 
-        ExperienceRequired = Mathf.RoundToInt(
-            baseExperienceRequired * Mathf.Pow(experienceGrowthFactor, Level - 1)
+        ExperienceRequired = CalculateRequiredXP(Level);
+
+        RaiseXPEvent();
+    }
+
+    private int CalculateRequiredXP(int level)
+    {
+        return Mathf.RoundToInt(
+            baseExperienceRequired * Mathf.Pow(experienceGrowthFactor, level - 1)
         );
     }
+
+    private void RaiseXPEvent()
+    {
+        OnExperienceChanged?.Invoke(Experience, ExperienceRequired);
+    }
+
+    // =========================
+    // CLASS SYSTEM
+    // =========================
 
     private void ApplyLevelScaling()
     {
@@ -57,5 +108,16 @@ public class PlayerStats : CharacterStats
         {
             AddMultiplier(mod.stat, mod.value);
         }
+    }
+
+    // =========================
+    //  FORCED SYNC
+    // =========================
+
+    public void ForceSync()
+    {
+  
+        RaiseAllEvents();
+        RaiseXPEvent();
     }
 }
