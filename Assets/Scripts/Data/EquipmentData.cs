@@ -1,25 +1,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "EquipmentData", menuName = "RPG/Equipment")]
-public class EquipmentData : ItemData
+/// <summary>
+/// ScriptableObject para equipamiento no-arma: cascos, armaduras, botas, anillos, amuletos.
+/// Implementa IEquippable directamente.
+/// ACCIÓN: reemplaza Assets/Scripts/Data/EquipmentData.cs existente.
+/// Se elimina el campo itemId manual (lo resuelve ItemDatabase) y los legacy bonuses.
+/// Crear en: Assets > Create > RPG > Equipment
+/// </summary>
+[CreateAssetMenu(menuName = "RPG/Equipment")]
+public class EquipmentData : ItemData, IEquippable
 {
-    [Header("Network")]
-    [SerializeField] private int itemId;
-
-    [Header("Equipment")]
+    [Header("Slot")]
     [SerializeField] private EquipmentSlot slot;
 
-    [Header("Legacy Bonuses (opcional)")]
-    [SerializeField] private float attackBonus;
-    [SerializeField] private float defenseBonus;
-    [SerializeField] private float maxHealthBonus;
-    [SerializeField] private float maxManaBonus;
+    [Header("Stats")]
+    [SerializeField] private List<StatModifier> modifiers = new();
 
-    [Header("Modifiers (NUEVO SISTEMA)")]
-    [SerializeField] private List<StatModifier> modifiers;
-
-    public int ItemId => itemId;
-    public EquipmentSlot Slot => slot;
+    // ── IEquippable ──────────────────────────────────────────────────────────
+    public EquipmentSlot      Slot      => slot;
     public List<StatModifier> Modifiers => modifiers;
 }

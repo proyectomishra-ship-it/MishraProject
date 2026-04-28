@@ -241,8 +241,6 @@ GameObject:
   - component: {fileID: 2452516292678866133}
   - component: {fileID: 4308127418230473078}
   - component: {fileID: 4275360229662406085}
-  - component: {fileID: 8469878001762480818}
-  - component: {fileID: 4881346773789077672}
   - component: {fileID: 1188326302275248102}
   - component: {fileID: 7488145142444107568}
   - component: {fileID: 4013429059105298632}
@@ -250,6 +248,10 @@ GameObject:
   - component: {fileID: 2462640872243304444}
   - component: {fileID: 6046762268510301632}
   - component: {fileID: 7046770035531774955}
+  - component: {fileID: 4264522404256020271}
+  - component: {fileID: -3772228477926212148}
+  - component: {fileID: -623326422782049491}
+  - component: {fileID: -1457277708541621307}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -407,33 +409,6 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 64
---- !u!114 &8469878001762480818
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6910758715300088518}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 421df66194f6a1042ada8b242132966c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EquipmentController
-  ShowTopMostFoldoutHeaderGroup: 1
---- !u!114 &4881346773789077672
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6910758715300088518}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9e206a1511510274696c38b3702b1108, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InventoryController
-  ShowTopMostFoldoutHeaderGroup: 1
-  maxSlots: 20
 --- !u!114 &1188326302275248102
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -558,6 +533,59 @@ CapsuleCollider:
   m_Height: 1
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4264522404256020271
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6910758715300088518}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89d8cd045ed414f43a76c2e70d81994a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InventoryNetworkSync
+  ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &-3772228477926212148
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6910758715300088518}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 967ca2463554b944f939e59897ceda3b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InventoryController
+  ShowTopMostFoldoutHeaderGroup: 1
+  maxSlots: 20
+--- !u!114 &-623326422782049491
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6910758715300088518}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef5ba7be4db813b408b34c248f30032d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EquipmentNetworkSync
+  ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &-1457277708541621307
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6910758715300088518}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9d783df26995e04ba10e74290a13e41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EquipmentController
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &7443041332243402106
 GameObject:
   m_ObjectHideFlags: 0
