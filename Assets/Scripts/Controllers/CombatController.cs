@@ -94,15 +94,22 @@ public class CombatController : NetworkBehaviour
 
     private void PerformAttack(bool heavy)
     {
-
         if (!IsServer) return;
 
-        Character target = CombatTargetingSystem.FindBestTarget(
-        character,
-        stats.AttackRange.Value,
-        attackConeAngle,
-        enemyLayer
-        );
+        // FIX: Usar primero el target que ya confirmó TargetingController (server-side).
+        // Esa clase hace detección por cámara + validación de rango en SetTargetServerRpc.
+        // Solo caemos a FindBestTarget si no hay target confirmado (p.ej. modo sin cámara / IA).
+        Character target = character.GetComponent<TargetingController>()?.CurrentTarget;
+
+        if (target == null)
+        {
+            target = CombatTargetingSystem.FindBestTarget(
+                character,
+                stats.AttackRange.Value,
+                attackConeAngle,
+                enemyLayer
+            );
+        }
 
         if (target == null)
         {
@@ -112,7 +119,7 @@ public class CombatController : NetworkBehaviour
 
         if (!ValidateHitWithSphereCast(target))
         {
-            Debug.LogWarning("[Combat] SphereCast falló");
+            Debug.LogWarning("[Combat] SphereCast fallÃ³");
             return;
         }
 
@@ -134,17 +141,17 @@ public class CombatController : NetworkBehaviour
 
     private bool ValidateHitWithSphereCast(Character target)
     {
-       
+
         Vector3 origin = transform.position + Vector3.up * 1.0f;
 
-        // Dirección hacia el target
+        // DirecciÃ³n hacia el target
         Vector3 targetPos = target.transform.position + Vector3.up * 1.0f;
         Vector3 dir = (targetPos - origin).normalized;
 
         // Distancia REAL entre centros
         float distance = Vector3.Distance(origin, targetPos);
 
-        // Ajuste por tamaño de cápsulas (MUY IMPORTANTE)
+        // Ajuste por tamaÃ±o de cÃ¡psulas (MUY IMPORTANTE)
         float effectiveRange = distance + 0.5f;
 
         Debug.Log($"[Combat] Cast -> Dist: {distance:F2} | Range: {stats.AttackRange.Value}");
@@ -205,12 +212,17 @@ public class CombatController : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        Character target = CombatTargetingSystem.FindBestTarget(
-            character,
-            stats.AttackRange.Value,
-            attackConeAngle,
-            enemyLayer
-        );
+        Character target = character.GetComponent<TargetingController>()?.CurrentTarget;
+
+        if (target == null)
+        {
+            target = CombatTargetingSystem.FindBestTarget(
+                character,
+                stats.AttackRange.Value,
+                attackConeAngle,
+                enemyLayer
+            );
+        }
 
         if (target == null)
         {
@@ -220,7 +232,7 @@ public class CombatController : NetworkBehaviour
 
         if (!ValidateHitWithSphereCast(target))
         {
-            Debug.LogWarning("[Combat] SpecialAttack spherecast falló");
+            Debug.LogWarning("[Combat] SpecialAttack spherecast fallÃ³");
             return;
         }
 
