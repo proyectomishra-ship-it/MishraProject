@@ -33,8 +33,8 @@ MonoBehaviour:
   specialAttackCooldown: 8
   hasHeavyAttack: 1
   hasSpecialAttack: 0
-  baseExperienceReward: 50
-  classMultiplier: 1
+  baseExperienceReward: 400
+  classMultiplier: 3
   fleeHealthThreshold: 0.25
   canFlee: 1
   availableStrategies: 
