@@ -119,7 +119,7 @@ public class CombatController : NetworkBehaviour
 
         if (!ValidateHitWithSphereCast(target))
         {
-            Debug.LogWarning("[Combat] SphereCast fallÃ³");
+            Debug.LogWarning("[Combat] SphereCast falló");
             return;
         }
 
