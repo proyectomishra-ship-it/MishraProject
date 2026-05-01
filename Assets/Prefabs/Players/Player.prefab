@@ -404,7 +404,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   heavyAttackMultiplier: 2
   holdThreshold: 0.4
-  attackConeAngle: 60
+  attackConeAngle: 90
   sphereCastRadius: 0.5
   enemyLayer:
     serializedVersion: 2
@@ -422,10 +422,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovementController
   ShowTopMostFoldoutHeaderGroup: 1
-  speed: 5
+  speed: 11
   jumpForce: 5
   gravity: -9.81
-  runMultiplier: 5
+  runMultiplier: 2
   rotationSpeed: 10
 --- !u!114 &7488145142444107568
 MonoBehaviour:
@@ -470,8 +470,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   updateInterval: 0.05
-  sphereRadius: 0.6
-  loseTargetDelay: 0.3
+  sphereRadius: 0.9
+  loseTargetDelay: 0.5
 --- !u!114 &2462640872243304444
 MonoBehaviour:
   m_ObjectHideFlags: 0

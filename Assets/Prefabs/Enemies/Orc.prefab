@@ -180,7 +180,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Orc
   ShowTopMostFoldoutHeaderGroup: 1
   characterData: {fileID: 11400000, guid: da0f44b7b4a5f024d89f03065cf884be, type: 2}
-  experienceReward: 50
+  experienceReward: 150
   classMultiplier: 1
 --- !u!114 &2119158155385085822
 MonoBehaviour:
@@ -195,7 +195,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OrcAIController
   ShowTopMostFoldoutHeaderGroup: 1
-  detectionRadius: 12
+  detectionRadius: 20
   fieldOfViewAngle: 100
   alertRadius: 18
   lostTargetTime: 5
@@ -263,7 +263,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   heavyAttackMultiplier: 2
   holdThreshold: 0.4
-  attackConeAngle: 60
+  attackConeAngle: 90
   sphereCastRadius: 0.5
   enemyLayer:
     serializedVersion: 2
@@ -281,10 +281,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovementController
   ShowTopMostFoldoutHeaderGroup: 1
-  speed: 3.5
+  speed: 5
   jumpForce: 5
   gravity: -9.81
-  runMultiplier: 5
+  runMultiplier: 2
   rotationSpeed: 10
 --- !u!114 &7938206449249541786
 MonoBehaviour:
@@ -303,8 +303,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   updateInterval: 0.05
-  sphereRadius: 0.6
-  loseTargetDelay: 0.3
+  sphereRadius: 0.9
+  loseTargetDelay: 0.5
 --- !u!114 &-4443688121833989534
 MonoBehaviour:
   m_ObjectHideFlags: 0

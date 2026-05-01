@@ -326,7 +326,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Goblin
   ShowTopMostFoldoutHeaderGroup: 1
   characterData: {fileID: 11400000, guid: 0b6c3080a641e714092261b98988bf88, type: 2}
-  experienceReward: 50
+  experienceReward: 100
   classMultiplier: 1
 --- !u!114 &86565851316333055
 MonoBehaviour:
@@ -341,10 +341,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GoblinAIController
   ShowTopMostFoldoutHeaderGroup: 1
-  detectionRadius: 10
+  detectionRadius: 20
   fieldOfViewAngle: 120
   alertRadius: 15
-  lostTargetTime: 3
+  lostTargetTime: 5
   idleDuration: 2
   waypoints: []
   useRandomPatrol: 0
@@ -406,7 +406,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   heavyAttackMultiplier: 2
   holdThreshold: 0.4
-  attackConeAngle: 60
+  attackConeAngle: 90
   sphereCastRadius: 0.5
   enemyLayer:
     serializedVersion: 2
@@ -424,10 +424,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovementController
   ShowTopMostFoldoutHeaderGroup: 1
-  speed: 3.5
+  speed: 9
   jumpForce: 5
   gravity: -9.81
-  runMultiplier: 5
+  runMultiplier: 3
   rotationSpeed: 10
 --- !u!114 &8901426997834038949
 MonoBehaviour:
@@ -446,8 +446,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   updateInterval: 0.05
-  sphereRadius: 0.6
-  loseTargetDelay: 0.3
+  sphereRadius: 0.9
+  loseTargetDelay: 0.5
 --- !u!114 &7720465953983754295
 MonoBehaviour:
   m_ObjectHideFlags: 0
