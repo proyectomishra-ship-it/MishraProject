@@ -326,7 +326,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OrcArcher
   ShowTopMostFoldoutHeaderGroup: 1
   characterData: {fileID: 11400000, guid: fe18f72878ce67b4ca5a960261132aeb, type: 2}
-  experienceReward: 50
+  experienceReward: 100
   classMultiplier: 1
 --- !u!114 &2949089841560888660
 MonoBehaviour:
@@ -341,10 +341,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OrcArcherAIController
   ShowTopMostFoldoutHeaderGroup: 1
-  detectionRadius: 10
+  detectionRadius: 20
   fieldOfViewAngle: 120
   alertRadius: 15
-  lostTargetTime: 3
+  lostTargetTime: 5
   idleDuration: 2
   waypoints: []
   useRandomPatrol: 0
@@ -408,8 +408,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   heavyAttackMultiplier: 2
   holdThreshold: 0.4
-  attackConeAngle: 60
-  sphereCastRadius: 0.5
+  attackConeAngle: 90
+  sphereCastRadius: 0.9
   enemyLayer:
     serializedVersion: 2
     m_Bits: 8
@@ -426,10 +426,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovementController
   ShowTopMostFoldoutHeaderGroup: 1
-  speed: 3.5
+  speed: 8
   jumpForce: 5
   gravity: -9.81
-  runMultiplier: 5
+  runMultiplier: 2
   rotationSpeed: 10
 --- !u!114 &7780451450490098800
 MonoBehaviour:
@@ -448,7 +448,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   updateInterval: 0.05
-  sphereRadius: 0.6
+  sphereRadius: 0.9
   loseTargetDelay: 0.3
 --- !u!114 &1707819446437547792
 MonoBehaviour:

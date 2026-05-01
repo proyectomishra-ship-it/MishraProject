@@ -92,7 +92,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1105868317
+  GlobalObjectIdHash: 991419302
   InScenePlacedSourceGlobalObjectIdHash: 991419302
   DeferredDespawnTick: 0
   Ownership: 1
@@ -212,7 +212,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DemiGod
   ShowTopMostFoldoutHeaderGroup: 1
   characterData: {fileID: 11400000, guid: a6395c22e55074e4aad6759457c0308c, type: 2}
-  experienceReward: 50
+  experienceReward: 500
   classMultiplier: 1
 --- !u!114 &8787552271937325525
 MonoBehaviour:
@@ -227,10 +227,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DemiGodAIController
   ShowTopMostFoldoutHeaderGroup: 1
-  detectionRadius: 10
+  detectionRadius: 20
   fieldOfViewAngle: 120
   alertRadius: 15
-  lostTargetTime: 3
+  lostTargetTime: 5
   idleDuration: 2
   waypoints: []
   useRandomPatrol: 0
@@ -303,8 +303,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   heavyAttackMultiplier: 2
   holdThreshold: 0.4
-  attackConeAngle: 60
-  sphereCastRadius: 0.5
+  attackConeAngle: 90
+  sphereCastRadius: 0.9
   enemyLayer:
     serializedVersion: 2
     m_Bits: 8
@@ -321,10 +321,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovementController
   ShowTopMostFoldoutHeaderGroup: 1
-  speed: 3.5
+  speed: 7
   jumpForce: 5
   gravity: -9.81
-  runMultiplier: 5
+  runMultiplier: 2
   rotationSpeed: 10
 --- !u!114 &8528377116180493530
 MonoBehaviour:
@@ -343,8 +343,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   updateInterval: 0.05
-  sphereRadius: 0.6
-  loseTargetDelay: 0.3
+  sphereRadius: 0.9
+  loseTargetDelay: 0.5
 --- !u!114 &8735926326663472816
 MonoBehaviour:
   m_ObjectHideFlags: 0

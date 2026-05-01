@@ -326,7 +326,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Acolyte
   ShowTopMostFoldoutHeaderGroup: 1
   characterData: {fileID: 11400000, guid: 0e41975195d8993429cc8e20e1297d1f, type: 2}
-  experienceReward: 50
+  experienceReward: 300
   classMultiplier: 1
 --- !u!114 &824124112956362579
 MonoBehaviour:
@@ -341,10 +341,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AcolyteAIController
   ShowTopMostFoldoutHeaderGroup: 1
-  detectionRadius: 10
+  detectionRadius: 20
   fieldOfViewAngle: 120
   alertRadius: 15
-  lostTargetTime: 3
+  lostTargetTime: 5
   idleDuration: 2
   waypoints: []
   useRandomPatrol: 0
@@ -408,8 +408,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   heavyAttackMultiplier: 2
   holdThreshold: 0.4
-  attackConeAngle: 60
-  sphereCastRadius: 0.5
+  attackConeAngle: 90
+  sphereCastRadius: 0.9
   enemyLayer:
     serializedVersion: 2
     m_Bits: 8
@@ -426,10 +426,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovementController
   ShowTopMostFoldoutHeaderGroup: 1
-  speed: 3.5
+  speed: 7
   jumpForce: 5
   gravity: -9.81
-  runMultiplier: 5
+  runMultiplier: 2
   rotationSpeed: 10
 --- !u!114 &3426303720971823971
 MonoBehaviour:
@@ -448,7 +448,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   updateInterval: 0.05
-  sphereRadius: 0.6
+  sphereRadius: 0.9
   loseTargetDelay: 0.3
 --- !u!114 &6188891307323795857
 MonoBehaviour:

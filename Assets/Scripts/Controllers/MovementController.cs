@@ -5,8 +5,7 @@ public class MovementController : NetworkBehaviour
 {
     private Character character;
     private CharacterController controller;
-
-    [SerializeField] private float speed = 5f;
+    private CharacterStats stats;
     [SerializeField] private float jumpForce = 5f;
     [SerializeField] private float gravity = -9.81f;
     [SerializeField] private float runMultiplier = 5f;
@@ -19,6 +18,7 @@ public class MovementController : NetworkBehaviour
     {
         this.character = character;
         controller = character.GetComponent<CharacterController>();
+        stats = character.GetStats();
     }
 
     private void Update()
@@ -42,7 +42,7 @@ public class MovementController : NetworkBehaviour
         if (!IsServer) return;
         if (controller == null) return;
 
-        ApplyMovement(direction, speed);
+        ApplyMovement(direction, stats.Speed.Value);
     }
 
     public void Run(Vector3 direction)
@@ -50,7 +50,7 @@ public class MovementController : NetworkBehaviour
         if (!IsServer) return;
         if (controller == null) return;
 
-        ApplyMovement(direction, speed * runMultiplier);
+        ApplyMovement(direction, stats.Speed.Value * runMultiplier);
     }
 
     public void Jump()
