@@ -1,16 +1,16 @@
-﻿using System;
+using System;
 using UnityEngine;
 using Unity.Netcode;
 
 public class Enemy : Character
 {
-    [SerializeField] private int experienceReward = 50;
-    [SerializeField] private float classMultiplier = 1f;
+    [SerializeField] private int   experienceReward = 50;
+    [SerializeField] private float classMultiplier  = 1f;
 
     private EnemyAIController aiController;
-    private EnemyGroupMember groupMember;
+    private EnemyGroupMember  groupMember;
 
-    // evento de muerte
+    // Evento de muerte (lo usan sistemas externos como el spawner)
     public event Action<Enemy> OnEnemyDeath;
 
     protected override void Awake()
@@ -18,7 +18,6 @@ public class Enemy : Character
         base.Awake();
 
         aiController = GetComponent<EnemyAIController>();
-
         if (aiController == null)
             Debug.LogError($"[Enemy] Falta EnemyAIController en el prefab de {gameObject.name}");
 
@@ -35,8 +34,7 @@ public class Enemy : Character
             experienceReward,
             classMultiplier,
             GetLevel(),
-            playerLevel
-        );
+            playerLevel);
     }
 
     private void DistributeExperience()
@@ -56,11 +54,10 @@ public class Enemy : Character
             if (entry.Key is Player player)
             {
                 float damageShare = entry.Value / totalDamage;
-                int baseXP = GetExperienceReward(player.GetLevel());
-                int finalXP = Mathf.RoundToInt(baseXP * damageShare);
+                int   baseXP      = GetExperienceReward(player.GetLevel());
+                int   finalXP     = Mathf.RoundToInt(baseXP * damageShare);
 
                 player.AddExp(finalXP);
-
                 Debug.Log($"[XP] {player.name} recibe {finalXP} XP ({damageShare:P1})");
             }
         }
@@ -75,11 +72,14 @@ public class Enemy : Character
         }
 
         Debug.Log($"[Enemy] Die -> {name}");
- 
+
         groupMember?.NotifyDeath();
 
         DistributeExperience();
-               
+
+        // Disparar drops ANTES de despawnear el objeto
+        GetComponent<DropController>()?.OnEnemyDied();
+
         OnEnemyDeath?.Invoke(this);
 
         base.Die();

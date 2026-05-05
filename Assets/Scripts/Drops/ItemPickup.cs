@@ -3,8 +3,9 @@ using Unity.Netcode;
 
 /// <summary>
 /// Item físico en el mundo. Se spawnea como NetworkObject por PickupSpawner.
-/// Al entrar en el trigger, el servidor transfiere el item al inventario del jugador.
-/// ACCIÓN: archivo nuevo en Assets/Scripts/Drops/
+/// Al entrar en el trigger:
+///   1. El servidor transfiere el item al inventario del jugador.
+///   2. Si el item es equipable y el slot correspondiente está libre, lo equipa automáticamente.
 ///
 /// Setup del prefab:
 ///   - Agregar componente NetworkObject
@@ -42,7 +43,7 @@ public class ItemPickup : NetworkBehaviour
 
     private void Update()
     {
-        // Animación solo cosmética, no necesita sincronizarse.
+        // Animación cosmética; no necesita sincronizarse.
         float y = Mathf.Sin(Time.time * bobSpeed) * bobHeight;
         transform.position = startPosition + Vector3.up * y;
         transform.Rotate(Vector3.up, rotationSpeed * Time.deltaTime);
@@ -55,10 +56,22 @@ public class ItemPickup : NetworkBehaviour
         var player = other.GetComponent<Player>();
         if (player == null) return;
 
-        if (player.GetInventory().AddItem(itemData, quantity))
+        // 1. Intentar agregar al inventario
+        if (!player.GetInventory().AddItem(itemData, quantity)) return;
+
+        pickedUp = true;
+
+        // 2. Auto-equipar si el item es equipable y el slot está libre
+        if (itemData is IEquippable equippable)
         {
-            pickedUp = true;
-            NetworkObject.Despawn();
+            var equipment = player.GetEquipment();
+            if (equipment != null && !equipment.IsOccupied(equippable.Slot))
+            {
+                bool equipped = equipment.Equip(equippable);
+                Debug.Log($"[Pickup] Auto-equipado '{itemData.ItemName}' en slot {equippable.Slot}: {equipped}");
+            }
         }
+
+        NetworkObject.Despawn();
     }
 }

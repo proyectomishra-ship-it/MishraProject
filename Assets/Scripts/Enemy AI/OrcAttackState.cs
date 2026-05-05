@@ -15,10 +15,8 @@ public class OrcAttackState : EnemyStateAttack
     public override void OnEnter()
     {
         base.OnEnter();
-
         ai.Agent.angularSpeed = 80f;
         ai.Agent.speed = enemy.GetStats().Speed.Value;
-
         Debug.Log($"[Orc] {enemy.name} entra en estado ATTACK (Tank)");
     }
 
@@ -40,7 +38,6 @@ public class OrcAttackState : EnemyStateAttack
         // =========================
         // POSICIONAMIENTO (TANK)
         // =========================
-
         Vector3 destination = CombatSlotManager.Instance != null
             ? CombatSlotManager.Instance.GetTankSlotPosition(ai, ai.CurrentTarget.transform)
             : ai.CurrentTarget.transform.position;
@@ -50,36 +47,25 @@ public class OrcAttackState : EnemyStateAttack
             ai.CurrentTarget.transform.position);
 
         if (distanceToTarget > enemy.GetStats().AttackRange.Value)
-        {
             ai.Agent.SetDestination(destination);
-        }
         else
-        {
             ai.Agent.ResetPath();
-        }
 
         // =========================
-        // HEAVY ATTACK (simulado)
+        // HEAVY ATTACK — usa AttackDirect para no depender de simulación de hold
         // =========================
-
         heavyAttackTimer += Time.deltaTime;
-
         if (heavyAttackTimer >= heavyAttackCooldown)
         {
             heavyAttackTimer = 0f;
-
-            Debug.Log($"[Orc] {enemy.name} HEAVY ATTACK (simulado)");
-
-       
-            enemy.OnAttackPressed();
-
+            Debug.Log($"[Orc] {enemy.name} HEAVY ATTACK");
+            enemy.GetComponent<CombatController>()?.AttackDirect(heavy: true);
             return;
         }
 
         // =========================
-        // ATAQUE BASE (cooldown)
+        // ATAQUE BASE (cooldown normal via EnemyStateAttack)
         // =========================
-
         base.OnUpdate();
     }
 
@@ -87,9 +73,7 @@ public class OrcAttackState : EnemyStateAttack
     {
         if (ai.CurrentTarget != null)
             CombatSlotManager.Instance?.RemoveTank(ai, ai.CurrentTarget.transform);
-
         ai.Agent.angularSpeed = 120f;
-
         Debug.Log($"[Orc] {enemy.name} sale de ATTACK");
     }
 
@@ -101,29 +85,23 @@ public class OrcAttackState : EnemyStateAttack
             return;
         }
 
-        Debug.Log($"[Orc] {enemy.name} ATTACK a {ai.CurrentTarget.name}");
-
-
+        Debug.Log($"[Orc] {enemy.name} LIGHT ATTACK → {ai.CurrentTarget.name}");
+        // FIX: Press + Release para que el daño se aplique
         enemy.OnAttackPressed();
+        enemy.OnAttackReleased();
     }
 
     private bool ShouldRetreat()
     {
         if (ai is not OrcAIController orc) return false;
-
         var rc = enemy.GetResourceController();
         if (rc == null) return false;
-
-        float maxHealth = enemy.GetStats().MaxHealth.Value;
-
-        float hpPercent = rc.CurrentHealth / maxHealth;
-
+        float hpPercent = rc.CurrentHealth / enemy.GetStats().MaxHealth.Value;
         if (hpPercent <= orc.RetreatThreshold)
         {
             Debug.Log($"[Orc] HP bajo ({hpPercent:P0}) -> RETREAT");
             return true;
         }
-
         return false;
     }
 }

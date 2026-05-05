@@ -1,248 +1,240 @@
-﻿using UnityEngine;
+using UnityEngine;
 using Unity.Netcode;
-using System.Collections.Generic;
 
+/// <summary>
+/// Gestiona el flujo de combate del personaje.
+///
+/// FLUJO DE LLAMADAS:
+///   Jugador  → Player.cs manda ServerRpc → base.OnAttack*() → CombatController.OnAttack*()
+///   Enemigo  → IA (server-side) llama    → enemy.OnAttack*() → CombatController.OnAttack*()
+///
+/// CombatController NO tiene ServerRpc propios. Asume que ya está corriendo en el servidor
+/// cuando sus métodos son invocados. Sí usa ClientRpc para feedback visual futuro.
+///
+/// Para la IA enemiga existe AttackDirect(heavy) que evita simular el hold y va
+/// directamente a PerformAttack — más robusto que reproducir frames de input.
+/// </summary>
 public class CombatController : NetworkBehaviour
 {
-    private Character character;
-    private CharacterStats stats;
+    private Character           character;
+    private CharacterStats      stats;
+    private EquipmentController equipmentController;
 
-    [Header("Attack Config")]
+    [Header("Fallback — sin arma equipada")]
     [SerializeField] private float heavyAttackMultiplier = 2f;
-    [SerializeField] private float holdThreshold = 0.4f;
+    [SerializeField] private float holdThreshold         = 0.4f;
 
-    [Header("Validation")]
-    [SerializeField] private float attackConeAngle = 60f;
-    [SerializeField] private float sphereCastRadius = 0.8f;
+    [Header("Validación de hit")]
+    [SerializeField] private float     attackConeAngle  = 60f;
+    [SerializeField] private float     sphereCastRadius = 0.8f;
     [SerializeField] private LayerMask enemyLayer;
 
-    private float attackHeldTime = 0f;
-    private bool isHoldingAttack = false;
-    private bool heavyConsumed = false;
+    // Estado de hold — solo relevante en el servidor
+    private float attackHeldTime  = 0f;
+    private bool  isHoldingAttack = false;
+    private bool  heavyConsumed   = false;
+
+    // =========================
+    // INIT
+    // =========================
 
     public void Initialize(Character character)
     {
-        this.character = character;
-        this.stats = character.GetStats();
+        this.character      = character;
+        this.stats          = character.GetStats();
+        equipmentController = character.GetEquipment();
     }
 
     // =========================
-    // INPUT (CLIENTE)
+    // HELPERS — arma actual
+    // =========================
+
+    private IWeaponBehavior GetCurrentBehavior()
+    {
+        var weapon = equipmentController?.GetEquippedWeapon();
+        return WeaponBehaviorFactory.Create(weapon, transform);
+    }
+
+    private float GetEffectiveHoldThreshold()
+    {
+        var weapon = equipmentController?.GetEquippedWeapon();
+        if (weapon == null || weapon.AttackSpeed <= 0f) return holdThreshold;
+        return holdThreshold / weapon.AttackSpeed;
+    }
+
+    private float GetHeavyMultiplier()
+    {
+        var weapon = equipmentController?.GetEquippedWeapon();
+        return weapon != null ? weapon.HeavyMultiplier : heavyAttackMultiplier;
+    }
+
+    // =========================
+    // API DE INPUT
+    // Llamados desde el servidor (Player via ServerRpc, Enemy via IA directa).
+    // No tienen ServerRpc propios — la autoridad ya fue validada upstream.
     // =========================
 
     public void OnAttackPressed()
     {
-        if (!IsOwner) return;
-        AttackPressedServerRpc();
+        if (!IsServer) return;
+
+        isHoldingAttack = true;
+        attackHeldTime  = 0f;
+        heavyConsumed   = false;
     }
 
     public void OnAttackHeld(float deltaTime)
     {
-        if (!IsOwner) return;
-        AttackHeldServerRpc(deltaTime);
-    }
-
-    public void OnAttackReleased()
-    {
-        if (!IsOwner) return;
-        AttackReleasedServerRpc();
-    }
-
-    // =========================
-    // SERVER RPC
-    // =========================
-
-    [ServerRpc]
-    private void AttackPressedServerRpc(ServerRpcParams rpcParams = default)
-    {
-        isHoldingAttack = true;
-        attackHeldTime = 0f;
-        heavyConsumed = false;
-    }
-
-    [ServerRpc]
-    private void AttackHeldServerRpc(float deltaTime)
-    {
-        if (!isHoldingAttack || heavyConsumed) return;
+        if (!IsServer || !isHoldingAttack || heavyConsumed) return;
 
         attackHeldTime += deltaTime;
 
-        if (attackHeldTime >= holdThreshold)
+        if (attackHeldTime >= GetEffectiveHoldThreshold())
         {
-            PerformAttack(true);
-            heavyConsumed = true;
+            PerformAttack(heavy: true);
+            heavyConsumed   = true;
             isHoldingAttack = false;
         }
     }
 
-    [ServerRpc]
-    private void AttackReleasedServerRpc()
+    public void OnAttackReleased()
     {
-        if (!isHoldingAttack) return;
+        if (!IsServer || !isHoldingAttack) return;
 
         isHoldingAttack = false;
 
         if (!heavyConsumed)
-        {
-            PerformAttack(false);
-        }
+            PerformAttack(heavy: false);
+    }
+
+    /// <summary>
+    /// Ataque directo para IA enemiga — omite la simulación de hold.
+    /// Más robusto que reproducir OnAttackPressed + OnAttackReleased desde la IA.
+    /// </summary>
+    public void AttackDirect(bool heavy = false)
+    {
+        if (!IsServer) return;
+        PerformAttack(heavy);
+    }
+
+    public void SpecialAttackDirect()
+    {
+        if (!IsServer) return;
+        PerformSpecialAttack();
     }
 
     // =========================
-    // CORE COMBAT (SERVER)
+    // CORE COMBAT — servidor
     // =========================
 
     private void PerformAttack(bool heavy)
     {
-        if (!IsServer) return;
-
-        // FIX: Usar primero el target que ya confirmó TargetingController (server-side).
-        // Esa clase hace detección por cámara + validación de rango en SetTargetServerRpc.
-        // Solo caemos a FindBestTarget si no hay target confirmado (p.ej. modo sin cámara / IA).
-        Character target = character.GetComponent<TargetingController>()?.CurrentTarget;
-
+        Character target = FindTarget();
         if (target == null)
         {
-            target = CombatTargetingSystem.FindBestTarget(
-                character,
-                stats.AttackRange.Value,
-                attackConeAngle,
-                enemyLayer
-            );
-        }
-
-        if (target == null)
-        {
-            Debug.LogWarning("[Combat] Sin target válido");
+            Debug.LogWarning($"[Combat] {character.name}: sin target válido");
             return;
         }
 
         if (!ValidateHitWithSphereCast(target))
         {
-            Debug.LogWarning("[Combat] SphereCast falló");
+            Debug.LogWarning($"[Combat] {character.name}: SphereCast no alcanzó a {target.name}");
             return;
         }
 
-        float damage = stats.Attack.Value * (heavy ? heavyAttackMultiplier : 1f);
+        var behavior = GetCurrentBehavior();
 
-        var receiver = target.GetComponent<DamageReceiver>();
+        if (heavy)
+            behavior.PerformHeavyAttack(character, target, GetHeavyMultiplier());
+        else
+            behavior.PerformAttack(character, target);
 
-        if (receiver == null)
-        {
-            Debug.LogError("[Combat] Target sin DamageReceiver");
-            return;
-        }
-        Debug.Log($"[Combat] Target elegido: {target.name} | Dist: {Vector3.Distance(transform.position, target.transform.position):F2}");
-        receiver.TakeDamage(damage, character);
-
-        Debug.Log($"[Combat] {character.name} hizo {damage} a {target.name}");
+        Debug.Log($"[Combat] {character.name} → {target.name} (heavy:{heavy})");
     }
 
+    private void PerformSpecialAttack()
+    {
+        Character target = FindTarget();
+        if (target == null)
+        {
+            Debug.LogWarning($"[Combat] {character.name}: SpecialAttack sin target");
+            return;
+        }
+
+        if (!ValidateHitWithSphereCast(target))
+        {
+            Debug.LogWarning($"[Combat] {character.name}: SpecialAttack spherecast falló");
+            return;
+        }
+
+        GetCurrentBehavior().PerformSpecialAttack(character, target);
+        Debug.Log($"[Combat] SPECIAL {character.name} → {target.name}");
+    }
+
+    // =========================
+    // TARGETING
+    // =========================
+
+    private Character FindTarget()
+    {
+        Character target = character.GetComponent<TargetingController>()?.CurrentTarget;
+
+        if (target == null)
+            target = CombatTargetingSystem.FindBestTarget(
+                character,
+                stats.AttackRange.Value,
+                attackConeAngle,
+                enemyLayer);
+
+        return target;
+    }
 
     private bool ValidateHitWithSphereCast(Character target)
     {
-
-        Vector3 origin = transform.position + Vector3.up * 1.0f;
-
-        // DirecciÃ³n hacia el target
+        Vector3 origin    = transform.position + Vector3.up * 1.0f;
         Vector3 targetPos = target.transform.position + Vector3.up * 1.0f;
-        Vector3 dir = (targetPos - origin).normalized;
+        Vector3 dir       = (targetPos - origin).normalized;
+        float   distance  = Vector3.Distance(origin, targetPos);
 
-        // Distancia REAL entre centros
-        float distance = Vector3.Distance(origin, targetPos);
+        // Usamos la distancia real + margen para no depender del AttackRange
+        float castRange = distance + 0.5f;
 
-        // Ajuste por tamaÃ±o de cÃ¡psulas (MUY IMPORTANTE)
-        float effectiveRange = distance + 0.5f;
-
-        Debug.Log($"[Combat] Cast -> Dist: {distance:F2} | Range: {stats.AttackRange.Value}");
+        Debug.Log($"[Combat] SphereCast: dist={distance:F2} castRange={castRange:F2}");
 
         if (Physics.SphereCast(
-            origin,
-            sphereCastRadius,
-            dir,
-            out RaycastHit hit,
-            effectiveRange,
-            enemyLayer,
-            QueryTriggerInteraction.Ignore))
+                origin,
+                sphereCastRadius,
+                dir,
+                out RaycastHit hit,
+                castRange,
+                enemyLayer,
+                QueryTriggerInteraction.Collide))   // <-- Collide para detectar trigger colliders
         {
-            Character hitChar = hit.collider.GetComponent<Character>();
-
-            Debug.Log($"[Combat] Hit: {hit.collider.name}");
-
+            Character hitChar = hit.collider.GetComponentInParent<Character>();
+            Debug.Log($"[Combat] SphereCast hit: {hit.collider.name}");
             return hitChar != null && hitChar == target;
         }
 
-        Debug.DrawLine(origin, origin + dir * effectiveRange, Color.red, 1f);
-
+        Debug.DrawLine(origin, origin + dir * castRange, Color.red, 1f);
         return false;
     }
+
     // =========================
     // DEBUG
     // =========================
 
     private void OnDrawGizmosSelected()
     {
+        if (stats == null) return;
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, stats != null ? stats.AttackRange.Value : 2f);
+        Gizmos.DrawWireSphere(transform.position, stats.AttackRange.Value);
     }
 
     // =========================
-    // PUBLIC API 
+    // PUBLIC API — acceso externo limpio
     // =========================
 
-    public void Attack()
-    {
-        OnAttackPressed();
-        OnAttackReleased();
-    }
-
-    public void SpecialAttack()
-    {
-        if (!IsOwner) return;
-        SpecialAttackServerRpc();
-    }
-
-    [ServerRpc]
-    private void SpecialAttackServerRpc()
-    {
-        PerformSpecialAttack();
-    }
-
-    private void PerformSpecialAttack()
-    {
-        if (!IsServer) return;
-
-        Character target = character.GetComponent<TargetingController>()?.CurrentTarget;
-
-        if (target == null)
-        {
-            target = CombatTargetingSystem.FindBestTarget(
-                character,
-                stats.AttackRange.Value,
-                attackConeAngle,
-                enemyLayer
-            );
-        }
-
-        if (target == null)
-        {
-            Debug.LogWarning("[Combat] SpecialAttack sin target");
-            return;
-        }
-
-        if (!ValidateHitWithSphereCast(target))
-        {
-            Debug.LogWarning("[Combat] SpecialAttack spherecast fallÃ³");
-            return;
-        }
-
-        float damage = stats.Attack.Value * 1.5f;
-
-        var receiver = target.GetComponent<DamageReceiver>();
-        if (receiver == null) return;
-
-        receiver.TakeDamage(damage, character);
-
-        Debug.Log($"[Combat] SPECIAL {character.name} hizo {damage} a {target.name}");
-    }
+    /// <summary>Ataque rápido sin simulación de hold. Útil para la IA.</summary>
+    public void Attack()  => AttackDirect(heavy: false);
+    public void SpecialAttack() => SpecialAttackDirect();
 }
