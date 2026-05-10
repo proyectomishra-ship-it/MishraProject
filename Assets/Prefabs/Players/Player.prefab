@@ -252,6 +252,7 @@ GameObject:
   - component: {fileID: -3772228477926212148}
   - component: {fileID: -623326422782049491}
   - component: {fileID: -1457277708541621307}
+  - component: {fileID: -9125623160673421327}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -316,8 +317,6 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   characterData: {fileID: 11400000, guid: fe6076a9643238c4ab3051502915e26c, type: 2}
   classData: {fileID: 11400000, guid: 108fef0c20c08d445af41a3f9e194691, type: 2}
-  hud: {fileID: 0}
-  statsSync: {fileID: 4308127418230473078}
 --- !u!114 &2452516292678866133
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -422,7 +421,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovementController
   ShowTopMostFoldoutHeaderGroup: 1
-  speed: 11
   jumpForce: 5
   gravity: -9.81
   runMultiplier: 2
@@ -586,6 +584,52 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EquipmentController
   ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &-9125623160673421327
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6910758715300088518}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Components.NetworkTransform
+  ShowTopMostFoldoutHeaderGroup: 1
+  NetworkTransformExpanded: 0
+  AutoOwnerAuthorityTickOffset: 1
+  PositionInterpolationType: 0
+  RotationInterpolationType: 0
+  ScaleInterpolationType: 0
+  PositionLerpSmoothing: 1
+  PositionMaxInterpolationTime: 0.1
+  RotationLerpSmoothing: 1
+  RotationMaxInterpolationTime: 0.1
+  ScaleLerpSmoothing: 1
+  ScaleMaxInterpolationTime: 0.1
+  AuthorityMode: 0
+  TickSyncChildren: 0
+  UseUnreliableDeltas: 0
+  SyncPositionX: 1
+  SyncPositionY: 1
+  SyncPositionZ: 1
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
+  SyncScaleX: 1
+  SyncScaleY: 1
+  SyncScaleZ: 1
+  PositionThreshold: 0.001
+  RotAngleThreshold: 0.01
+  ScaleThreshold: 0.01
+  UseQuaternionSynchronization: 0
+  UseQuaternionCompression: 0
+  UseHalfFloatPrecision: 0
+  InLocalSpace: 0
+  SwitchTransformSpaceWhenParented: 0
+  Interpolate: 1
+  SlerpPosition: 0
 --- !u!1 &7443041332243402106
 GameObject:
   m_ObjectHideFlags: 0
