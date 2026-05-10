@@ -19,10 +19,22 @@ public class EnemyStateChase : EnemyState
         lostTargetTimer = 0f;
         targetLost = false;
         Debug.Log($"[{enemy.name}] Chase → {ai.CurrentTarget?.name}");
+        ai.Agent.isStopped = false;
+
+        Debug.Log($"[{enemy.name}] Chase → {ai.CurrentTarget?.name}");
     }
 
     public override void OnUpdate()
     {
+        Debug.Log(
+            $"CHASE | " +
+            $"isOnNavMesh={ai.Agent.isOnNavMesh} | " +
+            $"enabled={ai.Agent.enabled} | " +
+            $"isStopped={ai.Agent.isStopped} | " +
+            $"hasPath={ai.Agent.hasPath} | " +
+            $"velocity={ai.Agent.velocity}"
+                  );
+
         if (ai.ShouldFlee)
         {
             ai.StateMachine.ChangeState(ai.FleeState);

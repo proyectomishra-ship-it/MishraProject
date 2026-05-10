@@ -157,7 +157,6 @@ GameObject:
   - component: {fileID: 2144722308014494052}
   - component: {fileID: 1065152746560861680}
   - component: {fileID: 1379444159436628566}
-  - component: {fileID: 5315543135284511660}
   - component: {fileID: 4278035547426295813}
   - component: {fileID: 8767829924517658982}
   - component: {fileID: 824124112956362579}
@@ -165,7 +164,6 @@ GameObject:
   - component: {fileID: 6772963075206027635}
   - component: {fileID: 4273935911086325436}
   - component: {fileID: 3707893166210168748}
-  - component: {fileID: 5077072484543988970}
   - component: {fileID: 3426303720971823971}
   - component: {fileID: 6188891307323795857}
   - component: {fileID: 5590942759764010574}
@@ -265,31 +263,6 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
---- !u!143 &5315543135284511660
-CharacterController:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6198892723797869818}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Height: 2
-  m_Radius: 0.5
-  m_SlopeLimit: 45
-  m_StepOffset: 0.3
-  m_SkinWidth: 0.08
-  m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 1, z: 0}
 --- !u!195 &4278035547426295813
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -341,7 +314,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AcolyteAIController
   ShowTopMostFoldoutHeaderGroup: 1
-  detectionRadius: 20
+  detectionRadius: 30
   fieldOfViewAngle: 120
   alertRadius: 15
   lostTargetTime: 5
@@ -413,24 +386,6 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 8
---- !u!114 &5077072484543988970
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6198892723797869818}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e9e778bbd10e4184ebf3ccb5763d9930, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MovementController
-  ShowTopMostFoldoutHeaderGroup: 1
-  speed: 7
-  jumpForce: 5
-  gravity: -9.81
-  runMultiplier: 2
-  rotationSpeed: 10
 --- !u!114 &3426303720971823971
 MonoBehaviour:
   m_ObjectHideFlags: 0

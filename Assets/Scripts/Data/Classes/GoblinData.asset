@@ -17,7 +17,7 @@ MonoBehaviour:
   defense: 10
   maxHealth: 150
   maxMana: 0
-  speed: 6
+  speed: 9
   agility: 5
   criticalChance: 0.05
   dexterity: 20

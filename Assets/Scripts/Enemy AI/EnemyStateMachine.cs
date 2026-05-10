@@ -6,13 +6,17 @@ public class EnemyStateMachine
 
     public void ChangeState(EnemyState newState)
     {
-        if (newState == null) return;
+        if (CurrentState == newState)
+            return;
 
         CurrentState?.OnExit();
+
         CurrentState = newState;
+
         CurrentState.OnEnter();
 
         Debug.Log($"[StateMachine] → {newState.GetType().Name}");
+    
     }
 
     public void Update()
