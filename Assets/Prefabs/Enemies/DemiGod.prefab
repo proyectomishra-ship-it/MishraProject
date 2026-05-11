@@ -90,7 +90,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 991419302
+  GlobalObjectIdHash: 1105868317
   InScenePlacedSourceGlobalObjectIdHash: 991419302
   DeferredDespawnTick: 0
   Ownership: 1
@@ -200,13 +200,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DemiGodAIController
   ShowTopMostFoldoutHeaderGroup: 1
-  detectionRadius: 30
+  detectionRadius: 50
   fieldOfViewAngle: 120
-  alertRadius: 15
-  lostTargetTime: 5
+  alertRadius: 20
+  lostTargetTime: 7
   idleDuration: 2
   waypoints: []
-  useRandomPatrol: 0
+  useRandomPatrol: 1
   randomPatrolRadius: 10
   fleeHealthThreshold: 0.25
   fleeDistance: 15
@@ -420,7 +420,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: bf1e8f7f2bbc3484dbcb41b44ae783ad, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

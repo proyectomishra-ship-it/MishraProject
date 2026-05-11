@@ -12,18 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8731ddff7988a0e4aadf66c7e3a9d798, type: 3}
   m_Name: OrcData
   m_EditorClassIdentifier: Assembly-CSharp::OrcData
-  attack: 25
-  attackRange: 1.8
-  defense: 20
-  maxHealth: 300
+  attack: 55
+  attackRange: 2
+  defense: 30
+  maxHealth: 45
   maxMana: 0
-  speed: 3.5
-  agility: 5
-  criticalChance: 0.05
+  speed: 7
+  agility: 10
+  criticalChance: 0.5
   dexterity: 20
-  intelligence: 5
-  vitality: 20
-  resistance: 25
+  intelligence: 2
+  vitality: 26
+  resistance: 10
   luck: 0
   baseLevel: 5
   weaponType: 0

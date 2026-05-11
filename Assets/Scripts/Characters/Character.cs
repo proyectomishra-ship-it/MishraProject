@@ -16,7 +16,6 @@ public abstract class Character : NetworkBehaviour
     // CONTROLLERS
     // =========================
 
-    protected MovementController movementController;
     protected CombatController combatController;
     protected DamageReceiver damageReceiver;
     protected ResourceController resourceController;
@@ -43,7 +42,6 @@ public abstract class Character : NetworkBehaviour
     {
         stats = CreateStats();
 
-        movementController = GetComponent<MovementController>();
         combatController = GetComponent<CombatController>();
         damageReceiver = GetComponent<DamageReceiver>();
         resourceController = GetComponent<ResourceController>();
@@ -51,8 +49,7 @@ public abstract class Character : NetworkBehaviour
         equipmentController = GetComponent<EquipmentController>();
         targetingController = GetComponent<TargetingController>();
 
-        // Validación fuerte
-        ValidateComponent(movementController, nameof(MovementController));
+       
         ValidateComponent(combatController, nameof(CombatController));
         ValidateComponent(damageReceiver, nameof(DamageReceiver));
         ValidateComponent(resourceController, nameof(ResourceController));
@@ -60,8 +57,6 @@ public abstract class Character : NetworkBehaviour
         ValidateComponent(equipmentController, nameof(EquipmentController));
         ValidateComponent(targetingController, nameof(TargetingController));
 
-        // Inicialización
-        movementController?.Initialize(this);
         combatController?.Initialize(this);
         damageReceiver?.Initialize(this);
         resourceController?.Initialize(this);
@@ -171,29 +166,5 @@ public abstract class Character : NetworkBehaviour
     {
         if (!IsServer) return;
         resourceController?.AddMana(amount);
-    }
-
-    // =========================
-    // MOVEMENT
-    // =========================
-
-    public virtual void Move(Vector3 direction)
-    {
-        movementController?.Move(direction);
-    }
-
-    public virtual void Run(Vector3 direction)
-    {
-        movementController?.Run(direction);
-    }
-
-    public virtual void Jump()
-    {
-        movementController?.Jump();
-    }
-
-    public virtual void ApplyGravity()
-    {
-        movementController?.ApplyGravity();
     }
 }

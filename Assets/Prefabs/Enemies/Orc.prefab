@@ -168,17 +168,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OrcAIController
   ShowTopMostFoldoutHeaderGroup: 1
-  detectionRadius: 30
-  fieldOfViewAngle: 100
-  alertRadius: 18
-  lostTargetTime: 5
+  detectionRadius: 35
+  fieldOfViewAngle: 180
+  alertRadius: 15
+  lostTargetTime: 10
   idleDuration: 2
   waypoints: []
-  useRandomPatrol: 0
+  useRandomPatrol: 1
   randomPatrolRadius: 10
   fleeHealthThreshold: 0.3
   fleeDistance: 20
-  canFlee: 1
+  canFlee: 0
   retreatThreshold: 0.3
   rallyThreshold: 0.7
   regenPerSecond: 5
@@ -380,7 +380,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 52bc4fd1a5f5286489250022bbe3cda8, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

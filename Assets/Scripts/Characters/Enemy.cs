@@ -10,7 +10,6 @@ public class Enemy : Character
     private EnemyAIController aiController;
     private EnemyGroupMember  groupMember;
 
-    // Evento de muerte (lo usan sistemas externos como el spawner)
     public event Action<Enemy> OnEnemyDeath;
 
     protected override void Awake()
@@ -77,7 +76,7 @@ public class Enemy : Character
 
         DistributeExperience();
 
-        // Disparar drops ANTES de despawnear el objeto
+      
         GetComponent<DropController>()?.OnEnemyDied();
 
         OnEnemyDeath?.Invoke(this);
