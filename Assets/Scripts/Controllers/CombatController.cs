@@ -1,19 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
 
-/// <summary>
-/// Gestiona el flujo de combate del personaje.
-///
-/// FLUJO DE LLAMADAS:
-///   Jugador  → Player.cs manda ServerRpc → base.OnAttack*() → CombatController.OnAttack*()
-///   Enemigo  → IA (server-side) llama    → enemy.OnAttack*() → CombatController.OnAttack*()
-///
-/// CombatController NO tiene ServerRpc propios. Asume que ya está corriendo en el servidor
-/// cuando sus métodos son invocados. Sí usa ClientRpc para feedback visual futuro.
-///
-/// Para la IA enemiga existe AttackDirect(heavy) que evita simular el hold y va
-/// directamente a PerformAttack — más robusto que reproducir frames de input.
-/// </summary>
+
 public class CombatController : NetworkBehaviour
 {
     private Character           character;
@@ -29,7 +17,7 @@ public class CombatController : NetworkBehaviour
     [SerializeField] private float     sphereCastRadius = 0.8f;
     [SerializeField] private LayerMask enemyLayer;
 
-    // Estado de hold — solo relevante en el servidor
+
     private float attackHeldTime  = 0f;
     private bool  isHoldingAttack = false;
     private bool  heavyConsumed   = false;
@@ -70,8 +58,6 @@ public class CombatController : NetworkBehaviour
 
     // =========================
     // API DE INPUT
-    // Llamados desde el servidor (Player via ServerRpc, Enemy via IA directa).
-    // No tienen ServerRpc propios — la autoridad ya fue validada upstream.
     // =========================
 
     public void OnAttackPressed()
@@ -107,10 +93,7 @@ public class CombatController : NetworkBehaviour
             PerformAttack(heavy: false);
     }
 
-    /// <summary>
-    /// Ataque directo para IA enemiga — omite la simulación de hold.
-    /// Más robusto que reproducir OnAttackPressed + OnAttackReleased desde la IA.
-    /// </summary>
+
     public void AttackDirect(bool heavy = false)
     {
         if (!IsServer) return;
@@ -196,7 +179,6 @@ public class CombatController : NetworkBehaviour
         Vector3 dir       = (targetPos - origin).normalized;
         float   distance  = Vector3.Distance(origin, targetPos);
 
-        // Usamos la distancia real + margen para no depender del AttackRange
         float castRange = distance + 0.5f;
 
         Debug.Log($"[Combat] SphereCast: dist={distance:F2} castRange={castRange:F2}");
@@ -208,7 +190,7 @@ public class CombatController : NetworkBehaviour
                 out RaycastHit hit,
                 castRange,
                 enemyLayer,
-                QueryTriggerInteraction.Collide))   // <-- Collide para detectar trigger colliders
+                QueryTriggerInteraction.Collide))   
         {
             Character hitChar = hit.collider.GetComponentInParent<Character>();
             Debug.Log($"[Combat] SphereCast hit: {hit.collider.name}");
@@ -234,7 +216,7 @@ public class CombatController : NetworkBehaviour
     // PUBLIC API — acceso externo limpio
     // =========================
 
-    /// <summary>Ataque rápido sin simulación de hold. Útil para la IA.</summary>
+
     public void Attack()  => AttackDirect(heavy: false);
     public void SpecialAttack() => SpecialAttackDirect();
 }

@@ -67,7 +67,6 @@ public class DemiGodAIController : EnemyAIController
         var rc = demiGodEnemy.GetResourceController();
         if (rc == null) return;
 
-        // FIX: GetStats() puede ser null si characterData no está asignado en el prefab
         var stats = demiGodEnemy.GetStats();
         if (stats == null) return;
 
@@ -87,7 +86,7 @@ public class DemiGodAIController : EnemyAIController
 
     private void EnterPhase2()
     {
-        Debug.Log("[DemiGod] Â¡Fase 2 â Magia + Aliados!");
+        Debug.Log("[DemiGod] pasa a fase 2 ataque magico + aliados");
         SummonAllies(orcPrefab, phase2SummonCount, spawnRadius: 5f);
         AttackState = new DemiGodPhase2State(demiGodEnemy, this);
 
@@ -97,7 +96,7 @@ public class DemiGodAIController : EnemyAIController
 
     private void EnterPhase3()
     {
-        Debug.Log("[DemiGod] Â¡Fase 3 â Berserker MÃ¡gico!");
+        Debug.Log("[DemiGod] pasa a Fase 3  ataques especiales +  aliados");
         SummonAllies(goblinPrefab, phase3SummonCount, spawnRadius: 4f);
         AttackState = new DemiGodPhase3State(demiGodEnemy, this);
 
@@ -124,6 +123,6 @@ public class DemiGodAIController : EnemyAIController
                 netObj.Spawn();
         }
 
-        Debug.Log($"[DemiGod] ConvocÃ³ {count} aliados.");
+        Debug.Log($"[DemiGod] Convoca {count} aliados.");
     }
 }

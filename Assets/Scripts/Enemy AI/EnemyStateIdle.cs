@@ -1,12 +1,14 @@
 using UnityEngine;
-using UnityEngine.AI;
 
 public class EnemyStateIdle : EnemyState
 {
     private float idleDuration;
     private float idleTimer;
 
-    public EnemyStateIdle(Enemy enemy, EnemyAIController ai, float idleDuration)
+    public EnemyStateIdle(
+        Enemy enemy,
+        EnemyAIController ai,
+        float idleDuration)
         : base(enemy, ai)
     {
         this.idleDuration = idleDuration;
@@ -15,14 +17,21 @@ public class EnemyStateIdle : EnemyState
     public override void OnEnter()
     {
         idleTimer = 0f;
+
         ai.Agent.ResetPath();
+
         Debug.Log($"[{enemy.name}] Idle");
     }
 
     public override void OnUpdate()
     {
+        // =========================
+        // DETECCIÓN
+        // =========================
 
-        Character target = ai.Perception.DetectPlayer(ai.IsAlerted);
+        Character target =
+            ai.Perception.DetectPlayer(ai.IsAlerted);
+
         if (target != null)
         {
             ai.SetTarget(target);
@@ -30,12 +39,29 @@ public class EnemyStateIdle : EnemyState
             return;
         }
 
-  
+        // =========================
+        // TIMER
+        // =========================
+
         idleTimer += Time.deltaTime;
-        if (idleTimer >= idleDuration)
+
+        if (idleTimer < idleDuration)
+            return;
+
+        // =========================
+        // RETORNO A PATROL
+        // =========================
+
+        if (ai.HasPatrolPoints)
         {
-            if (ai.HasPatrolPoints)
-                ai.StateMachine.ChangeState(ai.PatrolState);
+            Debug.Log($"[{enemy.name}] Idle -> Patrol");
+
+            ai.StateMachine.ChangeState(ai.PatrolState);
+        }
+        else
+        {
+            
+            idleTimer = 0f;
         }
     }
 }

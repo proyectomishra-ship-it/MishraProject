@@ -2,13 +2,17 @@ using UnityEngine;
 
 public class DemiGodPhase1State : EnemyStateAttack
 {
+    private CombatController combat;
+
     private float heavyAttackCooldown = 5f;
     private float heavyAttackTimer;
 
     private float specialAttackCooldown = 15f;
     private float specialAttackTimer;
 
-    public DemiGodPhase1State(Enemy enemy, EnemyAIController ai)
+    public DemiGodPhase1State(
+        Enemy enemy,
+        EnemyAIController ai)
         : base(enemy, ai, attackCooldown: 1.5f)
     {
     }
@@ -16,6 +20,8 @@ public class DemiGodPhase1State : EnemyStateAttack
     public override void OnEnter()
     {
         base.OnEnter();
+
+        combat = enemy.GetComponent<CombatController>();
 
         heavyAttackTimer = 0f;
         specialAttackTimer = 0f;
@@ -27,13 +33,14 @@ public class DemiGodPhase1State : EnemyStateAttack
 
     public override void OnUpdate()
     {
-        if (ai.CurrentTarget == null) return;
+        if (ai.CurrentTarget == null)
+            return;
 
         float dist = Vector3.Distance(
             enemy.transform.position,
             ai.CurrentTarget.transform.position);
 
-        if (dist > enemy.GetStats().AttackRange.Value)
+        if (dist > enemy.GetStats().AttackRange.Value * 0.9f)
             ai.Agent.SetDestination(ai.CurrentTarget.transform.position);
         else
             ai.Agent.ResetPath();
@@ -45,9 +52,10 @@ public class DemiGodPhase1State : EnemyStateAttack
         {
             heavyAttackTimer = 0f;
 
-            Debug.Log("[DemiGod] HEAVY ATTACK (simulado)");
+            Debug.Log("[DemiGod] HEAVY ATTACK");
 
-            enemy.OnAttackPressed();
+            combat?.AttackDirect(true);
+
             return;
         }
 
@@ -57,7 +65,8 @@ public class DemiGodPhase1State : EnemyStateAttack
 
             Debug.Log("[DemiGod] SPECIAL ATTACK");
 
-            enemy.SpecialAttack();
+            combat?.SpecialAttackDirect();
+
             return;
         }
 
@@ -66,10 +75,26 @@ public class DemiGodPhase1State : EnemyStateAttack
 
     protected override void PerformAttack()
     {
-        if (ai.CurrentTarget == null) return;
+        if (combat == null)
+            return;
 
         Debug.Log("[DemiGod] ATTACK base");
 
-        enemy.OnAttackPressed();
+        combat.AttackDirect();
+    }
+
+    protected override bool IsTargetInAttackRange()
+    {
+        if (ai.CurrentTarget == null)
+            return false;
+
+        float distance = Vector3.Distance(
+            enemy.transform.position,
+            ai.CurrentTarget.transform.position);
+
+        float tolerance = 1.25f;
+
+        return distance <=
+               enemy.GetStats().AttackRange.Value + tolerance;
     }
 }

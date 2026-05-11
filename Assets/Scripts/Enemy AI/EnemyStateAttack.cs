@@ -6,7 +6,10 @@ public abstract class EnemyStateAttack : EnemyState
     protected float attackCooldown;
     protected float attackTimer;
 
-    public EnemyStateAttack(Enemy enemy, EnemyAIController ai, float attackCooldown)
+    public EnemyStateAttack(
+        Enemy enemy,
+        EnemyAIController ai,
+        float attackCooldown)
         : base(enemy, ai)
     {
         this.attackCooldown = attackCooldown;
@@ -23,52 +26,60 @@ public abstract class EnemyStateAttack : EnemyState
 
     public override void OnUpdate()
     {
-
         if (!enemy.IsServer) return;
 
-        if (ai.ShouldFlee)
+        // =========================
+        // FLEE
+        // =========================
+
+        if (ai.ShouldFlee && ai.FleeState != null)
         {
             ai.StateMachine.ChangeState(ai.FleeState);
             return;
         }
 
+        // =========================
+        // TARGET
+        // =========================
+
         if (ai.CurrentTarget == null)
         {
             Debug.Log($"[{enemy.name}] Sin target -> Idle");
+
             ai.StateMachine.ChangeState(ai.IdleState);
+
             return;
         }
 
-
-        enemy.GetComponent<TargetingController>()?.ForceTarget(ai.CurrentTarget);
-
-        float distanceToTarget = Vector3.Distance(
-            enemy.transform.position,
-            ai.CurrentTarget.transform.position
-        );
-
-        float attackRange = enemy.GetStats().AttackRange.Value;
-
         // =========================
-        // FUERA DE RANGO
+        // FORCE TARGET
         // =========================
 
-        if (distanceToTarget > attackRange)
+        enemy.GetComponent<TargetingController>()
+            ?.ForceTarget(ai.CurrentTarget);
+
+        // =========================
+        // VALIDACIÓN DE RANGO
+        // =========================
+
+        if (!IsTargetInAttackRange())
         {
-            Debug.Log($"[{enemy.name}] Target fuera de rango ({distanceToTarget:F2} > {attackRange:F2}) -> Chase");
+            Debug.Log(
+                $"[{enemy.name}] Target fuera de rango -> Chase");
 
             ai.StateMachine.ChangeState(ai.ChaseState);
+
             return;
         }
 
         // =========================
-        // MIRAR AL TARGET
+        // MIRAR TARGET
         // =========================
 
         FaceTarget();
 
         // =========================
-        // TIMER DE ATAQUE
+        // ATTACK TIMER
         // =========================
 
         attackTimer += Time.deltaTime;
@@ -83,20 +94,50 @@ public abstract class EnemyStateAttack : EnemyState
         }
     }
 
+    // =========================
+    // RANGE VALIDATION
+    // =========================
+
+    protected virtual bool IsTargetInAttackRange()
+    {
+        if (ai.CurrentTarget == null)
+            return false;
+
+        float distance = Vector3.Distance(
+            enemy.transform.position,
+            ai.CurrentTarget.transform.position);
+
+        float attackRange =
+            enemy.GetStats().AttackRange.Value;
+
+        return distance <= attackRange;
+    }
+
+    // =========================
+    // FACE TARGET
+    // =========================
+
     private void FaceTarget()
     {
-        Vector3 direction = (
+        if (ai.CurrentTarget == null)
+            return;
+
+        Vector3 direction =
             ai.CurrentTarget.transform.position
-            - enemy.transform.position
-        ).normalized;
+            - enemy.transform.position;
 
         direction.y = 0f;
 
-        if (direction != Vector3.zero)
-        {
-            enemy.transform.rotation = Quaternion.LookRotation(direction);
-        }
+        if (direction.sqrMagnitude <= 0.001f)
+            return;
+
+        enemy.transform.rotation =
+            Quaternion.LookRotation(direction.normalized);
     }
+
+    // =========================
+    // ATTACK
+    // =========================
 
     protected abstract void PerformAttack();
 }

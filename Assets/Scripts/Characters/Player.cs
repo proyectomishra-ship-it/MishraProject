@@ -9,6 +9,7 @@ public class Player : Character
     private PlayerHUD hud;
     private CharacterStatsSyncController statsSync;
     private PlayerInputController inputController;
+    private MovementController movementController;
 
     // =========================
     // UNITY
@@ -19,12 +20,24 @@ public class Player : Character
         base.Awake();
 
         inputController = GetComponent<PlayerInputController>();
+        movementController = GetComponent<MovementController>();
 
         if (inputController == null)
         {
             Debug.LogError(
                 $"[Player] Falta PlayerInputController en {gameObject.name}"
             );
+        }
+
+        if (movementController == null)
+        {
+            Debug.LogError(
+                $"[Player] Falta MovementController en {gameObject.name}"
+            );
+        }
+        else
+        {
+            movementController.Initialize(this);
         }
     }
 
@@ -93,25 +106,25 @@ public class Player : Character
     // MOVEMENT
     // =========================
 
-    public override void Move(Vector3 direction)
+    public void Move(Vector3 direction)
     {
         if (IsOwner)
             MoveServerRpc(direction);
     }
 
-    public override void Run(Vector3 direction)
+    public void Run(Vector3 direction)
     {
         if (IsOwner)
             RunServerRpc(direction);
     }
 
-    public override void Jump()
+    public void Jump()
     {
         if (IsOwner)
             JumpServerRpc();
     }
 
-    public override void ApplyGravity()
+    public void ApplyGravity()
     {
         if (IsOwner)
             ApplyGravityServerRpc();
@@ -120,25 +133,25 @@ public class Player : Character
     [ServerRpc]
     private void MoveServerRpc(Vector3 direction)
     {
-        base.Move(direction);
+        movementController?.Move(direction);
     }
 
     [ServerRpc]
     private void RunServerRpc(Vector3 direction)
     {
-        base.Run(direction);
+        movementController?.Run(direction);
     }
 
     [ServerRpc]
     private void JumpServerRpc()
     {
-        base.Jump();
+        movementController?.Jump();
     }
 
     [ServerRpc]
     private void ApplyGravityServerRpc()
     {
-        base.ApplyGravity();
+        movementController?.ApplyGravity();
     }
 
     // =========================
