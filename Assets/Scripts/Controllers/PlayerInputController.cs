@@ -17,22 +17,13 @@ public class PlayerInputController : NetworkBehaviour
     }
 
     public override void OnNetworkSpawn()
-    { 
-
+    {
         if (!IsOwner) return;
 
-        if (player == null)
-            player = GetComponent<Player>();
+        if (player == null) player = GetComponent<Player>();
+        if (player == null) { Debug.LogError("[PlayerInputController] No se encontró el Player."); return; }
 
-        if (player == null)
-        {
-            Debug.LogError("[PlayerInputController] No se encontró el Player.");
-            return;
-        }
-
-       
         mainCamera = Camera.main;
-
         inputActions = new PlayerInputActions();
 
         inputActions.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
@@ -40,16 +31,8 @@ public class PlayerInputController : NetworkBehaviour
         inputActions.Player.Jump.performed += ctx => player.Jump();
         inputActions.Player.Sprint.performed += ctx => isSprinting = true;
         inputActions.Player.Sprint.canceled += ctx => isSprinting = false;
-        inputActions.Player.Attack.performed += ctx =>
-        {
-            isHoldingAttack = true;
-            player.OnAttackPressed();
-        };
-        inputActions.Player.Attack.canceled += ctx =>
-        {
-            isHoldingAttack = false;
-            player.OnAttackReleased();
-        };
+        inputActions.Player.Attack.performed += ctx => { isHoldingAttack = true; player.OnAttackPressed(); };
+        inputActions.Player.Attack.canceled += ctx => { isHoldingAttack = false; player.OnAttackReleased(); };
         inputActions.Player.SpecialAttack.performed += ctx => player.SpecialAttack();
 
         inputActions.Enable();
@@ -59,32 +42,26 @@ public class PlayerInputController : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
-
         if (!IsOwner) return;
-        inputActions?.Player.Move.Reset();
-        inputActions?.Player.Jump.Reset();
-        inputActions?.Player.Sprint.Reset();
-        inputActions?.Player.Attack.Reset();
-        inputActions?.Player.SpecialAttack.Reset();
         inputActions?.Disable();
         inputActions?.Dispose();
     }
 
     private void Update()
     {
-        if (!IsOwner) return;
-        if (player == null) return;
-
-        Vector3 move = GetCameraRelativeMovement();
-
-        if (move != Vector3.zero)
-        {
-            if (isSprinting) player.Run(move);
-            else player.Move(move);
-        }
+        if (!IsOwner || player == null || mainCamera == null) return;
 
         if (isHoldingAttack)
             player.OnAttackHeld();
+
+        if (moveInput == Vector2.zero) return;
+
+        // Calcular dirección y rotación en el CLIENTE donde la cámara es exacta
+        Vector3 worldDir = GetWorldDirection();
+        Quaternion targetRot = Quaternion.LookRotation(worldDir);
+
+        if (isSprinting) player.Run(worldDir, targetRot);
+        else player.Move(worldDir, targetRot);
 
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
@@ -93,12 +70,8 @@ public class PlayerInputController : NetworkBehaviour
         }
     }
 
-    private Vector3 GetCameraRelativeMovement()
+    private Vector3 GetWorldDirection()
     {
-        if (moveInput == Vector2.zero) return Vector3.zero;
-        if (mainCamera == null) return new Vector3(moveInput.x, 0, moveInput.y);
-
-     
         Vector3 camForward = mainCamera.transform.forward;
         Vector3 camRight = mainCamera.transform.right;
         camForward.y = 0f;
@@ -106,17 +79,14 @@ public class PlayerInputController : NetworkBehaviour
         camForward.Normalize();
         camRight.Normalize();
 
-        return (camForward * moveInput.y + camRight * moveInput.x);
+        Vector3 dir = camForward * moveInput.y + camRight * moveInput.x;
+        dir.y = 0f;
+        return dir.normalized;
     }
 
     private void OnApplicationFocus(bool hasFocus)
     {
         if (!IsOwner) return;
-
-        if (hasFocus)
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
+        if (hasFocus) { Cursor.lockState = CursorLockMode.Locked; Cursor.visible = false; }
     }
 }
