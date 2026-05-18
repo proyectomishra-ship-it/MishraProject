@@ -1,66 +1,99 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
+using Unity.Services.Core;
+using Unity.Services.Authentication;
+using Unity.Services.Relay;
+using Unity.Services.Relay.Models;
+using Unity.Networking.Transport.Relay;
 
-/// <summary>
-/// Menú de conexión principal.
-/// 
-/// SETUP EN UNITY:
-///   1. Crear un Canvas en la escena con este script
-///   2. Asignar los campos en el Inspector
-///   3. El menú se oculta automáticamente al conectar
-/// </summary>
 public class NetworkMenuUI : MonoBehaviour
 {
     [Header("Panel principal")]
     [SerializeField] private GameObject menuPanel;
 
-    [Header("Campos")]
-    [SerializeField] private TMP_InputField ipInputField;
-    [SerializeField] private TMP_InputField portInputField;
-    [SerializeField] private TMP_InputField playerNameInputField;
+    [Header("Tabs")]
+    [SerializeField] private GameObject panelLAN;
+    [SerializeField] private GameObject panelOnline;
+    [SerializeField] private Button tabLANButton;
+    [SerializeField] private Button tabOnlineButton;
 
-    [Header("Botones")]
-    [SerializeField] private Button hostButton;
-    [SerializeField] private Button joinButton;
+    [Header("LAN")]
+    [SerializeField] private TMP_InputField lanIPInput;
+    [SerializeField] private TMP_InputField lanPortInput;
+    [SerializeField] private Button lanHostButton;
+    [SerializeField] private Button lanJoinButton;
+
+    [Header("Online (Relay)")]
+    [SerializeField] private TMP_InputField joinCodeInput;
+    [SerializeField] private TextMeshProUGUI joinCodeDisplay;
+    [SerializeField] private Button onlineHostButton;
+    [SerializeField] private Button onlineJoinButton;
+
+    [Header("Comun")]
+    [SerializeField] private TMP_InputField playerNameInput;
     [SerializeField] private Button quitButton;
-
-    [Header("Feedback")]
     [SerializeField] private TextMeshProUGUI statusText;
     [SerializeField] private GameObject loadingIndicator;
 
-    // Valores por defecto
+    [Header("HUD - Codigo de sala (visible durante la partida)")]
+    [SerializeField] private GameObject roomCodePanel;
+    [SerializeField] private TextMeshProUGUI roomCodeText;
+
+    [Header("Config")]
+    [SerializeField] private int maxPlayers = 6;
+
     private const string DEFAULT_IP = "127.0.0.1";
     private const ushort DEFAULT_PORT = 7777;
 
-    private void Start()
-    {
-        // Valores por defecto
-        if (ipInputField != null) ipInputField.text = DEFAULT_IP;
-        if (portInputField != null) portInputField.text = DEFAULT_PORT.ToString();
-        if (playerNameInputField != null) playerNameInputField.text = "Jugador";
+    private bool servicesInitialized = false;
 
-        // Botones
-        hostButton?.onClick.AddListener(OnHostClicked);
-        joinButton?.onClick.AddListener(OnJoinClicked);
+    private async void Start()
+    {
+        tabLANButton?.onClick.AddListener(() => ShowTab(true));
+        tabOnlineButton?.onClick.AddListener(() => ShowTab(false));
+
+        lanHostButton?.onClick.AddListener(OnLANHostClicked);
+        lanJoinButton?.onClick.AddListener(OnLANJoinClicked);
+
+        onlineHostButton?.onClick.AddListener(OnRelayHostClicked);
+        onlineJoinButton?.onClick.AddListener(OnRelayJoinClicked);
+
         quitButton?.onClick.AddListener(OnQuitClicked);
 
-        // Ocultar loading
-        if (loadingIndicator != null) loadingIndicator.SetActive(false);
+        if (lanIPInput != null) lanIPInput.text = DEFAULT_IP;
+        if (lanPortInput != null) lanPortInput.text = DEFAULT_PORT.ToString();
+        if (playerNameInput != null) playerNameInput.text = "Jugador";
 
-        SetStatus("");
-
-        // Suscribir eventos de red
-        if (NetworkManager.Singleton != null)
-        {
-            NetworkManager.Singleton.OnServerStarted += OnServerStarted;
-            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
-            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
-        }
-
+        SetLoading(false);
+        SetStatus("Inicializando servicios...");
+        HideRoomCode();
         ShowMenu();
+
+        NetworkManager.Singleton.OnServerStarted += OnServerStarted;
+        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+        NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
+
+        try
+        {
+            await UnityServices.InitializeAsync();
+
+            if (!AuthenticationService.Instance.IsSignedIn)
+                await AuthenticationService.Instance.SignInAnonymouslyAsync();
+
+            servicesInitialized = true;
+            SetStatus("Listo.");
+            Debug.Log($"[Relay] Autenticado. PlayerID: {AuthenticationService.Instance.PlayerId}");
+        }
+        catch (System.Exception e)
+        {
+            servicesInitialized = false;
+            SetStatus("Modo LAN disponible.");
+            Debug.LogWarning($"[Relay] Servicios no disponibles: {e.Message}");
+        }
     }
 
     private void OnDestroy()
@@ -74,28 +107,38 @@ public class NetworkMenuUI : MonoBehaviour
     }
 
     // =========================
-    // BOTONES
+    // TABS
     // =========================
 
-    private void OnHostClicked()
+    private void ShowTab(bool lan)
+    {
+        if (panelLAN != null) panelLAN.SetActive(lan);
+        if (panelOnline != null) panelOnline.SetActive(!lan);
+    }
+
+    // =========================
+    // LAN
+    // =========================
+
+    private void OnLANHostClicked()
     {
         if (NetworkManager.Singleton.IsListening) return;
 
         ushort port = ParsePort();
-        ConfigureTransport("0.0.0.0", port); // host escucha en todas las interfaces
+        ConfigureTransportLAN("0.0.0.0", port);
 
-        SetStatus("Iniciando servidor...");
+        SetStatus("Iniciando servidor LAN...");
         SetLoading(true);
         SetButtonsInteractable(false);
 
         NetworkManager.Singleton.StartHost();
     }
 
-    private void OnJoinClicked()
+    private void OnLANJoinClicked()
     {
         if (NetworkManager.Singleton.IsListening) return;
 
-        string ip = GetIP();
+        string ip = lanIPInput != null ? lanIPInput.text.Trim() : DEFAULT_IP;
         ushort port = ParsePort();
 
         if (string.IsNullOrWhiteSpace(ip))
@@ -104,8 +147,7 @@ public class NetworkMenuUI : MonoBehaviour
             return;
         }
 
-        ConfigureTransport(ip, port);
-
+        ConfigureTransportLAN(ip, port);
         SetStatus($"Conectando a {ip}:{port}...");
         SetLoading(true);
         SetButtonsInteractable(false);
@@ -113,13 +155,95 @@ public class NetworkMenuUI : MonoBehaviour
         NetworkManager.Singleton.StartClient();
     }
 
-    private void OnQuitClicked()
+    private void ConfigureTransportLAN(string ip, ushort port)
     {
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
-        Application.Quit();
-#endif
+        var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+        if (transport == null) return;
+        transport.SetConnectionData(ip, port);
+        Debug.Log($"[LAN] Transport -> {ip}:{port}");
+    }
+
+    // =========================
+    // RELAY (ONLINE)
+    // =========================
+
+    private async void OnRelayHostClicked()
+    {
+        if (!servicesInitialized)
+        {
+            SetStatus("Servicios online no disponibles. Usa LAN.");
+            return;
+        }
+
+        if (NetworkManager.Singleton.IsListening) return;
+
+        SetStatus("Creando sala online...");
+        SetLoading(true);
+        SetButtonsInteractable(false);
+
+        try
+        {
+            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(maxPlayers - 1);
+            string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+
+            Debug.Log($"[Relay] Sala creada. Codigo: {joinCode}");
+
+            var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+            transport.SetRelayServerData(allocation.ToRelayServerData("dtls"));
+
+            // Guardar el codigo para mostrarlo en el HUD
+            PlayerPrefs.SetString("RoomCode", joinCode);
+
+            NetworkManager.Singleton.StartHost();
+        }
+        catch (System.Exception e)
+        {
+            SetStatus($"Error al crear sala: {e.Message}");
+            SetLoading(false);
+            SetButtonsInteractable(true);
+            Debug.LogError($"[Relay] Error: {e}");
+        }
+    }
+
+    private async void OnRelayJoinClicked()
+    {
+        if (!servicesInitialized)
+        {
+            SetStatus("Servicios online no disponibles. Usa LAN.");
+            return;
+        }
+
+        if (NetworkManager.Singleton.IsListening) return;
+
+        string code = joinCodeInput != null ? joinCodeInput.text.Trim().ToUpper() : "";
+
+        if (string.IsNullOrWhiteSpace(code))
+        {
+            SetStatus("Ingresa el codigo de sala");
+            return;
+        }
+
+        SetStatus($"Uniendose con codigo {code}...");
+        SetLoading(true);
+        SetButtonsInteractable(false);
+
+        try
+        {
+            JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(code);
+
+            var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+            transport.SetRelayServerData(joinAllocation.ToRelayServerData("dtls"));
+
+            NetworkManager.Singleton.StartClient();
+            Debug.Log($"[Relay] Uniendose con codigo: {code}");
+        }
+        catch (System.Exception e)
+        {
+            SetStatus($"Error al unirse: {e.Message}");
+            SetLoading(false);
+            SetButtonsInteractable(true);
+            Debug.LogError($"[Relay] Error: {e}");
+        }
     }
 
     // =========================
@@ -128,13 +252,19 @@ public class NetworkMenuUI : MonoBehaviour
 
     private void OnServerStarted()
     {
-        SetStatus("Servidor iniciado - esperando jugadores...");
+        SetStatus("Servidor iniciado.");
         SetLoading(false);
         HideMenu();
 
-        string localIP = GetLocalIP();
-        Debug.Log($"[Network] Host iniciado. IP local: {localIP} | Puerto: {ParsePort()}");
-        Debug.Log($"[Network] Compartí esta IP con tus compañeros: {localIP}");
+        // Mostrar codigo de sala en el HUD si es modo Relay
+        string code = PlayerPrefs.GetString("RoomCode", "");
+        if (!string.IsNullOrEmpty(code))
+        {
+            ShowRoomCode(code);
+            PlayerPrefs.DeleteKey("RoomCode");
+        }
+
+        Debug.Log($"[Network] Host iniciado. IP local: {GetLocalIP()}");
     }
 
     private void OnClientConnected(ulong clientId)
@@ -144,7 +274,6 @@ public class NetworkMenuUI : MonoBehaviour
             SetStatus("Conectado!");
             SetLoading(false);
             HideMenu();
-            Debug.Log($"[Network] Conectado al servidor. ClientId: {clientId}");
         }
     }
 
@@ -156,36 +285,45 @@ public class NetworkMenuUI : MonoBehaviour
             SetStatus("Desconectado del servidor");
             SetLoading(false);
             SetButtonsInteractable(true);
+            HideRoomCode();
             ShowMenu();
         }
+    }
+
+    // =========================
+    // ROOM CODE HUD
+    // =========================
+
+    private void ShowRoomCode(string code)
+    {
+        if (roomCodePanel != null) roomCodePanel.SetActive(true);
+        if (roomCodeText != null) roomCodeText.text = $"Codigo de sala:\n{code}";
+        Debug.Log($"[Relay] Codigo de sala visible en HUD: {code}");
+    }
+
+    private void HideRoomCode()
+    {
+        if (roomCodePanel != null) roomCodePanel.SetActive(false);
+        if (roomCodeText != null) roomCodeText.text = "";
     }
 
     // =========================
     // HELPERS
     // =========================
 
-    private void ConfigureTransport(string ip, ushort port)
+    private void OnQuitClicked()
     {
-        var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-        if (transport == null)
-        {
-            Debug.LogError("[Network] No se encontró UnityTransport en el NetworkManager");
-            return;
-        }
-        transport.SetConnectionData(ip, port);
-        Debug.Log($"[Network] Transport configurado → {ip}:{port}");
-    }
-
-    private string GetIP()
-    {
-        string ip = ipInputField != null ? ipInputField.text.Trim() : DEFAULT_IP;
-        return string.IsNullOrEmpty(ip) ? DEFAULT_IP : ip;
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
     }
 
     private ushort ParsePort()
     {
-        if (portInputField != null &&
-            ushort.TryParse(portInputField.text, out ushort port))
+        if (lanPortInput != null &&
+            ushort.TryParse(lanPortInput.text, out ushort port))
             return port;
         return DEFAULT_PORT;
     }
@@ -202,8 +340,10 @@ public class NetworkMenuUI : MonoBehaviour
 
     private void SetButtonsInteractable(bool interactable)
     {
-        if (hostButton != null) hostButton.interactable = interactable;
-        if (joinButton != null) joinButton.interactable = interactable;
+        if (lanHostButton != null) lanHostButton.interactable = interactable;
+        if (lanJoinButton != null) lanJoinButton.interactable = interactable;
+        if (onlineHostButton != null) onlineHostButton.interactable = interactable;
+        if (onlineJoinButton != null) onlineJoinButton.interactable = interactable;
     }
 
     private void ShowMenu()
@@ -218,9 +358,6 @@ public class NetworkMenuUI : MonoBehaviour
         if (menuPanel != null) menuPanel.SetActive(false);
     }
 
-    /// <summary>
-    /// Obtiene la IP local de la máquina para mostrársela al host.
-    /// </summary>
     private string GetLocalIP()
     {
         try

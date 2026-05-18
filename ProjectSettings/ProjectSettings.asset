@@ -925,11 +925,11 @@ PlayerSettings:
   captureStartupLogs: {}
   activeInputHandler: 1
   windowsGamepadBackendHint: 0
-  cloudProjectId: 684b39f0-0e26-4d7c-b1f0-f90894298f75
+  cloudProjectId: e5c37ae3-e0db-42e4-af8c-a1c59e3cc039
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: MishraProject
-  organizationId: unity_eed2d141f97ca740ac4e
+  projectName: Mishra Proyecto
+  organizationId: proyectomishra
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}
