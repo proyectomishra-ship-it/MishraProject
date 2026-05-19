@@ -127,6 +127,10 @@ public class NetworkMenuUI : MonoBehaviour
         ushort port = ParsePort();
         ConfigureTransportLAN("0.0.0.0", port);
 
+        // Guardar IP y puerto para mostrarlos en el HUD al arrancar
+        PlayerPrefs.SetString("LANHostIP", GetLocalIP());
+        PlayerPrefs.SetString("LANHostPort", port.ToString());
+
         SetStatus("Iniciando servidor LAN...");
         SetLoading(true);
         SetButtonsInteractable(false);
@@ -262,6 +266,18 @@ public class NetworkMenuUI : MonoBehaviour
         {
             ShowRoomCode(code);
             PlayerPrefs.DeleteKey("RoomCode");
+        }
+        // Mostrar IP:puerto en el HUD si es modo LAN
+        else
+        {
+            string lanIP = PlayerPrefs.GetString("LANHostIP", "");
+            string lanPort = PlayerPrefs.GetString("LANHostPort", DEFAULT_PORT.ToString());
+            if (!string.IsNullOrEmpty(lanIP))
+            {
+                ShowRoomCode($"{lanIP}:{lanPort}");
+                PlayerPrefs.DeleteKey("LANHostIP");
+                PlayerPrefs.DeleteKey("LANHostPort");
+            }
         }
 
         Debug.Log($"[Network] Host iniciado. IP local: {GetLocalIP()}");
