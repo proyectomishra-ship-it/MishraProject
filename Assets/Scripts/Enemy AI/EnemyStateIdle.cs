@@ -3,6 +3,7 @@ using UnityEngine;
 public class EnemyStateIdle : EnemyState
 {
     private float idleDuration;
+
     private float idleTimer;
 
     public EnemyStateIdle(
@@ -14,53 +15,62 @@ public class EnemyStateIdle : EnemyState
         this.idleDuration = idleDuration;
     }
 
+    // =========================
+    // ENTER
+    // =========================
+
     public override void OnEnter()
     {
+        if (!enemy.IsServer)
+            return;
+
         idleTimer = 0f;
 
-        ai.Agent.ResetPath();
+        if (ai.Agent != null &&
+            ai.Agent.isOnNavMesh)
+        {
+            ai.Agent.ResetPath();
+        }
 
-        Debug.Log($"[{enemy.name}] Idle");
+        Debug.Log(
+            $"[{enemy.name}] Idle");
     }
+
+    // =========================
+    // UPDATE
+    // =========================
 
     public override void OnUpdate()
     {
-        // =========================
-        // DETECCIÓN
-        // =========================
+        if (!enemy.IsServer)
+            return;
 
         Character target =
-            ai.Perception.DetectPlayer(ai.IsAlerted);
+            ai.Perception.DetectPlayer(
+                ai.IsAlerted);
 
         if (target != null)
         {
             ai.SetTarget(target);
-            ai.StateMachine.ChangeState(ai.ChaseState);
+
+            ai.StateMachine.ChangeState(
+                ai.ChaseState);
+
             return;
         }
-
-        // =========================
-        // TIMER
-        // =========================
 
         idleTimer += Time.deltaTime;
 
         if (idleTimer < idleDuration)
             return;
 
-        // =========================
-        // RETORNO A PATROL
-        // =========================
-
         if (ai.HasPatrolPoints)
         {
-            Debug.Log($"[{enemy.name}] Idle -> Patrol");
-
-            ai.StateMachine.ChangeState(ai.PatrolState);
+            ai.StateMachine.ChangeState(
+                ai.PatrolState);
         }
         else
         {
-            
             idleTimer = 0f;
         }
     }

@@ -1,67 +1,144 @@
 using UnityEngine;
 using Unity.Netcode;
 
-/// <summary>
-/// Comportamiento de ataque para armas a distancia.
-/// Usa el NetworkProjectile existente en el proyecto.
-/// ACCIÓN: archivo nuevo en Assets/Scripts/Weapons/
-/// </summary>
 public class RangedWeaponBehavior : IWeaponBehavior
 {
     private readonly WeaponData weapon;
-    private readonly Transform  spawnOrigin;
 
-    public RangedWeaponBehavior(WeaponData weapon, Transform spawnOrigin)
+    private readonly Transform spawnOrigin;
+
+    public RangedWeaponBehavior(
+        WeaponData weapon,
+        Transform spawnOrigin)
     {
-        this.weapon      = weapon;
+        this.weapon = weapon;
         this.spawnOrigin = spawnOrigin;
     }
 
-    public void PerformAttack(Character attacker, Character target)
+    public void ExecuteAttack(
+        Character attacker,
+        Character target,
+        bool heavy)
     {
-        float damage = attacker.GetStats().Attack.Value;
-        SpawnProjectile(weapon.ProjectilePrefab, attacker, target, damage);
+        if (weapon == null)
+            return;
+
+        ResourceController resources =
+            attacker.GetResourceController();
+
+        if (!resources.UseStamina(
+            weapon.StaminaCost))
+        {
+            Debug.Log(
+                "[Ranged] Not enough stamina");
+
+            return;
+        }
+
+        float damage =
+            attacker.GetStats().Attack.Value +
+            attacker.GetStats().Dexterity.Value;
+
+        if (heavy)
+        {
+            damage *= weapon.HeavyMultiplier;
+        }
+
+        SpawnProjectile(
+            weapon.ProjectilePrefab,
+            attacker,
+            target,
+            damage,
+            heavy);
     }
 
-    public void PerformHeavyAttack(Character attacker, Character target, float multiplier)
+    public void ExecuteSpecialAttack(
+        Character attacker,
+        Character target)
     {
-        float damage = attacker.GetStats().Attack.Value * multiplier;
-        SpawnProjectile(weapon.ProjectilePrefab, attacker, target, damage);
-    }
+        if (weapon == null)
+            return;
 
-    public void PerformSpecialAttack(Character attacker, Character target)
-    {
-        if (!attacker.UseMana(weapon.SpecialManaCost)) return;
+        float damage =
+            attacker.GetStats().Attack.Value *
+            weapon.SpecialMultiplier;
 
-        float damage = attacker.GetStats().Attack.Value * weapon.SpecialMultiplier;
-        SpawnProjectile(weapon.GetSpecialProjectile(), attacker, target, damage);
+        SpawnProjectile(
+            weapon.SpecialProjectilePrefab != null
+                ? weapon.SpecialProjectilePrefab
+                : weapon.ProjectilePrefab,
+            attacker,
+            target,
+            damage,
+            true);
     }
 
     private void SpawnProjectile(
-        GameObject prefab, Character attacker, Character target, float damage)
+        GameObject prefab,
+        Character attacker,
+        Character target,
+        float damage,
+        bool heavy)
     {
-        if (prefab == null) return;
+        if (prefab == null)
+            return;
 
-        Vector3 origin    = spawnOrigin.position + Vector3.up * 1.5f;
-        Vector3 direction = (target.transform.position + Vector3.up - origin).normalized;
+        Vector3 origin =
+            spawnOrigin.position +
+            Vector3.up * 1.5f;
 
-        var obj = Object.Instantiate(prefab, origin, Quaternion.LookRotation(direction));
+        Vector3 direction =
+            (
+                target.transform.position +
+                Vector3.up -
+                origin
+            ).normalized;
 
-        if (!obj.TryGetComponent<NetworkProjectile>(out var projectile))
+        GameObject obj =
+            Object.Instantiate(
+                prefab,
+                origin,
+                Quaternion.LookRotation(direction));
+
+        if (!obj.TryGetComponent(
+            out NetworkObject netObj))
         {
-            Debug.LogError("[RangedWeapon] El prefab no tiene NetworkProjectile.");
+            Debug.LogError(
+                "[Ranged] Missing NetworkObject");
+
             Object.Destroy(obj);
+
             return;
         }
 
-        if (!obj.TryGetComponent<NetworkObject>(out var netObj))
+        if (!obj.TryGetComponent(
+            out NetworkProjectile projectile))
         {
-            Debug.LogError("[RangedWeapon] El prefab no tiene NetworkObject.");
+            Debug.LogError(
+                "[Ranged] Missing NetworkProjectile");
+
             Object.Destroy(obj);
+
             return;
         }
+
+        AttackData attackData =
+            new AttackData
+            {
+                Attacker = attacker,
+                Target = target,
+                Damage = damage,
+                DamageType = weapon.DamageType,
+                IsHeavy = heavy,
+                IsCritical = false,
+                HitPoint = target.transform.position
+            };
 
         netObj.Spawn();
-        projectile.Initialize(attacker, damage, direction);
+
+        projectile.Initialize(
+            attackData,
+            direction,
+            weapon.ProjectileSpeed);
     }
 }

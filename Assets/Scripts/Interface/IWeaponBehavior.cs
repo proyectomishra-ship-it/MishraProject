@@ -1,12 +1,14 @@
 /// <summary>
-/// Contrato de comportamiento de un arma.
-/// Cada tipo de arma tiene su propia implementación.
-/// El CombatController puede obtener el behavior actual del arma equipada
-/// y delegar sin saber qué tipo de arma es.
+/// Contrato universal de comportamiento de armas.
 /// </summary>
 public interface IWeaponBehavior
 {
-    void PerformAttack(Character attacker, Character target);
-    void PerformHeavyAttack(Character attacker, Character target, float multiplier);
-    void PerformSpecialAttack(Character attacker, Character target);
+    void ExecuteAttack(
+        Character attacker,
+        Character target,
+        bool heavy);
+
+    void ExecuteSpecialAttack(
+        Character attacker,
+        Character target);
 }
