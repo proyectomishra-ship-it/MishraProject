@@ -2,33 +2,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
-using Unity.Netcode;
 using TMPro;
 
-/// <summary>
-/// UI principal del inventario. Se abre/cierra con Tab.
-///
-/// LAYOUT:
-///   Panel izquierdo  → modelo 3D del personaje + slots de equipamiento
-///   Panel central    → grilla de iconos de items
-///   Panel derecho    → detalle del item seleccionado + boton equipar
-///
-/// SETUP EN UNITY:
-///   Ver comentarios de cada campo en el Inspector.
-///   La RenderTexture para el modelo 3D se configura por separado (ver abajo).
-/// </summary>
-public class InventoryUI : NetworkBehaviour
+public class InventoryUI : MonoBehaviour
 {
     [Header("Panel principal")]
     [SerializeField] private GameObject inventoryPanel;
 
+    [Header("Camara de preview del personaje")]
+    [SerializeField] private Camera inventoryCamera;
+
     [Header("Panel izquierdo — Personaje y equipamiento")]
-    [SerializeField] private RawImage characterPreview;   // Muestra la RenderTexture
-    [SerializeField] private Transform equipmentContainer; // Padre de los slots
+    [SerializeField] private RawImage characterPreview;
+    [SerializeField] private Transform equipmentContainer;
     [SerializeField] private InventorySlotUI slotPrefab;
 
     [Header("Panel central — Grilla de items")]
-    [SerializeField] private Transform itemGridContainer;  // GridLayoutGroup
+    [SerializeField] private Transform itemGridContainer;
     [SerializeField] private InventoryItemUI itemCellPrefab;
 
     [Header("Panel derecho — Detalle del item")]
@@ -42,20 +32,21 @@ public class InventoryUI : NetworkBehaviour
 
     private InventoryController inventory;
     private EquipmentController equipment;
+    private Player player;
 
     private readonly List<InventorySlotUI> slotUIs = new();
     private readonly List<InventoryItemUI> itemUIs = new();
 
     private ItemData selectedItem;
-    private int selectedQty;
     private bool isOpen = false;
 
     // =========================
     // INIT
     // =========================
 
-    public void Initialize(InventoryController inventory, EquipmentController equipment)
+    public void Initialize(Player player, InventoryController inventory, EquipmentController equipment)
     {
+        this.player = player;
         this.inventory = inventory;
         this.equipment = equipment;
 
@@ -68,13 +59,13 @@ public class InventoryUI : NetworkBehaviour
         if (detailPanel != null) detailPanel.SetActive(false);
 
         inventoryPanel?.SetActive(false);
+        inventoryCamera?.gameObject.SetActive(false);
 
         Debug.Log("[InventoryUI] Inicializado.");
     }
 
-    public override void OnDestroy()
+    private void OnDestroy()
     {
-        base.OnDestroy();
         if (inventory != null) inventory.OnChanged -= RefreshItemGrid;
     }
 
@@ -84,7 +75,7 @@ public class InventoryUI : NetworkBehaviour
 
     private void Update()
     {
-        if (!IsOwner) return;
+        if (player == null) return;
         if (Keyboard.current.tabKey.wasPressedThisFrame)
             ToggleInventory();
     }
@@ -93,6 +84,7 @@ public class InventoryUI : NetworkBehaviour
     {
         isOpen = !isOpen;
         inventoryPanel?.SetActive(isOpen);
+        inventoryCamera?.gameObject.SetActive(isOpen);
 
         Cursor.lockState = isOpen ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = isOpen;
@@ -131,15 +123,7 @@ public class InventoryUI : NetworkBehaviour
 
     private void RequestUnequip(EquipmentSlot slot)
     {
-        if (!IsOwner) return;
-        UnequipServerRpc((int)slot);
-    }
-
-    [ServerRpc]
-    private void UnequipServerRpc(int slotIndex)
-    {
-        bool ok = equipment.Unequip((EquipmentSlot)slotIndex);
-        Debug.Log($"[InventoryUI] Desequipado slot {(EquipmentSlot)slotIndex}: {ok}");
+        player?.RequestUnequip(slot);
     }
 
     // =========================
@@ -168,44 +152,23 @@ public class InventoryUI : NetworkBehaviour
     private void ShowDetail(ItemData item, int qty)
     {
         selectedItem = item;
-        selectedQty = qty;
-
-        // Highlight celda seleccionada
-        foreach (var ui in itemUIs)
-            ui.SetSelected(false);
-
-        // Buscar la celda correspondiente y marcarla
-        foreach (var ui in itemUIs)
-        {
-            // Usamos reflection indirecta via OnSelected — simplemente refrescamos todo
-        }
 
         if (detailPanel != null) detailPanel.SetActive(true);
-        if (detailIcon != null)
-        {
-            detailIcon.sprite = item.Icon;
-            detailIcon.enabled = item.Icon != null;
-        }
+        if (detailIcon != null) { detailIcon.sprite = item.Icon; detailIcon.enabled = item.Icon != null; }
         if (detailName != null) detailName.text = item.ItemName;
-        if (detailDescription != null) detailDescription.text = item.Description;
+        if (detailDescription != null) detailDescription.text = item.GenerateStatsDescription();
         if (detailQuantity != null) detailQuantity.text = qty > 1 ? $"Cantidad: {qty}" : "";
 
-        // Configurar boton equipar
         bool isEquippable = item is IEquippable;
         if (equipButton != null)
         {
             equipButton.gameObject.SetActive(isEquippable);
-
-            if (isEquippable)
+            if (isEquippable && equipButtonText != null)
             {
                 var equippable = item as IEquippable;
-                bool occupied = equipment.IsOccupied(equippable.Slot);
-                if (equipButtonText != null)
-                    equipButtonText.text = occupied ? "Reemplazar" : "Equipar";
+                equipButtonText.text = equipment.IsOccupied(equippable.Slot) ? "Reemplazar" : "Equipar";
             }
         }
-
-        Debug.Log($"[InventoryUI] Seleccionado: {item.ItemName} x{qty}");
     }
 
     private void ClearDetail()
@@ -216,21 +179,58 @@ public class InventoryUI : NetworkBehaviour
 
     private void OnEquipButtonClicked()
     {
-        if (selectedItem == null || !IsOwner) return;
-
-        int id = ItemDatabase.Instance.GetId(selectedItem);
-        if (id < 0) return;
-
-        EquipServerRpc(id);
+        if (selectedItem == null) return;
+        player?.RequestEquip(selectedItem);
     }
+}
 
-    [ServerRpc]
-    private void EquipServerRpc(int itemId)
+// Extension para generar descripcion automatica de stats
+public static class ItemDataExtensions
+{
+    public static string GenerateStatsDescription(this ItemData item)
     {
-        var item = ItemDatabase.Instance.Get(itemId);
-        if (item is not IEquippable equippable) return;
+        if (item is not IEquippable equippable || equippable.Modifiers == null || equippable.Modifiers.Count == 0)
+            return string.IsNullOrEmpty(item.Description) ? "Sin stats." : item.Description;
 
-        bool ok = equipment.Equip(equippable);
-        Debug.Log($"[InventoryUI] Equipado '{item.ItemName}': {ok}");
+        var sb = new System.Text.StringBuilder();
+
+        if (!string.IsNullOrEmpty(item.Description))
+            sb.AppendLine(item.Description).AppendLine();
+
+        foreach (var mod in equippable.Modifiers)
+        {
+            string statName = GetStatName(mod.stat);
+            string sign = mod.value >= 0 ? "+" : "";
+            sb.AppendLine($"{statName}: {sign}{mod.value}");
+        }
+
+        // Info extra para armas
+        if (item is WeaponData weapon)
+        {
+            sb.AppendLine($"Velocidad de ataque: {weapon.AttackSpeed}");
+            sb.AppendLine($"Multiplicador pesado: x{weapon.HeavyMultiplier}");
+            if (weapon.IsRanged)
+                sb.AppendLine("Tipo: Ranged");
+        }
+
+        return sb.ToString().TrimEnd();
     }
+
+    private static string GetStatName(StatType stat) => stat switch
+    {
+        StatType.Attack => "Ataque",
+        StatType.AttackRange => "Rango",
+        StatType.Defense => "Defensa",
+        StatType.MaxHealth => "Vida maxima",
+        StatType.MaxMana => "Mana maximo",
+        StatType.Speed => "Velocidad",
+        StatType.Agility => "Agilidad",
+        StatType.CriticalChance => "Critico",
+        StatType.Dexterity => "Destreza",
+        StatType.Intelligence => "Inteligencia",
+        StatType.Vitality => "Vitalidad",
+        StatType.Resistance => "Resistencia",
+        StatType.Luck => "Suerte",
+        _ => stat.ToString()
+    };
 }

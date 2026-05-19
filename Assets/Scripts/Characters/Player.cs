@@ -45,7 +45,7 @@ public class Player : Character
         if (inventoryUI == null)
             Debug.LogWarning("[Player] No se encontro InventoryUI en la escena.");
         else
-            inventoryUI.Initialize(inventoryController, equipmentController);
+            inventoryUI.Initialize(this, inventoryController, equipmentController);
 
         StartCoroutine(InitializeHUDWhenReady());
     }
@@ -62,6 +62,40 @@ public class Player : Character
     {
         if (!IsServer) return;
         ((PlayerStats)stats).AddExperience(amount);
+    }
+
+    // =========================
+    // INVENTORY — llamados desde InventoryUI
+    // =========================
+
+    public void RequestEquip(ItemData item)
+    {
+        if (!IsOwner) return;
+        int id = ItemDatabase.Instance.GetId(item);
+        if (id < 0) return;
+        EquipServerRpc(id);
+    }
+
+    public void RequestUnequip(EquipmentSlot slot)
+    {
+        if (!IsOwner) return;
+        UnequipServerRpc((int)slot);
+    }
+
+    [ServerRpc]
+    private void EquipServerRpc(int itemId)
+    {
+        var item = ItemDatabase.Instance.Get(itemId);
+        if (item is not IEquippable equippable) return;
+        bool ok = equipmentController.Equip(equippable);
+        Debug.Log($"[Player] Equipado '{item.ItemName}': {ok}");
+    }
+
+    [ServerRpc]
+    private void UnequipServerRpc(int slotIndex)
+    {
+        bool ok = equipmentController.Unequip((EquipmentSlot)slotIndex);
+        Debug.Log($"[Player] Desequipado slot {(EquipmentSlot)slotIndex}: {ok}");
     }
 
     // =========================
