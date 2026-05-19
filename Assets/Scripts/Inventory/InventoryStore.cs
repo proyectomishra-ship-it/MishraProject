@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 
 /// <summary>
-/// Lógica pura del inventario. Sin Unity, sin red. 100% testeable.
+/// Logica pura del inventario. Sin Unity, sin red. 100% testeable.
 /// El servidor la usa como fuente de verdad.
-/// ACCIÓN: archivo nuevo en Assets/Scripts/Inventory/
+/// 
+/// FIX: el stacking ahora maneja overflow correctamente.
+/// Si un stack se llena, el excedente se distribuye en nuevos slots.
 /// </summary>
 public class InventoryStore : IInventory
 {
@@ -18,9 +20,12 @@ public class InventoryStore : IInventory
     public bool AddItem(ItemData item, int amount = 1)
     {
         if (item == null || amount <= 0) return false;
-        if (item.Stackable && TryStack(item, amount)) return true;
-        if (slots.Count >= maxSlots) return false;
 
+        if (item.Stackable)
+            return AddStackable(item, amount);
+
+        // No stackable: cada unidad ocupa un slot
+        if (slots.Count >= maxSlots) return false;
         slots.Add((item, amount));
         OnChanged?.Invoke();
         return true;
@@ -56,17 +61,47 @@ public class InventoryStore : IInventory
 
     public IReadOnlyList<(ItemData item, int quantity)> GetAll() => slots;
 
-    private bool TryStack(ItemData item, int amount)
+    // =========================
+    // STACKING CON OVERFLOW
+    // =========================
+
+    /// <summary>
+    /// Agrega items stackables distribuyendo el excedente en nuevos slots si es necesario.
+    /// Devuelve true si se pudo agregar TODO el amount. False si no habia espacio suficiente.
+    /// </summary>
+    private bool AddStackable(ItemData item, int amount)
     {
-        for (int i = 0; i < slots.Count; i++)
+        int remaining = amount;
+
+        // Paso 1: intentar llenar stacks existentes
+        for (int i = 0; i < slots.Count && remaining > 0; i++)
         {
             if (slots[i].item != item) continue;
-            int next = slots[i].quantity + amount;
-            if (next > item.MaxStack) continue;
-            slots[i] = (item, next);
+
+            int space = item.MaxStack - slots[i].quantity;
+            if (space <= 0) continue;
+
+            int toAdd = Math.Min(space, remaining);
+            slots[i] = (item, slots[i].quantity + toAdd);
+            remaining -= toAdd;
+        }
+
+        // Paso 2: crear nuevos slots para el excedente
+        while (remaining > 0)
+        {
+            if (slots.Count >= maxSlots) return false; // Sin espacio
+
+            int toAdd = Math.Min(item.MaxStack, remaining);
+            slots.Add((item, toAdd));
+            remaining -= toAdd;
+        }
+
+        if (remaining == 0)
+        {
             OnChanged?.Invoke();
             return true;
         }
+
         return false;
     }
 }

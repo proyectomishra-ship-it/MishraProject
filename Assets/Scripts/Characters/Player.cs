@@ -10,6 +10,7 @@ public class Player : Character
     private CharacterStatsSyncController statsSync;
     private PlayerInputController inputController;
     private MovementController movementController;
+    private InventoryUI inventoryUI;
 
     protected override void Awake()
     {
@@ -38,7 +39,13 @@ public class Player : Character
         if (statsSync == null) { Debug.LogError("[Player] Falta CharacterStatsSyncController"); return; }
 
         hud = FindFirstObjectByType<PlayerHUD>();
-        if (hud == null) { Debug.LogError("[Player] No se encontró PlayerHUD"); return; }
+        if (hud == null) { Debug.LogError("[Player] No se encontro PlayerHUD"); return; }
+
+        inventoryUI = FindFirstObjectByType<InventoryUI>();
+        if (inventoryUI == null)
+            Debug.LogWarning("[Player] No se encontro InventoryUI en la escena.");
+        else
+            inventoryUI.Initialize(inventoryController, equipmentController);
 
         StartCoroutine(InitializeHUDWhenReady());
     }
@@ -58,7 +65,7 @@ public class Player : Character
     }
 
     // =========================
-    // MOVEMENT — dirección y rotación se calculan en el cliente y se mandan al servidor
+    // MOVEMENT
     // =========================
 
     public void Move(Vector3 worldDirection, Quaternion rotation)
@@ -81,7 +88,6 @@ public class Player : Character
         if (IsOwner) ApplyGravityServerRpc();
     }
 
-    // Mantenemos SyncCameraYaw como no-op para no romper PlayerInputController
     public void SyncCameraYaw(float yaw) { }
 
     [ServerRpc]
