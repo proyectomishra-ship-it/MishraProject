@@ -3,30 +3,19 @@ using UnityEngine;
 public abstract class EnemyState
 {
     protected Enemy enemy;
-
     protected EnemyAIController ai;
 
-    protected EnemyState(
-        Enemy enemy,
-        EnemyAIController ai)
+    public EnemyState(Enemy enemy, EnemyAIController ai)
     {
         this.enemy = enemy;
         this.ai = ai;
     }
 
-    // =========================
-    // LIFECYCLE
-    // =========================
 
-    public virtual void OnEnter()
-    {
-    }
+    public virtual void OnEnter() { }
 
-    public virtual void OnUpdate()
-    {
-    }
 
-    public virtual void OnExit()
-    {
-    }
+    public virtual void OnUpdate() { }
+
+    public virtual void OnExit() { }
 }

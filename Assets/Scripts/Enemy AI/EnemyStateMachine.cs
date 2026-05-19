@@ -2,27 +2,10 @@
 
 public class EnemyStateMachine
 {
-    public EnemyState CurrentState
+    public EnemyState CurrentState { get; private set; }
+
+    public void ChangeState(EnemyState newState)
     {
-        get;
-        private set;
-    }
-
-    // =========================
-    // CHANGE STATE
-    // =========================
-
-    public void ChangeState(
-        EnemyState newState)
-    {
-        if (newState == null)
-        {
-            Debug.LogError(
-                "[StateMachine] newState NULL");
-
-            return;
-        }
-
         if (CurrentState == newState)
             return;
 
@@ -32,13 +15,9 @@ public class EnemyStateMachine
 
         CurrentState.OnEnter();
 
-        Debug.Log(
-            $"[StateMachine] -> {newState.GetType().Name}");
+        Debug.Log($"[StateMachine] → {newState.GetType().Name}");
+    
     }
-
-    // =========================
-    // UPDATE
-    // =========================
 
     public void Update()
     {

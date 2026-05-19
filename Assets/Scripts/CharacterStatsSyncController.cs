@@ -16,8 +16,8 @@ public class CharacterStatsSyncController : NetworkBehaviour
     public NetworkVariable<float> NetMana = new();
     public NetworkVariable<float> NetMaxMana = new();
 
-    public NetworkVariable<float> NetStamina = new();
-    public NetworkVariable<float> NetMaxStamina = new();
+    public NetworkVariable<float> NetResistance = new();
+    public NetworkVariable<float> NetMaxResistance = new();
 
     public NetworkVariable<int> NetLevel = new();
 
@@ -67,7 +67,7 @@ public class CharacterStatsSyncController : NetworkBehaviour
     {
         stats.OnHealthChanged += OnHealthChanged;
         stats.OnManaChanged += OnManaChanged;
-        stats.OnStaminaChanged += OnStaminaChanged;
+        stats.OnResistanceChanged += OnResistanceChanged;
         stats.OnLevelChanged += OnLevelChanged;
 
         if (stats is PlayerStats playerStats)
@@ -93,10 +93,10 @@ public class CharacterStatsSyncController : NetworkBehaviour
         NetMaxMana.Value = max;
     }
 
-    private void OnStaminaChanged(float current, float max)
+    private void OnResistanceChanged(float current, float max)
     {
-        NetStamina.Value = current;
-        NetMaxStamina.Value = max;
+        NetResistance.Value = current;
+        NetMaxResistance.Value = max;
     }
 
     private void OnLevelChanged(int level)
@@ -122,8 +122,8 @@ public class CharacterStatsSyncController : NetworkBehaviour
         NetMana.Value = stats.CurrentMana;
         NetMaxMana.Value = stats.MaxMana.Value;
 
-        NetStamina.Value = stats.CurrentStamina;
-        NetMaxStamina.Value = stats.Stamina.Value;
+        NetResistance.Value = stats.CurrentResistance;
+        NetMaxResistance.Value = stats.Resistance.Value;
 
         NetLevel.Value = stats.Level;
 
@@ -148,7 +148,7 @@ public class CharacterStatsSyncController : NetworkBehaviour
 
         stats.OnHealthChanged -= OnHealthChanged;
         stats.OnManaChanged -= OnManaChanged;
-        stats.OnStaminaChanged -= OnStaminaChanged;
+        stats.OnResistanceChanged -= OnResistanceChanged;
         stats.OnLevelChanged -= OnLevelChanged;
 
         if (stats is PlayerStats playerStats)
@@ -170,7 +170,7 @@ public class CharacterStatsSyncController : NetworkBehaviour
 
         stats.OnHealthChanged -= OnHealthChanged;
         stats.OnManaChanged -= OnManaChanged;
-        stats.OnStaminaChanged -= OnStaminaChanged;
+        stats.OnResistanceChanged -= OnResistanceChanged;
         stats.OnLevelChanged -= OnLevelChanged;
 
         if (stats is PlayerStats playerStats)

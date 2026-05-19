@@ -15,7 +15,7 @@ public class CharacterData : ScriptableObject
     [SerializeField] private float dexterity; //destreza
     [SerializeField] private float intelligence;
     [SerializeField] private float vitality;
-    [SerializeField] private float stamina;
+    [SerializeField] private float resistance;
     [SerializeField] private float luck;
     
 
@@ -38,7 +38,7 @@ public class CharacterData : ScriptableObject
     public float Dexterity => dexterity;
     public float Intelligence => intelligence;
     public float Vitality => vitality;
-    public float Stamina => stamina;
+    public float Resistance => resistance;
     public float Luck => luck;
 
     public int BaseLevel => baseLevel;

@@ -12,11 +12,7 @@ public class AcolyteAttackState : EnemyStateAttack
     private float repositionTimer;
     private float repositionInterval = 2f;
 
-    private CombatController combat;
-
-    public AcolyteAttackState(
-        Enemy enemy,
-        AcolyteAIController ai)
+    public AcolyteAttackState(Enemy enemy, AcolyteAIController ai)
         : base(enemy, ai, attackCooldown: 2.5f)
     {
         acolyteAI = ai;
@@ -26,17 +22,8 @@ public class AcolyteAttackState : EnemyStateAttack
     {
         base.OnEnter();
 
-        if (!enemy.IsServer)
-            return;
-
-        combat =
-            enemy.GetComponent<CombatController>();
-
-        specialAttackTimer =
-            specialAttackCooldown;
-
-        repositionTimer =
-            repositionInterval;
+        specialAttackTimer = specialAttackCooldown;
+        repositionTimer = repositionInterval;
 
         Debug.Log("[Acolyte] Preparando hechizo");
     }
@@ -44,58 +31,47 @@ public class AcolyteAttackState : EnemyStateAttack
     public override void OnExit()
     {
         if (ai.CurrentTarget != null)
-        {
-            CombatSlotManager.Instance?.RemoveRanged(
-                ai,
-                ai.CurrentTarget.transform);
-        }
+            CombatSlotManager.Instance?.RemoveRanged(ai, ai.CurrentTarget.transform);
     }
 
     public override void OnUpdate()
     {
-        if (!enemy.IsServer)
-            return;
+        if (!enemy.IsServer) return;
 
         if (ai.ShouldFlee)
         {
-            ai.StateMachine.ChangeState(
-                ai.FleeState);
-
+            ai.StateMachine.ChangeState(ai.FleeState);
             return;
         }
 
-        if (ai.CurrentTarget == null)
-            return;
+        if (ai.CurrentTarget == null) return;
 
-        enemy.GetTargetingController()
-            ?.ForceTarget(ai.CurrentTarget);
+
+        enemy.GetComponent<TargetingController>()?.ForceTarget(ai.CurrentTarget);
 
         // =========================
-        // REPOSITION
+        // REPOSICIONAMIENTO
         // =========================
 
         repositionTimer += Time.deltaTime;
-
         if (repositionTimer >= repositionInterval)
         {
             repositionTimer = 0f;
-
             UpdateSlotPosition();
         }
 
         // =========================
-        // SPECIAL
+        // SPECIAL ATTACK
         // =========================
 
         specialAttackTimer += Time.deltaTime;
-
         if (specialAttackTimer >= specialAttackCooldown)
         {
             specialAttackTimer = 0f;
 
             Debug.Log("[Acolyte] SpecialAttack");
 
-            combat?.ExecuteSpecialAttack();
+            enemy.SpecialAttack();
         }
 
         base.OnUpdate();
@@ -103,106 +79,64 @@ public class AcolyteAttackState : EnemyStateAttack
 
     protected override void PerformAttack()
     {
-        if (!enemy.IsServer)
-            return;
+        if (!enemy.IsServer) return;
+        if (ai.CurrentTarget == null) return;
 
-        if (ai.CurrentTarget == null)
-            return;
-
-        enemy.GetTargetingController()
-            ?.ForceTarget(ai.CurrentTarget);
+        enemy.GetComponent<TargetingController>()?.ForceTarget(ai.CurrentTarget);
 
         if (acolyteAI.SpellPrefab == null)
         {
             enemy.OnAttackPressed();
             enemy.OnAttackReleased();
-
             return;
         }
 
-        Vector3 spawnPos =
-            enemy.transform.position +
-            Vector3.up * 1.5f;
+        Vector3 spawnPos = enemy.transform.position + Vector3.up * 1.5f;
+        Vector3 direction = (ai.CurrentTarget.transform.position + Vector3.up - spawnPos).normalized;
 
-        Vector3 direction =
-            (
-                ai.CurrentTarget.transform.position +
-                Vector3.up -
-                spawnPos
-            ).normalized;
+        GameObject spellGO = Object.Instantiate(
+            acolyteAI.SpellPrefab,
+            spawnPos,
+            Quaternion.LookRotation(direction)
+        );
 
-        GameObject spellGO =
-            Object.Instantiate(
-                acolyteAI.SpellPrefab,
-                spawnPos,
-                Quaternion.LookRotation(direction));
-
-        NetworkObject netObj =
-            spellGO.GetComponent<NetworkObject>();
-
-        NetworkProjectile projectile =
-            spellGO.GetComponent<NetworkProjectile>();
+        var netObj = spellGO.GetComponent<NetworkObject>();
+        var projectile = spellGO.GetComponent<NetworkProjectile>();
 
         if (netObj == null || projectile == null)
         {
-            Debug.LogError(
-                "[Acolyte] SpellPrefab mal configurado");
-
-            Object.Destroy(spellGO);
-
+            Debug.LogError("[Acolyte] SpellPrefab mal configurado");
             return;
         }
 
-        AttackData attackData =
-            new AttackData
-            {
-                Attacker = enemy,
-                Target = ai.CurrentTarget,
-                Damage = enemy.GetStats().Attack.Value * 1.2f,
-                DamageType = DamageType.Magical,
-                IsCritical = false,
-                IsHeavy = false,
-                HitPoint = spawnPos
-            };
+        float damage = enemy.GetStats().Attack.Value * 1.2f;
 
-        projectile.Initialize(
-            attackData,
-            direction,
-            12f);
-
+        projectile.Initialize(enemy, damage, direction);
         netObj.Spawn();
 
-        Debug.Log(
-            $"[Acolyte] Spell spawneado hacia {ai.CurrentTarget.name}");
+        Debug.Log($"[Acolyte] Spell spawneado hacia {ai.CurrentTarget.name}");
     }
 
     // =========================
-    // POSITIONING
+    // POSICIONAMIENTO
     // =========================
 
     private void UpdateSlotPosition()
     {
-        if (ai.CurrentTarget == null)
-            return;
+        if (ai.CurrentTarget == null) return;
 
         if (CombatSlotManager.Instance != null)
         {
-            Vector3 slotPos =
-                CombatSlotManager.Instance
-                .GetRangedSlotPosition(
-                    ai,
-                    ai.CurrentTarget.transform,
-                    acolyteAI.PreferredCombatDistance);
+            Vector3 slotPos = CombatSlotManager.Instance.GetRangedSlotPosition(
+                ai,
+                ai.CurrentTarget.transform,
+                acolyteAI.PreferredCombatDistance
+            );
 
-            if (NavMesh.SamplePosition(
-                slotPos,
-                out NavMeshHit slotHit,
-                acolyteAI.PreferredCombatDistance,
-                NavMesh.AllAreas))
+            if (NavMesh.SamplePosition(slotPos, out NavMeshHit slotHit,
+                acolyteAI.PreferredCombatDistance, NavMesh.AllAreas))
             {
-                ai.Agent.SetDestination(
-                    slotHit.position);
-
+                ai.Agent.SetDestination(slotHit.position);
                 return;
             }
         }
@@ -212,62 +146,37 @@ public class AcolyteAttackState : EnemyStateAttack
 
     private void MaintainDistance()
     {
-        float dist =
-            Vector3.Distance(
-                enemy.transform.position,
-                ai.CurrentTarget.transform.position);
+        float dist = Vector3.Distance(
+            enemy.transform.position,
+            ai.CurrentTarget.transform.position
+        );
 
-        if (dist <
-            acolyteAI.PreferredCombatDistance * 0.5f)
+        if (dist < acolyteAI.PreferredCombatDistance * 0.5f)
         {
-            Vector3 away =
-                (
-                    enemy.transform.position -
-                    ai.CurrentTarget.transform.position
-                ).normalized;
+            Vector3 away = (enemy.transform.position - ai.CurrentTarget.transform.position).normalized;
+            Vector3 lateral = Vector3.Cross(away, Vector3.up) * Random.Range(-3f, 3f);
 
-            Vector3 lateral =
-                Vector3.Cross(
-                    away,
-                    Vector3.up)
-                * Random.Range(-3f, 3f);
+            Vector3 retreatPos = enemy.transform.position +
+                (away + lateral).normalized * acolyteAI.PreferredCombatDistance;
 
-            Vector3 retreatPos =
-                enemy.transform.position +
-                (away + lateral).normalized *
-                acolyteAI.PreferredCombatDistance;
-
-            if (NavMesh.SamplePosition(
-                retreatPos,
-                out NavMeshHit hit,
-                acolyteAI.PreferredCombatDistance,
-                NavMesh.AllAreas))
+            if (NavMesh.SamplePosition(retreatPos, out NavMeshHit hit,
+                acolyteAI.PreferredCombatDistance, NavMesh.AllAreas))
             {
                 ai.Agent.SetDestination(hit.position);
             }
         }
-        else if (
-            dist >
-            acolyteAI.PreferredCombatDistance * 1.5f)
+        else if (dist > acolyteAI.PreferredCombatDistance * 1.5f)
         {
-            ai.Agent.SetDestination(
-                ai.CurrentTarget.transform.position);
+            ai.Agent.SetDestination(ai.CurrentTarget.transform.position);
         }
         else
         {
-            Vector3 lateral =
-                enemy.transform.right *
+            Vector3 lateral = enemy.transform.right *
                 (Mathf.Sin(Time.time * 0.8f) * 2f);
 
-            Vector3 strafePos =
-                enemy.transform.position +
-                lateral;
+            Vector3 strafePos = enemy.transform.position + lateral;
 
-            if (NavMesh.SamplePosition(
-                strafePos,
-                out NavMeshHit hit,
-                2f,
-                NavMesh.AllAreas))
+            if (NavMesh.SamplePosition(strafePos, out NavMeshHit hit, 2f, NavMesh.AllAreas))
             {
                 ai.Agent.SetDestination(hit.position);
             }

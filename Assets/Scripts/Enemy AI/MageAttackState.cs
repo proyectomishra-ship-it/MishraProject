@@ -4,20 +4,18 @@ using Unity.Netcode;
 
 public class MageAttackState : EnemyStateAttack
 {
-    private readonly float preferredDistance;
+    private float preferredDistance;
+    private GameObject spellPrefab;
+    private IEnemyStrategy activeStrategy;
 
-    private readonly GameObject spellPrefab;
-
-    private readonly IEnemyStrategy activeStrategy;
-
-    private readonly float specialAttackCooldown;
-    private readonly float heavyAttackCooldown;
-
+    private float specialAttackCooldown;
     private float specialAttackTimer;
+
+    private float heavyAttackCooldown;
     private float heavyAttackTimer;
 
-    private readonly bool hasSpecial;
-    private readonly bool hasHeavy;
+    private bool hasSpecial;
+    private bool hasHeavy;
 
     public MageAttackState(
         Enemy enemy,
@@ -45,9 +43,6 @@ public class MageAttackState : EnemyStateAttack
     {
         base.OnEnter();
 
-        if (!enemy.IsServer)
-            return;
-
         heavyAttackTimer = heavyAttackCooldown;
         specialAttackTimer = specialAttackCooldown;
 
@@ -56,73 +51,26 @@ public class MageAttackState : EnemyStateAttack
         Debug.Log($"[{enemy.name}][Mage] Enter Attack");
     }
 
-    public override void OnExit()
-    {
-        activeStrategy?.OnExit(enemy, ai);
-
-        ai.Agent?.ResetPath();
-    }
-
     public override void OnUpdate()
     {
-        if (!enemy.IsServer)
-            return;
-
-        if (!IsTargetValid())
-        {
-            ai.SetTarget(null);
-
-            ai.StateMachine.ChangeState(
-                ai.ChaseState);
-
-            return;
-        }
-
-        enemy.GetTargetingController()
-            ?.ForceTarget(ai.CurrentTarget);
+        if (ai.CurrentTarget == null) return;
 
         activeStrategy?.OnUpdate(enemy, ai);
 
-        HandlePositioning();
+        float distanceToTarget = Vector3.Distance(
+            enemy.transform.position,
+            ai.CurrentTarget.transform.position);
 
-        HandleHeavyAttack();
-
-        HandleSpecialAttack();
-
-        base.OnUpdate();
-    }
-
-    // =========================
-    // POSITIONING
-    // =========================
-
-    private void HandlePositioning()
-    {
-        if (ai.CurrentTarget == null)
-            return;
-
-        float distanceToTarget =
-            Vector3.Distance(
-                enemy.transform.position,
-                ai.CurrentTarget.transform.position);
-
+        
         if (distanceToTarget < preferredDistance * 0.6f)
         {
-            Vector3 dirAway =
-                (
-                    enemy.transform.position -
-                    ai.CurrentTarget.transform.position
-                ).normalized;
+            Vector3 dirAway = (enemy.transform.position
+                - ai.CurrentTarget.transform.position).normalized;
 
-            Vector3 retreatPos =
-                enemy.transform.position +
-                dirAway * preferredDistance;
+            Vector3 retreatPos = enemy.transform.position + dirAway * preferredDistance;
 
-            if (NavMesh.SamplePosition(
-                retreatPos,
-                out NavMeshHit hit,
-                preferredDistance,
-                NavMesh.AllAreas))
+            if (NavMesh.SamplePosition(retreatPos, out NavMeshHit hit,
+                preferredDistance, NavMesh.AllAreas))
             {
                 ai.Agent.SetDestination(hit.position);
             }
@@ -131,137 +79,109 @@ public class MageAttackState : EnemyStateAttack
         {
             ai.Agent.ResetPath();
         }
+
+       
+        base.OnUpdate();
+
+        if (hasHeavy)
+        {
+            heavyAttackTimer += Time.deltaTime;
+
+            if (heavyAttackTimer >= heavyAttackCooldown)
+            {
+                heavyAttackTimer = 0f;
+
+                Debug.Log($"[{enemy.name}] HEAVY (input simulado)");
+
+                enemy.OnAttackPressed();
+                enemy.OnAttackHeld();
+            }
+        }
+
+ 
+        if (hasSpecial)
+        {
+            specialAttackTimer += Time.deltaTime;
+
+            if (specialAttackTimer >= specialAttackCooldown)
+            {
+                specialAttackTimer = 0f;
+
+                Debug.Log($"[{enemy.name}] SPECIAL");
+
+                enemy.SpecialAttack();
+            }
+        }
     }
 
-    // =========================
-    // HEAVY
-    // =========================
-
-    private void HandleHeavyAttack()
+    public override void OnExit()
     {
-        if (!hasHeavy)
-            return;
-
-        heavyAttackTimer += Time.deltaTime;
-
-        if (heavyAttackTimer < heavyAttackCooldown)
-            return;
-
-        heavyAttackTimer = 0f;
-
-        Debug.Log($"[{enemy.name}] HEAVY");
-
-        enemy.OnAttackPressed();
-
-        enemy.OnAttackHeld();
-
-        enemy.OnAttackReleased();
+        activeStrategy?.OnExit(enemy, ai);
     }
-
-    // =========================
-    // SPECIAL
-    // =========================
-
-    private void HandleSpecialAttack()
-    {
-        if (!hasSpecial)
-            return;
-
-        specialAttackTimer += Time.deltaTime;
-
-        if (specialAttackTimer < specialAttackCooldown)
-            return;
-
-        specialAttackTimer = 0f;
-
-        Debug.Log($"[{enemy.name}] SPECIAL");
-
-        CombatController combat =
-            enemy.GetComponent<CombatController>();
-
-        combat?.ExecuteSpecialAttack();
-    }
-
-    // =========================
-    // ATTACK
-    // =========================
 
     protected override void PerformAttack()
     {
-        if (!enemy.IsServer)
-            return;
+        if (ai.CurrentTarget == null) return;
 
-        if (ai.CurrentTarget == null)
-            return;
-
-        enemy.GetTargetingController()
-            ?.ForceTarget(ai.CurrentTarget);
-
-        // =========================
-        // FALLBACK MELEE
-        // =========================
-
+        // -------------------------
+        // SIN PREFAB -> MELEE VIA INPUT
+        // -------------------------
         if (spellPrefab == null)
         {
+            Debug.Log($"[{enemy.name}] Ataque melee (input simulado)");
+
             enemy.OnAttackPressed();
             enemy.OnAttackReleased();
 
             return;
         }
 
-        Vector3 spawnPos =
-            enemy.transform.position +
-            Vector3.up * 1.5f;
-
-        Vector3 direction =
-            (
-                ai.CurrentTarget.transform.position +
-                Vector3.up -
-                spawnPos
-            ).normalized;
-
-        GameObject instance =
-            Object.Instantiate(
-                spellPrefab,
-                spawnPos,
-                Quaternion.LookRotation(direction));
-
-        NetworkObject netObj =
-            instance.GetComponent<NetworkObject>();
-
-        NetworkProjectile projectile =
-            instance.GetComponent<NetworkProjectile>();
-
-        if (netObj == null || projectile == null)
-        {
-            Debug.LogError(
-                $"[{enemy.name}] SpellPrefab mal configurado");
-
-            Object.Destroy(instance);
-
+        // -------------------------
+        // SERVER ONLY
+        // -------------------------
+        if (!enemy.IsServer)
             return;
+
+        Vector3 spawnPos = enemy.transform.position + Vector3.up * 1.5f;
+
+        Vector3 direction = (
+            ai.CurrentTarget.transform.position + Vector3.up - spawnPos
+        ).normalized;
+
+        float damage = enemy.GetStats().Attack.Value;
+
+        GameObject instance = Object.Instantiate(
+            spellPrefab,
+            spawnPos,
+            Quaternion.LookRotation(direction)
+        );
+
+        Debug.Log($"[{enemy.name}] Spell instanciado");
+
+ 
+        var netObj = instance.GetComponent<NetworkObject>();
+
+        if (netObj != null)
+        {
+            netObj.Spawn(true);
+        }
+        else
+        {
+            Debug.LogError($"[{enemy.name}] Spell sin NetworkObject");
         }
 
-        AttackData attackData =
-            new AttackData
-            {
-                Attacker = enemy,
-                Target = ai.CurrentTarget,
-                Damage = enemy.GetStats().Attack.Value,
-                DamageType = DamageType.Magical,
-                IsCritical = false,
-                IsHeavy = false,
-                HitPoint = spawnPos
-            };
+    
+        var projectile = instance.GetComponent<NetworkProjectile>();
 
-        projectile.Initialize(
-            attackData,
-            direction,
-            14f);
+        if (projectile != null)
+        {
+            projectile.Initialize(enemy, damage, direction);
 
-        netObj.Spawn(true);
-
-        Debug.Log(
-            $"[{enemy.name}] Spell -> {ai.CurrentTarget.name}");
+            Debug.Log($"[{enemy.name}] Projectile inicializado -> dmg {damage}");
+        }
+        else
+        {
+            Debug.LogError($"[{enemy.name}] Falta NetworkProjectile");
+        }
     }
 }

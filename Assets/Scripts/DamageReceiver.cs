@@ -6,121 +6,48 @@ public class DamageReceiver : NetworkBehaviour
 {
     private Character character;
 
-    private Dictionary<Character, float> damageContributors =
-        new Dictionary<Character, float>();
-
-    // =========================
-    // INITIALIZE
-    // =========================
-
-    public void Initialize(Character character)
-    {
-        this.character = character;
-    }
-
-    // =========================
-    // GETTERS
-    // =========================
+   
+    private Dictionary<Character, float> damageContributors
+        = new Dictionary<Character, float>();
 
     public Dictionary<Character, float> GetDamageContributors()
     {
         return damageContributors;
     }
 
-    // =========================
-    // DAMAGE SYSTEM
-    // =========================
+    public void Initialize(Character character)
+    {
+        this.character = character;
+    }
 
-    public void TakeDamage(AttackData attackData)
+
+    public void TakeDamage(float amount, Character attacker)
     {
         if (!IsServer)
         {
-            Debug.LogWarning(
-                "[DamageReceiver] llamado en cliente");
-
+            Debug.LogWarning("[DamageReceiver] Llamado en cliente (IGNORADO)");
             return;
         }
 
-        if (character == null)
-        {
-            Debug.LogError(
-                "[DamageReceiver] Character null");
+        if (character.GetStats().CurrentHealth <= 0) return;
 
-            return;
-        }
-
-        if (character.GetStats().CurrentHealth <= 0)
-            return;
-
-        Character attacker =
-            attackData.Attacker;
-
-        Debug.Log(
-            $"<color=red>[Damage]</color> " +
-            $"{character.name} recibe " +
-            $"{attackData.Damage} " +
-            $"de {attacker?.name} " +
-            $"[{attackData.DamageType}]"
-        );
-
-        // =========================
-        // DAMAGE CONTRIBUTORS
-        // =========================
+        Debug.Log($"<color=red>[Damage] {character.name} recibe {amount} de {attacker?.name}</color>");
 
         if (attacker != null)
         {
             if (!damageContributors.ContainsKey(attacker))
-            {
                 damageContributors[attacker] = 0f;
-            }
 
-            damageContributors[attacker] +=
-                attackData.Damage;
+            damageContributors[attacker] += amount;
         }
 
-        // =========================
-        // APPLY DAMAGE
-        // =========================
-
-        character
-            .GetResourceController()
-            .TakeDamage(attackData.Damage);
-
+        character.GetResourceController().TakeDamage(amount);
         character.HandleDamaged(attacker);
-
-        // =========================
-        // DEATH
-        // =========================
 
         if (character.GetStats().CurrentHealth <= 0)
         {
-            Debug.Log(
-                $"<color=magenta>{character.name} MURIÓ</color>");
-
+            Debug.Log($"<color=magenta>[Damage] {character.name} MURIÓ</color>");
             character.HandleDeath();
         }
-    }
-
-    // =========================
-    // LEGACY COMPATIBILITY
-    // =========================
-
-    public void TakeDamage(
-        float amount,
-        Character attacker)
-    {
-        AttackData data =
-            new AttackData
-            {
-                Attacker = attacker,
-                Target = character,
-                Damage = amount,
-                DamageType = DamageType.Physical,
-                IsCritical = false,
-                IsHeavy = false,
-                HitPoint = character.transform.position
-            };
-
-        TakeDamage(data);
     }
 }

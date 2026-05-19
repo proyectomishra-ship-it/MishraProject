@@ -5,21 +5,21 @@ public class GoblinAIController : EnemyAIController
 {
     protected override EnemyStateAttack CreateAttackState()
     {
-        return new GoblinAttackState(
-            GetComponent<Enemy>(),
-            this);
+        return new GoblinAttackState(GetComponent<Enemy>(), this);
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        if (!IsServer) return;
+
+        base.OnNetworkSpawn();
     }
 
     public override void OnNetworkDespawn()
     {
-        base.OnNetworkDespawn();
-
         if (CurrentTarget != null)
         {
-            CombatSlotManager.Instance
-                ?.RemoveFlanker(
-                    this,
-                    CurrentTarget.transform);
+            CombatSlotManager.Instance?.RemoveFlanker(this, CurrentTarget.transform);
         }
     }
 }

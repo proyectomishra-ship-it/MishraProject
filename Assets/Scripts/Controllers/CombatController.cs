@@ -1,199 +1,157 @@
 using UnityEngine;
 using Unity.Netcode;
 
+
 public class CombatController : NetworkBehaviour
 {
-    private Character character;
-    private CharacterStats stats;
+    private Character           character;
+    private CharacterStats      stats;
     private EquipmentController equipmentController;
-    private TargetingController targetingController;
 
-    [Header("Attack Hold")]
-    [SerializeField]
-    private float holdThreshold = 0.4f;
+    [Header("Fallback — sin arma equipada")]
+    [SerializeField] private float heavyAttackMultiplier = 2f;
+    [SerializeField] private float holdThreshold         = 0.4f;
 
-    [Header("Targeting")]
-    [SerializeField]
-    private float attackConeAngle = 60f;
+    [Header("Validación de hit")]
+    [SerializeField] private float     attackConeAngle  = 60f;
+    [SerializeField] private float     sphereCastRadius = 0.8f;
+    [SerializeField] private LayerMask enemyLayer;
 
-    [SerializeField]
-    private LayerMask enemyLayer;
 
-    private float attackHeldTime;
-
-    private bool isHoldingAttack;
-    private bool heavyConsumed;
+    private float attackHeldTime  = 0f;
+    private bool  isHoldingAttack = false;
+    private bool  heavyConsumed   = false;
 
     // =========================
-    // INITIALIZE
+    // INIT
     // =========================
 
     public void Initialize(Character character)
     {
-        this.character = character;
-
-        stats =
-            character.GetStats();
-
-        equipmentController =
-            character.GetEquipment();
-
-        targetingController =
-            character.GetComponent<TargetingController>();
+        this.character      = character;
+        this.stats          = character.GetStats();
+        equipmentController = character.GetEquipment();
     }
 
     // =========================
-    // WEAPON BEHAVIOR
+    // HELPERS — arma actual
     // =========================
 
     private IWeaponBehavior GetCurrentBehavior()
     {
-        WeaponData weapon =
-            equipmentController
-            ?.GetEquippedWeapon();
-
-        return WeaponBehaviorFactory.Create(
-            weapon,
-            transform);
+        var weapon = equipmentController?.GetEquippedWeapon();
+        return WeaponBehaviorFactory.Create(weapon, transform);
     }
 
     private float GetEffectiveHoldThreshold()
     {
-        WeaponData weapon =
-            equipmentController
-            ?.GetEquippedWeapon();
-
-        if (weapon == null)
-            return holdThreshold;
-
-        if (weapon.AttackSpeed <= 0f)
-            return holdThreshold;
-
+        var weapon = equipmentController?.GetEquippedWeapon();
+        if (weapon == null || weapon.AttackSpeed <= 0f) return holdThreshold;
         return holdThreshold / weapon.AttackSpeed;
     }
 
+    private float GetHeavyMultiplier()
+    {
+        var weapon = equipmentController?.GetEquippedWeapon();
+        return weapon != null ? weapon.HeavyMultiplier : heavyAttackMultiplier;
+    }
+
     // =========================
-    // INPUT API
+    // API DE INPUT
     // =========================
 
     public void OnAttackPressed()
     {
-        if (!IsServer)
-            return;
+        if (!IsServer) return;
 
         isHoldingAttack = true;
-
-        attackHeldTime = 0f;
-
-        heavyConsumed = false;
+        attackHeldTime  = 0f;
+        heavyConsumed   = false;
     }
 
     public void OnAttackHeld(float deltaTime)
     {
-        if (!IsServer)
-            return;
-
-        if (!isHoldingAttack)
-            return;
-
-        if (heavyConsumed)
-            return;
+        if (!IsServer || !isHoldingAttack || heavyConsumed) return;
 
         attackHeldTime += deltaTime;
 
         if (attackHeldTime >= GetEffectiveHoldThreshold())
         {
-            ExecuteAttack(true);
-
-            heavyConsumed = true;
-
+            PerformAttack(heavy: true);
+            heavyConsumed   = true;
             isHoldingAttack = false;
         }
     }
 
     public void OnAttackReleased()
     {
-        if (!IsServer)
-            return;
-
-        if (!isHoldingAttack)
-            return;
+        if (!IsServer || !isHoldingAttack) return;
 
         isHoldingAttack = false;
 
         if (!heavyConsumed)
-        {
-            ExecuteAttack(false);
-        }
+            PerformAttack(heavy: false);
+    }
+
+
+    public void AttackDirect(bool heavy = false)
+    {
+        if (!IsServer) return;
+        PerformAttack(heavy);
+    }
+
+    public void SpecialAttackDirect()
+    {
+        if (!IsServer) return;
+        PerformSpecialAttack();
     }
 
     // =========================
-    // PUBLIC API
+    // CORE COMBAT — servidor
     // =========================
 
-    public void ExecuteAttack(bool heavy = false)
+    private void PerformAttack(bool heavy)
     {
-        if (!IsServer)
-            return;
-
-        Character target =
-            FindTarget();
-
+        Character target = FindTarget();
         if (target == null)
         {
-            Debug.LogWarning(
-                $"[Combat] {character.name}: no target");
-
+            Debug.LogWarning($"[Combat] {character.name}: sin target válido");
             return;
         }
 
-        IWeaponBehavior behavior =
-            GetCurrentBehavior();
-
-        if (behavior == null)
+        if (!ValidateHitWithSphereCast(target))
         {
-            Debug.LogWarning(
-                $"[Combat] {character.name}: no weapon behavior");
-
+            Debug.LogWarning($"[Combat] {character.name}: SphereCast no alcanzó a {target.name}");
             return;
         }
 
-        behavior.ExecuteAttack(
-            character,
-            target,
-            heavy);
+        var behavior = GetCurrentBehavior();
+
+        if (heavy)
+            behavior.PerformHeavyAttack(character, target, GetHeavyMultiplier());
+        else
+            behavior.PerformAttack(character, target);
+
+        Debug.Log($"[Combat] {character.name} → {target.name} (heavy:{heavy})");
     }
 
-    public void ExecuteSpecialAttack()
+    private void PerformSpecialAttack()
     {
-        if (!IsServer)
-            return;
-
-        Character target =
-            FindTarget();
-
+        Character target = FindTarget();
         if (target == null)
         {
-            Debug.LogWarning(
-                $"[Combat] {character.name}: no target");
-
+            Debug.LogWarning($"[Combat] {character.name}: SpecialAttack sin target");
             return;
         }
 
-        IWeaponBehavior behavior =
-            GetCurrentBehavior();
-
-        if (behavior == null)
+        if (!ValidateHitWithSphereCast(target))
         {
-            Debug.LogWarning(
-                $"[Combat] {character.name}: no weapon behavior");
-
+            Debug.LogWarning($"[Combat] {character.name}: SpecialAttack spherecast falló");
             return;
         }
 
-        behavior.ExecuteSpecialAttack(
-            character,
-            target);
+        GetCurrentBehavior().PerformSpecialAttack(character, target);
+        Debug.Log($"[Combat] SPECIAL {character.name} → {target.name}");
     }
 
     // =========================
@@ -202,18 +160,45 @@ public class CombatController : NetworkBehaviour
 
     private Character FindTarget()
     {
-        Character target =
-            targetingController
-            ?.CurrentTarget;
+        Character target = character.GetComponent<TargetingController>()?.CurrentTarget;
 
-        if (target != null)
-            return target;
+        if (target == null)
+            target = CombatTargetingSystem.FindBestTarget(
+                character,
+                stats.AttackRange.Value,
+                attackConeAngle,
+                enemyLayer);
 
-        return CombatTargetingSystem.FindBestTarget(
-            character,
-            stats.AttackRange.Value,
-            attackConeAngle,
-            enemyLayer);
+        return target;
+    }
+
+    private bool ValidateHitWithSphereCast(Character target)
+    {
+        Vector3 origin    = transform.position + Vector3.up * 1.0f;
+        Vector3 targetPos = target.transform.position + Vector3.up * 1.0f;
+        Vector3 dir       = (targetPos - origin).normalized;
+        float   distance  = Vector3.Distance(origin, targetPos);
+
+        float castRange = distance + 0.5f;
+
+        Debug.Log($"[Combat] SphereCast: dist={distance:F2} castRange={castRange:F2}");
+
+        if (Physics.SphereCast(
+                origin,
+                sphereCastRadius,
+                dir,
+                out RaycastHit hit,
+                castRange,
+                enemyLayer,
+                QueryTriggerInteraction.Collide))   
+        {
+            Character hitChar = hit.collider.GetComponentInParent<Character>();
+            Debug.Log($"[Combat] SphereCast hit: {hit.collider.name}");
+            return hitChar != null && hitChar == target;
+        }
+
+        Debug.DrawLine(origin, origin + dir * castRange, Color.red, 1f);
+        return false;
     }
 
     // =========================
@@ -222,13 +207,16 @@ public class CombatController : NetworkBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        if (stats == null)
-            return;
-
+        if (stats == null) return;
         Gizmos.color = Color.yellow;
-
-        Gizmos.DrawWireSphere(
-            transform.position,
-            stats.AttackRange.Value);
+        Gizmos.DrawWireSphere(transform.position, stats.AttackRange.Value);
     }
+
+    // =========================
+    // PUBLIC API — acceso externo limpio
+    // =========================
+
+
+    public void Attack()  => AttackDirect(heavy: false);
+    public void SpecialAttack() => SpecialAttackDirect();
 }

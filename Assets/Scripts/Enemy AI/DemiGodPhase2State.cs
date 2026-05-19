@@ -30,11 +30,7 @@ public class DemiGodPhase2State : EnemyStateAttack
     {
         base.OnEnter();
 
-        if (!enemy.IsServer)
-            return;
-
-        combat =
-            enemy.GetComponent<CombatController>();
+        combat = enemy.GetComponent<CombatController>();
 
         specialAttackTimer = 0f;
         summonTimer = 0f;
@@ -45,22 +41,15 @@ public class DemiGodPhase2State : EnemyStateAttack
 
     public override void OnUpdate()
     {
-        if (!enemy.IsServer)
-            return;
-
         if (ai.CurrentTarget == null)
             return;
 
-        enemy.GetTargetingController()
-            ?.ForceTarget(ai.CurrentTarget);
-
-        float dist =
-            Vector3.Distance(
-                enemy.transform.position,
-                ai.CurrentTarget.transform.position);
+        float dist = Vector3.Distance(
+            enemy.transform.position,
+            ai.CurrentTarget.transform.position);
 
         // =========================
-        // DEFENSIVE HEAVY
+        // MELEE DEFENSIVO
         // =========================
 
         heavyAttackTimer += Time.deltaTime;
@@ -72,20 +61,13 @@ public class DemiGodPhase2State : EnemyStateAttack
 
             Debug.Log("[DemiGod] HEAVY DEFENSIVO");
 
-            enemy.OnAttackPressed();
-
-            // Simula hold attack
-            enemy.OnAttackHeld();
-            enemy.OnAttackHeld();
-            enemy.OnAttackHeld();
-
-            enemy.OnAttackReleased();
+            combat?.AttackDirect(true);
 
             return;
         }
 
         // =========================
-        // DISTANCE
+        // DISTANCIA
         // =========================
 
         MaintainDistance(dist);
@@ -102,7 +84,7 @@ public class DemiGodPhase2State : EnemyStateAttack
 
             Debug.Log("[DemiGod] SPECIAL");
 
-            combat?.ExecuteSpecialAttack();
+            combat?.SpecialAttackDirect();
 
             return;
         }
@@ -123,10 +105,6 @@ public class DemiGodPhase2State : EnemyStateAttack
                 4f);
         }
 
-        // =========================
-        // BASE ATTACK
-        // =========================
-
         base.OnUpdate();
     }
 
@@ -137,29 +115,14 @@ public class DemiGodPhase2State : EnemyStateAttack
 
     protected override void PerformAttack()
     {
-        if (!enemy.IsServer)
-            return;
-
         if (ai.CurrentTarget == null)
             return;
 
-        enemy.GetTargetingController()
-            ?.ForceTarget(ai.CurrentTarget);
-
-        // =========================
-        // FALLBACK MELEE
-        // =========================
-
         if (demiGodAI.SpellPrefab == null)
         {
-            enemy.OnAttackPressed();
-            enemy.OnAttackReleased();
+            combat?.AttackDirect();
             return;
         }
-
-        // =========================
-        // PROJECTILE
-        // =========================
 
         Vector3 spawnPos =
             enemy.transform.position + Vector3.up * 2f;
@@ -171,47 +134,40 @@ public class DemiGodPhase2State : EnemyStateAttack
                 - spawnPos
             ).normalized;
 
-        GameObject go =
-            Object.Instantiate(
-                demiGodAI.SpellPrefab,
-                spawnPos,
-                Quaternion.LookRotation(direction));
+        var go = Object.Instantiate(
+            demiGodAI.SpellPrefab,
+            spawnPos,
+            Quaternion.LookRotation(direction));
 
-        NetworkObject netObj =
-            go.GetComponent<NetworkObject>();
+        var netObj = go.GetComponent<NetworkObject>();
 
-        NetworkProjectile projectile =
-            go.GetComponent<NetworkProjectile>();
+        if (netObj != null &&
+            NetworkManager.Singleton.IsServer)
+        {
+            netObj.Spawn();
 
-        if (netObj == null || projectile == null)
+            var proj =
+                go.GetComponent<NetworkProjectile>();
+
+            if (proj != null)
+            {
+                float dmg =
+                    enemy.GetStats().Attack.Value;
+
+                proj.Initialize(
+                    enemy,
+                    dmg,
+                    direction);
+
+                Debug.Log(
+                    $"[DemiGod] PROJECTILE -> {ai.CurrentTarget.name}");
+            }
+        }
+        else
         {
             Debug.LogError(
-                "[DemiGod] SpellPrefab mal configurado");
-
-            return;
+                "[DemiGod] SpellPrefab sin NetworkObject");
         }
-
-        AttackData attackData =
-            new AttackData
-            {
-                Attacker = enemy,
-                Target = ai.CurrentTarget,
-                Damage = enemy.GetStats().Attack.Value,
-                DamageType = DamageType.Magical,
-                IsCritical = false,
-                IsHeavy = false,
-                HitPoint = spawnPos
-            };
-
-        projectile.Initialize(
-            attackData,
-            direction,
-            14f);
-
-        netObj.Spawn();
-
-        Debug.Log(
-            $"[DemiGod] PROJECTILE -> {ai.CurrentTarget.name}");
     }
 
     private void MaintainDistance(float currentDistance)

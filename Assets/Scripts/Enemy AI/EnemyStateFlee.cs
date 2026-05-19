@@ -4,161 +4,91 @@ using UnityEngine.AI;
 public class EnemyStateFlee : EnemyState
 {
     private float fleeDistance;
-
-    private float updateDestinationInterval =
-        0.5f;
-
+    private float updateDestinationInterval = 0.5f;
     private float updateTimer;
 
-    private float originalSpeed;
-
-    public EnemyStateFlee(
-        Enemy enemy,
-        EnemyAIController ai,
-        float fleeDistance)
+    public EnemyStateFlee(Enemy enemy, EnemyAIController ai, float fleeDistance)
         : base(enemy, ai)
     {
         this.fleeDistance = fleeDistance;
     }
 
-    // =========================
-    // ENTER
-    // =========================
-
     public override void OnEnter()
     {
-        if (!enemy.IsServer)
-            return;
-
-        updateTimer =
-            updateDestinationInterval;
-
-        if (ai.Agent != null)
-        {
-            originalSpeed =
-                ai.Agent.speed;
-
-            ai.Agent.speed *= 1.3f;
-        }
-
-        Debug.Log(
-            $"[{enemy.name}] Flee");
-
+        updateTimer = updateDestinationInterval;
+        ai.Agent.speed *= 1.3f; 
+        Debug.Log($"[{enemy.name}] Huyendo!");
         UpdateFleeDestination();
     }
-
-    // =========================
-    // UPDATE
-    // =========================
 
     public override void OnUpdate()
     {
-        if (!enemy.IsServer)
-            return;
-
+        
         if (!ai.ShouldFlee)
         {
-            ai.StateMachine.ChangeState(
-                ai.IdleState);
-
+            ai.Agent.speed /= 1.3f;
+            ai.StateMachine.ChangeState(ai.IdleState);
             return;
         }
 
+        
         updateTimer += Time.deltaTime;
-
-        if (updateTimer <
-            updateDestinationInterval)
-            return;
-
-        updateTimer = 0f;
-
-        UpdateFleeDestination();
+        if (updateTimer >= updateDestinationInterval)
+        {
+            updateTimer = 0f;
+            UpdateFleeDestination();
+        }
     }
-
-    // =========================
-    // EXIT
-    // =========================
 
     public override void OnExit()
     {
-        if (ai.Agent != null)
-        {
-            ai.Agent.speed =
-                originalSpeed;
-        }
+        ai.Agent.speed /= 1.3f;
     }
-
-    // =========================
-    // FLEE DESTINATION
-    // =========================
 
     private void UpdateFleeDestination()
     {
-        Character nearestPlayer =
-            FindNearestPlayer();
+      
+        Character nearestPlayer = FindNearestPlayer();
+        if (nearestPlayer == null) return;
 
-        if (nearestPlayer == null)
-            return;
+     
+        Vector3 directionAwayFromPlayer =
+            (enemy.transform.position - nearestPlayer.transform.position).normalized;
 
-        Vector3 direction =
-            (
-                enemy.transform.position -
-                nearestPlayer.transform.position
-            ).normalized;
+        Vector3 fleeTarget = enemy.transform.position + directionAwayFromPlayer * fleeDistance;
 
-        Vector3 fleeTarget =
-            enemy.transform.position +
-            direction * fleeDistance;
 
-        if (NavMesh.SamplePosition(
-            fleeTarget,
-            out NavMeshHit hit,
-            fleeDistance,
-            NavMesh.AllAreas))
-        {
-            ai.Agent.SetDestination(
-                hit.position);
-        }
+        if (NavMesh.SamplePosition(fleeTarget, out NavMeshHit hit, fleeDistance, NavMesh.AllAreas))
+            ai.Agent.SetDestination(hit.position);
+        else
+            
+            if (NavMesh.SamplePosition(fleeTarget, out NavMeshHit fallback,
+                fleeDistance * 0.5f, NavMesh.AllAreas))
+            ai.Agent.SetDestination(fallback.position);
     }
-
-    // =========================
-    // FIND PLAYER
-    // =========================
 
     private Character FindNearestPlayer()
     {
+       
         if (ai.CurrentTarget != null)
             return ai.CurrentTarget;
 
-        Collider[] hits =
-            Physics.OverlapSphere(
-                enemy.transform.position,
-                30f);
-
+        Collider[] hits = Physics.OverlapSphere(enemy.transform.position, 30f);
         Character nearest = null;
+        float nearestDist = float.MaxValue;
 
-        float nearestDistance =
-            float.MaxValue;
-
-        foreach (Collider hit in hits)
+        foreach (var hit in hits)
         {
-            Player player =
-                hit.GetComponent<Player>();
-
-            if (player == null)
-                continue;
-
-            float distance =
-                Vector3.Distance(
-                    enemy.transform.position,
+            if (hit.GetComponent<Character>() is Player player)
+            {
+                float dist = Vector3.Distance(enemy.transform.position,
                     player.transform.position);
-
-            if (distance >= nearestDistance)
-                continue;
-
-            nearest = player;
-
-            nearestDistance = distance;
+                if (dist < nearestDist)
+                {
+                    nearest = player;
+                    nearestDist = dist;
+                }
+            }
         }
 
         return nearest;

@@ -9,7 +9,7 @@ public class CharacterStats
 
     public event Action<float, float> OnHealthChanged;
     public event Action<float, float> OnManaChanged;
-    public event Action<float, float> OnStaminaChanged;
+    public event Action<float, float> OnResistanceChanged;
 
     public event Action<int> OnLevelChanged;
 
@@ -31,7 +31,7 @@ public class CharacterStats
     public Stat Dexterity { get; protected set; }
     public Stat Intelligence { get; protected set; }
     public Stat Vitality { get; protected set; }
-    public Stat Stamina { get; protected set; }
+    public Stat Resistance { get; protected set; }
     public Stat Luck { get; protected set; }
 
     public Stat MaxHealth { get; protected set; }
@@ -40,7 +40,7 @@ public class CharacterStats
     public Stat MaxMana { get; protected set; }
     public float CurrentMana { get; protected set; }
 
-    public float CurrentStamina { get; protected set; }
+    public float CurrentResistance { get; protected set; }
 
     // =========================
     // CONSTRUCTOR
@@ -59,7 +59,7 @@ public class CharacterStats
         Dexterity = new Stat(data.Dexterity);
         Intelligence = new Stat(data.Intelligence);
         Vitality = new Stat(data.Vitality);
-        Stamina = new Stat(data.Stamina);
+        Resistance = new Stat(data.Resistance);
         Luck = new Stat(data.Luck);
 
         MaxHealth = new Stat(data.MaxHealth);
@@ -67,7 +67,7 @@ public class CharacterStats
 
         CurrentHealth = MaxHealth.Value;
         CurrentMana = MaxMana.Value;
-        CurrentStamina = Stamina.Value;
+        CurrentResistance = Resistance.Value;
 
         RaiseAllEvents();
     }
@@ -80,7 +80,7 @@ public class CharacterStats
     {
         OnHealthChanged?.Invoke(CurrentHealth, MaxHealth.Value);
         OnManaChanged?.Invoke(CurrentMana, MaxMana.Value);
-        OnStaminaChanged?.Invoke(CurrentStamina, Stamina.Value);
+        OnResistanceChanged?.Invoke(CurrentResistance, Resistance.Value);
         OnLevelChanged?.Invoke(Level);
     }
 
@@ -108,7 +108,7 @@ public class CharacterStats
             case StatType.Dexterity: return Dexterity;
             case StatType.Intelligence: return Intelligence;
             case StatType.Vitality: return Vitality;
-            case StatType.Stamina: return Stamina;
+            case StatType.Resistance: return Resistance;
             case StatType.Luck: return Luck;
             default: return null;
         }
@@ -158,10 +158,10 @@ public class CharacterStats
             OnManaChanged?.Invoke(CurrentMana, MaxMana.Value);
         }
 
-        if (type == StatType.Stamina)
+        if (type == StatType.Resistance)
         {
-            CurrentStamina = Mathf.Clamp(CurrentStamina, 0, Stamina.Value);
-            OnStaminaChanged?.Invoke(CurrentStamina, Stamina.Value);
+            CurrentResistance = Mathf.Clamp(CurrentResistance, 0, Resistance.Value);
+            OnResistanceChanged?.Invoke(CurrentResistance, Resistance.Value);
         }
     }
 
@@ -219,31 +219,31 @@ public class CharacterStats
     }
 
     // =========================
-    // Stamina SYSTEM
+    // RESISTANCE SYSTEM
     // =========================
 
-    public bool UseStamina(float amount)
+    public bool UseResistance(float amount)
     {
-        if (CurrentStamina < amount)
+        if (CurrentResistance < amount)
             return false;
 
-        SetStamina(CurrentStamina - amount);
+        SetResistance(CurrentResistance - amount);
         return true;
     }
 
-    public void RecoverStamina(float amount)
+    public void RecoverResistance(float amount)
     {
-        SetStamina(CurrentStamina + amount);
+        SetResistance(CurrentResistance + amount);
     }
 
-    protected void SetStamina(float value)
+    protected void SetResistance(float value)
     {
-        float old = CurrentStamina;
+        float old = CurrentResistance;
 
-        CurrentStamina = Mathf.Clamp(value, 0, Stamina.Value);
+        CurrentResistance = Mathf.Clamp(value, 0, Resistance.Value);
 
-        if (!Mathf.Approximately(old, CurrentStamina))
-            OnStaminaChanged?.Invoke(CurrentStamina, Stamina.Value);
+        if (!Mathf.Approximately(old, CurrentResistance))
+            OnResistanceChanged?.Invoke(CurrentResistance, Resistance.Value);
     }
 
     // =========================

@@ -1,47 +1,23 @@
 using UnityEngine;
 
 /// <summary>
-/// Construye el comportamiento correcto
-/// según el tipo de ataque del arma.
+/// Construye el IWeaponBehavior correcto para el arma equipada.
+/// Al agregar un tipo de arma nuevo, solo se modifica esta clase.
+/// ACCIÓN: archivo nuevo en Assets/Scripts/Weapons/
 /// </summary>
 public static class WeaponBehaviorFactory
 {
-    public static IWeaponBehavior Create(
-        WeaponData weapon,
-        Transform origin)
+    /// <summary>
+    /// Crea el behavior para el arma dada.
+    /// origin = Transform desde donde se disparan los proyectiles (generalmente el Character).
+    /// </summary>
+    public static IWeaponBehavior Create(WeaponData weapon, Transform origin)
     {
         if (weapon == null)
-        {
-            return new MeleeWeaponBehavior(
-                null,
-                origin);
-        }
+            return new MeleeWeaponBehavior(null);
 
-        switch (weapon.AttackType)
-        {
-            case WeaponAttackType.Melee:
-
-                return new MeleeWeaponBehavior(
-                    weapon,
-                    origin);
-
-            case WeaponAttackType.Ranged:
-
-                return new RangedWeaponBehavior(
-                    weapon,
-                    origin);
-
-            case WeaponAttackType.Magic:
-
-                return new MagicWeaponBehavior(
-                    weapon,
-                    origin);
-
-            default:
-
-                return new MeleeWeaponBehavior(
-                    weapon,
-                    origin);
-        }
+        return weapon.IsRanged
+            ? new RangedWeaponBehavior(weapon, origin)
+            : new MeleeWeaponBehavior(weapon);
     }
 }

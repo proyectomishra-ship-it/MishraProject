@@ -11,6 +11,6 @@ public enum StatType
     Dexterity,
     Intelligence,
     Vitality,
-    Stamina,
+    Resistance,
     Luck
 }

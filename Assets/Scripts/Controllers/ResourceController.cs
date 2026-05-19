@@ -19,7 +19,7 @@ public class ResourceController : NetworkBehaviour
         NetworkVariableWritePermission.Server
     );
 
-    private NetworkVariable<float> networkStamina = new NetworkVariable<float>(
+    private NetworkVariable<float> networkResistance = new NetworkVariable<float>(
         0f,
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server
@@ -28,7 +28,7 @@ public class ResourceController : NetworkBehaviour
 
     public float CurrentHealth => networkHealth.Value;
     public float CurrentMana => networkMana.Value;
-    public float CurrentStamina => networkStamina.Value;
+    public float CurrentResistance => networkResistance.Value;
 
     public void Initialize(Character character)
     {
@@ -43,13 +43,13 @@ public class ResourceController : NetworkBehaviour
         {
             networkHealth.Value = stats.MaxHealth.Value;
             networkMana.Value = stats.MaxMana.Value;
-            networkStamina.Value = stats.Stamina.Value;
+            networkResistance.Value = stats.Resistance.Value;
         }
 
      
         networkHealth.OnValueChanged += OnHealthChanged;
         networkMana.OnValueChanged += OnManaChanged;
-        networkStamina.OnValueChanged += OnStaminaChanged;
+        networkResistance.OnValueChanged += OnResistanceChanged;
     }
 
     public override void OnNetworkDespawn()
@@ -57,7 +57,7 @@ public class ResourceController : NetworkBehaviour
         
         networkHealth.OnValueChanged -= OnHealthChanged;
         networkMana.OnValueChanged -= OnManaChanged;
-        networkStamina.OnValueChanged -= OnStaminaChanged;
+        networkResistance.OnValueChanged -= OnResistanceChanged;
     }
 
     // -------------------------
@@ -98,22 +98,22 @@ public class ResourceController : NetworkBehaviour
     }
 
     // -------------------------
-    // Stamina
+    // RESISTANCE
     // -------------------------
 
-    public bool UseStamina(float amount)
+    public bool UseResistance(float amount)
     {
         if (!IsServer) return false;
-        bool success = stats.UseStamina(amount);
-        if (success) networkStamina.Value = stats.CurrentStamina;
+        bool success = stats.UseResistance(amount);
+        if (success) networkResistance.Value = stats.CurrentResistance;
         return success;
     }
 
-    public void RecoverStamina(float amount)
+    public void RecoverResistance(float amount)
     {
         if (!IsServer) return;
-        stats.RecoverStamina(amount);
-        networkStamina.Value = stats.CurrentStamina;
+        stats.RecoverResistance(amount);
+        networkResistance.Value = stats.CurrentResistance;
     }
 
   
@@ -128,13 +128,13 @@ public class ResourceController : NetworkBehaviour
         OnManaUpdated(previousValue, newValue);
     }
 
-    private void OnStaminaChanged(float previousValue, float newValue)
+    private void OnResistanceChanged(float previousValue, float newValue)
     {
-        OnStaminaUpdated(previousValue, newValue);
+        OnResistanceUpdated(previousValue, newValue);
     }
 
   
     protected virtual void OnHealthUpdated(float previousValue, float newValue) { }
     protected virtual void OnManaUpdated(float previousValue, float newValue) { }
-    protected virtual void OnStaminaUpdated(float previousValue, float newValue) { }
+    protected virtual void OnResistanceUpdated(float previousValue, float newValue) { }
 }
