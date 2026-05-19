@@ -8,7 +8,8 @@ public abstract class Character : NetworkBehaviour
     // =========================
 
     [Header("Data")]
-    [SerializeField] protected CharacterData characterData;
+    [SerializeField]
+    protected CharacterData characterData;
 
     protected CharacterStats stats;
 
@@ -28,11 +29,27 @@ public abstract class Character : NetworkBehaviour
     // =========================
 
     public CharacterStats GetStats() => stats;
-    public ResourceController GetResourceController() => resourceController;
-    public InventoryController GetInventory() => inventoryController;
-    public EquipmentController GetEquipment() => equipmentController;
 
-    public int GetLevel() => stats.Level;
+    public ResourceController GetResourceController() =>
+        resourceController;
+
+    public InventoryController GetInventory() =>
+        inventoryController;
+
+    public EquipmentController GetEquipment() =>
+        equipmentController;
+
+    public DamageReceiver GetDamageReceiver() =>
+        damageReceiver;
+
+    public TargetingController GetTargetingController() =>
+        targetingController;
+
+    public CombatController GetCombatController() =>
+        combatController;
+
+    public int GetLevel() =>
+        stats.Level;
 
     // =========================
     // LIFECYCLE
@@ -42,29 +59,62 @@ public abstract class Character : NetworkBehaviour
     {
         stats = CreateStats();
 
-        combatController = GetComponent<CombatController>();
-        damageReceiver = GetComponent<DamageReceiver>();
-        resourceController = GetComponent<ResourceController>();
-        inventoryController = GetComponent<InventoryController>();
-        equipmentController = GetComponent<EquipmentController>();
-        targetingController = GetComponent<TargetingController>();
+        combatController =
+            GetComponent<CombatController>();
 
-       
-        ValidateComponent(combatController, nameof(CombatController));
-        ValidateComponent(damageReceiver, nameof(DamageReceiver));
-        ValidateComponent(resourceController, nameof(ResourceController));
-        ValidateComponent(inventoryController, nameof(InventoryController));
-        ValidateComponent(equipmentController, nameof(EquipmentController));
-        ValidateComponent(targetingController, nameof(TargetingController));
+        damageReceiver =
+            GetComponent<DamageReceiver>();
+
+        resourceController =
+            GetComponent<ResourceController>();
+
+        inventoryController =
+            GetComponent<InventoryController>();
+
+        equipmentController =
+            GetComponent<EquipmentController>();
+
+        targetingController =
+            GetComponent<TargetingController>();
+
+        ValidateComponent(
+            combatController,
+            nameof(CombatController));
+
+        ValidateComponent(
+            damageReceiver,
+            nameof(DamageReceiver));
+
+        ValidateComponent(
+            resourceController,
+            nameof(ResourceController));
+
+        ValidateComponent(
+            inventoryController,
+            nameof(InventoryController));
+
+        ValidateComponent(
+            equipmentController,
+            nameof(EquipmentController));
+
+        ValidateComponent(
+            targetingController,
+            nameof(TargetingController));
 
         combatController?.Initialize(this);
+
         damageReceiver?.Initialize(this);
+
         resourceController?.Initialize(this);
+
         inventoryController?.Initialize(this);
+
         equipmentController?.Initialize(this);
+
         targetingController?.Initialize(this);
 
-        Debug.Log($"[Character.Awake] {gameObject.name} | SceneInstance: {gameObject.scene.IsValid()}");
+        Debug.Log(
+            $"[Character.Awake] {gameObject.name}");
     }
 
     protected virtual CharacterStats CreateStats()
@@ -72,14 +122,19 @@ public abstract class Character : NetworkBehaviour
         return new CharacterStats(characterData);
     }
 
-    private void ValidateComponent(Component comp, string name)
+    private void ValidateComponent(
+        Component comp,
+        string name)
     {
         if (comp == null)
-            Debug.LogError($"[Character] Falta {name} en {gameObject.name}");
+        {
+            Debug.LogError(
+                $"[Character] Falta {name} en {gameObject.name}");
+        }
     }
 
     // =========================
-    // COMBAT (INPUT WRAPPER)
+    // COMBAT INPUT
     // =========================
 
     public virtual void OnAttackPressed()
@@ -89,7 +144,8 @@ public abstract class Character : NetworkBehaviour
 
     public virtual void OnAttackHeld()
     {
-        combatController?.OnAttackHeld(Time.deltaTime);
+        combatController?.OnAttackHeld(
+            Time.deltaTime);
     }
 
     public virtual void OnAttackReleased()
@@ -99,43 +155,58 @@ public abstract class Character : NetworkBehaviour
 
     public virtual void SpecialAttack()
     {
-        combatController?.SpecialAttack();
+        combatController?.ExecuteSpecialAttack();
     }
 
     // =========================
-    // DAMAGE FLOW (CORE SYSTEM)
+    // DAMAGE FLOW
     // =========================
 
-    public void HandleDamaged(Character attacker)
+    public void HandleDamaged(
+        Character attacker)
     {
-        Debug.Log($"[Character] {name} fue dañado por {attacker?.name}");
+        Debug.Log(
+            $"[Character] {name} fue dañado por {attacker?.name}");
+
         OnDamaged(attacker);
     }
 
     public void HandleDeath()
     {
-        Debug.Log($"[Character] {name} HandleDeath()");
+        Debug.Log(
+            $"[Character] {name} HandleDeath()");
+
         Die();
     }
 
-    protected virtual void OnDamaged(Character attacker) { }
+    protected virtual void OnDamaged(
+        Character attacker)
+    {
+    }
 
     // =========================
-    // DEATH SYSTEM
+    // DEATH
     // =========================
 
     protected virtual void Die()
     {
-        if (!IsServer) return;
+        if (!IsServer)
+            return;
 
-        Debug.Log($"[Character] {name} murió");
+        Debug.Log(
+            $"[Character] {name} murió");
 
         NotifyDeathClientRpc();
 
-        if (NetworkObject != null && NetworkObject.IsSpawned)
+        if (NetworkObject != null &&
+            NetworkObject.IsSpawned)
+        {
             NetworkObject.Despawn();
+        }
         else
+        {
             Destroy(gameObject);
+        }
     }
 
     [ClientRpc]
@@ -144,7 +215,9 @@ public abstract class Character : NetworkBehaviour
         OnDeath();
     }
 
-    protected virtual void OnDeath() { }
+    protected virtual void OnDeath()
+    {
+    }
 
     // =========================
     // RESOURCES
@@ -152,19 +225,26 @@ public abstract class Character : NetworkBehaviour
 
     public virtual void Heal(float amount)
     {
-        if (!IsServer) return;
+        if (!IsServer)
+            return;
+
         resourceController?.Heal(amount);
     }
 
     public virtual bool UseMana(float amount)
     {
-        if (!IsServer) return false;
-        return resourceController != null && resourceController.UseMana(amount);
+        if (!IsServer)
+            return false;
+
+        return resourceController != null &&
+               resourceController.UseMana(amount);
     }
 
     public virtual void AddMana(float amount)
     {
-        if (!IsServer) return;
+        if (!IsServer)
+            return;
+
         resourceController?.AddMana(amount);
     }
 }

@@ -1,32 +1,100 @@
-/// <summary>
-/// Comportamiento de ataque para armas cuerpo a cuerpo.
-/// El CombatController lo obtiene del WeaponBehaviorFactory.
-/// ACCIÓN: archivo nuevo en Assets/Scripts/Weapons/
-/// </summary>
+using UnityEngine;
+
 public class MeleeWeaponBehavior : IWeaponBehavior
 {
     private readonly WeaponData weapon;
 
-    public MeleeWeaponBehavior(WeaponData weapon) => this.weapon = weapon;
+    private readonly Transform origin;
 
-    public void PerformAttack(Character attacker, Character target)
+    private const float sphereRadius = 1f;
+
+    public MeleeWeaponBehavior(
+        WeaponData weapon,
+        Transform origin)
     {
-        float damage = attacker.GetStats().Attack.Value;
-        target.GetComponent<DamageReceiver>()?.TakeDamage(damage, attacker);
+        this.weapon = weapon;
+        this.origin = origin;
     }
 
-    public void PerformHeavyAttack(Character attacker, Character target, float multiplier)
+    public void ExecuteAttack(
+        Character attacker,
+        Character target,
+        bool heavy)
     {
-        float damage = attacker.GetStats().Attack.Value * multiplier;
-        target.GetComponent<DamageReceiver>()?.TakeDamage(damage, attacker);
+        if (target == null)
+            return;
+
+        if (!ValidateHit(target))
+            return;
+
+        float damage =
+            attacker.GetStats().Attack.Value;
+
+        if (weapon != null && heavy)
+        {
+            damage *= weapon.HeavyMultiplier;
+        }
+
+        AttackData attackData =
+            new AttackData
+            {
+                Attacker = attacker,
+                Target = target,
+                Damage = damage,
+                DamageType =
+                    weapon != null
+                        ? weapon.DamageType
+                        : DamageType.Physical,
+                IsHeavy = heavy,
+                IsCritical = false,
+                HitPoint = target.transform.position
+            };
+
+        DamageReceiver receiver =
+            target.GetComponent<DamageReceiver>();
+
+        if (receiver == null)
+        {
+            Debug.LogError(
+                "[MeleeWeaponBehavior] Missing DamageReceiver");
+
+            return;
+        }
+
+        receiver.TakeDamage(attackData);
     }
 
-    public void PerformSpecialAttack(Character attacker, Character target)
+    public void ExecuteSpecialAttack(
+        Character attacker,
+        Character target)
     {
-        if (weapon == null) return;
-        if (!attacker.UseMana(weapon.SpecialManaCost)) return;
+        ExecuteAttack(
+            attacker,
+            target,
+            true);
+    }
 
-        float damage = attacker.GetStats().Attack.Value * weapon.SpecialMultiplier;
-        target.GetComponent<DamageReceiver>()?.TakeDamage(damage, attacker);
+    private bool ValidateHit(Character target)
+    {
+        Vector3 originPos =
+            origin.position + Vector3.up;
+
+        Vector3 targetPos =
+            target.transform.position + Vector3.up;
+
+        Vector3 direction =
+            (targetPos - originPos).normalized;
+
+        float distance =
+            Vector3.Distance(
+                originPos,
+                targetPos);
+
+        return Physics.SphereCast(
+            originPos,
+            sphereRadius,
+            direction,
+            out RaycastHit hit,
+            distance + 0.5f);
     }
 }

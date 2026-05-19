@@ -4,22 +4,32 @@ using Unity.Netcode;
 public class TargetingController : NetworkBehaviour
 {
     private Character character;
+
     private Camera mainCamera;
 
-    [SerializeField] private LayerMask enemyLayer;
-    [SerializeField] private float updateInterval = 0.05f;
+    [SerializeField]
+    private LayerMask enemyLayer;
+
+    [SerializeField]
+    private float updateInterval = 0.05f;
 
     [Header("Targeting")]
-    [SerializeField] private float sphereRadius = 0.6f;
-    [SerializeField] private float loseTargetDelay = 0.3f;
+    [SerializeField]
+    private float sphereRadius = 0.6f;
+
+    [SerializeField]
+    private float loseTargetDelay = 0.3f;
 
     private float updateTimer;
+
     private float loseTargetTimer;
 
     private Character currentTarget;
+
     public Character CurrentTarget => currentTarget;
 
-    private ulong lastSentTargetId = ulong.MaxValue;
+    private ulong lastSentTargetId =
+        ulong.MaxValue;
 
     public void Initialize(Character character)
     {
@@ -28,25 +38,30 @@ public class TargetingController : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        if (!IsOwner) return;
+        if (!IsOwner)
+            return;
 
         mainCamera = Camera.main;
-        TryAutoAssignCharacter();
+
+        TryAssignCharacter();
     }
 
-    private void TryAutoAssignCharacter()
+    private void TryAssignCharacter()
     {
-        if (character != null) return;
+        if (character != null)
+            return;
+
         character = GetComponent<Character>();
     }
 
     private void Update()
     {
-        if (!IsOwner) return;
+        if (!IsOwner)
+            return;
 
         if (character == null)
         {
-            TryAutoAssignCharacter();
+            TryAssignCharacter();
             return;
         }
 
@@ -58,130 +73,170 @@ public class TargetingController : NetworkBehaviour
 
         updateTimer += Time.deltaTime;
 
-        if (updateTimer >= updateInterval)
-        {
-            updateTimer = 0f;
-            UpdateTargetAsOwner();
-        }
+        if (updateTimer < updateInterval)
+            return;
+
+        updateTimer = 0f;
+
+        UpdateTarget();
     }
 
-    private void UpdateTargetAsOwner()
+    private void UpdateTarget()
     {
-        var stats = character.GetStats();
-        if (stats == null) return;
+        Character detected =
+            FindTarget();
 
-        float range = stats.AttackRange.Value;
-        if (range <= 0f) return;
-
-        Vector3 origin = character.transform.position + Vector3.up * 1.5f;
-        Vector3 direction = mainCamera.transform.forward;
-
-        Ray ray = new Ray(origin, direction);
-
-        bool isMelee = range <= 3f;
-
-        bool hitSomething = false;
-        Character detectedTarget = null;
-
-        if (isMelee)
-        {
-            if (Physics.SphereCast(ray, sphereRadius, out RaycastHit hit, range, enemyLayer))
-            {
-                detectedTarget = hit.collider.GetComponent<Character>();
-                hitSomething = detectedTarget != null;
-            }
-        }
-        else
-        {
-            if (Physics.Raycast(ray, out RaycastHit hit, range, enemyLayer))
-            {
-                detectedTarget = hit.collider.GetComponent<Character>();
-                hitSomething = detectedTarget != null;
-            }
-            else
-            {
-                // Aim assist leve
-                if (Physics.SphereCast(ray, sphereRadius * 0.5f, out RaycastHit sHit, range, enemyLayer))
-                {
-                    detectedTarget = sHit.collider.GetComponent<Character>();
-                    hitSomething = detectedTarget != null;
-                }
-            }
-        }
-
-        if (hitSomething && detectedTarget != null && detectedTarget.NetworkObject != null)
+        if (detected != null)
         {
             loseTargetTimer = 0f;
 
-            ulong targetId = detectedTarget.NetworkObject.NetworkObjectId;
-            currentTarget = detectedTarget;
+            currentTarget = detected;
+
+            ulong targetId =
+                detected.NetworkObjectId;
 
             if (targetId != lastSentTargetId)
             {
                 lastSentTargetId = targetId;
+
                 SetTargetServerRpc(targetId);
             }
 
             return;
         }
 
-        // Delay antes de perder target
         loseTargetTimer += updateInterval;
 
-        if (loseTargetTimer >= loseTargetDelay)
-        {
-            currentTarget = null;
+        if (loseTargetTimer < loseTargetDelay)
+            return;
 
-            if (lastSentTargetId != ulong.MaxValue)
+        currentTarget = null;
+
+        if (lastSentTargetId == ulong.MaxValue)
+            return;
+
+        lastSentTargetId = ulong.MaxValue;
+
+        SetTargetServerRpc(ulong.MaxValue);
+    }
+
+    private Character FindTarget()
+    {
+        CharacterStats stats =
+            character.GetStats();
+
+        if (stats == null)
+            return null;
+
+        float range =
+            stats.AttackRange.Value;
+
+        Vector3 origin =
+            character.transform.position +
+            Vector3.up * 1.5f;
+
+        Vector3 direction =
+            mainCamera.transform.forward;
+
+        Ray ray =
+            new Ray(origin, direction);
+
+        bool isMelee =
+            range <= 3f;
+
+        RaycastHit hit;
+
+        bool success;
+
+        if (isMelee)
+        {
+            success =
+                Physics.SphereCast(
+                    ray,
+                    sphereRadius,
+                    out hit,
+                    range,
+                    enemyLayer);
+        }
+        else
+        {
+            success =
+                Physics.Raycast(
+                    ray,
+                    out hit,
+                    range,
+                    enemyLayer);
+
+            if (!success)
             {
-                lastSentTargetId = ulong.MaxValue;
-                SetTargetServerRpc(ulong.MaxValue);
+                success =
+                    Physics.SphereCast(
+                        ray,
+                        sphereRadius * 0.5f,
+                        out hit,
+                        range,
+                        enemyLayer);
             }
         }
+
+        if (!success)
+            return null;
+
+        return hit.collider
+            .GetComponentInParent<Character>();
     }
 
     [ServerRpc]
-    private void SetTargetServerRpc(ulong targetNetworkObjectId)
+    private void SetTargetServerRpc(
+        ulong targetNetworkObjectId)
     {
-        if (targetNetworkObjectId == ulong.MaxValue)
+        if (targetNetworkObjectId ==
+            ulong.MaxValue)
         {
             currentTarget = null;
             return;
         }
 
-        var spawnManager = NetworkManager.Singleton.SpawnManager;
-
-        if (spawnManager.SpawnedObjects
-            .TryGetValue(targetNetworkObjectId, out NetworkObject networkObject))
+        if (!NetworkManager.Singleton.SpawnManager
+            .SpawnedObjects.TryGetValue(
+                targetNetworkObjectId,
+                out NetworkObject networkObject))
         {
-            Character target = networkObject.GetComponent<Character>();
+            currentTarget = null;
+            return;
+        }
 
-            if (target == null)
-            {
-                currentTarget = null;
-                return;
-            }
+        Character target =
+            networkObject
+            .GetComponent<Character>();
 
-            float maxRange = character.GetStats().AttackRange.Value;
+        if (target == null)
+        {
+            currentTarget = null;
+            return;
+        }
 
-            float distance = Vector3.Distance(
+        float maxRange =
+            character.GetStats()
+            .AttackRange.Value;
+
+        float distance =
+            Vector3.Distance(
                 character.transform.position,
                 target.transform.position);
 
-            currentTarget = distance <= maxRange ? target : null;
-        }
-        else
-        {
-            currentTarget = null;
-        }
+        currentTarget =
+            distance <= maxRange
+                ? target
+                : null;
     }
 
     public ulong GetCurrentTargetId()
     {
-        if (currentTarget == null || currentTarget.NetworkObject == null)
+        if (currentTarget == null)
             return ulong.MaxValue;
 
-        return currentTarget.NetworkObject.NetworkObjectId;
+        return currentTarget.NetworkObjectId;
     }
 
     public void ForceTarget(Character target)

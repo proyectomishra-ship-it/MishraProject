@@ -7,9 +7,12 @@ public class OrcArcherAttackState : EnemyStateAttack
     private OrcArcherAIController archerAI;
 
     private float repositionTimer;
+
     private float repositionInterval = 1.5f;
 
-    public OrcArcherAttackState(Enemy enemy, OrcArcherAIController ai)
+    public OrcArcherAttackState(
+        Enemy enemy,
+        OrcArcherAIController ai)
         : base(enemy, ai, attackCooldown: 2f)
     {
         archerAI = ai;
@@ -19,34 +22,51 @@ public class OrcArcherAttackState : EnemyStateAttack
     {
         base.OnEnter();
 
-        repositionTimer = repositionInterval;
+        repositionTimer =
+            repositionInterval;
 
-        Debug.Log($"[{enemy.name}][Archer] Buscando cobertura");
+        Debug.Log(
+            $"[{enemy.name}][Archer] Buscando cobertura");
     }
 
     public override void OnExit()
     {
         if (ai.CurrentTarget != null)
-            CombatSlotManager.Instance?.RemoveRanged(ai, ai.CurrentTarget.transform);
+        {
+            CombatSlotManager.Instance?.RemoveRanged(
+                ai,
+                ai.CurrentTarget.transform);
+        }
 
-        Debug.Log($"[{enemy.name}][Archer] Exit Attack");
+        Debug.Log(
+            $"[{enemy.name}][Archer] Exit Attack");
     }
 
     public override void OnUpdate()
     {
+        if (!enemy.IsServer)
+            return;
+
         if (ai.ShouldFlee)
         {
-            ai.StateMachine.ChangeState(ai.FleeState);
+            ai.StateMachine.ChangeState(
+                ai.FleeState);
+
             return;
         }
 
-        if (ai.CurrentTarget == null) return;
+        if (ai.CurrentTarget == null)
+            return;
+
+        enemy.GetTargetingController()
+            ?.ForceTarget(ai.CurrentTarget);
 
         repositionTimer += Time.deltaTime;
 
         if (repositionTimer >= repositionInterval)
         {
             repositionTimer = 0f;
+
             UpdateSlotPosition();
         }
 
@@ -55,14 +75,19 @@ public class OrcArcherAttackState : EnemyStateAttack
 
     protected override void PerformAttack()
     {
-        if (ai.CurrentTarget == null) return;
+        if (!enemy.IsServer)
+            return;
 
-        // -------------------------
-        // SIN PREFAB -> fallback melee
-        // -------------------------
+        if (ai.CurrentTarget == null)
+            return;
+
+        enemy.GetTargetingController()
+            ?.ForceTarget(ai.CurrentTarget);
+
         if (archerAI.ArrowPrefab == null)
         {
-            Debug.LogWarning($"[{enemy.name}][Archer] Sin ArrowPrefab -> ataque básico");
+            Debug.LogWarning(
+                $"[{enemy.name}][Archer] Sin ArrowPrefab");
 
             enemy.OnAttackPressed();
             enemy.OnAttackReleased();
@@ -70,78 +95,75 @@ public class OrcArcherAttackState : EnemyStateAttack
             return;
         }
 
-        // -------------------------
-        // SOLO SERVER SPAWNEA
-        // -------------------------
-        if (!enemy.IsServer)
+        Vector3 spawnPos =
+            enemy.transform.position +
+            Vector3.up * 1.5f;
+
+        Vector3 direction =
+            (
+                ai.CurrentTarget.transform.position +
+                Vector3.up -
+                spawnPos
+            ).normalized;
+
+        GameObject instance =
+            Object.Instantiate(
+                archerAI.ArrowPrefab,
+                spawnPos,
+                Quaternion.LookRotation(direction));
+
+        NetworkObject netObj =
+            instance.GetComponent<NetworkObject>();
+
+        NetworkProjectile projectile =
+            instance.GetComponent<NetworkProjectile>();
+
+        if (netObj == null || projectile == null)
         {
-            Debug.LogWarning($"[{enemy.name}][Archer] Intento de spawn en cliente (IGNORADO)");
+            Debug.LogError(
+                $"[{enemy.name}][Archer] Prefab inválido");
+
+            Object.Destroy(instance);
+
             return;
         }
 
-        Vector3 spawnPos = enemy.transform.position + Vector3.up * 1.5f;
+        AttackData attackData =
+            new AttackData
+            {
+                Attacker = enemy,
+                Target = ai.CurrentTarget,
+                Damage = enemy.GetStats().Attack.Value,
+                DamageType = DamageType.Physical,
+                IsCritical = false,
+                IsHeavy = false,
+                HitPoint = spawnPos
+            };
 
-        Vector3 direction = (
-            ai.CurrentTarget.transform.position + Vector3.up - spawnPos
-        ).normalized;
+        projectile.Initialize(
+            attackData,
+            direction,
+            18f);
 
-        float damage = enemy.GetStats().Attack.Value;
+        netObj.Spawn(true);
 
-        GameObject instance = Object.Instantiate(
-            archerAI.ArrowPrefab,
-            spawnPos,
-            Quaternion.LookRotation(direction)
-        );
-
-        Debug.Log($"[{enemy.name}][Archer] Flecha instanciada");
-
-        // -------------------------
-        // NETWORK OBJECT
-        // -------------------------
-        NetworkObject netObj = instance.GetComponent<NetworkObject>();
-
-        if (netObj != null)
-        {
-            netObj.Spawn(true);
-            Debug.Log($"[{enemy.name}][Archer] NetworkObject Spawn OK");
-        }
-        else
-        {
-            Debug.LogError($"[{enemy.name}][Archer] ArrowPrefab SIN NetworkObject");
-        }
-
-        // -------------------------
-        // PROJECTILE INIT
-        // -------------------------
-        NetworkProjectile projectile = instance.GetComponent<NetworkProjectile>();
-
-        if (projectile != null)
-        {
-            projectile.Initialize(enemy, damage, direction);
-
-            Debug.Log($"[{enemy.name}][Archer] Projectile inicializado -> dmg {damage}");
-        }
-        else
-        {
-            Debug.LogError($"[{enemy.name}][Archer] Falta NetworkProjectile en prefab");
-        }
+        Debug.Log(
+            $"[{enemy.name}][Archer] Flecha disparada");
     }
-
-    // -------------------------
-    // POSICIONAMIENTO
-    // -------------------------
 
     private void UpdateSlotPosition()
     {
-        if (ai.CurrentTarget == null) return;
+        if (ai.CurrentTarget == null)
+            return;
 
         if (CombatSlotManager.Instance != null)
         {
-            Vector3 slotPos = CombatSlotManager.Instance.GetRangedSlotPosition(
-                ai,
-                ai.CurrentTarget.transform,
-                archerAI.PreferredCombatDistance
-            );
+            Vector3 slotPos =
+                CombatSlotManager.Instance
+                .GetRangedSlotPosition(
+                    ai,
+                    ai.CurrentTarget.transform,
+                    archerAI.PreferredCombatDistance);
 
             if (NavMesh.SamplePosition(
                 slotPos,
@@ -149,7 +171,9 @@ public class OrcArcherAttackState : EnemyStateAttack
                 archerAI.PreferredCombatDistance,
                 NavMesh.AllAreas))
             {
-                ai.Agent.SetDestination(slotHit.position);
+                ai.Agent.SetDestination(
+                    slotHit.position);
+
                 return;
             }
         }
@@ -159,31 +183,45 @@ public class OrcArcherAttackState : EnemyStateAttack
 
     private void TryPositionBehindAlly()
     {
-        if (ai.CurrentTarget == null) return;
+        if (ai.CurrentTarget == null)
+            return;
 
-        Collider[] nearby = Physics.OverlapSphere(
-            enemy.transform.position,
-            15f,
-            LayerMask.GetMask("Enemy")
-        );
+        Collider[] nearby =
+            Physics.OverlapSphere(
+                enemy.transform.position,
+                15f,
+                LayerMask.GetMask("Enemy"));
 
         Transform bestAlly = null;
-        float bestScore = float.MinValue;
 
-        foreach (var col in nearby)
+        float bestScore =
+            float.MinValue;
+
+        foreach (Collider col in nearby)
         {
-            Enemy potentialAlly = col.GetComponent<Enemy>();
-            if (potentialAlly == null || potentialAlly == enemy) continue;
+            Enemy potentialAlly =
+                col.GetComponent<Enemy>();
 
-            Vector3 toPlayer = (
-                ai.CurrentTarget.transform.position - enemy.transform.position
-            ).normalized;
+            if (potentialAlly == null ||
+                potentialAlly == enemy)
+                continue;
 
-            Vector3 toAlly = (
-                potentialAlly.transform.position - enemy.transform.position
-            ).normalized;
+            Vector3 toPlayer =
+                (
+                    ai.CurrentTarget.transform.position -
+                    enemy.transform.position
+                ).normalized;
 
-            float score = Vector3.Dot(toPlayer, toAlly);
+            Vector3 toAlly =
+                (
+                    potentialAlly.transform.position -
+                    enemy.transform.position
+                ).normalized;
+
+            float score =
+                Vector3.Dot(
+                    toPlayer,
+                    toAlly);
 
             if (score > bestScore)
             {
@@ -194,30 +232,44 @@ public class OrcArcherAttackState : EnemyStateAttack
 
         if (bestAlly != null)
         {
-            Vector3 dirFromPlayer = (
-                bestAlly.position - ai.CurrentTarget.transform.position
-            ).normalized;
+            Vector3 dirFromPlayer =
+                (
+                    bestAlly.position -
+                    ai.CurrentTarget.transform.position
+                ).normalized;
 
-            Vector3 coverPos = bestAlly.position + dirFromPlayer * 2f;
+            Vector3 coverPos =
+                bestAlly.position +
+                dirFromPlayer * 2f;
 
-            if (NavMesh.SamplePosition(coverPos, out NavMeshHit hit, 3f, NavMesh.AllAreas))
+            if (NavMesh.SamplePosition(
+                coverPos,
+                out NavMeshHit hit,
+                3f,
+                NavMesh.AllAreas))
+            {
                 ai.Agent.SetDestination(hit.position);
+            }
         }
         else
         {
-            float dist = Vector3.Distance(
-                enemy.transform.position,
-                ai.CurrentTarget.transform.position
-            );
+            float dist =
+                Vector3.Distance(
+                    enemy.transform.position,
+                    ai.CurrentTarget.transform.position);
 
-            if (dist < archerAI.PreferredCombatDistance * 0.6f)
+            if (dist <
+                archerAI.PreferredCombatDistance * 0.6f)
             {
-                Vector3 away = (
-                    enemy.transform.position - ai.CurrentTarget.transform.position
-                ).normalized;
+                Vector3 away =
+                    (
+                        enemy.transform.position -
+                        ai.CurrentTarget.transform.position
+                    ).normalized;
 
-                Vector3 retreatPos = enemy.transform.position
-                    + away * archerAI.PreferredCombatDistance;
+                Vector3 retreatPos =
+                    enemy.transform.position +
+                    away * archerAI.PreferredCombatDistance;
 
                 if (NavMesh.SamplePosition(
                     retreatPos,

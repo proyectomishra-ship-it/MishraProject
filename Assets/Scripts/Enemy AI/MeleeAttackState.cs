@@ -24,39 +24,62 @@ public class MeleeAttackState : EnemyStateAttack
         IEnemyStrategy strategy = null
     ) : base(enemy, ai, attackCooldown)
     {
-        this.heavyAttackCooldown   = heavyAttackCooldown;
+        this.heavyAttackCooldown = heavyAttackCooldown;
         this.specialAttackCooldown = specialAttackCooldown;
-        this.hasHeavy              = hasHeavy;
-        this.hasSpecial            = hasSpecial;
-        this.activeStrategy        = strategy;
+        this.hasHeavy = hasHeavy;
+        this.hasSpecial = hasSpecial;
+        this.activeStrategy = strategy;
     }
 
     public override void OnEnter()
     {
         base.OnEnter();
-        heavyAttackTimer   = heavyAttackCooldown;
+
+        if (!enemy.IsServer)
+            return;
+
+        heavyAttackTimer = heavyAttackCooldown;
         specialAttackTimer = specialAttackCooldown;
+
         activeStrategy?.OnEnter(enemy, ai);
+
         Debug.Log($"[{enemy.name}][Melee] Enter Attack");
     }
 
     public override void OnUpdate()
     {
-        if (ai.CurrentTarget == null) return;
+        if (!enemy.IsServer)
+            return;
+
+        if (ai.CurrentTarget == null)
+            return;
+
+        enemy.GetTargetingController()
+            ?.ForceTarget(ai.CurrentTarget);
 
         activeStrategy?.OnUpdate(enemy, ai);
 
         // =========================
-        // HEAVY ATTACK — usa AttackDirect (no simula hold)
+        // HEAVY ATTACK
         // =========================
+
         if (hasHeavy)
         {
             heavyAttackTimer += Time.deltaTime;
+
             if (heavyAttackTimer >= heavyAttackCooldown)
             {
                 heavyAttackTimer = 0f;
-                Debug.Log($"[{enemy.name}][Melee] HEAVY Attack");
-                enemy.GetComponent<CombatController>()?.AttackDirect(heavy: true);
+
+                Debug.Log(
+                    $"[{enemy.name}][Melee] HEAVY Attack");
+
+                enemy.OnAttackPressed();
+
+                enemy.OnAttackHeld();
+
+                enemy.OnAttackReleased();
+
                 return;
             }
         }
@@ -64,36 +87,57 @@ public class MeleeAttackState : EnemyStateAttack
         // =========================
         // SPECIAL ATTACK
         // =========================
+
         if (hasSpecial)
         {
             specialAttackTimer += Time.deltaTime;
+
             if (specialAttackTimer >= specialAttackCooldown)
             {
                 specialAttackTimer = 0f;
-                Debug.Log($"[{enemy.name}][Melee] SPECIAL Attack");
-                enemy.GetComponent<CombatController>()?.SpecialAttackDirect();
+
+                Debug.Log(
+                    $"[{enemy.name}][Melee] SPECIAL Attack");
+
+                CombatController combat =
+                    enemy.GetComponent<CombatController>();
+
+                combat?.ExecuteSpecialAttack();
+
                 return;
             }
         }
 
         // =========================
-        // LIGHT ATTACK (cooldown normal via EnemyStateAttack)
+        // LIGHT ATTACK
         // =========================
+
         base.OnUpdate();
     }
 
     public override void OnExit()
     {
         activeStrategy?.OnExit(enemy, ai);
+
         Debug.Log($"[{enemy.name}][Melee] Exit Attack");
     }
 
     protected override void PerformAttack()
     {
-        if (ai.CurrentTarget == null) return;
-        Debug.Log($"[{enemy.name}][Melee] LIGHT Attack → {ai.CurrentTarget.name}");
-        // FIX: Press + Release para que el daño se aplique correctamente
+        if (!enemy.IsServer)
+            return;
+
+        if (ai.CurrentTarget == null)
+            return;
+
+        enemy.GetTargetingController()
+            ?.ForceTarget(ai.CurrentTarget);
+
+        Debug.Log(
+            $"[{enemy.name}][Melee] LIGHT Attack → {ai.CurrentTarget.name}");
+
         enemy.OnAttackPressed();
+
         enemy.OnAttackReleased();
     }
 }

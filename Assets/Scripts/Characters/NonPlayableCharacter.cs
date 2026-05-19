@@ -3,29 +3,35 @@ using Unity.Netcode;
 
 public class NonPlayableCharacter : Character
 {
-    
-    private NetworkVariable<bool> isHostile = new NetworkVariable<bool>(
-        false,
-        NetworkVariableReadPermission.Everyone,
-        NetworkVariableWritePermission.Server
-    );
+    private NetworkVariable<bool> isHostile =
+        new NetworkVariable<bool>(
+            false,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
 
     private Character currentTarget;
 
+    [Header("AI")]
+    [SerializeField]
+    private float attackInterval = 1.5f;
+
+    private float attackTimer;
+
     public override void OnNetworkSpawn()
     {
-       
-        isHostile.OnValueChanged += OnHostileStateChanged;
+        isHostile.OnValueChanged +=
+            OnHostileStateChanged;
     }
 
     public override void OnNetworkDespawn()
     {
-
-        isHostile.OnValueChanged -= OnHostileStateChanged;
+        isHostile.OnValueChanged -=
+            OnHostileStateChanged;
     }
 
-  
-    private void OnHostileStateChanged(bool previousValue, bool newValue)
+    private void OnHostileStateChanged(
+        bool previousValue,
+        bool newValue)
     {
         if (newValue)
             OnBecomeHostile();
@@ -33,31 +39,53 @@ public class NonPlayableCharacter : Character
             OnBecomePassive();
     }
 
-    protected virtual void OnBecomeHostile() { }
-    protected virtual void OnBecomePassive() { }
-
-    protected override void OnDamaged(Character attacker)
+    protected virtual void OnBecomeHostile()
     {
-        if (!IsServer) return;
+    }
+
+    protected virtual void OnBecomePassive()
+    {
+    }
+
+    protected override void OnDamaged(
+        Character attacker)
+    {
+        if (!IsServer)
+            return;
 
         base.OnDamaged(attacker);
 
         if (!isHostile.Value)
         {
             isHostile.Value = true;
-            currentTarget = attacker;
         }
+
+        currentTarget = attacker;
     }
 
     private void Update()
     {
-        if (!IsServer) return;
-        if (!isHostile.Value) return;
-        if (currentTarget == null) return;
+        if (!IsServer)
+            return;
 
-        // Simular targeting para AI
-        targetingController?.ForceTarget(currentTarget);
+        if (!isHostile.Value)
+            return;
 
-        combatController?.Attack();
+        if (currentTarget == null)
+            return;
+
+        targetingController?.ForceTarget(
+            currentTarget);
+
+        attackTimer += Time.deltaTime;
+
+        if (attackTimer >= attackInterval)
+        {
+            attackTimer = 0f;
+
+            combatController?.OnAttackPressed();
+
+            combatController?.OnAttackReleased();
+        }
     }
 }

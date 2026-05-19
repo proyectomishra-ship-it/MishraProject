@@ -1,12 +1,11 @@
 using UnityEngine;
-using Unity.Netcode;
 
 public abstract class EnemyStateAttack : EnemyState
 {
     protected float attackCooldown;
     protected float attackTimer;
 
-    public EnemyStateAttack(
+    protected EnemyStateAttack(
         Enemy enemy,
         EnemyAIController ai,
         float attackCooldown)
@@ -15,65 +14,81 @@ public abstract class EnemyStateAttack : EnemyState
         this.attackCooldown = attackCooldown;
     }
 
+    // =========================
+    // ENTER
+    // =========================
+
     public override void OnEnter()
     {
-        if (!enemy.IsServer) return;
+        if (!enemy.IsServer)
+            return;
 
         attackTimer = attackCooldown;
 
-        Debug.Log($"[{enemy.name}] Attack State ENTER");
+        ai.Agent?.ResetPath();
+
+        Debug.Log($"[{enemy.name}] Attack ENTER");
     }
+
+    // =========================
+    // UPDATE
+    // =========================
 
     public override void OnUpdate()
     {
-        if (!enemy.IsServer) return;
+        if (!enemy.IsServer)
+            return;
+
+        // =========================
+        // VALIDACIÓN TARGET
+        // =========================
+
+        if (!IsTargetValid())
+        {
+            ai.SetTarget(null);
+
+            ai.StateMachine.ChangeState(
+                ai.HasPatrolPoints
+                    ? ai.PatrolState
+                    : ai.IdleState);
+
+            return;
+        }
 
         // =========================
         // FLEE
         // =========================
 
-        if (ai.ShouldFlee && ai.FleeState != null)
+        if (ai.ShouldFlee &&
+            ai.FleeState != null)
         {
-            ai.StateMachine.ChangeState(ai.FleeState);
-            return;
-        }
-
-        // =========================
-        // TARGET
-        // =========================
-
-        if (ai.CurrentTarget == null)
-        {
-            Debug.Log($"[{enemy.name}] Sin target -> Idle");
-
-            ai.StateMachine.ChangeState(ai.IdleState);
+            ai.StateMachine.ChangeState(
+                ai.FleeState);
 
             return;
         }
 
         // =========================
-        // FORCE TARGET
+        // TARGET SYNC
         // =========================
 
-        enemy.GetComponent<TargetingController>()
+        enemy.GetTargetingController()
             ?.ForceTarget(ai.CurrentTarget);
 
         // =========================
-        // VALIDACIÓN DE RANGO
+        // RANGE CHECK
         // =========================
 
         if (!IsTargetInAttackRange())
         {
-            Debug.Log(
-                $"[{enemy.name}] Target fuera de rango -> Chase");
-
-            ai.StateMachine.ChangeState(ai.ChaseState);
+            ai.StateMachine.ChangeState(
+                ai.ChaseState);
 
             return;
         }
 
         // =========================
-        // MIRAR TARGET
+        // ROTATION
         // =========================
 
         FaceTarget();
@@ -84,18 +99,37 @@ public abstract class EnemyStateAttack : EnemyState
 
         attackTimer += Time.deltaTime;
 
-        if (attackTimer >= attackCooldown)
-        {
-            attackTimer = 0f;
+        if (attackTimer < attackCooldown)
+            return;
 
-            Debug.Log($"[{enemy.name}] Ejecutando ataque");
+        attackTimer = 0f;
 
-            PerformAttack();
-        }
+        PerformAttack();
     }
 
     // =========================
-    // RANGE VALIDATION
+    // VALID TARGET
+    // =========================
+
+    protected virtual bool IsTargetValid()
+    {
+        if (ai.CurrentTarget == null)
+            return false;
+
+        if (!ai.CurrentTarget.IsSpawned)
+            return false;
+
+        ResourceController rc =
+            ai.CurrentTarget.GetResourceController();
+
+        if (rc == null)
+            return false;
+
+        return rc.CurrentHealth > 0f;
+    }
+
+    // =========================
+    // RANGE
     // =========================
 
     protected virtual bool IsTargetInAttackRange()
@@ -103,36 +137,43 @@ public abstract class EnemyStateAttack : EnemyState
         if (ai.CurrentTarget == null)
             return false;
 
-        float distance = Vector3.Distance(
-            enemy.transform.position,
-            ai.CurrentTarget.transform.position);
+        float distance =
+            Vector3.Distance(
+                enemy.transform.position,
+                ai.CurrentTarget.transform.position);
 
-        float attackRange =
-            enemy.GetStats().AttackRange.Value;
-
-        return distance <= attackRange;
+        return distance <=
+               enemy.GetStats()
+                    .AttackRange.Value;
     }
 
     // =========================
-    // FACE TARGET
+    // ROTATION
     // =========================
 
-    private void FaceTarget()
+    protected virtual void FaceTarget()
     {
         if (ai.CurrentTarget == null)
             return;
 
         Vector3 direction =
-            ai.CurrentTarget.transform.position
-            - enemy.transform.position;
+            ai.CurrentTarget.transform.position -
+            enemy.transform.position;
 
         direction.y = 0f;
 
         if (direction.sqrMagnitude <= 0.001f)
             return;
 
+        Quaternion targetRotation =
+            Quaternion.LookRotation(
+                direction.normalized);
+
         enemy.transform.rotation =
-            Quaternion.LookRotation(direction.normalized);
+            Quaternion.Slerp(
+                enemy.transform.rotation,
+                targetRotation,
+                Time.deltaTime * 10f);
     }
 
     // =========================
