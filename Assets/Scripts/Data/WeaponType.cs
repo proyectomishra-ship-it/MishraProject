@@ -12,5 +12,6 @@ public enum WeaponType
     Dagger,
     Staff,
     Mace,
+    Grimoire,
     None
 }
