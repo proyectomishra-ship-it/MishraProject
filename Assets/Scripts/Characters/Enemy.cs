@@ -4,11 +4,13 @@ using Unity.Netcode;
 
 public class Enemy : Character
 {
-    [SerializeField] private int   experienceReward = 50;
-    [SerializeField] private float classMultiplier  = 1f;
+    [SerializeField] private int experienceReward = 50;
+    [SerializeField] private float classMultiplier = 1f;
 
     private EnemyAIController aiController;
-    private EnemyGroupMember  groupMember;
+    private EnemyGroupMember groupMember;
+
+    protected CombatController combatController;
 
     public event Action<Enemy> OnEnemyDeath;
 
@@ -16,16 +18,53 @@ public class Enemy : Character
     {
         base.Awake();
 
+        combatController = GetComponent<CombatController>();
+
+        if (combatController == null)
+            Debug.LogError($"[Enemy] Falta CombatController");
+
+        combatController?.Initialize(this);
+
         aiController = GetComponent<EnemyAIController>();
+
         if (aiController == null)
-            Debug.LogError($"[Enemy] Falta EnemyAIController en el prefab de {gameObject.name}");
+            Debug.LogError($"[Enemy] Falta EnemyAIController");
 
         aiController?.Initialize(this);
 
         groupMember = GetComponent<EnemyGroupMember>();
+
         if (groupMember == null)
-            Debug.LogError($"[Enemy] Falta EnemyGroupMember en el prefab de {gameObject.name}");
+            Debug.LogError($"[Enemy] Falta EnemyGroupMember");
     }
+
+    // =========================
+    // COMBAT
+    // =========================
+
+    public override void OnAttackPressed()
+    {
+        combatController?.OnAttackPressed();
+    }
+
+    public override void OnAttackHeld()
+    {
+        combatController?.OnAttackHeld(Time.deltaTime);
+    }
+
+    public override void OnAttackReleased()
+    {
+        combatController?.OnAttackReleased();
+    }
+
+    public override void SpecialAttack()
+    {
+        combatController?.SpecialAttack();
+    }
+
+    // =========================
+    // XP
+    // =========================
 
     public int GetExperienceReward(int playerLevel)
     {
@@ -43,6 +82,7 @@ public class Enemy : Character
         var contributors = damageReceiver.GetDamageContributors();
 
         float totalDamage = 0f;
+
         foreach (var entry in contributors)
             totalDamage += entry.Value;
 
@@ -53,14 +93,24 @@ public class Enemy : Character
             if (entry.Key is Player player)
             {
                 float damageShare = entry.Value / totalDamage;
-                int   baseXP      = GetExperienceReward(player.GetLevel());
-                int   finalXP     = Mathf.RoundToInt(baseXP * damageShare);
+
+                int baseXP =
+                    GetExperienceReward(player.GetLevel());
+
+                int finalXP =
+                    Mathf.RoundToInt(baseXP * damageShare);
 
                 player.AddExp(finalXP);
-                Debug.Log($"[XP] {player.name} recibe {finalXP} XP ({damageShare:P1})");
+
+                Debug.Log(
+                    $"[XP] {player.name} recibe {finalXP} XP");
             }
         }
     }
+
+    // =========================
+    // DEATH
+    // =========================
 
     protected override void Die()
     {
@@ -76,8 +126,8 @@ public class Enemy : Character
 
         DistributeExperience();
 
-      
-        GetComponent<DropController>()?.OnEnemyDied();
+        GetComponent<DropController>()
+            ?.OnEnemyDied();
 
         OnEnemyDeath?.Invoke(this);
 

@@ -493,7 +493,7 @@ GameObject:
   - component: {fileID: 2252752920409386846}
   - component: {fileID: 7716882701020710749}
   - component: {fileID: 4855928033122335932}
-  - component: {fileID: 2892283334883165864}
+  - component: {fileID: 2541815542267956621}
   - component: {fileID: 2523666047407681510}
   - component: {fileID: 2035890717121098228}
   - component: {fileID: 2228082858891574378}
@@ -545,7 +545,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 851864333
+  GlobalObjectIdHash: 1757723156
   InScenePlacedSourceGlobalObjectIdHash: 3131095716
   DeferredDespawnTick: 0
   Ownership: 1
@@ -644,7 +644,7 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
---- !u!114 &2892283334883165864
+--- !u!114 &2541815542267956621
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -653,17 +653,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 7950557235140198998}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa6eca8058e4eca4ba87e3ffef4ec682, type: 3}
+  m_Script: {fileID: 11500000, guid: 45d699e1075b0e74a88c0ad7842377a2, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CombatController
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerCombatController
   ShowTopMostFoldoutHeaderGroup: 1
-  heavyAttackMultiplier: 2
   holdThreshold: 0.4
-  attackConeAngle: 90
-  sphereCastRadius: 0.5
+  heavyStaminaCost: 25
+  magicManaCost: 20
   enemyLayer:
     serializedVersion: 2
     m_Bits: 64
+  meleeRadius: 1.5
 --- !u!114 &2523666047407681510
 MonoBehaviour:
   m_ObjectHideFlags: 0

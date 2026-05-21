@@ -1,32 +1,51 @@
 /// <summary>
-/// Comportamiento de ataque para armas cuerpo a cuerpo.
-/// El CombatController lo obtiene del WeaponBehaviorFactory.
-/// ACCIÓN: archivo nuevo en Assets/Scripts/Weapons/
+/// Comportamiento de ataque para armas melee.
+/// Usado principalmente por NPCs/enemigos.
 /// </summary>
 public class MeleeWeaponBehavior : IWeaponBehavior
 {
     private readonly WeaponData weapon;
 
-    public MeleeWeaponBehavior(WeaponData weapon) => this.weapon = weapon;
+    public MeleeWeaponBehavior(WeaponData weapon)
+    {
+        this.weapon = weapon;
+    }
 
     public void PerformAttack(Character attacker, Character target)
     {
         float damage = attacker.GetStats().Attack.Value;
-        target.GetComponent<DamageReceiver>()?.TakeDamage(damage, attacker);
+
+        target.GetComponent<DamageReceiver>()
+            ?.TakeDamage(damage, attacker);
     }
 
-    public void PerformHeavyAttack(Character attacker, Character target, float multiplier)
+    public void PerformHeavyAttack(
+        Character attacker,
+        Character target,
+        float multiplier)
     {
-        float damage = attacker.GetStats().Attack.Value * multiplier;
-        target.GetComponent<DamageReceiver>()?.TakeDamage(damage, attacker);
+        float damage =
+            attacker.GetStats().Attack.Value * multiplier;
+
+        target.GetComponent<DamageReceiver>()
+            ?.TakeDamage(damage, attacker);
     }
 
-    public void PerformSpecialAttack(Character attacker, Character target)
+    public void PerformSpecialAttack(
+        Character attacker,
+        Character target)
     {
-        if (weapon == null) return;
-        if (!attacker.UseMana(weapon.SpecialManaCost)) return;
+        if (weapon == null)
+            return;
 
-        float damage = attacker.GetStats().Attack.Value * weapon.SpecialMultiplier;
-        target.GetComponent<DamageReceiver>()?.TakeDamage(damage, attacker);
+        if (!attacker.UseMana(weapon.ManaCost))
+            return;
+
+        float damage =
+            attacker.GetStats().Attack.Value *
+            weapon.SpecialMultiplier;
+
+        target.GetComponent<DamageReceiver>()
+            ?.TakeDamage(damage, attacker);
     }
 }

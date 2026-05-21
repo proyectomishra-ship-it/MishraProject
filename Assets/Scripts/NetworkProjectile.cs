@@ -43,7 +43,7 @@ public class NetworkProjectile : NetworkBehaviour
 
         Debug.Log($"[Projectile] Colision con {other.name}");
 
-        var target = other.GetComponent<Character>();
+        var target = other.GetComponentInParent<Character>();
 
         if (target == null)
         {

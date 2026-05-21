@@ -16,7 +16,6 @@ public abstract class Character : NetworkBehaviour
     // CONTROLLERS
     // =========================
 
-    protected CombatController combatController;
     protected DamageReceiver damageReceiver;
     protected ResourceController resourceController;
     protected InventoryController inventoryController;
@@ -28,9 +27,18 @@ public abstract class Character : NetworkBehaviour
     // =========================
 
     public CharacterStats GetStats() => stats;
-    public ResourceController GetResourceController() => resourceController;
-    public InventoryController GetInventory() => inventoryController;
-    public EquipmentController GetEquipment() => equipmentController;
+
+    public ResourceController GetResourceController()
+        => resourceController;
+
+    public InventoryController GetInventory()
+        => inventoryController;
+
+    public EquipmentController GetEquipment()
+        => equipmentController;
+
+    public TargetingController GetTargeting()
+        => targetingController;
 
     public int GetLevel() => stats.Level;
 
@@ -42,29 +50,26 @@ public abstract class Character : NetworkBehaviour
     {
         stats = CreateStats();
 
-        combatController = GetComponent<CombatController>();
         damageReceiver = GetComponent<DamageReceiver>();
         resourceController = GetComponent<ResourceController>();
         inventoryController = GetComponent<InventoryController>();
         equipmentController = GetComponent<EquipmentController>();
         targetingController = GetComponent<TargetingController>();
 
-       
-        ValidateComponent(combatController, nameof(CombatController));
         ValidateComponent(damageReceiver, nameof(DamageReceiver));
         ValidateComponent(resourceController, nameof(ResourceController));
         ValidateComponent(inventoryController, nameof(InventoryController));
         ValidateComponent(equipmentController, nameof(EquipmentController));
         ValidateComponent(targetingController, nameof(TargetingController));
 
-        combatController?.Initialize(this);
         damageReceiver?.Initialize(this);
         resourceController?.Initialize(this);
         inventoryController?.Initialize(this);
         equipmentController?.Initialize(this);
         targetingController?.Initialize(this);
 
-        Debug.Log($"[Character.Awake] {gameObject.name} | SceneInstance: {gameObject.scene.IsValid()}");
+        Debug.Log(
+            $"[Character.Awake] {gameObject.name} | SceneInstance: {gameObject.scene.IsValid()}");
     }
 
     protected virtual CharacterStats CreateStats()
@@ -79,31 +84,19 @@ public abstract class Character : NetworkBehaviour
     }
 
     // =========================
-    // COMBAT (INPUT WRAPPER)
+    // COMBAT API
     // =========================
 
-    public virtual void OnAttackPressed()
-    {
-        combatController?.OnAttackPressed();
-    }
+    public virtual void OnAttackPressed() { }
 
-    public virtual void OnAttackHeld()
-    {
-        combatController?.OnAttackHeld(Time.deltaTime);
-    }
+    public virtual void OnAttackHeld() { }
 
-    public virtual void OnAttackReleased()
-    {
-        combatController?.OnAttackReleased();
-    }
+    public virtual void OnAttackReleased() { }
 
-    public virtual void SpecialAttack()
-    {
-        combatController?.SpecialAttack();
-    }
+    public virtual void SpecialAttack() { }
 
     // =========================
-    // DAMAGE FLOW (CORE SYSTEM)
+    // DAMAGE FLOW
     // =========================
 
     public void HandleDamaged(Character attacker)
@@ -153,18 +146,30 @@ public abstract class Character : NetworkBehaviour
     public virtual void Heal(float amount)
     {
         if (!IsServer) return;
+
         resourceController?.Heal(amount);
     }
 
     public virtual bool UseMana(float amount)
     {
         if (!IsServer) return false;
-        return resourceController != null && resourceController.UseMana(amount);
+
+        return resourceController != null
+            && resourceController.UseMana(amount);
+    }
+
+    public virtual bool UseResistance(float amount)
+    {
+        if (!IsServer) return false;
+
+        return resourceController != null
+            && resourceController.UseResistance(amount);
     }
 
     public virtual void AddMana(float amount)
     {
         if (!IsServer) return;
+
         resourceController?.AddMana(amount);
     }
 }
