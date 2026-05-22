@@ -60,8 +60,8 @@ public class EnemyStatePatrol : EnemyState
 
         patrolCount++;
 
-        Debug.Log(
-            $"[{enemy.name}] Patrol point reached ({patrolCount}/{maxPatrolMoves})");
+        //Debug.Log(
+        //    $"[{enemy.name}] Patrol point reached ({patrolCount}/{maxPatrolMoves})");
 
         // =========================
         // FIN DE CICLO
@@ -69,7 +69,7 @@ public class EnemyStatePatrol : EnemyState
 
         if (patrolCount >= maxPatrolMoves)
         {
-            Debug.Log($"[{enemy.name}] Patrol -> Idle");
+            //Debug.Log($"[{enemy.name}] Patrol -> Idle");
 
             ai.StateMachine.ChangeState(ai.IdleState);
 
@@ -85,7 +85,7 @@ public class EnemyStatePatrol : EnemyState
 
         ai.Agent.SetDestination(destination);
 
-        Debug.Log(
-            $"[{enemy.name}] Moving to patrol point: {destination}");
+        //Debug.Log(
+        //    $"[{enemy.name}] Moving to patrol point: {destination}");
     }
 }

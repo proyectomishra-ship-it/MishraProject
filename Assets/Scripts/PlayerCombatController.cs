@@ -1,6 +1,25 @@
 using UnityEngine;
 using Unity.Netcode;
 
+/// <summary>
+/// PlayerCombatController 2.0
+/// ------------------------------------------------------------------
+/// Recupera las ventajas del CombatController viejo:
+/// - Sistema basado en behaviors
+/// - Hold attacks
+/// - Multiplicadores por arma
+/// - AttackSpeed real
+/// - Validación de target
+/// - SphereCast validation
+/// - Sistema extensible
+///
+/// PERO:
+/// - Sin tocar CombatController de enemies
+/// - Compatible con ranged
+/// - Compatible con magic
+/// - Compatible con mana/stamina
+/// - Separado exclusivamente para Player
+/// </summary>
 public class PlayerCombatController : NetworkBehaviour
 {
     private Player player;
@@ -10,20 +29,24 @@ public class PlayerCombatController : NetworkBehaviour
     private ResourceController resources;
     private TargetingController targeting;
 
-    [Header("Heavy Attack")]
+    [Header("Fallback")]
     [SerializeField] private float holdThreshold = 0.4f;
+    [SerializeField] private float fallbackHeavyMultiplier = 2f;
     [SerializeField] private float fallbackHeavyStaminaCost = 25f;
-
-    [Header("Magic")]
     [SerializeField] private float fallbackMagicManaCost = 20f;
 
-    [Header("Validation")]
+    [Header("Hit Validation")]
+    [SerializeField] private float attackConeAngle = 60f;
+    [SerializeField] private float sphereCastRadius = 0.8f;
     [SerializeField] private LayerMask enemyLayer;
-    [SerializeField] private float meleeRadius = 1.5f;
 
+    private float holdTimer;
     private bool isHoldingAttack;
     private bool heavyTriggered;
-    private float holdTimer;
+
+    // =========================================================
+    // INIT
+    // =========================================================
 
     public void Initialize(Player player)
     {
@@ -36,12 +59,47 @@ public class PlayerCombatController : NetworkBehaviour
     }
 
     // =========================================================
+    // HELPERS
+    // =========================================================
+
+    private WeaponData GetCurrentWeapon()
+    {
+        return equipment?.GetEquippedWeapon();
+    }
+
+    private IWeaponBehavior GetCurrentBehavior()
+    {
+        WeaponData weapon = GetCurrentWeapon();
+        return WeaponBehaviorFactory.Create(weapon, transform);
+    }
+
+    private float GetEffectiveHoldThreshold()
+    {
+        WeaponData weapon = GetCurrentWeapon();
+
+        if (weapon == null || weapon.AttackSpeed <= 0f)
+            return holdThreshold;
+
+        return holdThreshold / weapon.AttackSpeed;
+    }
+
+    private float GetHeavyMultiplier()
+    {
+        WeaponData weapon = GetCurrentWeapon();
+
+        return weapon != null
+            ? weapon.HeavyMultiplier
+            : fallbackHeavyMultiplier;
+    }
+
+    // =========================================================
     // INPUT
     // =========================================================
 
     public void OnAttackPressed()
     {
-        if (!IsOwner) return;
+        if (!IsOwner)
+            return;
 
         isHoldingAttack = true;
         heavyTriggered = false;
@@ -50,12 +108,16 @@ public class PlayerCombatController : NetworkBehaviour
 
     public void OnAttackHeld()
     {
-        if (!IsOwner || !isHoldingAttack || heavyTriggered)
+        if (!IsOwner ||
+            !isHoldingAttack ||
+            heavyTriggered)
+        {
             return;
+        }
 
         holdTimer += Time.deltaTime;
 
-        if (holdTimer >= holdThreshold)
+        if (holdTimer >= GetEffectiveHoldThreshold())
         {
             heavyTriggered = true;
             isHoldingAttack = false;
@@ -71,206 +133,127 @@ public class PlayerCombatController : NetworkBehaviour
 
         isHoldingAttack = false;
 
-        WeaponData weapon = equipment.GetEquippedWeapon();
-
-        if (weapon == null)
-        {
-            RequestMeleeAttackServerRpc();
-            return;
-        }
-
-        switch (weapon.WeaponType)
-        {
-            case WeaponType.Bow:
-                RequestRangedAttackServerRpc();
-                break;
-
-            case WeaponType.Staff:
-            case WeaponType.Grimoire:
-                RequestMagicAttackServerRpc();
-                break;
-
-            default:
-                RequestMeleeAttackServerRpc();
-                break;
-        }
+        if (!heavyTriggered)
+            RequestAttackServerRpc();
     }
 
     // =========================================================
-    // SERVER RPCS
+    // RPCS
     // =========================================================
 
     [ServerRpc]
-    private void RequestMeleeAttackServerRpc()
+    private void RequestAttackServerRpc()
     {
-        PerformMeleeAttack(false);
+        PerformAttack(false);
     }
 
     [ServerRpc]
     private void RequestHeavyAttackServerRpc()
     {
-        PerformHeavyAttack();
+        PerformAttack(true);
     }
 
     [ServerRpc]
-    private void RequestRangedAttackServerRpc()
+    public void RequestSpecialAttackServerRpc()
     {
-        PerformRangedAttack();
-    }
-
-    [ServerRpc]
-    private void RequestMagicAttackServerRpc()
-    {
-        PerformMagicAttack();
+        PerformSpecialAttack();
     }
 
     // =========================================================
-    // MELEE
+    // CORE ATTACK
     // =========================================================
 
-    private void PerformMeleeAttack(bool heavy)
+    private void PerformAttack(bool heavy)
     {
-        Character target = targeting.CurrentTarget;
+        Character target = FindTarget();
 
         if (target == null)
         {
-            Debug.Log("[PlayerCombat] No target");
+            Debug.LogWarning(
+                "[PlayerCombat] No valid target");
+
             return;
         }
 
-        float distance = Vector3.Distance(
-            transform.position,
-            target.transform.position);
-
-        if (distance > meleeRadius)
+        if (!ValidateHit(target))
         {
-            Debug.Log("[PlayerCombat] Target out of melee range");
+            Debug.LogWarning(
+                "[PlayerCombat] Hit validation failed");
+
             return;
         }
 
-        float damage = stats.Attack.Value;
+        WeaponData weapon = GetCurrentWeapon();
+
+        // =====================================================
+        // STAMINA COST FOR HEAVY
+        // =====================================================
 
         if (heavy)
         {
-            WeaponData weapon =
-                equipment.GetEquippedWeapon();
-
-            float multiplier =
+            float staminaCost =
                 weapon != null
-                ? weapon.HeavyMultiplier
-                : 2f;
+                ? weapon.StaminaCost
+                : fallbackHeavyStaminaCost;
 
-            damage *= multiplier;
+            if (!resources.UseResistance(staminaCost))
+            {
+                Debug.Log(
+                    "[PlayerCombat] Not enough stamina");
+
+                return;
+            }
         }
 
-        target.GetComponent<DamageReceiver>()
-            ?.TakeDamage(damage, player);
+        // =====================================================
+        // EXECUTE VIA BEHAVIOR
+        // =====================================================
+
+        IWeaponBehavior behavior = GetCurrentBehavior();
+
+        if (heavy)
+        {
+            behavior.PerformHeavyAttack(
+                player,
+                target,
+                GetHeavyMultiplier());
+        }
+        else
+        {
+            behavior.PerformAttack(
+                player,
+                target);
+        }
 
         Debug.Log(
-            $"[PlayerCombat] MELEE HIT {target.name}");
+            $"[PlayerCombat] ATTACK {player.name} -> {target.name} | Heavy:{heavy}");
     }
 
     // =========================================================
-    // HEAVY
+    // SPECIAL ATTACK
     // =========================================================
 
-    private void PerformHeavyAttack()
+    private void PerformSpecialAttack()
     {
-        WeaponData weapon =
-            equipment.GetEquippedWeapon();
-
-        float staminaCost =
-            weapon != null
-            ? weapon.StaminaCost
-            : fallbackHeavyStaminaCost;
-
-        if (!resources.UseResistance(staminaCost))
-        {
-            Debug.Log("[PlayerCombat] Not enough stamina");
-            return;
-        }
-
-        PerformMeleeAttack(true);
-    }
-
-    // =========================================================
-    // RANGED
-    // =========================================================
-
-    private void PerformRangedAttack()
-    {
-        WeaponData weapon =
-            equipment.GetEquippedWeapon();
-
-        if (weapon == null ||
-            weapon.ProjectilePrefab == null)
-        {
-            Debug.LogWarning(
-                "[PlayerCombat] Invalid ranged weapon");
-
-            return;
-        }
-
-        Character target = targeting.CurrentTarget;
+        Character target = FindTarget();
 
         if (target == null)
         {
-            Debug.Log(
-                "[PlayerCombat] No ranged target");
+            Debug.LogWarning(
+                "[PlayerCombat] No special target");
 
             return;
         }
 
-        Vector3 origin =
-            transform.position + Vector3.up * 1.5f;
-
-        Vector3 targetPos =
-            target.transform.position + Vector3.up;
-
-        Vector3 dir =
-            (targetPos - origin).normalized;
-
-        GameObject obj = Instantiate(
-            weapon.ProjectilePrefab,
-            origin,
-            Quaternion.LookRotation(dir));
-
-        if (!obj.TryGetComponent(
-            out NetworkObject netObj))
+        if (!ValidateHit(target))
         {
-            Destroy(obj);
+            Debug.LogWarning(
+                "[PlayerCombat] Special validation failed");
+
             return;
         }
 
-        if (!obj.TryGetComponent(
-            out NetworkProjectile projectile))
-        {
-            Destroy(obj);
-            return;
-        }
-
-        netObj.Spawn();
-
-        projectile.Initialize(
-            player,
-            stats.Attack.Value,
-            dir);
-
-        Debug.Log(
-            $"[PlayerCombat] RANGED SHOT {target.name}");
-    }
-
-    // =========================================================
-    // MAGIC
-    // =========================================================
-
-    private void PerformMagicAttack()
-    {
-        WeaponData weapon =
-            equipment.GetEquippedWeapon();
-
-        if (weapon == null)
-            return;
+        WeaponData weapon = GetCurrentWeapon();
 
         float manaCost =
             weapon != null
@@ -285,67 +268,97 @@ public class PlayerCombatController : NetworkBehaviour
             return;
         }
 
-        Character target = targeting.CurrentTarget;
+        GetCurrentBehavior()
+            .PerformSpecialAttack(player, target);
 
-        if (target == null)
-        {
-            Debug.Log(
-                "[PlayerCombat] No magic target");
+        Debug.Log(
+            $"[PlayerCombat] SPECIAL {player.name} -> {target.name}");
+    }
 
-            return;
-        }
+    // =========================================================
+    // TARGETING
+    // =========================================================
 
-        GameObject projectilePrefab =
-            weapon.GetSpecialProjectile();
+    private Character FindTarget()
+    {
+        Character target = targeting?.CurrentTarget;
 
-        if (projectilePrefab == null)
-        {
-            Debug.LogWarning(
-                "[PlayerCombat] Missing magic projectile");
+        if (target != null)
+            return target;
 
-            return;
-        }
+        return CombatTargetingSystem.FindBestTarget(
+            player,
+            stats.AttackRange.Value,
+            attackConeAngle,
+            enemyLayer);
+    }
+
+    // =========================================================
+    // VALIDATION
+    // =========================================================
+
+    private bool ValidateHit(Character target)
+    {
+        WeaponData weapon = GetCurrentWeapon();
+
+        // =====================================================
+        // RANGED / MAGIC
+        // No necesitan spherecast melee
+        // =====================================================
+
+        if (weapon != null && weapon.IsRanged)
+            return true;
+
+        // =====================================================
+        // MELEE VALIDATION
+        // =====================================================
 
         Vector3 origin =
-            transform.position + Vector3.up * 1.5f;
+            transform.position + Vector3.up;
 
         Vector3 targetPos =
             target.transform.position + Vector3.up;
 
-        Vector3 dir =
+        Vector3 direction =
             (targetPos - origin).normalized;
 
-        GameObject obj = Instantiate(
-            projectilePrefab,
+        float distance =
+            Vector3.Distance(origin, targetPos);
+
+        float castDistance = distance + 0.5f;
+
+        if (Physics.SphereCast(
             origin,
-            Quaternion.LookRotation(dir));
-
-        if (!obj.TryGetComponent(
-            out NetworkObject netObj))
+            sphereCastRadius,
+            direction,
+            out RaycastHit hit,
+            castDistance,
+            enemyLayer,
+            QueryTriggerInteraction.Collide))
         {
-            Destroy(obj);
-            return;
+            Character hitCharacter =
+                hit.collider.GetComponentInParent<Character>();
+
+            return hitCharacter != null &&
+                   hitCharacter == target;
         }
 
-        if (!obj.TryGetComponent(
-            out NetworkProjectile projectile))
-        {
-            Destroy(obj);
+        return false;
+    }
+
+    // =========================================================
+    // DEBUG
+    // =========================================================
+
+    private void OnDrawGizmosSelected()
+    {
+        if (stats == null)
             return;
-        }
 
-        float magicDamage =
-            stats.Attack.Value +
-            stats.Intelligence.Value * 1.5f;
+        Gizmos.color = Color.yellow;
 
-        netObj.Spawn();
-
-        projectile.Initialize(
-            player,
-            magicDamage,
-            dir);
-
-        Debug.Log(
-            $"[PlayerCombat] MAGIC CAST {target.name}");
+        Gizmos.DrawWireSphere(
+            transform.position,
+            stats.AttackRange.Value);
     }
 }

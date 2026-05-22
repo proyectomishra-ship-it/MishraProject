@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DemigodData
   attack: 60
   attackRange: 2
-  defense: 60
-  maxHealth: 70
+  defense: 40
+  maxHealth: 300
   maxMana: 40
   speed: 11
   agility: 35

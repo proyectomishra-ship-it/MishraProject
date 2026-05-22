@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 558aab3952adc36469d91503603fbf67, type: 3}
   m_Name: OrcArcherData
   m_EditorClassIdentifier: Assembly-CSharp::OrcArcherData
-  attack: 40
+  attack: 30
   attackRange: 5
   defense: 20
   maxHealth: 300

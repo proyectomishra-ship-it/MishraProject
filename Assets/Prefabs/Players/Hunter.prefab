@@ -178,12 +178,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCombatController
   ShowTopMostFoldoutHeaderGroup: 1
   holdThreshold: 0.4
-  heavyStaminaCost: 25
-  magicManaCost: 20
+  fallbackHeavyStaminaCost: 25
+  fallbackMagicManaCost: 20
   enemyLayer:
     serializedVersion: 2
     m_Bits: 64
-  meleeRadius: 1.5
+  meleeRadius: 2
 --- !u!114 &3579946603823942990
 MonoBehaviour:
   m_ObjectHideFlags: 0

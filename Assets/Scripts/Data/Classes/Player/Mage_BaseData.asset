@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterData
   attack: 50
   attackRange: 30
-  defense: 20
+  defense: 7
   maxHealth: 70
   maxMana: 50
   speed: 9
