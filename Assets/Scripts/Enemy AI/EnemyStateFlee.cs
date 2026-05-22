@@ -17,7 +17,7 @@ public class EnemyStateFlee : EnemyState
     {
         updateTimer = updateDestinationInterval;
         ai.Agent.speed *= 1.3f; 
-        Debug.Log($"[{enemy.name}] Huyendo!");
+        //Debug.Log($"[{enemy.name}] Huyendo!");
         UpdateFleeDestination();
     }
 

@@ -87,7 +87,7 @@ public class TargetingController : NetworkBehaviour
         {
             if (Physics.SphereCast(ray, sphereRadius, out RaycastHit hit, range, enemyLayer))
             {
-                detectedTarget = hit.collider.GetComponent<Character>();
+                detectedTarget = hit.collider.GetComponentInParent<Character>();
                 hitSomething = detectedTarget != null;
             }
         }
@@ -95,7 +95,7 @@ public class TargetingController : NetworkBehaviour
         {
             if (Physics.Raycast(ray, out RaycastHit hit, range, enemyLayer))
             {
-                detectedTarget = hit.collider.GetComponent<Character>();
+                detectedTarget = hit.collider.GetComponentInParent<Character>();
                 hitSomething = detectedTarget != null;
             }
             else

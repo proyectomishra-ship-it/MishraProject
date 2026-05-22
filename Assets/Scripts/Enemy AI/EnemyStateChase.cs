@@ -18,22 +18,22 @@ public class EnemyStateChase : EnemyState
     {
         lostTargetTimer = 0f;
         targetLost = false;
-        Debug.Log($"[{enemy.name}] Chase → {ai.CurrentTarget?.name}");
+        //Debug.Log($"[{enemy.name}] Chase → {ai.CurrentTarget?.name}");
         ai.Agent.isStopped = false;
 
-        Debug.Log($"[{enemy.name}] Chase → {ai.CurrentTarget?.name}");
+        //Debug.Log($"[{enemy.name}] Chase → {ai.CurrentTarget?.name}");
     }
 
     public override void OnUpdate()
     {
-        Debug.Log(
-            $"CHASE | " +
-            $"isOnNavMesh={ai.Agent.isOnNavMesh} | " +
-            $"enabled={ai.Agent.enabled} | " +
-            $"isStopped={ai.Agent.isStopped} | " +
-            $"hasPath={ai.Agent.hasPath} | " +
-            $"velocity={ai.Agent.velocity}"
-                  );
+        //Debug.Log(
+        //    $"CHASE | " +
+        //    $"isOnNavMesh={ai.Agent.isOnNavMesh} | " +
+        //    $"enabled={ai.Agent.enabled} | " +
+        //    $"isStopped={ai.Agent.isStopped} | " +
+        //    $"hasPath={ai.Agent.hasPath} | " +
+        //    $"velocity={ai.Agent.velocity}"
+        //          );
 
         if (ai.ShouldFlee)
         {
@@ -77,7 +77,7 @@ public class EnemyStateChase : EnemyState
             targetLost = true;
             lostTargetTimer = 0f;
             ai.Agent.ResetPath();
-            Debug.Log($"[{enemy.name}] Perdió al jugador, esperando...");
+            //Debug.Log($"[{enemy.name}] Perdió al jugador, esperando...");
         }
 
         lostTargetTimer += Time.deltaTime;
@@ -86,7 +86,7 @@ public class EnemyStateChase : EnemyState
         {
             ai.SetTarget(null);
             ai.SetAlerted(false);
-            Debug.Log($"[{enemy.name}] Volviendo a patrulla");
+            //Debug.Log($"[{enemy.name}] Volviendo a patrulla");
 
             if (ai.HasPatrolPoints)
                 ai.StateMachine.ChangeState(ai.PatrolState);

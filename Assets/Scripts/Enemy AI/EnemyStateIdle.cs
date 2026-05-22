@@ -20,7 +20,7 @@ public class EnemyStateIdle : EnemyState
 
         ai.Agent.ResetPath();
 
-        Debug.Log($"[{enemy.name}] Idle");
+        //Debug.Log($"[{enemy.name}] Idle");
     }
 
     public override void OnUpdate()
@@ -54,7 +54,7 @@ public class EnemyStateIdle : EnemyState
 
         if (ai.HasPatrolPoints)
         {
-            Debug.Log($"[{enemy.name}] Idle -> Patrol");
+            //Debug.Log($"[{enemy.name}] Idle -> Patrol");
 
             ai.StateMachine.ChangeState(ai.PatrolState);
         }

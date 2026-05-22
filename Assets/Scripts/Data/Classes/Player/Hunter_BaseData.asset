@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d08779c0e155827439d110ec5d8bf5dd, type: 3}
   m_Name: Hunter_BaseData
   m_EditorClassIdentifier: Assembly-CSharp::CharacterData
-  attack: 30
-  attackRange: 45
-  defense: 25
+  attack: 60
+  attackRange: 10
+  defense: 10
   maxHealth: 75
   maxMana: 5
   speed: 9
