@@ -492,7 +492,7 @@ Transform:
   m_GameObject: {fileID: 6910758715300088518}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalPosition: {x: 78.73, y: 35.37, z: 235.95}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -627,12 +627,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCombatController
   ShowTopMostFoldoutHeaderGroup: 1
   holdThreshold: 0.4
+  fallbackHeavyMultiplier: 2
   fallbackHeavyStaminaCost: 25
   fallbackMagicManaCost: 20
+  attackConeAngle: 60
+  sphereCastRadius: 0.8
   enemyLayer:
     serializedVersion: 2
     m_Bits: 64
-  meleeRadius: 2
 --- !u!114 &1188326302275248102
 MonoBehaviour:
   m_ObjectHideFlags: 0
