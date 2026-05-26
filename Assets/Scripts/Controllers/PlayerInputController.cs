@@ -11,6 +11,15 @@ public class PlayerInputController : NetworkBehaviour
     private bool isHoldingAttack;
     private Camera mainCamera;
 
+    // ?? Rate limit ????????????????????????????????????????????????????????????
+    // El cliente manda RPCs de movimiento a tasa fija (inputSendRate/seg)
+    // en vez de cada frame. Así el servidor no acumula colas de RPCs y
+    // aplica el movimiento a su propio ritmo en MovementController.Update().
+    // ?????????????????????????????????????????????????????????????????????????
+    [SerializeField] private float inputSendRate = 20f;
+    private float _sendTimer = 0f;
+    private bool _wasMoving = false; // para enviar Stop() solo una vez
+
     public void Initialize(Player player)
     {
         this.player = player;
@@ -24,8 +33,8 @@ public class PlayerInputController : NetworkBehaviour
         if (player == null) { Debug.LogError("[PlayerInputController] No se encontró el Player."); return; }
 
         mainCamera = Camera.main;
-        inputActions = new PlayerInputActions();
 
+        inputActions = new PlayerInputActions();
         inputActions.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
         inputActions.Player.Move.canceled += ctx => moveInput = Vector2.zero;
         inputActions.Player.Jump.performed += ctx => player.Jump();
@@ -34,8 +43,8 @@ public class PlayerInputController : NetworkBehaviour
         inputActions.Player.Attack.performed += ctx => { isHoldingAttack = true; player.OnAttackPressed(); };
         inputActions.Player.Attack.canceled += ctx => { isHoldingAttack = false; player.OnAttackReleased(); };
         inputActions.Player.SpecialAttack.performed += ctx => player.SpecialAttack();
-
         inputActions.Enable();
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -54,20 +63,38 @@ public class PlayerInputController : NetworkBehaviour
         if (isHoldingAttack)
             player.OnAttackHeld();
 
-        if (moveInput == Vector2.zero) return;
+        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
 
-        // Calcular dirección y rotación en el CLIENTE donde la cámara es exacta
+        // Sin input ? avisar al servidor UNA sola vez que nos detuvimos
+        if (moveInput == Vector2.zero)
+        {
+            if (_wasMoving)
+            {
+                player.Stop();
+                _wasMoving = false;
+            }
+            _sendTimer = 0f;
+            return;
+        }
+
+        // Con input ? mandar RPC a tasa fija, no cada frame
+        _sendTimer += Time.deltaTime;
+        float interval = 1f / Mathf.Max(inputSendRate, 1f);
+
+        if (_sendTimer < interval) return;
+        _sendTimer = 0f;
+
         Vector3 worldDir = GetWorldDirection();
         Quaternion targetRot = Quaternion.LookRotation(worldDir);
 
         if (isSprinting) player.Run(worldDir, targetRot);
         else player.Move(worldDir, targetRot);
 
-        if (Keyboard.current.escapeKey.wasPressedThisFrame)
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
+        _wasMoving = true;
     }
 
     private Vector3 GetWorldDirection()
@@ -78,7 +105,6 @@ public class PlayerInputController : NetworkBehaviour
         camRight.y = 0f;
         camForward.Normalize();
         camRight.Normalize();
-
         Vector3 dir = camForward * moveInput.y + camRight * moveInput.x;
         dir.y = 0f;
         return dir.normalized;

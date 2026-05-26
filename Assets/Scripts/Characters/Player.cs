@@ -119,6 +119,12 @@ public class Player : Character
             RunServerRpc(worldDirection, rotation);
     }
 
+    public void Stop()
+    {
+        if (IsOwner)
+            StopServerRpc();
+    }
+
     public void Jump()
     {
         if (IsOwner)
@@ -149,6 +155,12 @@ public class Player : Character
         movementController?.Run(
             worldDirection,
             rotation);
+    }
+
+    [ServerRpc]
+    private void StopServerRpc()
+    {
+        movementController?.Stop();
     }
 
     [ServerRpc]
