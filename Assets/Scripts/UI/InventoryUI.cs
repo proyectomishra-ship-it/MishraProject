@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
-using Unity.Netcode;
 using TMPro;
 
 /// <summary>
@@ -13,22 +12,21 @@ using TMPro;
 ///   Panel central    → grilla de iconos de items
 ///   Panel derecho    → detalle del item seleccionado + boton equipar
 ///
-/// SETUP EN UNITY:
-///   Ver comentarios de cada campo en el Inspector.
-///   La RenderTexture para el modelo 3D se configura por separado (ver abajo).
+/// IMPORTANTE: MonoBehaviour (no NetworkBehaviour).
+/// El ownership se verifica a través del Player asignado en Initialize().
 /// </summary>
-public class InventoryUI : NetworkBehaviour
+public class InventoryUI : MonoBehaviour
 {
     [Header("Panel principal")]
     [SerializeField] private GameObject inventoryPanel;
 
     [Header("Panel izquierdo — Personaje y equipamiento")]
-    [SerializeField] private RawImage characterPreview;   // Muestra la RenderTexture
-    [SerializeField] private Transform equipmentContainer; // Padre de los slots
+    [SerializeField] private RawImage characterPreview;
+    [SerializeField] private Transform equipmentContainer;
     [SerializeField] private InventorySlotUI slotPrefab;
 
     [Header("Panel central — Grilla de items")]
-    [SerializeField] private Transform itemGridContainer;  // GridLayoutGroup
+    [SerializeField] private Transform itemGridContainer;
     [SerializeField] private InventoryItemUI itemCellPrefab;
 
     [Header("Panel derecho — Detalle del item")]
@@ -40,8 +38,12 @@ public class InventoryUI : NetworkBehaviour
     [SerializeField] private TextMeshProUGUI equipButtonText;
     [SerializeField] private GameObject detailPanel;
 
+    [Header("Cámara de preview")]
+    [SerializeField] private InventoryPreviewCamera previewCamera;
+
     private InventoryController inventory;
     private EquipmentController equipment;
+    private Player localPlayer;
 
     private readonly List<InventorySlotUI> slotUIs = new();
     private readonly List<InventoryItemUI> itemUIs = new();
@@ -54,10 +56,20 @@ public class InventoryUI : NetworkBehaviour
     // INIT
     // =========================
 
-    public void Initialize(InventoryController inventory, EquipmentController equipment)
+    /// <summary>
+    /// Llamar desde Player.OnNetworkSpawn() solo para el owner local.
+    /// </summary>
+    public void Initialize(
+        InventoryController inventory,
+        EquipmentController equipment,
+        Player player)
     {
         this.inventory = inventory;
         this.equipment = equipment;
+        this.localPlayer = player;
+
+        // Conectar la cámara de preview al jugador local
+        previewCamera?.SetTarget(player.transform);
 
         BuildEquipmentSlots();
 
@@ -69,12 +81,11 @@ public class InventoryUI : NetworkBehaviour
 
         inventoryPanel?.SetActive(false);
 
-        Debug.Log("[InventoryUI] Inicializado.");
+        Debug.Log("[InventoryUI] Inicializado para jugador local.");
     }
 
-    public override void OnDestroy()
+    private void OnDestroy()
     {
-        base.OnDestroy();
         if (inventory != null) inventory.OnChanged -= RefreshItemGrid;
     }
 
@@ -84,7 +95,9 @@ public class InventoryUI : NetworkBehaviour
 
     private void Update()
     {
-        if (!IsOwner) return;
+        // Solo responde si fue inicializado para el jugador local
+        if (localPlayer == null) return;
+
         if (Keyboard.current.tabKey.wasPressedThisFrame)
             ToggleInventory();
     }
@@ -93,6 +106,9 @@ public class InventoryUI : NetworkBehaviour
     {
         isOpen = !isOpen;
         inventoryPanel?.SetActive(isOpen);
+
+        if (isOpen) previewCamera?.Show();
+        else previewCamera?.Hide();
 
         Cursor.lockState = isOpen ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = isOpen;
@@ -131,15 +147,7 @@ public class InventoryUI : NetworkBehaviour
 
     private void RequestUnequip(EquipmentSlot slot)
     {
-        if (!IsOwner) return;
-        UnequipServerRpc((int)slot);
-    }
-
-    [ServerRpc]
-    private void UnequipServerRpc(int slotIndex)
-    {
-        bool ok = equipment.Unequip((EquipmentSlot)slotIndex);
-        Debug.Log($"[InventoryUI] Desequipado slot {(EquipmentSlot)slotIndex}: {ok}");
+        localPlayer?.RequestUnequip(slot);
     }
 
     // =========================
@@ -170,16 +178,6 @@ public class InventoryUI : NetworkBehaviour
         selectedItem = item;
         selectedQty = qty;
 
-        // Highlight celda seleccionada
-        foreach (var ui in itemUIs)
-            ui.SetSelected(false);
-
-        // Buscar la celda correspondiente y marcarla
-        foreach (var ui in itemUIs)
-        {
-            // Usamos reflection indirecta via OnSelected — simplemente refrescamos todo
-        }
-
         if (detailPanel != null) detailPanel.SetActive(true);
         if (detailIcon != null)
         {
@@ -190,7 +188,6 @@ public class InventoryUI : NetworkBehaviour
         if (detailDescription != null) detailDescription.text = item.Description;
         if (detailQuantity != null) detailQuantity.text = qty > 1 ? $"Cantidad: {qty}" : "";
 
-        // Configurar boton equipar
         bool isEquippable = item is IEquippable;
         if (equipButton != null)
         {
@@ -216,21 +213,11 @@ public class InventoryUI : NetworkBehaviour
 
     private void OnEquipButtonClicked()
     {
-        if (selectedItem == null || !IsOwner) return;
+        if (selectedItem == null || localPlayer == null) return;
 
         int id = ItemDatabase.Instance.GetId(selectedItem);
         if (id < 0) return;
 
-        EquipServerRpc(id);
-    }
-
-    [ServerRpc]
-    private void EquipServerRpc(int itemId)
-    {
-        var item = ItemDatabase.Instance.Get(itemId);
-        if (item is not IEquippable equippable) return;
-
-        bool ok = equipment.Equip(equippable);
-        Debug.Log($"[InventoryUI] Equipado '{item.ItemName}': {ok}");
+        localPlayer.RequestEquip(id);
     }
 }
