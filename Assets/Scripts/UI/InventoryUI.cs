@@ -129,14 +129,31 @@ public class InventoryUI : MonoBehaviour
 
     private void BuildEquipmentSlots()
     {
-        if (equipmentContainer == null || slotPrefab == null) return;
+        if (equipmentContainer == null) return;
 
-        foreach (EquipmentSlot slot in System.Enum.GetValues(typeof(EquipmentSlot)))
+        // Buscar slots precolocados como hijos del container.
+        // Cada InventorySlotUI tiene su SlotType configurado en el Inspector.
+        var preplacedSlots = equipmentContainer.GetComponentsInChildren<InventorySlotUI>(true);
+
+        if (preplacedSlots.Length > 0)
         {
-            var slotUI = Instantiate(slotPrefab, equipmentContainer);
-            slotUI.Setup(slot, equipment);
-            slotUI.OnUnequipRequested += RequestUnequip;
-            slotUIs.Add(slotUI);
+            foreach (var slotUI in preplacedSlots)
+            {
+                slotUI.SetupFromScene(equipment);
+                slotUI.OnUnequipRequested += RequestUnequip;
+                slotUIs.Add(slotUI);
+            }
+        }
+        else if (slotPrefab != null)
+        {
+            // Fallback: instanciar dinámicamente si no hay slots precolocados
+            foreach (EquipmentSlot slot in System.Enum.GetValues(typeof(EquipmentSlot)))
+            {
+                var slotUI = Instantiate(slotPrefab, equipmentContainer);
+                slotUI.Setup(slot, equipment);
+                slotUI.OnUnequipRequested += RequestUnequip;
+                slotUIs.Add(slotUI);
+            }
         }
     }
 

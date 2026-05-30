@@ -9,6 +9,9 @@ using TMPro;
 /// </summary>
 public class InventorySlotUI : MonoBehaviour, IPointerClickHandler
 {
+    [Header("Slot")]
+    [SerializeField] private EquipmentSlot slotType;
+
     [Header("Referencias")]
     [SerializeField] private Image iconImage;
     [SerializeField] private Image backgroundImage;
@@ -23,6 +26,15 @@ public class InventorySlotUI : MonoBehaviour, IPointerClickHandler
     private EquipmentController equipment;
 
     public System.Action<EquipmentSlot> OnUnequipRequested;
+
+    /// <summary>
+    /// Usado cuando el slot está precolocado en la escena.
+    /// Lee el SlotType del Inspector en vez de recibirlo por parámetro.
+    /// </summary>
+    public void SetupFromScene(EquipmentController equipment)
+    {
+        Setup(slotType, equipment);
+    }
 
     public void Setup(EquipmentSlot slot, EquipmentController equipment)
     {
