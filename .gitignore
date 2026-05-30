@@ -107,3 +107,5 @@ UnityHub/
 ProjectSettings/Packages/
 ProjectSettings/ProjectSettings.asset.meta
 ProjectSettings/UnityConnectSettings.asset.meta
+
+*.renderTexture
