@@ -102,3 +102,8 @@ Library/ShaderCache/
 
 # --- UnityHub Logs ---
 UnityHub/
+
+# --- Ignorar configuraciones locales de servicios (evita conflictos en ProjectSettings) ---
+ProjectSettings/Packages/
+ProjectSettings/ProjectSettings.asset.meta
+ProjectSettings/UnityConnectSettings.asset.meta
