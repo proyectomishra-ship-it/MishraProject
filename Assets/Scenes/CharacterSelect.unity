@@ -257,7 +257,7 @@ GameObject:
   - component: {fileID: 217635627}
   - component: {fileID: 217635626}
   m_Layer: 0
-  m_Name: GameSession
+  m_Name: GameSessionData
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
