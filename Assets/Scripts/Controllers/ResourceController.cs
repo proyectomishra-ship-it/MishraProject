@@ -6,58 +6,10 @@ public class ResourceController : NetworkBehaviour
     private Character character;
     private CharacterStats stats;
 
- 
-    private NetworkVariable<float> networkHealth = new NetworkVariable<float>(
-        0f,
-        NetworkVariableReadPermission.Everyone,
-        NetworkVariableWritePermission.Server
-    );
-
-    private NetworkVariable<float> networkMana = new NetworkVariable<float>(
-        0f,
-        NetworkVariableReadPermission.Everyone,
-        NetworkVariableWritePermission.Server
-    );
-
-    private NetworkVariable<float> networkStamina = new NetworkVariable<float>(
-        0f,
-        NetworkVariableReadPermission.Everyone,
-        NetworkVariableWritePermission.Server
-    );
-
-
-    public float CurrentHealth => networkHealth.Value;
-    public float CurrentMana => networkMana.Value;
-    public float CurrentStamina => networkStamina.Value;
-
     public void Initialize(Character character)
     {
         this.character = character;
         this.stats = character.GetStats();
-    }
-
-    public override void OnNetworkSpawn()
-    {
-      
-        if (IsServer)
-        {
-            networkHealth.Value = stats.MaxHealth.Value;
-            networkMana.Value = stats.MaxMana.Value;
-            networkStamina.Value = stats.Stamina.Value;
-        }
-
-     
-        networkHealth.OnValueChanged += OnHealthChanged;
-        networkMana.OnValueChanged += OnManaChanged;
-        networkStamina.OnValueChanged += OnStaminaChanged;
-    }
-
-    public override void OnNetworkDespawn()
-    {
-        
-        networkHealth.OnValueChanged -= OnHealthChanged;
-        networkMana.OnValueChanged -= OnManaChanged;
-        networkStamina.OnValueChanged -= OnStaminaChanged;
     }
 
     // -------------------------
@@ -66,16 +18,18 @@ public class ResourceController : NetworkBehaviour
 
     public void Heal(float amount)
     {
-        if (!IsServer) return;
+        if (!IsServer)
+            return;
+
         stats.Heal(amount);
-        networkHealth.Value = stats.CurrentHealth;
     }
 
     public void TakeDamage(float amount)
     {
-        if (!IsServer) return;
+        if (!IsServer)
+            return;
+
         stats.TakeDamage(amount);
-        networkHealth.Value = stats.CurrentHealth;
     }
 
     // -------------------------
@@ -84,57 +38,71 @@ public class ResourceController : NetworkBehaviour
 
     public bool UseMana(float amount)
     {
-        if (!IsServer) return false;
-        bool success = stats.UseMana(amount);
-        if (success) networkMana.Value = stats.CurrentMana;
-        return success;
+        if (!IsServer)
+            return false;
+
+        return stats.UseMana(amount);
     }
 
     public void AddMana(float amount)
     {
-        if (!IsServer) return;
+        if (!IsServer)
+            return;
+
         stats.AddMana(amount);
-        networkMana.Value = stats.CurrentMana;
     }
 
     // -------------------------
-    // Stamina
+    // STAMINA
     // -------------------------
 
     public bool UseStamina(float amount)
     {
-        if (!IsServer) return false;
-        bool success = stats.UseStamina(amount);
-        if (success) networkStamina.Value = stats.CurrentStamina;
-        return success;
+        if (!IsServer)
+            return false;
+
+        return stats.UseStamina(amount);
     }
 
     public void RecoverStamina(float amount)
     {
-        if (!IsServer) return;
+        if (!IsServer)
+            return;
+
         stats.RecoverStamina(amount);
-        networkStamina.Value = stats.CurrentStamina;
     }
 
-  
+    // -------------------------
+    // HELPERS
+    // -------------------------
 
-    private void OnHealthChanged(float previousValue, float newValue)
+    public float GetCurrentHealth()
     {
-        OnHealthUpdated(previousValue, newValue);
+        return stats.CurrentHealth;
     }
 
-    private void OnManaChanged(float previousValue, float newValue)
+    public float GetCurrentMana()
     {
-        OnManaUpdated(previousValue, newValue);
+        return stats.CurrentMana;
     }
 
-    private void OnStaminaChanged(float previousValue, float newValue)
+    public float GetCurrentStamina()
     {
-        OnStaminaUpdated(previousValue, newValue);
+        return stats.CurrentStamina;
     }
 
-  
-    protected virtual void OnHealthUpdated(float previousValue, float newValue) { }
-    protected virtual void OnManaUpdated(float previousValue, float newValue) { }
-    protected virtual void OnStaminaUpdated(float previousValue, float newValue) { }
+    public float GetMaxHealth()
+    {
+        return stats.MaxHealth.Value;
+    }
+
+    public float GetMaxMana()
+    {
+        return stats.MaxMana.Value;
+    }
+
+    public float GetMaxStamina()
+    {
+        return stats.Stamina.Value;
+    }
 }

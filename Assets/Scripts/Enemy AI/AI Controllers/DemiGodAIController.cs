@@ -63,21 +63,22 @@ public class DemiGodAIController : EnemyAIController
 
     private void CheckPhaseTransition()
     {
-        if (demiGodEnemy == null) return;
-        var rc = demiGodEnemy.GetResourceController();
-        if (rc == null) return;
+        var stats = demiGodEnemy?.GetStats();
 
-        var stats = demiGodEnemy.GetStats();
-        if (stats == null) return;
+        if (stats == null)
+            return;
 
-        float hp = rc.CurrentHealth / stats.MaxHealth.Value;
+        float healthPercent =
+            stats.CurrentHealth / stats.MaxHealth.Value;
 
-        if (currentPhase == 1 && hp <= phase2Threshold)
+        if (currentPhase == 1 &&
+            healthPercent <= phase2Threshold)
         {
             currentPhase = 2;
             EnterPhase2();
         }
-        else if (currentPhase == 2 && hp <= phase3Threshold)
+        else if (currentPhase == 2 &&
+                 healthPercent <= phase3Threshold)
         {
             currentPhase = 3;
             EnterPhase3();
