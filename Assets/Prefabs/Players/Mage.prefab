@@ -507,6 +507,7 @@ GameObject:
   - component: {fileID: 4260544009948898403}
   - component: {fileID: 2814632691912847981}
   - component: {fileID: 8521853185030834629}
+  - component: {fileID: -6347264321509245934}
   m_Layer: 3
   m_Name: Mage
   m_TagString: Player
@@ -619,12 +620,12 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
-  NetResistance:
+  NetStamina:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
-  NetMaxResistance:
+  NetMaxStamina:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
@@ -658,12 +659,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCombatController
   ShowTopMostFoldoutHeaderGroup: 1
   holdThreshold: 0.4
+  fallbackHeavyMultiplier: 2
   fallbackHeavyStaminaCost: 25
   fallbackMagicManaCost: 20
+  attackConeAngle: 60
+  sphereCastRadius: 0.8
   enemyLayer:
     serializedVersion: 2
     m_Bits: 64
-  meleeRadius: 2
 --- !u!114 &2523666047407681510
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -694,6 +697,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInputController
   ShowTopMostFoldoutHeaderGroup: 1
+  inputSendRate: 20
 --- !u!114 &2228082858891574378
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -910,6 +914,27 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &-6347264321509245934
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7950557235140198998}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bf8b8c4269768e429c144e719e235e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterRegenerationController
+  ShowTopMostFoldoutHeaderGroup: 1
+  tickRate: 0.25
+  enableHealthRegen: 1
+  healthRegenPerVitality: 0.2
+  healthCombatDelay: 5
+  enableManaRegen: 1
+  manaRegenPerIntelligence: 0.3
+  enableStaminaRegen: 1
+  staminaRegenPerStamina: 0.5
 --- !u!1001 &6937446844710042468
 PrefabInstance:
   m_ObjectHideFlags: 0

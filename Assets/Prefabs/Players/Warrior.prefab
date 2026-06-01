@@ -476,6 +476,7 @@ GameObject:
   - component: {fileID: -1457277708541621307}
   - component: {fileID: -9125623160673421327}
   - component: {fileID: -5828519810071527269}
+  - component: {fileID: 211942320745714036}
   m_Layer: 3
   m_Name: Warrior
   m_TagString: Player
@@ -514,7 +515,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2311834529
+  GlobalObjectIdHash: 2194876781
   InScenePlacedSourceGlobalObjectIdHash: 2194876781
   DeferredDespawnTick: 0
   Ownership: 1
@@ -588,12 +589,12 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
-  NetResistance:
+  NetStamina:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
-  NetMaxResistance:
+  NetMaxStamina:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
@@ -882,6 +883,27 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &211942320745714036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6910758715300088518}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bf8b8c4269768e429c144e719e235e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterRegenerationController
+  ShowTopMostFoldoutHeaderGroup: 1
+  tickRate: 0.25
+  enableHealthRegen: 1
+  healthRegenPerVitality: 0.2
+  healthCombatDelay: 5
+  enableManaRegen: 1
+  manaRegenPerIntelligence: 0.3
+  enableStaminaRegen: 1
+  staminaRegenPerStamina: 0.5
 --- !u!1 &7443041332243402106
 GameObject:
   m_ObjectHideFlags: 0

@@ -169,6 +169,7 @@ GameObject:
   - component: {fileID: 5645073284674253616}
   - component: {fileID: 1671426184573448411}
   - component: {fileID: 3119633037151127570}
+  - component: {fileID: 1535219069391089}
   m_Layer: 6
   m_Name: Goblin
   m_TagString: Untagged
@@ -456,3 +457,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InventoryController
   ShowTopMostFoldoutHeaderGroup: 1
   maxSlots: 20
+--- !u!114 &1535219069391089
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8782805890344179306}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bf8b8c4269768e429c144e719e235e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterRegenerationController
+  ShowTopMostFoldoutHeaderGroup: 1
+  tickRate: 0.25
+  enableHealthRegen: 1
+  healthRegenPerVitality: 0.2
+  healthCombatDelay: 5
+  enableManaRegen: 1
+  manaRegenPerIntelligence: 0.3
+  enableStaminaRegen: 1
+  staminaRegenPerStamina: 0.5

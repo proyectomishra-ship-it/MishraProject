@@ -55,6 +55,7 @@ GameObject:
   - component: {fileID: -9006917661650604094}
   - component: {fileID: -1388982510399768397}
   - component: {fileID: 4780909180094108205}
+  - component: {fileID: 3084592583816804984}
   m_Layer: 6
   m_Name: DemiGod
   m_TagString: Untagged
@@ -90,7 +91,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1105868317
+  GlobalObjectIdHash: 991419302
   InScenePlacedSourceGlobalObjectIdHash: 991419302
   DeferredDespawnTick: 0
   Ownership: 1
@@ -353,6 +354,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EquipmentController
   ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &3084592583816804984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6213672842236241244}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bf8b8c4269768e429c144e719e235e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterRegenerationController
+  ShowTopMostFoldoutHeaderGroup: 1
+  tickRate: 0.25
+  enableHealthRegen: 1
+  healthRegenPerVitality: 0.2
+  healthCombatDelay: 5
+  enableManaRegen: 1
+  manaRegenPerIntelligence: 0.3
+  enableStaminaRegen: 1
+  staminaRegenPerStamina: 0.5
 --- !u!1 &6942961023349357977
 GameObject:
   m_ObjectHideFlags: 0
