@@ -41,6 +41,7 @@ public class CharacterStats
     public float CurrentMana { get; protected set; }
 
     public float CurrentStamina { get; protected set; }
+    public float LastDamageTime { get; private set; }
 
     // =========================
     // CONSTRUCTOR
@@ -172,7 +173,7 @@ public class CharacterStats
     public void TakeDamage(float amount)
     {
         float finalDamage = Mathf.Max(amount - Defense.Value, 0);
-
+        LastDamageTime = Time.time;
         SetHealth(CurrentHealth - finalDamage);
     }
 
