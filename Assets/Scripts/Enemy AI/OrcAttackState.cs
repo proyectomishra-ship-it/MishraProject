@@ -142,22 +142,20 @@ public class OrcAttackState : EnemyStateAttack
         if (ai is not OrcAIController orc)
             return false;
 
-        var rc = enemy.GetResourceController();
+        var stats = enemy.GetStats();
 
-        if (rc == null)
+        if (stats == null)
             return false;
 
         float hpPercent =
-            rc.CurrentHealth /
-            enemy.GetStats().MaxHealth.Value;
+            stats.CurrentHealth / stats.MaxHealth.Value;
 
-        if (hpPercent <= orc.RetreatThreshold)
-        {
-            Debug.Log($"[Orc] HP bajo ({hpPercent:P0}) -> RETREAT");
+        if (hpPercent > orc.RetreatThreshold)
+            return false;
 
-            return true;
-        }
+        Debug.Log(
+            $"[Orc] HP bajo ({hpPercent:P0}) -> RETREAT");
 
-        return false;
+        return true;
     }
 }

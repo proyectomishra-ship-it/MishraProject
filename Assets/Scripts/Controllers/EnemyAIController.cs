@@ -58,12 +58,15 @@ public class EnemyAIController : NetworkBehaviour
     {
         get
         {
-            if (!canFlee) return false;
-            var rc = enemy.GetResourceController();
-            if (rc == null) return false;
-            float maxHealth = enemy.GetStats().MaxHealth.Value;
-            if (maxHealth <= 0) return false;
-            return rc.CurrentHealth / maxHealth <= fleeHealthThreshold;
+            if (!canFlee)
+                return false;
+
+            var stats = enemy.GetStats();
+
+            return stats != null
+                && stats.MaxHealth.Value > 0
+                && stats.CurrentHealth / stats.MaxHealth.Value
+                   <= fleeHealthThreshold;
         }
     }
 

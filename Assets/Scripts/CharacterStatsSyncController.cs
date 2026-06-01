@@ -67,7 +67,7 @@ public class CharacterStatsSyncController : NetworkBehaviour
     {
         stats.OnHealthChanged += OnHealthChanged;
         stats.OnManaChanged += OnManaChanged;
-        stats.OnStaminaChanged += OnResistanceChanged;
+        stats.OnStaminaChanged += OnStaminaChanged;
         stats.OnLevelChanged += OnLevelChanged;
 
         if (stats is PlayerStats playerStats)
@@ -93,7 +93,7 @@ public class CharacterStatsSyncController : NetworkBehaviour
         NetMaxMana.Value = max;
     }
 
-    private void OnResistanceChanged(float current, float max)
+    private void OnStaminaChanged(float current, float max)
     {
         NetStamina.Value = current;
         NetMaxStamina.Value = max;
@@ -148,7 +148,7 @@ public class CharacterStatsSyncController : NetworkBehaviour
 
         stats.OnHealthChanged -= OnHealthChanged;
         stats.OnManaChanged -= OnManaChanged;
-        stats.OnStaminaChanged -= OnResistanceChanged;
+        stats.OnStaminaChanged -= OnStaminaChanged;
         stats.OnLevelChanged -= OnLevelChanged;
 
         if (stats is PlayerStats playerStats)
@@ -170,7 +170,7 @@ public class CharacterStatsSyncController : NetworkBehaviour
 
         stats.OnHealthChanged -= OnHealthChanged;
         stats.OnManaChanged -= OnManaChanged;
-        stats.OnStaminaChanged -= OnResistanceChanged;
+        stats.OnStaminaChanged -= OnStaminaChanged;
         stats.OnLevelChanged -= OnLevelChanged;
 
         if (stats is PlayerStats playerStats)
