@@ -158,12 +158,12 @@ public abstract class Character : NetworkBehaviour
             && resourceController.UseMana(amount);
     }
 
-    public virtual bool UseResistance(float amount)
+    public virtual bool UseStamina(float amount)
     {
         if (!IsServer) return false;
 
         return resourceController != null
-            && resourceController.UseResistance(amount);
+            && resourceController.UseStamina(amount);
     }
 
     public virtual void AddMana(float amount)

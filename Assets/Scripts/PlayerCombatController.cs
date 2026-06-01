@@ -196,7 +196,7 @@ public class PlayerCombatController : NetworkBehaviour
                 ? weapon.StaminaCost
                 : fallbackHeavyStaminaCost;
 
-            if (!resources.UseResistance(staminaCost))
+            if (!resources.UseStamina(staminaCost))
             {
                 Debug.Log(
                     "[PlayerCombat] Not enough stamina");
