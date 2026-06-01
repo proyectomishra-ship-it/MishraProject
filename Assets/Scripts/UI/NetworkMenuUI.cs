@@ -45,6 +45,9 @@ public class NetworkMenuUI : MonoBehaviour
 
     [Header("Config")]
     [SerializeField] private int maxPlayers = 6;
+    [SerializeField] private string characterSelectScene = "CharacterSelect";
+    [SerializeField] private string mainMenuScene = "MainMenu";
+    [SerializeField] private Button backButton;
 
     private const string DEFAULT_IP = "127.0.0.1";
     private const ushort DEFAULT_PORT = 7777;
@@ -63,6 +66,7 @@ public class NetworkMenuUI : MonoBehaviour
         onlineJoinButton?.onClick.AddListener(OnRelayJoinClicked);
 
         quitButton?.onClick.AddListener(OnQuitClicked);
+        backButton?.onClick.AddListener(OnBackClicked);
 
         if (lanIPInput != null) lanIPInput.text = DEFAULT_IP;
         if (lanPortInput != null) lanPortInput.text = DEFAULT_PORT.ToString();
@@ -73,9 +77,16 @@ public class NetworkMenuUI : MonoBehaviour
         HideRoomCode();
         ShowMenu();
 
-        NetworkManager.Singleton.OnServerStarted += OnServerStarted;
-        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
-        NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
+        if (NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.OnServerStarted += OnServerStarted;
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
+        }
+        else
+        {
+            Debug.LogError("[NetworkMenuUI] NetworkManager.Singleton es null. Asegurate de que el NetworkManager esté en la escena.");
+        }
 
         try
         {
@@ -258,29 +269,29 @@ public class NetworkMenuUI : MonoBehaviour
     {
         SetStatus("Servidor iniciado.");
         SetLoading(false);
-        HideMenu();
 
-        // Mostrar codigo de sala en el HUD si es modo Relay
+        // Guardar código de sala para mostrarlo en el HUD durante la partida
         string code = PlayerPrefs.GetString("RoomCode", "");
         if (!string.IsNullOrEmpty(code))
         {
-            ShowRoomCode(code);
+            PlayerPrefs.SetString("PendingRoomCode", code);
             PlayerPrefs.DeleteKey("RoomCode");
         }
-        // Mostrar IP:puerto en el HUD si es modo LAN
         else
         {
             string lanIP = PlayerPrefs.GetString("LANHostIP", "");
             string lanPort = PlayerPrefs.GetString("LANHostPort", DEFAULT_PORT.ToString());
             if (!string.IsNullOrEmpty(lanIP))
             {
-                ShowRoomCode($"{lanIP}:{lanPort}");
+                PlayerPrefs.SetString("PendingRoomCode", $"{lanIP}:{lanPort}");
                 PlayerPrefs.DeleteKey("LANHostIP");
                 PlayerPrefs.DeleteKey("LANHostPort");
             }
         }
 
-        Debug.Log($"[Network] Host iniciado. IP local: {GetLocalIP()}");
+        // El host carga CharacterSelect para que todos elijan clase
+        Debug.Log("[Network] Host iniciado. Cargando CharacterSelect...");
+        UnityEngine.SceneManagement.SceneManager.LoadScene(characterSelectScene);
     }
 
     private void OnClientConnected(ulong clientId)
@@ -289,8 +300,17 @@ public class NetworkMenuUI : MonoBehaviour
         {
             SetStatus("Conectado!");
             SetLoading(false);
-            HideMenu();
+            // El cliente espera que el host cargue CharacterSelect via NGO SceneManager
+            Debug.Log("[Network] Cliente conectado. Esperando escena del host...");
         }
+    }
+
+    private void OnBackClicked()
+    {
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+            NetworkManager.Singleton.Shutdown();
+
+        UnityEngine.SceneManagement.SceneManager.LoadScene(mainMenuScene);
     }
 
     private void OnClientDisconnected(ulong clientId)

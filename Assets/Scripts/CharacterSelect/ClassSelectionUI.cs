@@ -42,9 +42,9 @@ public class ClassSelectionUI : NetworkBehaviour
     private void Start()
     {
         warriorButton?.onClick.AddListener(() => SelectClass("Warrior"));
-        mageButton?.onClick.AddListener   (() => SelectClass("Mage"));
-        hunterButton?.onClick.AddListener (() => SelectClass("Hunter"));
-        readyButton?.onClick.AddListener  (OnReadyClicked);
+        mageButton?.onClick.AddListener(() => SelectClass("Mage"));
+        hunterButton?.onClick.AddListener(() => SelectClass("Hunter"));
+        readyButton?.onClick.AddListener(OnReadyClicked);
 
         if (readyButton != null) readyButton.interactable = false;
         if (waitingPanel != null) waitingPanel.SetActive(false);
@@ -92,8 +92,8 @@ public class ClassSelectionUI : NetworkBehaviour
         ConfirmClassServerRpc(selectedClass);
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    private void ConfirmClassServerRpc(string className, ServerRpcParams rpcParams = default)
+    [Rpc(SendTo.Server)]
+    private void ConfirmClassServerRpc(string className, RpcParams rpcParams = default)
     {
         ulong clientId = rpcParams.Receive.SenderClientId;
 
