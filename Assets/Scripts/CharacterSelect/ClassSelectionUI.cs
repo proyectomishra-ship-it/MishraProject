@@ -49,6 +49,10 @@ public class ClassSelectionUI : NetworkBehaviour
         if (readyButton != null) readyButton.interactable = false;
         if (waitingPanel != null) waitingPanel.SetActive(false);
 
+        // Liberar el cursor para que el jugador pueda clickear los botones
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
         SetStatus("Elegí tu clase para continuar.");
     }
 
@@ -89,7 +93,30 @@ public class ClassSelectionUI : NetworkBehaviour
         if (waitingPanel != null) waitingPanel.SetActive(true);
 
         SetStatus("Esperando a los demás jugadores...");
-        ConfirmClassServerRpc(selectedClass);
+
+        // Si el NetworkObject ya está spawneado usar RPC,
+        // si no (host jugando solo) guardar directamente en GameSessionData
+        if (IsSpawned)
+        {
+            ConfirmClassServerRpc(selectedClass);
+        }
+        else
+        {
+            // Fallback para host solo o cuando NGO aún no spawneó el objeto
+            ulong localId = NetworkManager.Singleton != null
+                ? NetworkManager.Singleton.LocalClientId
+                : 0;
+
+            if (GameSessionData.Instance != null)
+                GameSessionData.Instance.SetPlayerClass(localId, selectedClass);
+
+            // Si somos el único jugador, cargar la escena directamente
+            if (NetworkManager.Singleton == null ||
+                NetworkManager.Singleton.ConnectedClients.Count <= 1)
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene(gameSceneName);
+            }
+        }
     }
 
     [Rpc(SendTo.Server)]
