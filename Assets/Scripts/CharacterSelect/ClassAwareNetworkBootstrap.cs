@@ -36,9 +36,34 @@ public class ClassAwareNetworkBootstrap : MonoBehaviour
             NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
     }
 
+    private void OnEnable()
+    {
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
+    {
+        if (!NetworkManager.Singleton.IsServer) return;
+        if (scene.name != "Scene1") return;
+
+        // Spawnear todos los clientes ya conectados cuando carga Scene1
+        foreach (var clientId in NetworkManager.Singleton.ConnectedClientsIds)
+            StartCoroutine(SpawnPlayerDelayed(clientId));
+    }
+
     private void OnClientConnected(ulong clientId)
     {
         if (!NetworkManager.Singleton.IsServer) return;
+
+        // Solo spawnear en Scene1, no en CharacterSelect ni NetworkMenu
+        string activeScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        if (activeScene != "Scene1") return;
+
         StartCoroutine(SpawnPlayerDelayed(clientId));
     }
 
@@ -69,11 +94,11 @@ public class ClassAwareNetworkBootstrap : MonoBehaviour
             return;
         }
 
-        Vector3    spawnPos = GetSpawnPosition();
+        Vector3 spawnPos = GetSpawnPosition();
         Quaternion spawnRot = Quaternion.identity;
 
         var playerObj = Instantiate(prefab, spawnPos, spawnRot);
-        var netObj    = playerObj.GetComponent<NetworkObject>();
+        var netObj = playerObj.GetComponent<NetworkObject>();
 
         if (netObj == null)
         {
@@ -89,19 +114,37 @@ public class ClassAwareNetworkBootstrap : MonoBehaviour
     private GameObject GetPrefabForClass(string className) => className switch
     {
         "Warrior" => warriorPrefab,
-        "Mage"    => magePrefab,
-        "Hunter"  => hunterPrefab,
-        _         => warriorPrefab
+        "Mage" => magePrefab,
+        "Hunter" => hunterPrefab,
+        _ => warriorPrefab
     };
 
     private Vector3 GetSpawnPosition()
     {
+        // Primero intentar con los spawn points asignados en el Inspector
         if (spawnPoints != null && spawnPoints.Length > 0)
         {
             var pos = spawnPoints[spawnIndex % spawnPoints.Length].position;
             spawnIndex++;
             return pos;
         }
-        return new Vector3(Random.Range(-3f, 3f), 1f, Random.Range(-3f, 3f));
+
+        // Si no hay asignados, buscar por nombre en la escena activa
+        var found = new System.Collections.Generic.List<GameObject>();
+        for (int i = 1; i <= 10; i++)
+        {
+            var go = GameObject.Find($"SpawnPoint{i}");
+            if (go != null) found.Add(go);
+        }
+
+        if (found.Count > 0)
+        {
+            var pos = found[spawnIndex % found.Count].transform.position;
+            spawnIndex++;
+            return pos;
+        }
+
+        // Fallback: posicion aleatoria sobre el suelo
+        return new Vector3(Random.Range(-3f, 3f), 2f, Random.Range(-3f, 3f));
     }
 }

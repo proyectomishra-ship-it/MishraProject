@@ -1987,6 +1987,7 @@ GameObject:
   - component: {fileID: 1672919204}
   - component: {fileID: 1672919203}
   - component: {fileID: 1672919202}
+  - component: {fileID: 1672919206}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -2129,6 +2130,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1672919206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1672919201}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc77d2230cf503a47937138765440e36, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ClassAwareNetworkBootstrap
+  warriorPrefab: {fileID: 6910758715300088518, guid: 740081080e89e5546a34461f39b4a42d, type: 3}
+  magePrefab: {fileID: 7950557235140198998, guid: 4c1a1df7eb56a1c419f71c122c4a43c5, type: 3}
+  hunterPrefab: {fileID: 2211492265159698303, guid: cfa70754af3198640885246fcdca5cfd, type: 3}
+  spawnPoints: []
 --- !u!224 &1755662823 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6228558236835481162, guid: 51293cb8a39a4a644904f13de3d0cbb4, type: 3}
