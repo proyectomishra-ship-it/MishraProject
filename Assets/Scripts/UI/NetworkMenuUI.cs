@@ -289,9 +289,13 @@ public class NetworkMenuUI : MonoBehaviour
             }
         }
 
-        // El host carga CharacterSelect para que todos elijan clase
+        // El host carga CharacterSelect via NGO SceneManager para
+        // que la carga se sincronice entre host y clientes (necesario para Relay)
         Debug.Log("[Network] Host iniciado. Cargando CharacterSelect...");
-        UnityEngine.SceneManagement.SceneManager.LoadScene(characterSelectScene);
+        NetworkManager.Singleton.SceneManager.LoadScene(
+            characterSelectScene,
+            UnityEngine.SceneManagement.LoadSceneMode.Single
+        );
     }
 
     private void OnClientConnected(ulong clientId)

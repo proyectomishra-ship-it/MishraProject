@@ -53,39 +53,53 @@ public class Player : Character
             return;
         }
 
-        hud = FindFirstObjectByType<PlayerHUD>();
-
-        if (hud == null)
-        {
-            Debug.LogError("[Player] No se encontro PlayerHUD");
-            return;
-        }
-
         inventoryUI = FindFirstObjectByType<InventoryUI>();
 
         if (inventoryUI == null)
-        {
             Debug.LogWarning("[Player] No se encontro InventoryUI");
+
+        // Inicializar HUD e inventario en coroutine para evitar
+        // problemas de timing al cargar la escena
+        StartCoroutine(InitializeWhenReady());
+    }
+
+    private IEnumerator InitializeWhenReady()
+    {
+        // Esperar que los stats estén listos
+        yield return new WaitUntil(
+            () => statsSync != null && statsSync.NetMaxHealth.Value > 0);
+
+        // Buscar HUD con reintentos por si la escena aún está cargando
+        float timeout = 5f;
+        float elapsed = 0f;
+        while (hud == null && elapsed < timeout)
+        {
+            hud = FindFirstObjectByType<PlayerHUD>();
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (hud == null)
+        {
+            Debug.LogError("[Player] PlayerHUD no encontrado después de esperar.");
         }
         else
+        {
+            hud.Initialize(statsSync);
+        }
+
+        // Esperar un frame extra para que el transform esté en posición final
+        yield return null;
+
+        // Inicializar el inventario después para que la cámara de preview
+        // reciba el transform ya posicionado correctamente
+        if (inventoryUI != null)
         {
             inventoryUI.Initialize(
                 inventoryController,
                 equipmentController,
                 this);
         }
-
-        StartCoroutine(InitializeHUDWhenReady());
-    }
-
-    private IEnumerator InitializeHUDWhenReady()
-    {
-        yield return new WaitUntil(
-            () =>
-                statsSync != null &&
-                statsSync.NetMaxHealth.Value > 0);
-
-        hud.Initialize(statsSync);
     }
 
     protected override CharacterStats CreateStats()

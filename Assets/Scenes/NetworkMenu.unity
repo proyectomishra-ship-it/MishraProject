@@ -401,6 +401,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 471623389}
     - target: {fileID: 340668484149477629, guid: 51293cb8a39a4a644904f13de3d0cbb4, type: 3}
+      propertyPath: maxPlayers
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 340668484149477629, guid: 51293cb8a39a4a644904f13de3d0cbb4, type: 3}
       propertyPath: quitButton
       value: 
       objectReference: {fileID: 0}
@@ -2088,7 +2092,7 @@ MonoBehaviour:
   NetworkConfig:
     ProtocolVersion: 0
     NetworkTransport: {fileID: 1672919203}
-    PlayerPrefab: {fileID: 6910758715300088518, guid: 740081080e89e5546a34461f39b4a42d, type: 3}
+    PlayerPrefab: {fileID: 0}
     Prefabs:
       NetworkPrefabsLists:
       - {fileID: 11400000, guid: 9b079bb455162bd4c91cde8fa21e5bec, type: 2}
