@@ -77,6 +77,9 @@ public class NetworkMenuUI : MonoBehaviour
         HideRoomCode();
         ShowMenu();
 
+        // Estado inicial: nombre + tabs visibles, paneles ocultos
+        ShowInitialState();
+
         if (NetworkManager.Singleton != null)
         {
             NetworkManager.Singleton.OnServerStarted += OnServerStarted;
@@ -121,10 +124,32 @@ public class NetworkMenuUI : MonoBehaviour
     // TABS
     // =========================
 
+    /// <summary>
+    /// Muestra el panel LAN o ONLINE y oculta los selectores iniciales
+    /// (PlayerNameInput, tabs). Solo el boton Volver permanece visible.
+    /// </summary>
     private void ShowTab(bool lan)
     {
+        // Ocultar selectores iniciales
+        if (playerNameInput != null) playerNameInput.gameObject.SetActive(false);
+        if (tabLANButton != null) tabLANButton.gameObject.SetActive(false);
+        if (tabOnlineButton != null) tabOnlineButton.gameObject.SetActive(false);
+
+        // Mostrar solo el panel elegido
         if (panelLAN != null) panelLAN.SetActive(lan);
         if (panelOnline != null) panelOnline.SetActive(!lan);
+    }
+
+    /// <summary>
+    /// Estado inicial: solo PlayerNameInput y tabs visibles, paneles ocultos.
+    /// </summary>
+    private void ShowInitialState()
+    {
+        if (playerNameInput != null) playerNameInput.gameObject.SetActive(true);
+        if (tabLANButton != null) tabLANButton.gameObject.SetActive(true);
+        if (tabOnlineButton != null) tabOnlineButton.gameObject.SetActive(true);
+        if (panelLAN != null) panelLAN.SetActive(false);
+        if (panelOnline != null) panelOnline.SetActive(false);
     }
 
     // =========================
