@@ -54,6 +54,29 @@ public class NetworkMenuUI : MonoBehaviour
 
     private bool servicesInitialized = false;
 
+    // =====================================================================
+    // BUG FIX #1 — async void Start() con inicialización de Unity Services
+    //
+    // PROBLEMA ORIGINAL:
+    //   servicesInitialized comienza en false. UnityServices.InitializeAsync()
+    //   es una llamada async que puede tardar 1-3 segundos. Si el usuario llega
+    //   desde MainMenu y hace clic rápido en "Online Host" antes de que termine,
+    //   servicesInitialized sigue siendo false y OnRelayHostClicked() retorna
+    //   silenciosamente (solo cambia el statusText brevemente sin feedback claro).
+    //
+    //   Adicionalmente, en el Unity Editor, Unity Services usa singletons
+    //   estáticos que NO se reinician entre sesiones Play. Si el developer
+    //   probó primero desde NetworkMenu, las sesiones siguientes desde
+    //   MainMenu llaman a InitializeAsync() sobre un SDK ya inicializado,
+    //   lo que en algunas versiones lanza ServicesInitializationException y
+    //   en otras simplemente no completa bien la auth, dejando
+    //   servicesInitialized = false de forma consistente.
+    //
+    // FIX APLICADO:
+    //   1. Deshabilitar botones Online al inicio, habilitarlos solo al completar.
+    //   2. Verificar UnityServices.State antes de llamar InitializeAsync().
+    //   3. Verificar el estado de autenticación antes de llamar SignIn.
+    // =====================================================================
     private async void Start()
     {
         tabLANButton?.onClick.AddListener(() => ShowTab(true));
@@ -73,12 +96,15 @@ public class NetworkMenuUI : MonoBehaviour
         if (playerNameInput != null) playerNameInput.text = "Jugador";
 
         SetLoading(false);
-        SetStatus("Inicializando servicios...");
         HideRoomCode();
         ShowMenu();
-
-        // Estado inicial: nombre + tabs visibles, paneles ocultos
         ShowInitialState();
+
+        // FIX: Deshabilitar botones Online hasta que los servicios estén listos.
+        // Así el usuario no puede presionar antes de que esté inicializado,
+        // sin importar desde qué escena venga.
+        SetOnlineButtonsInteractable(false);
+        SetStatus("Inicializando servicios online...");
 
         if (NetworkManager.Singleton != null)
         {
@@ -88,24 +114,39 @@ public class NetworkMenuUI : MonoBehaviour
         }
         else
         {
-            Debug.LogError("[NetworkMenuUI] NetworkManager.Singleton es null. Asegurate de que el NetworkManager esté en la escena.");
+            Debug.LogError("[NetworkMenuUI] NetworkManager.Singleton es null.");
         }
 
         try
         {
-            await UnityServices.InitializeAsync();
+            // FIX: Verificar estado antes de inicializar para evitar
+            // ServicesInitializationException en el Editor (el SDK mantiene
+            // estado estático entre sesiones Play).
+            if (UnityServices.State == ServicesInitializationState.Uninitialized)
+            {
+                await UnityServices.InitializeAsync();
+            }
 
+            // FIX: Verificar si ya está autenticado (puede pasar en el Editor
+            // entre sesiones o si viene de otra escena).
             if (!AuthenticationService.Instance.IsSignedIn)
+            {
                 await AuthenticationService.Instance.SignInAnonymouslyAsync();
+            }
 
             servicesInitialized = true;
+
+            // FIX: Solo habilitar los botones Online DESPUÉS de que los
+            // servicios están confirmados como listos.
+            SetOnlineButtonsInteractable(true);
             SetStatus("Listo.");
             Debug.Log($"[Relay] Autenticado. PlayerID: {AuthenticationService.Instance.PlayerId}");
         }
         catch (System.Exception e)
         {
             servicesInitialized = false;
-            SetStatus("Modo LAN disponible.");
+            // Botones Online se quedan deshabilitados (ya están así por defecto).
+            SetStatus("Modo LAN disponible. (Relay no disponible)");
             Debug.LogWarning($"[Relay] Servicios no disponibles: {e.Message}");
         }
     }
@@ -124,25 +165,16 @@ public class NetworkMenuUI : MonoBehaviour
     // TABS
     // =========================
 
-    /// <summary>
-    /// Muestra el panel LAN o ONLINE y oculta los selectores iniciales
-    /// (PlayerNameInput, tabs). Solo el boton Volver permanece visible.
-    /// </summary>
     private void ShowTab(bool lan)
     {
-        // Ocultar selectores iniciales
         if (playerNameInput != null) playerNameInput.gameObject.SetActive(false);
         if (tabLANButton != null) tabLANButton.gameObject.SetActive(false);
         if (tabOnlineButton != null) tabOnlineButton.gameObject.SetActive(false);
 
-        // Mostrar solo el panel elegido
         if (panelLAN != null) panelLAN.SetActive(lan);
         if (panelOnline != null) panelOnline.SetActive(!lan);
     }
 
-    /// <summary>
-    /// Estado inicial: solo PlayerNameInput y tabs visibles, paneles ocultos.
-    /// </summary>
     private void ShowInitialState()
     {
         if (playerNameInput != null) playerNameInput.gameObject.SetActive(true);
@@ -158,12 +190,16 @@ public class NetworkMenuUI : MonoBehaviour
 
     private void OnLANHostClicked()
     {
-        if (NetworkManager.Singleton.IsListening) return;
+        if (NetworkManager.Singleton.IsListening)
+        {
+            // FIX: Mensaje visible en lugar de retorno silencioso.
+            SetStatus("Ya existe una sesión activa. Reiniciá el juego.");
+            return;
+        }
 
         ushort port = ParsePort();
         ConfigureTransportLAN("0.0.0.0", port);
 
-        // Guardar IP y puerto para mostrarlos en el HUD al arrancar
         PlayerPrefs.SetString("LANHostIP", GetLocalIP());
         PlayerPrefs.SetString("LANHostPort", port.ToString());
 
@@ -171,19 +207,30 @@ public class NetworkMenuUI : MonoBehaviour
         SetLoading(true);
         SetButtonsInteractable(false);
 
-        NetworkManager.Singleton.StartHost();
+        bool started = NetworkManager.Singleton.StartHost();
+        if (!started)
+        {
+            SetStatus("Error: no se pudo iniciar el servidor LAN.");
+            SetLoading(false);
+            SetButtonsInteractable(true);
+            Debug.LogError("[LAN] StartHost() retornó false.");
+        }
     }
 
     private void OnLANJoinClicked()
     {
-        if (NetworkManager.Singleton.IsListening) return;
+        if (NetworkManager.Singleton.IsListening)
+        {
+            SetStatus("Ya existe una sesión activa.");
+            return;
+        }
 
         string ip = lanIPInput != null ? lanIPInput.text.Trim() : DEFAULT_IP;
         ushort port = ParsePort();
 
         if (string.IsNullOrWhiteSpace(ip))
         {
-            SetStatus("Ingresa una IP valida");
+            SetStatus("Ingresá una IP válida.");
             return;
         }
 
@@ -209,13 +256,32 @@ public class NetworkMenuUI : MonoBehaviour
 
     private async void OnRelayHostClicked()
     {
+        // Este guard ahora es solo una salvaguarda extra.
+        // En condiciones normales los botones ya están deshabilitados
+        // hasta que servicesInitialized = true.
         if (!servicesInitialized)
         {
-            SetStatus("Servicios online no disponibles. Usa LAN.");
+            SetStatus("Servicios online no disponibles. Usá LAN.");
             return;
         }
 
-        if (NetworkManager.Singleton.IsListening) return;
+        // =====================================================================
+        // BUG FIX #2 — Retorno silencioso sin feedback
+        //
+        // PROBLEMA ORIGINAL:
+        //   if (NetworkManager.Singleton.IsListening) return;
+        //   No había ningún mensaje ni indicador visual. Si el NetworkManager
+        //   ya estaba activo (ej: DontDestroyOnLoad de una sesión previa que
+        //   no se cerró correctamente), el botón simplemente no hacía nada.
+        //
+        // FIX: Mostrar mensaje claro al usuario.
+        // =====================================================================
+        if (NetworkManager.Singleton.IsListening)
+        {
+            SetStatus("Ya hay una sesión activa. Usá el botón Volver para salir.");
+            Debug.LogWarning("[Relay] StartHost ignorado: NetworkManager ya está escuchando.");
+            return;
+        }
 
         SetStatus("Creando sala online...");
         SetLoading(true);
@@ -231,10 +297,17 @@ public class NetworkMenuUI : MonoBehaviour
             var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
             transport.SetRelayServerData(allocation.ToRelayServerData("dtls"));
 
-            // Guardar el codigo para mostrarlo en el HUD
             PlayerPrefs.SetString("RoomCode", joinCode);
 
-            NetworkManager.Singleton.StartHost();
+            // FIX: Verificar retorno de StartHost()
+            bool started = NetworkManager.Singleton.StartHost();
+            if (!started)
+            {
+                SetStatus("Error: no se pudo iniciar el host Relay.");
+                SetLoading(false);
+                SetButtonsInteractable(true);
+                Debug.LogError("[Relay] StartHost() retornó false.");
+            }
         }
         catch (System.Exception e)
         {
@@ -249,21 +322,25 @@ public class NetworkMenuUI : MonoBehaviour
     {
         if (!servicesInitialized)
         {
-            SetStatus("Servicios online no disponibles. Usa LAN.");
+            SetStatus("Servicios online no disponibles. Usá LAN.");
             return;
         }
 
-        if (NetworkManager.Singleton.IsListening) return;
+        if (NetworkManager.Singleton.IsListening)
+        {
+            SetStatus("Ya hay una sesión activa.");
+            return;
+        }
 
         string code = joinCodeInput != null ? joinCodeInput.text.Trim().ToUpper() : "";
 
         if (string.IsNullOrWhiteSpace(code))
         {
-            SetStatus("Ingresa el codigo de sala");
+            SetStatus("Ingresá el código de sala.");
             return;
         }
 
-        SetStatus($"Uniendose con codigo {code}...");
+        SetStatus($"Uniéndose con código {code}...");
         SetLoading(true);
         SetButtonsInteractable(false);
 
@@ -275,7 +352,7 @@ public class NetworkMenuUI : MonoBehaviour
             transport.SetRelayServerData(joinAllocation.ToRelayServerData("dtls"));
 
             NetworkManager.Singleton.StartClient();
-            Debug.Log($"[Relay] Uniendose con codigo: {code}");
+            Debug.Log($"[Relay] Uniéndose con código: {code}");
         }
         catch (System.Exception e)
         {
@@ -295,7 +372,6 @@ public class NetworkMenuUI : MonoBehaviour
         SetStatus("Servidor iniciado.");
         SetLoading(false);
 
-        // Guardar código de sala para mostrarlo en el HUD durante la partida
         string code = PlayerPrefs.GetString("RoomCode", "");
         if (!string.IsNullOrEmpty(code))
         {
@@ -314,18 +390,34 @@ public class NetworkMenuUI : MonoBehaviour
             }
         }
 
-        // El host carga CharacterSelect
         Debug.Log("[Network] Host iniciado. Cargando CharacterSelect...");
-        UnityEngine.SceneManagement.SceneManager.LoadScene(characterSelectScene);
+
+        // =====================================================================
+        // BUG FIX #3 — SceneManager equivocado para sesiones de red
+        //
+        // PROBLEMA ORIGINAL:
+        //   UnityEngine.SceneManagement.SceneManager.LoadScene(characterSelectScene);
+        //   Con EnableSceneManagement: 1 en el NetworkManager, NGO espera que las
+        //   cargas de escena durante una sesión activa se hagan a través de su
+        //   propio SceneManager. Usar el SceneManager de Unity directamente hace
+        //   que los clientes conectados NO sean llevados a la nueva escena
+        //   automáticamente.
+        //
+        // FIX: Usar NetworkManager.Singleton.SceneManager.LoadScene() para que
+        //   NGO sincronice el cambio de escena a todos los clientes.
+        // =====================================================================
+        NetworkManager.Singleton.SceneManager.LoadScene(
+            characterSelectScene,
+            UnityEngine.SceneManagement.LoadSceneMode.Single
+        );
     }
 
     private void OnClientConnected(ulong clientId)
     {
         if (clientId == NetworkManager.Singleton.LocalClientId)
         {
-            SetStatus("Conectado!");
+            SetStatus("¡Conectado! Esperando escena del host...");
             SetLoading(false);
-            // El cliente espera que el host cargue CharacterSelect via NGO SceneManager
             Debug.Log("[Network] Cliente conectado. Esperando escena del host...");
         }
     }
@@ -343,9 +435,10 @@ public class NetworkMenuUI : MonoBehaviour
         if (clientId == NetworkManager.Singleton.LocalClientId ||
             !NetworkManager.Singleton.IsServer)
         {
-            SetStatus("Desconectado del servidor");
+            SetStatus("Desconectado del servidor.");
             SetLoading(false);
             SetButtonsInteractable(true);
+            SetOnlineButtonsInteractable(servicesInitialized);
             HideRoomCode();
             ShowMenu();
         }
@@ -358,8 +451,8 @@ public class NetworkMenuUI : MonoBehaviour
     private void ShowRoomCode(string code)
     {
         if (roomCodePanel != null) roomCodePanel.SetActive(true);
-        if (roomCodeText != null) roomCodeText.text = $"Codigo de sala:\n{code}";
-        Debug.Log($"[Relay] Codigo de sala visible en HUD: {code}");
+        if (roomCodeText != null) roomCodeText.text = $"Código de sala:\n{code}";
+        Debug.Log($"[Relay] Código de sala visible en HUD: {code}");
     }
 
     private void HideRoomCode()
@@ -399,10 +492,26 @@ public class NetworkMenuUI : MonoBehaviour
         if (loadingIndicator != null) loadingIndicator.SetActive(active);
     }
 
+    /// <summary>
+    /// Controla los 4 botones de acción (LAN + Online).
+    /// </summary>
     private void SetButtonsInteractable(bool interactable)
     {
         if (lanHostButton != null) lanHostButton.interactable = interactable;
         if (lanJoinButton != null) lanJoinButton.interactable = interactable;
+        if (interactable)
+            SetOnlineButtonsInteractable(servicesInitialized);
+        else
+            SetOnlineButtonsInteractable(false);
+    }
+
+    /// <summary>
+    /// FIX: Control separado para botones Online.
+    /// Permite deshabilitar Online independientemente mientras los
+    /// servicios se inicializan, sin afectar los botones LAN.
+    /// </summary>
+    private void SetOnlineButtonsInteractable(bool interactable)
+    {
         if (onlineHostButton != null) onlineHostButton.interactable = interactable;
         if (onlineJoinButton != null) onlineJoinButton.interactable = interactable;
     }
