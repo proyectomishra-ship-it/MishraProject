@@ -131,6 +131,14 @@ PrefabInstance:
       propertyPath: m_text
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 523561127045939492, guid: 51293cb8a39a4a644904f13de3d0cbb4, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1090672511800939329, guid: 51293cb8a39a4a644904f13de3d0cbb4, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1504098439889347663, guid: 51293cb8a39a4a644904f13de3d0cbb4, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -211,9 +219,45 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1598469076119148187, guid: 51293cb8a39a4a644904f13de3d0cbb4, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 41.2094
+      objectReference: {fileID: 0}
+    - target: {fileID: 1598469076119148187, guid: 51293cb8a39a4a644904f13de3d0cbb4, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -91.51
+      objectReference: {fileID: 0}
+    - target: {fileID: 2566002996589786620, guid: 51293cb8a39a4a644904f13de3d0cbb4, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0.000030517578
+      objectReference: {fileID: 0}
+    - target: {fileID: 2566002996589786620, guid: 51293cb8a39a4a644904f13de3d0cbb4, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -5.199999
+      objectReference: {fileID: 0}
+    - target: {fileID: 2686697947444851786, guid: 51293cb8a39a4a644904f13de3d0cbb4, type: 3}
+      propertyPath: m_text
+      value: "\u200B"
+      objectReference: {fileID: 0}
     - target: {fileID: 3817210785862569945, guid: 51293cb8a39a4a644904f13de3d0cbb4, type: 3}
       propertyPath: m_Name
       value: NetworkMenu
+      objectReference: {fileID: 0}
+    - target: {fileID: 4653013152240640155, guid: 51293cb8a39a4a644904f13de3d0cbb4, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5615039922732151017, guid: 51293cb8a39a4a644904f13de3d0cbb4, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5615039922732151017, guid: 51293cb8a39a4a644904f13de3d0cbb4, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4278190080
+      objectReference: {fileID: 0}
+    - target: {fileID: 6113667999008572239, guid: 51293cb8a39a4a644904f13de3d0cbb4, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6239213668086609027, guid: 51293cb8a39a4a644904f13de3d0cbb4, type: 3}
       propertyPath: m_RaycastTarget
@@ -557,8 +601,6 @@ MonoBehaviour:
   warriorPrefab: {fileID: 6910758715300088518, guid: 740081080e89e5546a34461f39b4a42d, type: 3}
   magePrefab: {fileID: 7950557235140198998, guid: 4c1a1df7eb56a1c419f71c122c4a43c5, type: 3}
   hunterPrefab: {fileID: 2211492265159698303, guid: cfa70754af3198640885246fcdca5cfd, type: 3}
-  spawnPoints:
-  - {fileID: 0}
 --- !u!1 &2092806944
 GameObject:
   m_ObjectHideFlags: 0
