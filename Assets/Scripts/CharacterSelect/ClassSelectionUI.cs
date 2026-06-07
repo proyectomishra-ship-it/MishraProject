@@ -23,6 +23,35 @@ public class ClassSelectionUI : NetworkBehaviour
     [SerializeField] private TextMeshProUGUI selectedClassText;
     [SerializeField] private GameObject waitingPanel;
 
+    // =========================================================================
+    // FIX: roomCodePanel + roomCodeText
+    //
+    // PROBLEMA ORIGINAL:
+    //   NetworkMenuUI generaba el join code (Relay) o la IP:Puerto (LAN) y los
+    //   guardaba en PlayerPrefs["PendingRoomCode"] antes de cargar esta escena.
+    //   Sin embargo, ClassSelectionUI nunca leía ese valor, por lo que el host
+    //   no podía ver el código para compartirlo con los demás jugadores.
+    //   El joinCodeDisplay de NetworkMenuUI quedaba visible durante un frame o
+    //   dos antes del cambio de escena, haciendo el código ilegible en la práctica.
+    //
+    // FIX APLICADO:
+    //   1. Añadir roomCodePanel (GameObject) y roomCodeText (TMP) serializados.
+    //   2. En Start(), leer PlayerPrefs["PendingRoomCode"].
+    //   3. Si existe y somos host → mostrar el panel con el código.
+    //   4. Si no existe o somos cliente → ocultar el panel.
+    //   5. Limpiar la clave de PlayerPrefs para evitar que persista entre partidas.
+    //
+    // SETUP EN UNITY INSPECTOR (CharacterSelect scene):
+    //   a) Crear un GameObject "RoomCodePanel" hijo del Canvas.
+    //   b) Darle un fondo visible (Image con color semitransparente, por ejemplo).
+    //   c) Añadir un hijo TextMeshProUGUI llamado "RoomCodeText".
+    //   d) Asignar ambos en los campos de abajo.
+    //   e) Dejar el panel ACTIVO en el Editor; el script lo oculta si no hay código.
+    // =========================================================================
+    [Header("Código de sala (solo visible para el host)")]
+    [SerializeField] private GameObject roomCodePanel;
+    [SerializeField] private TextMeshProUGUI roomCodeText;
+
     [Header("Escena de juego")]
     [SerializeField] private string gameSceneName = "Scene1";
 
@@ -56,6 +85,49 @@ public class ClassSelectionUI : NetworkBehaviour
         Cursor.visible = true;
 
         SetStatus("Elegí tu clase para continuar.");
+
+        // FIX: Leer el código de sala guardado por NetworkMenuUI y mostrarlo.
+        // NetworkMenuUI guarda el join code (Relay) o la IP:Puerto (LAN) en
+        // PlayerPrefs["PendingRoomCode"] justo antes de cargar esta escena.
+        // Start() corre después de que los PlayerPrefs ya están disponibles,
+        // así que podemos leerlo aquí de forma segura.
+        MostrarCodigoDeSala();
+    }
+
+    // =========================================================================
+    // FIX: método que lee y muestra el código de sala al host.
+    // Si no hay código (cliente) o no hay TextMeshPro asignado, oculta el panel.
+    // =========================================================================
+    private void MostrarCodigoDeSala()
+    {
+        string code = PlayerPrefs.GetString("PendingRoomCode", "");
+
+        if (!string.IsNullOrEmpty(code))
+        {
+            // Hay un código → somos el host (los clientes no tienen esta clave).
+            if (roomCodePanel != null) roomCodePanel.SetActive(true);
+
+            if (roomCodeText != null)
+            {
+                // Detectar si es Relay (no contiene ':') o LAN (IP:Puerto).
+                bool esLAN = code.Contains(":");
+                if (esLAN)
+                    roomCodeText.text = $"Conectar por LAN:\n<b>{code}</b>\n(IP : Puerto)";
+                else
+                    roomCodeText.text = $"Código de sala online:\n<b>{code}</b>\n(Compartilo con los jugadores)";
+            }
+
+            // Limpiar PlayerPrefs para que no persista en la próxima sesión.
+            PlayerPrefs.DeleteKey("PendingRoomCode");
+            PlayerPrefs.Save();
+
+            Debug.Log($"[ClassSelect] Código de sala mostrado al host: {code}");
+        }
+        else
+        {
+            // Sin código → somos cliente o el valor ya se leyó.
+            if (roomCodePanel != null) roomCodePanel.SetActive(false);
+        }
     }
 
     public override void OnNetworkSpawn()
