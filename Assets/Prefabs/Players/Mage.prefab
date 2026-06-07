@@ -680,9 +680,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovementController
   ShowTopMostFoldoutHeaderGroup: 1
-  jumpForce: 5
-  gravity: -9.81
-  runMultiplier: 2
+  jumpForce: 10
+  gravity: -19.81
+  runMultiplier: 3
   rotationSpeed: 10
 --- !u!114 &2035890717121098228
 MonoBehaviour:

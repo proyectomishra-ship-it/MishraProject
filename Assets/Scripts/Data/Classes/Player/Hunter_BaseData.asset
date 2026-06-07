@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d08779c0e155827439d110ec5d8bf5dd, type: 3}
   m_Name: Hunter_BaseData
   m_EditorClassIdentifier: Assembly-CSharp::CharacterData
-  attack: 60
+  attack: 75
   attackRange: 10
   defense: 10
   maxHealth: 75
@@ -22,8 +22,8 @@ MonoBehaviour:
   criticalChance: 0.5
   dexterity: 40
   intelligence: 0
-  vitality: 20
-  resistance: 21
+  vitality: 40
+  stamina: 0
   luck: 0
   baseLevel: 1
   weaponType: 2
