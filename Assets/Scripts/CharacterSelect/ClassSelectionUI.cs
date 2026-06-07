@@ -4,14 +4,10 @@ using TMPro;
 using Unity.Netcode;
 
 /// <summary>
-/// Pantalla de selección de clase. Vive en la escena CharacterSelect.
-/// Cada jugador elige su clase y confirma. Cuando todos confirman,
-/// el host carga la escena de juego.
-///
-/// SETUP EN UNITY:
-///   - Crear escena CharacterSelect
-///   - Agregar este script a un GameObject vacío
-///   - Asignar los botones y el panel en el Inspector
+/// Lobby de selección de clase. Funciona como pantalla intermedia donde:
+///   - Todos los jugadores eligen su clase
+///   - El HOST ve "Iniciar Partida" y decide cuándo arrancar
+///   - Los CLIENTES ven "Listo" y esperan al host
 /// </summary>
 public class ClassSelectionUI : NetworkBehaviour
 {
@@ -22,6 +18,7 @@ public class ClassSelectionUI : NetworkBehaviour
 
     [Header("UI")]
     [SerializeField] private Button readyButton;
+    [SerializeField] private TextMeshProUGUI readyButtonText;
     [SerializeField] private TextMeshProUGUI statusText;
     [SerializeField] private TextMeshProUGUI selectedClassText;
     [SerializeField] private GameObject waitingPanel;
@@ -29,9 +26,15 @@ public class ClassSelectionUI : NetworkBehaviour
     [Header("Escena de juego")]
     [SerializeField] private string gameSceneName = "Scene1";
 
-    // Cuántos jugadores confirmaron su clase
     private NetworkVariable<int> readyCount = new NetworkVariable<int>(
         0,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server
+    );
+
+    // Cuántos jugadores hay conectados cuando se cargó esta escena
+    private NetworkVariable<int> totalPlayers = new NetworkVariable<int>(
+        1,
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server
     );
@@ -49,7 +52,6 @@ public class ClassSelectionUI : NetworkBehaviour
         if (readyButton != null) readyButton.interactable = false;
         if (waitingPanel != null) waitingPanel.SetActive(false);
 
-        // Liberar el cursor para que el jugador pueda clickear los botones
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
@@ -60,11 +62,21 @@ public class ClassSelectionUI : NetworkBehaviour
     {
         base.OnNetworkSpawn();
         readyCount.OnValueChanged += OnReadyCountChanged;
+        totalPlayers.OnValueChanged += OnTotalPlayersChanged;
+
+        // El host registra el total de jugadores conectados
+        if (IsServer)
+            totalPlayers.Value = NetworkManager.Singleton.ConnectedClients.Count;
+
+        // Cambiar texto del botón según si es host o cliente
+        if (readyButtonText != null)
+            readyButtonText.text = IsHost ? "Iniciar Partida" : "Listo";
     }
 
     public override void OnNetworkDespawn()
     {
         readyCount.OnValueChanged -= OnReadyCountChanged;
+        totalPlayers.OnValueChanged -= OnTotalPlayersChanged;
     }
 
     private void SelectClass(string className)
@@ -79,8 +91,9 @@ public class ClassSelectionUI : NetworkBehaviour
 
         if (readyButton != null) readyButton.interactable = true;
 
-        SetStatus($"Seleccionaste {className}. Confirmá cuando estés listo.");
-        Debug.Log($"[ClassSelect] Clase elegida: {className}");
+        SetStatus($"Seleccionaste {className}. " +
+                  (IsHost ? "Podés iniciar cuando todos estén listos."
+                           : "Confirmá cuando estés listo."));
     }
 
     private void OnReadyClicked()
@@ -92,30 +105,21 @@ public class ClassSelectionUI : NetworkBehaviour
         if (readyButton != null) readyButton.interactable = false;
         if (waitingPanel != null) waitingPanel.SetActive(true);
 
-        SetStatus("Esperando a los demás jugadores...");
+        if (IsHost)
+            SetStatus("Iniciando partida...");
+        else
+            SetStatus("Esperando a los demás jugadores...");
 
-        // Si el NetworkObject ya está spawneado usar RPC,
-        // si no (host jugando solo) guardar directamente en GameSessionData
         if (IsSpawned)
         {
             ConfirmClassServerRpc(selectedClass);
         }
         else
         {
-            // Fallback para host solo o cuando NGO aún no spawneó el objeto
-            ulong localId = NetworkManager.Singleton != null
-                ? NetworkManager.Singleton.LocalClientId
-                : 0;
-
-            if (GameSessionData.Instance != null)
-                GameSessionData.Instance.SetPlayerClass(localId, selectedClass);
-
-            // Si somos el único jugador, cargar la escena directamente
-            if (NetworkManager.Singleton == null ||
-                NetworkManager.Singleton.ConnectedClients.Count <= 1)
-            {
-                UnityEngine.SceneManagement.SceneManager.LoadScene(gameSceneName);
-            }
+            // Fallback: host sin NGO spawneado aún
+            ulong localId = NetworkManager.Singleton?.LocalClientId ?? 0;
+            GameSessionData.Instance?.SetPlayerClass(localId, selectedClass);
+            UnityEngine.SceneManagement.SceneManager.LoadScene(gameSceneName);
         }
     }
 
@@ -123,25 +127,23 @@ public class ClassSelectionUI : NetworkBehaviour
     private void ConfirmClassServerRpc(string className, RpcParams rpcParams = default)
     {
         ulong clientId = rpcParams.Receive.SenderClientId;
-
-        // Guardar la clase del cliente en el GameSessionData
-        GameSessionData.Instance.SetPlayerClass(clientId, className);
+        GameSessionData.Instance?.SetPlayerClass(clientId, className);
 
         readyCount.Value++;
 
-        int totalPlayers = NetworkManager.Singleton.ConnectedClients.Count;
-        Debug.Log($"[ClassSelect] Cliente {clientId} eligió {className}. " +
-                  $"Listos: {readyCount.Value}/{totalPlayers}");
+        Debug.Log($"[ClassSelect] {clientId} eligió {className}. " +
+                  $"Listos: {readyCount.Value}/{totalPlayers.Value}");
 
-        // Cuando todos están listos, cargar la escena de juego
-        if (readyCount.Value >= totalPlayers)
+        // El host puede iniciar aunque no todos estén listos (es su decisión)
+        // Solo forzar inicio cuando TODOS confirmen
+        if (readyCount.Value >= totalPlayers.Value)
             LoadGameScene();
     }
 
     private void LoadGameScene()
     {
         if (!IsServer) return;
-        Debug.Log("[ClassSelect] Todos listos. Cargando partida...");
+        Debug.Log("[ClassSelect] Iniciando partida...");
         NetworkManager.Singleton.SceneManager.LoadScene(
             gameSceneName,
             UnityEngine.SceneManagement.LoadSceneMode.Single
@@ -150,8 +152,18 @@ public class ClassSelectionUI : NetworkBehaviour
 
     private void OnReadyCountChanged(int oldVal, int newVal)
     {
-        int total = NetworkManager.Singleton.ConnectedClients.Count;
-        SetStatus($"Jugadores listos: {newVal}/{total}");
+        int total = totalPlayers.Value;
+        if (IsHost)
+            SetStatus($"Jugadores listos: {newVal}/{total}. " +
+                      (newVal > 0 ? "Podés iniciar." : "Esperando jugadores..."));
+        else
+            SetStatus($"Jugadores listos: {newVal}/{total}");
+    }
+
+    private void OnTotalPlayersChanged(int oldVal, int newVal)
+    {
+        if (!IsHost) return;
+        SetStatus($"Jugadores conectados: {newVal}. Elegí tu clase e iniciá cuando estés listo.");
     }
 
     private void SetStatus(string msg)

@@ -43,6 +43,9 @@ public class NetworkMenuUI : MonoBehaviour
     [SerializeField] private GameObject roomCodePanel;
     [SerializeField] private TextMeshProUGUI roomCodeText;
 
+    [Header("Iniciar partida (visible cuando hay jugadores conectados)")]
+    [SerializeField] private Button startGameButton;
+
     [Header("Config")]
     [SerializeField] private int maxPlayers = 6;
     [SerializeField] private string characterSelectScene = "CharacterSelect";
@@ -90,6 +93,7 @@ public class NetworkMenuUI : MonoBehaviour
 
         quitButton?.onClick.AddListener(OnQuitClicked);
         backButton?.onClick.AddListener(OnBackClicked);
+        // startGameButton ya no se usa - la lógica de inicio pasó a ClassSelectionUI
 
         if (lanIPInput != null) lanIPInput.text = DEFAULT_IP;
         if (lanPortInput != null) lanPortInput.text = DEFAULT_PORT.ToString();
@@ -192,7 +196,6 @@ public class NetworkMenuUI : MonoBehaviour
     {
         if (NetworkManager.Singleton.IsListening)
         {
-            // FIX: Mensaje visible en lugar de retorno silencioso.
             SetStatus("Ya existe una sesión activa. Reiniciá el juego.");
             return;
         }
@@ -200,7 +203,8 @@ public class NetworkMenuUI : MonoBehaviour
         ushort port = ParsePort();
         ConfigureTransportLAN("0.0.0.0", port);
 
-        PlayerPrefs.SetString("LANHostIP", GetLocalIP());
+        string ip = GetLocalIP();
+        PlayerPrefs.SetString("LANHostIP", ip);
         PlayerPrefs.SetString("LANHostPort", port.ToString());
 
         SetStatus("Iniciando servidor LAN...");
@@ -214,7 +218,14 @@ public class NetworkMenuUI : MonoBehaviour
             SetLoading(false);
             SetButtonsInteractable(true);
             Debug.LogError("[LAN] StartHost() retornó false.");
+            return;
         }
+
+        // Mostrar IP y puerto para que los clientes puedan conectarse
+        if (joinCodeDisplay != null)
+            joinCodeDisplay.text = $"IP: {ip}\nPuerto: {port}";
+
+        SetStatus("Servidor LAN iniciado. Compartí la IP con los jugadores.");
     }
 
     private void OnLANJoinClicked()
@@ -300,6 +311,13 @@ public class NetworkMenuUI : MonoBehaviour
             PlayerPrefs.SetString("RoomCode", joinCode);
 
             // FIX: Verificar retorno de StartHost()
+            // Mostrar el código antes de iniciar para que el host lo vea
+            if (joinCodeDisplay != null)
+                joinCodeDisplay.text = $"Código: {joinCode}";
+
+            SetStatus($"Código de sala: {joinCode}\nCompartilo con los demás jugadores.");
+            Debug.Log($"[Relay] Código generado: {joinCode}");
+
             bool started = NetworkManager.Singleton.StartHost();
             if (!started)
             {
@@ -369,9 +387,10 @@ public class NetworkMenuUI : MonoBehaviour
 
     private void OnServerStarted()
     {
-        SetStatus("Servidor iniciado.");
         SetLoading(false);
+        Debug.Log("[Network] Host iniciado. Cargando CharacterSelect como lobby...");
 
+        // Guardar código para el HUD
         string code = PlayerPrefs.GetString("RoomCode", "");
         if (!string.IsNullOrEmpty(code))
         {
@@ -390,22 +409,7 @@ public class NetworkMenuUI : MonoBehaviour
             }
         }
 
-        Debug.Log("[Network] Host iniciado. Cargando CharacterSelect...");
-
-        // =====================================================================
-        // BUG FIX #3 — SceneManager equivocado para sesiones de red
-        //
-        // PROBLEMA ORIGINAL:
-        //   UnityEngine.SceneManagement.SceneManager.LoadScene(characterSelectScene);
-        //   Con EnableSceneManagement: 1 en el NetworkManager, NGO espera que las
-        //   cargas de escena durante una sesión activa se hagan a través de su
-        //   propio SceneManager. Usar el SceneManager de Unity directamente hace
-        //   que los clientes conectados NO sean llevados a la nueva escena
-        //   automáticamente.
-        //
-        // FIX: Usar NetworkManager.Singleton.SceneManager.LoadScene() para que
-        //   NGO sincronice el cambio de escena a todos los clientes.
-        // =====================================================================
+        // CharacterSelect actúa como lobby — el host inicia partida desde ahí
         NetworkManager.Singleton.SceneManager.LoadScene(
             characterSelectScene,
             UnityEngine.SceneManagement.LoadSceneMode.Single

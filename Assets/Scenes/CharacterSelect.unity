@@ -2366,6 +2366,7 @@ MonoBehaviour:
   mageButton: {fileID: 1575241945}
   hunterButton: {fileID: 1856713725}
   readyButton: {fileID: 791053555}
+  readyButtonText: {fileID: 942685864}
   statusText: {fileID: 1415090112}
   selectedClassText: {fileID: 1288565395}
   waitingPanel: {fileID: 1088101070}

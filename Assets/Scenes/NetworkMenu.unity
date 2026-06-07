@@ -131,6 +131,10 @@ PrefabInstance:
       propertyPath: m_text
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 340668484149477629, guid: 51293cb8a39a4a644904f13de3d0cbb4, type: 3}
+      propertyPath: startGameButton
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 523561127045939492, guid: 51293cb8a39a4a644904f13de3d0cbb4, type: 3}
       propertyPath: m_IsActive
       value: 0
