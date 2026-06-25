@@ -1,4 +1,5 @@
-﻿using Unity.Cinemachine;
+﻿using System.Collections;
+using Unity.Cinemachine;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -11,8 +12,14 @@ using UnityEngine;
 ///   - Dejá el CinemachineBrain en la Main Camera de la escena (no se toca)
 ///
 /// COMPORTAMIENTO:
-///   - IsOwner  → activa la CinemachineCamera y la apunta al CameraPivot
-///   - !IsOwner → desactiva la CinemachineCamera para no interferir con otros jugadores
+///   - IsOwner  → espera un frame, apunta la CinemachineCamera al CameraPivot y la activa
+///   - !IsOwner → desactiva la CinemachineCamera para no interferir con la cámara local
+///
+/// POR QUÉ EL FRAME DE ESPERA:
+///   OnNetworkSpawn() corre antes de que el NetworkObject termine de posicionarse.
+///   Si configurás el Follow en ese mismo frame, Cinemachine puede leer una posición
+///   incorrecta (0,0,0 o el origen de la escena) y la cámara "vuela" o no arranca.
+///   Esperar un frame garantiza que el transform ya está en el spawn point correcto.
 /// </summary>
 public class PlayerCameraBinder : NetworkBehaviour
 {
@@ -31,33 +38,44 @@ public class PlayerCameraBinder : NetworkBehaviour
         if (virtualCamera == null)
         {
             Debug.LogError("[Camera] No se encontró CinemachineCamera en los hijos del Player. " +
-                           "Agregá una al prefab.");
+                           "Agregá una al prefab y asignala en el Inspector de PlayerCameraBinder.");
             return;
         }
 
         if (!IsOwner)
         {
-            // Desactivar la cámara para jugadores remotos — no deben interferir
+            // Jugador remoto: desactivar su cámara virtual para que no compita
+            // con la cámara del jugador local.
             virtualCamera.gameObject.SetActive(false);
-            Debug.Log($"[Camera] VirtualCam desactivada para jugador remoto: {gameObject.name}");
             return;
         }
 
-        // === JUGADOR LOCAL ===
+        // Jugador local: configurar la cámara en el próximo frame
+        // para que el transform ya esté en el spawn point correcto.
+        StartCoroutine(ActivateCameraNextFrame());
+    }
 
-        // Buscar el pivot
+    private IEnumerator ActivateCameraNextFrame()
+    {
+        // Esperar un frame — en este punto el NetworkObject ya fue posicionado
+        // en el spawn point por ClassAwareNetworkBootstrap.
+        yield return null;
+
+        // Buscar el pivot (punto de seguimiento de la cámara)
         Transform pivot = transform.Find(cameraPivotName);
         if (pivot == null)
         {
-            Debug.LogWarning($"[Camera] No se encontró '{cameraPivotName}' como hijo. " +
-                             "Usando el transform del Player como fallback.");
+            Debug.LogWarning($"[Camera] No se encontró '{cameraPivotName}' como hijo del Player. " +
+                             "Usando el transform raíz como fallback. " +
+                             "Creá un hijo vacío llamado 'CameraPivot' a la altura de los ojos.");
             pivot = transform;
         }
 
-        virtualCamera.gameObject.SetActive(true);
+        // Asignar target y activar
         virtualCamera.Follow = pivot;
         virtualCamera.LookAt = pivot;
+        virtualCamera.gameObject.SetActive(true);
 
-        Debug.Log($"[Camera] VirtualCam activa. Follow → '{pivot.name}'");
+        Debug.Log($"[Camera] Cámara local activada. Follow → '{pivot.name}' en {pivot.position}");
     }
 }

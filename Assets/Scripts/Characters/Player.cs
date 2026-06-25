@@ -41,7 +41,14 @@ public class Player : Character
     {
         base.OnNetworkSpawn();
 
-        if (!IsOwner) return;
+        if (!IsOwner)
+        {
+            // Jugador remoto: ocultar todos los renderers (Skinned, Mesh, etc.)
+            // para que no aparezcan en la cámara del jugador local.
+            // Cada cliente ve solo su propio personaje.
+            OcultarRenderersRemotos();
+            return;
+        }
 
         inputController?.Initialize(this);
 
@@ -235,8 +242,21 @@ public class Player : Character
         playerCombatController?.OnAttackHeld();
     }
 
-    public override void OnAttackReleased()
+    // =====================================================
+    // CÁMARA / VISIBILIDAD
+    // =====================================================
+
+    /// <summary>
+    /// Desactiva todos los Renderer del jugador remoto en este cliente.
+    /// Cada cliente ve solamente su propio personaje; los demás son invisibles.
+    /// Los renderers siguen existiendo en el servidor (para colisiones, etc.)
+    /// pero no se dibujan en la pantalla de este cliente.
+    /// </summary>
+    private void OcultarRenderersRemotos()
     {
-        playerCombatController?.OnAttackReleased();
+        foreach (Renderer r in GetComponentsInChildren<Renderer>(includeInactive: true))
+            r.enabled = false;
+
+        Debug.Log($"[Player] Renderers ocultos para jugador remoto: {gameObject.name}");
     }
 }
