@@ -178,6 +178,16 @@ public class Player : Character
             StopServerRpc();
     }
 
+    /// <summary>
+    /// Bloquea o desbloquea el input del jugador (movimiento y ataque).
+    /// Llamar al abrir/cerrar el inventario.
+    /// </summary>
+    public void SetInputBlocked(bool blocked)
+    {
+        if (inputController != null)
+            inputController.IsInputBlocked = blocked;
+    }
+
     public void Jump()
     {
         if (IsOwner)

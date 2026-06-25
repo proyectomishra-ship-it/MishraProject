@@ -26,6 +26,9 @@ public class PlayerCameraBinder : NetworkBehaviour
     [Tooltip("Si está vacío, se busca automáticamente en los hijos del prefab.")]
     [SerializeField] private CinemachineCamera virtualCamera;
 
+    // Referencia al controlador de input de cámara (mouse look)
+    private CinemachineInputAxisController _inputAxisController;
+
     [Tooltip("Nombre del hijo que usará como Follow/LookAt target.")]
     [SerializeField] private string cameraPivotName = "CameraPivot";
 
@@ -76,6 +79,19 @@ public class PlayerCameraBinder : NetworkBehaviour
         virtualCamera.LookAt = pivot;
         virtualCamera.gameObject.SetActive(true);
 
+        // Guardar referencia al InputAxisController para poder pausarlo
+        _inputAxisController = virtualCamera.GetComponent<CinemachineInputAxisController>();
+
         Debug.Log($"[Camera] Cámara local activada. Follow → '{pivot.name}' en {pivot.position}");
+    }
+
+    /// <summary>
+    /// Habilita o deshabilita el mouse look de la cámara.
+    /// Llamar con false al abrir el inventario, con true al cerrarlo.
+    /// </summary>
+    public void SetLookEnabled(bool enabled)
+    {
+        if (_inputAxisController != null)
+            _inputAxisController.enabled = enabled;
     }
 }

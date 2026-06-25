@@ -1,25 +1,20 @@
 using UnityEngine;
 
 /// <summary>
-/// Controla la cámara de preview del inventario.
-/// Se posiciona frente al jugador local y se activa/desactiva
-/// junto con el panel de inventario.
-///
-/// SETUP EN UNITY:
-///   - Agregar este script al GameObject InventoryPreviewCamera en la escena
-///   - El GameObject debe estar desactivado por defecto
-///   - Asignar la referencia desde InventoryUI.Initialize()
+/// Cámara de preview del inventario.
+/// Hace snap frente al jugador al abrirse y se queda fija —
+/// no sigue al jugador mientras se mueve.
 /// </summary>
 public class InventoryPreviewCamera : MonoBehaviour
 {
     [Tooltip("Distancia al jugador")]
-    [SerializeField] private float distance = 2.5f;
+    [SerializeField] private float distance = 2.0f;
 
-    [Tooltip("Altura relativa al jugador")]
-    [SerializeField] private float heightOffset = 1.0f;
+    [Tooltip("Altura a la que apunta la cámara (0 = pies, 1 = cabeza aprox)")]
+    [SerializeField] private float heightOffset = 0.9f;
 
-    [Tooltip("Velocidad de seguimiento suave al jugador")]
-    [SerializeField] private float followSpeed = 10f;
+    [Tooltip("Rotación horizontal de la cámara alrededor del jugador (grados)")]
+    [SerializeField] private float yawOffset = 0f;
 
     private Transform target;
     private Camera previewCam;
@@ -29,31 +24,15 @@ public class InventoryPreviewCamera : MonoBehaviour
         previewCam = GetComponent<Camera>();
     }
 
-    /// <summary>
-    /// Llamar desde InventoryUI cuando se inicializa para el jugador local.
-    /// </summary>
     public void SetTarget(Transform playerTransform)
     {
         target = playerTransform;
     }
 
-    private void LateUpdate()
-    {
-        if (target == null) return;
-
-        // Posición: frente al jugador, mirando hacia él
-        Vector3 targetPos   = target.position + Vector3.up * heightOffset;
-        Vector3 desiredPos  = targetPos - target.forward * distance;
-
-        transform.position = Vector3.Lerp(
-            transform.position,
-            desiredPos,
-            followSpeed * Time.deltaTime
-        );
-
-        transform.LookAt(targetPos);
-    }
-
+    /// <summary>
+    /// Activa la cámara y hace snap inmediato a la posición frente al jugador.
+    /// No se mueve más hasta que se llame Show() de nuevo.
+    /// </summary>
     public void Show()
     {
         if (target == null)
@@ -62,17 +41,24 @@ public class InventoryPreviewCamera : MonoBehaviour
             return;
         }
 
-        // Snap directo a la posición correcta antes de activar
-        // para evitar que la cámara "vuele" desde su posición anterior
-        Vector3 targetPos  = target.position + Vector3.up * heightOffset;
-        transform.position = targetPos - target.forward * distance;
-        transform.LookAt(targetPos);
-
+        SnapToTarget();
         gameObject.SetActive(true);
     }
 
     public void Hide()
     {
         gameObject.SetActive(false);
+    }
+
+    private void SnapToTarget()
+    {
+        Vector3 lookAt = target.position + Vector3.up * heightOffset;
+
+        // Calcular dirección con yawOffset para poder rotar la cámara alrededor del jugador
+        Quaternion yaw = Quaternion.Euler(0f, target.eulerAngles.y + yawOffset, 0f);
+        Vector3 forward = yaw * Vector3.forward;
+
+        transform.position = lookAt - forward * distance;
+        transform.LookAt(lookAt);
     }
 }

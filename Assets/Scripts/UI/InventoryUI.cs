@@ -41,6 +41,9 @@ public class InventoryUI : MonoBehaviour
     [Header("Cámara de preview")]
     [SerializeField] private InventoryPreviewCamera previewCamera;
 
+    // Referencia al binder de la cámara del jugador para pausar el mouse look
+    private PlayerCameraBinder cameraBinder;
+
     private InventoryController inventory;
     private EquipmentController equipment;
     private Player localPlayer;
@@ -70,6 +73,9 @@ public class InventoryUI : MonoBehaviour
 
         // Conectar la cámara de preview al jugador local
         previewCamera?.SetTarget(player.transform);
+
+        // Guardar referencia al PlayerCameraBinder para poder pausar el mouse look
+        cameraBinder = player.GetComponent<PlayerCameraBinder>();
 
         BuildEquipmentSlots();
 
@@ -112,6 +118,9 @@ public class InventoryUI : MonoBehaviour
 
         Cursor.lockState = isOpen ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = isOpen;
+
+        // Congelar/liberar el mouse look de la cámara junto con el cursor
+        cameraBinder?.SetLookEnabled(!isOpen);
 
         if (isOpen)
         {

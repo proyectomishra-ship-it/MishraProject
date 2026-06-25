@@ -20,6 +20,11 @@ public class ClassAwareNetworkBootstrap : MonoBehaviour
     [SerializeField] private GameObject magePrefab;
     [SerializeField] private GameObject hunterPrefab;
 
+    // Defensa 1: evita que el mismo clientId entre dos veces al pipeline de spawn
+    // simultáneamente (cubre el caso LAN donde OnClientConnectedCallback dispara
+    // DESPUÉS de OnSceneLoaded con la escena ya activa).
+    private readonly System.Collections.Generic.HashSet<ulong> _spawnInProgress = new();
+
     // -------------------------------------------------------
     // NOTA: El array "Spawn Points" fue eliminado intencionalmente.
     //
@@ -74,6 +79,9 @@ public class ClassAwareNetworkBootstrap : MonoBehaviour
         // de los objetos de la escena corre antes de que sceneLoaded dispare.
         Debug.Log($"[ClassSpawn] Scene1 cargada. Spawneando {NetworkManager.Singleton.ConnectedClientsIds.Count} cliente(s).");
 
+        // Resetear el set al entrar a Scene1 (nueva sesión de juego)
+        _spawnInProgress.Clear();
+
         foreach (var clientId in NetworkManager.Singleton.ConnectedClientsIds)
             StartCoroutine(SpawnPlayerDelayed(clientId));
     }
@@ -94,15 +102,35 @@ public class ClassAwareNetworkBootstrap : MonoBehaviour
 
     private IEnumerator SpawnPlayerDelayed(ulong clientId)
     {
+        // Defensa 1: si ya hay un spawn en progreso para este cliente, salir.
+        // Cubre el caso LAN donde OnClientConnectedCallback re-dispara después
+        // de OnSceneLoaded cuando la escena ya está activa.
+        if (!_spawnInProgress.Add(clientId))
+        {
+            Debug.LogWarning($"[ClassSpawn] Spawn de clientId {clientId} ya en progreso. Ignorando duplicado (probable re-fire LAN).");
+            yield break;
+        }
+
         // Esperar dos frames para que el ServerRpc de clase haya llegado
         // y para que SpawnPointRegistry esté completamente inicializado.
         yield return null;
         yield return null;
         SpawnPlayer(clientId);
+        _spawnInProgress.Remove(clientId);
     }
 
     private void SpawnPlayer(ulong clientId)
     {
+        // Defensa 2: verificar que el cliente no tenga ya un PlayerObject asignado.
+        // Segunda línea de defensa en caso de que dos coroutines superen el HashSet
+        // (ej: ambas iniciaron antes de que la primera hiciera Add).
+        if (NetworkManager.Singleton.ConnectedClients.TryGetValue(clientId, out var clientData)
+            && clientData.PlayerObject != null)
+        {
+            Debug.LogWarning($"[ClassSpawn] clientId {clientId} ya tiene PlayerObject ({clientData.PlayerObject.name}). Spawn cancelado.");
+            return;
+        }
+
         string className = ResolveClassName(clientId);
         GameObject prefab = GetPrefabForClass(className);
 

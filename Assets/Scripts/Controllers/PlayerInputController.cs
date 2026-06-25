@@ -1,4 +1,4 @@
-using Unity.Netcode;
+ï»¿using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,13 +7,16 @@ public class PlayerInputController : NetworkBehaviour
     private Player player;
     private PlayerInputActions inputActions;
     private Vector2 moveInput;
+
+    // Bloquea input de movimiento (ej: mientras el inventario esta abierto)
+    public bool IsInputBlocked { get; set; } = false;
     private bool isSprinting;
     private bool isHoldingAttack;
     private Camera mainCamera;
 
     // ?? Rate limit ????????????????????????????????????????????????????????????
     // El cliente manda RPCs de movimiento a tasa fija (inputSendRate/seg)
-    // en vez de cada frame. Así el servidor no acumula colas de RPCs y
+    // en vez de cada frame. Asï¿½ el servidor no acumula colas de RPCs y
     // aplica el movimiento a su propio ritmo en MovementController.Update().
     // ?????????????????????????????????????????????????????????????????????????
     [SerializeField] private float inputSendRate = 20f;
@@ -30,7 +33,7 @@ public class PlayerInputController : NetworkBehaviour
         if (!IsOwner) return;
 
         if (player == null) player = GetComponent<Player>();
-        if (player == null) { Debug.LogError("[PlayerInputController] No se encontró el Player."); return; }
+        if (player == null) { Debug.LogError("[PlayerInputController] No se encontrï¿½ el Player."); return; }
 
         mainCamera = Camera.main;
 
@@ -59,6 +62,11 @@ public class PlayerInputController : NetworkBehaviour
     private void Update()
     {
         if (!IsOwner || player == null || mainCamera == null) return;
+        if (IsInputBlocked)
+        {
+            if (_wasMoving) { player.Stop(); _wasMoving = false; }
+            return;
+        }
 
         if (isHoldingAttack)
             player.OnAttackHeld();
