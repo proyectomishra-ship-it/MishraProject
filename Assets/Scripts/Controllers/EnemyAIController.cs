@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 using Unity.Netcode;
@@ -25,10 +26,8 @@ public class EnemyAIController : NetworkBehaviour
     [SerializeField] private float randomPatrolRadius = 10f;
 
     [Header("Flee")]
-
     [SerializeField] private float fleeHealthThreshold = 0.25f;
     [SerializeField] private float fleeDistance = 15f;
-
     [SerializeField] private bool canFlee = true;
 
     // Componentes
@@ -43,7 +42,6 @@ public class EnemyAIController : NetworkBehaviour
     public EnemyStateAttack AttackState { get; protected set; }
     public EnemyStateFlee FleeState { get; protected set; }
 
-
     public Character CurrentTarget { get; private set; }
     public bool IsAlerted { get; private set; }
 
@@ -53,20 +51,17 @@ public class EnemyAIController : NetworkBehaviour
     public bool HasPatrolPoints =>
         (waypoints != null && waypoints.Length > 0) || useRandomPatrol;
 
-
     public bool ShouldFlee
     {
         get
         {
-            if (!canFlee)
-                return false;
+            if (!canFlee) return false;
 
             var stats = enemy.GetStats();
 
             return stats != null
                 && stats.MaxHealth.Value > 0
-                && stats.CurrentHealth / stats.MaxHealth.Value
-                   <= fleeHealthThreshold;
+                && stats.CurrentHealth / stats.MaxHealth.Value <= fleeHealthThreshold;
         }
     }
 
@@ -80,13 +75,41 @@ public class EnemyAIController : NetworkBehaviour
         if (!IsServer) return;
 
         Agent = GetComponent<NavMeshAgent>();
-        if (Agent == null)
-            Debug.LogError($"[EnemyAIController] Falta NavMeshAgent en {enemy.name}");
 
-        randomPatrolOrigin = enemy.transform.position;
+        if (Agent == null)
+        {
+            Debug.LogError($"[EnemyAIController] Falta NavMeshAgent en {enemy.name}");
+            return;
+        }
+
+        StartCoroutine(InitializeAI());
+    }
+
+    private IEnumerator InitializeAI()
+    {
+        yield return null;
+
+        if (!NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+        {
+            Debug.LogError($"[{enemy.name}] No NavMesh debajo del enemigo");
+            yield break;
+        }
+
+        Agent.Warp(hit.position);
+
+        if (!Agent.isOnNavMesh)
+        {
+            Debug.LogError($"[{enemy.name}] Warp falló (no está en NavMesh)");
+            yield break;
+        }
+
+        randomPatrolOrigin = transform.position;
 
         Perception = new EnemyPerceptionSystem(
-            enemy, detectionRadius, fieldOfViewAngle, alertRadius);
+            enemy,
+            detectionRadius,
+            fieldOfViewAngle,
+            alertRadius);
 
         StateMachine = new EnemyStateMachine();
 
@@ -98,9 +121,9 @@ public class EnemyAIController : NetworkBehaviour
         AttackState = CreateAttackState();
 
         if (AttackState == null)
-            Debug.LogError($"[EnemyAIController] CreateAttackState() devolvió null en {enemy.name}");
+            Debug.LogError($"[EnemyAIController] AttackState null en {enemy.name}");
 
-        StateMachine.ChangeState(HasPatrolPoints ? PatrolState : IdleState);
+        StateMachine.ChangeState(IdleState);
     }
 
     protected virtual EnemyStateAttack CreateAttackState()
@@ -115,6 +138,16 @@ public class EnemyAIController : NetworkBehaviour
     }
 
     // -------------------------
+    // FIX CLAVE: reactivación de patrol desde idle
+    // -------------------------
+
+    public void RequestPatrolFromIdle()
+    {
+        if (!HasPatrolPoints) return;
+        StateMachine.ChangeState(PatrolState);
+    }
+
+    // -------------------------
     // WAYPOINTS
     // -------------------------
 
@@ -126,7 +159,7 @@ public class EnemyAIController : NetworkBehaviour
         if (waypoints != null && waypoints.Length > 0)
             return waypoints[currentWaypointIndex].position;
 
-        return enemy.transform.position;
+        return transform.position;
     }
 
     public void AdvanceWaypoint()
@@ -138,33 +171,18 @@ public class EnemyAIController : NetworkBehaviour
     private Vector3 GetRandomNavMeshPoint()
     {
         Vector2 randomCircle = Random.insideUnitCircle * randomPatrolRadius;
-        Vector3 randomPoint = randomPatrolOrigin +
-            new Vector3(randomCircle.x, 0, randomCircle.y);
 
-        if (NavMesh.SamplePosition(randomPoint, out NavMeshHit hit,
-            randomPatrolRadius, NavMesh.AllAreas))
+        Vector3 randomPoint = randomPatrolOrigin +
+                              new Vector3(randomCircle.x, 0f, randomCircle.y);
+
+        if (NavMesh.SamplePosition(randomPoint, out NavMeshHit hit, randomPatrolRadius, NavMesh.AllAreas))
             return hit.position;
 
-        return enemy.transform.position;
+        return transform.position;
     }
 
-    // -------------------------
-    // ESTADO COMPARTIDO
-    // -------------------------
-
-    public void SetTarget(Character target)
-    {
-        CurrentTarget = target;
-    }
-
-    public void SetAlerted(bool alerted)
-    {
-        IsAlerted = alerted;
-    }
-
-    // -------------------------
-    // GIZMOS (solo editor)
-    // -------------------------
+    public void SetTarget(Character target) => CurrentTarget = target;
+    public void SetAlerted(bool alerted) => IsAlerted = alerted;
 
     private void OnDrawGizmosSelected()
     {
@@ -177,15 +195,20 @@ public class EnemyAIController : NetworkBehaviour
         Gizmos.DrawWireSphere(transform.position, Perception.AlertRadius);
 
         Gizmos.color = Color.cyan;
-        Vector3 fovLeft = Quaternion.Euler(0, -Perception.FieldOfViewAngle / 2f, 0)
-            * transform.forward * Perception.DetectionRadius;
-        Vector3 fovRight = Quaternion.Euler(0, Perception.FieldOfViewAngle / 2f, 0)
-            * transform.forward * Perception.DetectionRadius;
+
+        Vector3 fovLeft =
+            Quaternion.Euler(0, -Perception.FieldOfViewAngle / 2f, 0) *
+            transform.forward * Perception.DetectionRadius;
+
+        Vector3 fovRight =
+            Quaternion.Euler(0, Perception.FieldOfViewAngle / 2f, 0) *
+            transform.forward * Perception.DetectionRadius;
+
         Gizmos.DrawLine(transform.position, transform.position + fovLeft);
         Gizmos.DrawLine(transform.position, transform.position + fovRight);
 
-
         if (!canFlee) return;
+
         Gizmos.color = Color.magenta;
         Gizmos.DrawWireSphere(transform.position, fleeDistance);
     }

@@ -1,12 +1,9 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemyStatePatrol : EnemyState
 {
     private float waypointReachedThreshold = 0.5f;
-
-    // =========================
-    // CICLO DE PATROL
-    // =========================
 
     private int patrolCount;
 
@@ -26,53 +23,63 @@ public class EnemyStatePatrol : EnemyState
 
         Debug.Log($"[{enemy.name}] Patrol");
 
+    
+        EnsureNavMeshReady();
+
         MoveToNextWaypoint();
+    }
+
+    private void EnsureNavMeshReady()
+    {
+        var agent = ai.Agent;
+
+        if (agent == null)
+            return;
+
+
+        agent.ResetPath();
+        agent.isStopped = false;
+
+
+        if (!agent.isOnNavMesh)
+        {
+            if (NavMesh.SamplePosition(ai.transform.position, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+            {
+                agent.Warp(hit.position);
+            }
+        }
+
+ 
+        agent.ResetPath();
     }
 
     public override void OnUpdate()
     {
-        // =========================
-        // DETECCIÓN
-        // =========================
-
         Character target =
             ai.Perception.DetectPlayer(ai.IsAlerted);
 
         if (target != null)
         {
             ai.SetTarget(target);
-
             ai.StateMachine.ChangeState(ai.ChaseState);
-
             return;
         }
-
-        // =========================
-        // MOVIMIENTO
-        // =========================
 
         if (ai.Agent.pathPending)
             return;
 
-        if (ai.Agent.remainingDistance >
-            waypointReachedThreshold)
+       
+        if (!ai.Agent.hasPath)
+            return;
+
+        if (ai.Agent.remainingDistance > waypointReachedThreshold)
             return;
 
         patrolCount++;
 
-        //Debug.Log(
-        //    $"[{enemy.name}] Patrol point reached ({patrolCount}/{maxPatrolMoves})");
-
-        // =========================
-        // FIN DE CICLO
-        // =========================
-
         if (patrolCount >= maxPatrolMoves)
         {
-            //Debug.Log($"[{enemy.name}] Patrol -> Idle");
-
             ai.StateMachine.ChangeState(ai.IdleState);
-
             return;
         }
 
@@ -83,9 +90,7 @@ public class EnemyStatePatrol : EnemyState
     {
         Vector3 destination = ai.GetCurrentWaypoint();
 
+        ai.Agent.ResetPath();
         ai.Agent.SetDestination(destination);
-
-        //Debug.Log(
-        //    $"[{enemy.name}] Moving to patrol point: {destination}");
     }
 }

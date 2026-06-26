@@ -11,7 +11,7 @@ public class EnemyHealthBarFollow : MonoBehaviour
     public void SetTarget(Transform targetTransform)
     {
         target = targetTransform;
-        Debug.Log("Target asignado: " + target.name);
+      
     }
 
     private void LateUpdate()
@@ -24,7 +24,7 @@ public class EnemyHealthBarFollow : MonoBehaviour
 
         transform.position =
             target.position + offset;
-        Debug.Log(transform.position);
+      
     }
 
     //private void LateUpdate()
