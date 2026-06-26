@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using Unity.Netcode;
 
 /// <summary>
@@ -9,7 +9,7 @@ using Unity.Netcode;
 /// - Hold attacks
 /// - Multiplicadores por arma
 /// - AttackSpeed real
-/// - Validación de target
+/// - Validaciï¿½n de target
 /// - SphereCast validation
 /// - Sistema extensible
 ///
@@ -165,21 +165,21 @@ public class PlayerCombatController : NetworkBehaviour
 
     private void PerformAttack(bool heavy)
     {
-        Character target = FindTarget(); // Puede ser null
+        Character target = FindTarget();
 
-        // Si tu juego requiere obligatoriamente hit validation para hacer daño,
-        // se la aplicamos SOLO si hay un target al que golpear.
-        if (target != null && !ValidateHit(target))
+        // FIX: null check explï¿½cito antes de validar.
+        // El bloque anterior llamaba ValidateHit(null) causando NullReferenceException
+        // cuando no habï¿½a enemigos en rango, abortando el ataque sin ningï¿½n mensaje visible.
+        // Ademï¿½s llamaba ValidateHit dos veces de forma redundante cuando sï¿½ habï¿½a target.
+        if (target == null)
         {
-            Debug.LogWarning("[PlayerCombat] Hit validation failed");
+            Debug.LogWarning("[PlayerCombat] Sin enemigo en rango para atacar");
             return;
         }
 
         if (!ValidateHit(target))
         {
-            Debug.LogWarning(
-                "[PlayerCombat] Hit validation failed");
-
+            Debug.LogWarning("[PlayerCombat] Hit validation failed");
             return;
         }
 
@@ -299,6 +299,8 @@ public class PlayerCombatController : NetworkBehaviour
 
     private bool ValidateHit(Character target)
     {
+        if (target == null) return false; // FIX: guard extra por si acaso
+
         WeaponData weapon = GetCurrentWeapon();
 
         // =====================================================
