@@ -9,6 +9,11 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: Material.002
     second: {fileID: -876546973899608171, guid: 0496de76e75b3324ba1dcf3f38b74c40, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Texture_Atlas_1
+    second: {fileID: 2800000, guid: 71bccfb90f20e2a4088a15d8eb0758e4, type: 3}
   materials:
     materialImportMode: 2
     materialName: 0
