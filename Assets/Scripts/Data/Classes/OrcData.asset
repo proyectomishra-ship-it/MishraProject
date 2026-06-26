@@ -15,7 +15,7 @@ MonoBehaviour:
   attack: 55
   attackRange: 2
   defense: 30
-  maxHealth: 45
+  maxHealth: 150
   maxMana: 0
   speed: 7
   agility: 10
@@ -23,7 +23,7 @@ MonoBehaviour:
   dexterity: 20
   intelligence: 2
   vitality: 26
-  resistance: 10
+  stamina: 0
   luck: 0
   baseLevel: 5
   weaponType: 0

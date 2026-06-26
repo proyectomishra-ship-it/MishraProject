@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AcolyteData
   attack: 52
   attackRange: 20
-  defense: 10
+  defense: 15
   maxHealth: 40
   maxMana: 45
   speed: 10
@@ -23,7 +23,7 @@ MonoBehaviour:
   dexterity: 15
   intelligence: 45
   vitality: 10
-  resistance: 5
+  stamina: 0
   luck: 0
   baseLevel: 5
   weaponType: 4
