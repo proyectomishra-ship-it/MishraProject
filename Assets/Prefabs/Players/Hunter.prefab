@@ -28,6 +28,7 @@ GameObject:
   - component: {fileID: 2204349867824630421}
   - component: {fileID: 1549136592635594134}
   - component: {fileID: 1179369870442879496}
+  - component: {fileID: 7648748261978975736}
   m_Layer: 3
   m_Name: Hunter
   m_TagString: Player
@@ -66,7 +67,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 4136569635
+  GlobalObjectIdHash: 3131095716
   InScenePlacedSourceGlobalObjectIdHash: 2194876781
   DeferredDespawnTick: 0
   Ownership: 1
@@ -455,6 +456,19 @@ MonoBehaviour:
   manaRegenPerIntelligence: 0.3
   enableStaminaRegen: 1
   staminaRegenPerStamina: 0.5
+--- !u!114 &7648748261978975736
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2211492265159698303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50c4cadf5ec9e1741beb8dda04d17645, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponVisualController
+  placeholderWeapon: {fileID: 8727496737845206539}
 --- !u!1 &6088325270206399613
 GameObject:
   m_ObjectHideFlags: 0
@@ -851,7 +865,7 @@ Transform:
   m_GameObject: {fileID: 8727496737845206539}
   serializedVersion: 2
   m_LocalRotation: {x: -0.02154172, y: -0.71169525, z: 0.021844896, w: 0.7018181}
-  m_LocalPosition: {x: 0.02, y: 0.55, z: 0.41}
+  m_LocalPosition: {x: -0.699, y: -0.029, z: 0.056}
   m_LocalScale: {x: 0.34349, y: 0.33087, z: 0.55273}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -986,6 +1000,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: ea0180daf076d794bac07ef90dbf66ef, type: 3}
       propertyPath: m_Name
       value: blocking zita COLOR1full
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: ea0180daf076d794bac07ef90dbf66ef, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

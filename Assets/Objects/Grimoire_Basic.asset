@@ -25,6 +25,7 @@ MonoBehaviour:
     value: 2
   weaponType: 2
   attackSpeed: 1
+  weaponVisualPrefab: {fileID: 3485906567957737707, guid: 8528f7f28d0fac2408ea415bb7312bb5, type: 3}
   projectilePrefab: {fileID: 3272488517719803676, guid: 81b95ce514956ff478d426dca39245a5, type: 3}
   projectileSpeed: 15
   specialProjectilePrefab: {fileID: 0}

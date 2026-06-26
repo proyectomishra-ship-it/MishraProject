@@ -38,6 +38,16 @@ public class WeaponData : ItemData, IEquippable
     private float attackSpeed = 1f;
 
     // =========================================================
+    // VISUAL EN MANO
+    // =========================================================
+
+    [Header("Visual en mano")]
+    [Tooltip("Prefab 3D que aparece en la mano del jugador al equipar esta arma. " +
+             "Si queda vacío, WeaponVisualController usa el Cube placeholder " +
+             "que ya está en el prefab del personaje.")]
+    [SerializeField] private GameObject weaponVisualPrefab;
+
+    // =========================================================
     // PROJECTILES
     // =========================================================
 
@@ -104,6 +114,12 @@ public class WeaponData : ItemData, IEquippable
     public WeaponType WeaponType => weaponType;
 
     public float AttackSpeed => attackSpeed;
+
+    /// <summary>
+    /// Prefab 3D que WeaponVisualController instancia en la mano del jugador.
+    /// Null = usar el Cube placeholder del prefab del personaje.
+    /// </summary>
+    public GameObject WeaponVisualPrefab => weaponVisualPrefab;
 
     public GameObject ProjectilePrefab => projectilePrefab;
 

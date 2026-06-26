@@ -365,7 +365,7 @@ Transform:
   m_GameObject: {fileID: 5751389350660997824}
   serializedVersion: 2
   m_LocalRotation: {x: -0.02154172, y: -0.71169525, z: 0.021844896, w: 0.7018181}
-  m_LocalPosition: {x: 0.02, y: 0.55, z: 0.41}
+  m_LocalPosition: {x: -0.808, y: 0.307, z: 0.053}
   m_LocalScale: {x: 0.34349, y: 0.33087, z: 0.55273}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -477,6 +477,7 @@ GameObject:
   - component: {fileID: -9125623160673421327}
   - component: {fileID: -5828519810071527269}
   - component: {fileID: 211942320745714036}
+  - component: {fileID: 3270992021821882150}
   m_Layer: 3
   m_Name: Warrior
   m_TagString: Player
@@ -904,6 +905,19 @@ MonoBehaviour:
   manaRegenPerIntelligence: 0.3
   enableStaminaRegen: 1
   staminaRegenPerStamina: 0.5
+--- !u!114 &3270992021821882150
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6910758715300088518}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50c4cadf5ec9e1741beb8dda04d17645, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponVisualController
+  placeholderWeapon: {fileID: 5751389350660997824}
 --- !u!1 &7443041332243402106
 GameObject:
   m_ObjectHideFlags: 0
@@ -986,6 +1000,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: ea0180daf076d794bac07ef90dbf66ef, type: 3}
       propertyPath: m_Name
       value: blocking zita COLOR1full
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: ea0180daf076d794bac07ef90dbf66ef, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
