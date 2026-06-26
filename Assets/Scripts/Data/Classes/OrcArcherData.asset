@@ -15,7 +15,7 @@ MonoBehaviour:
   attack: 30
   attackRange: 5
   defense: 20
-  maxHealth: 300
+  maxHealth: 100
   maxMana: 0
   speed: 3.5
   agility: 5
@@ -23,7 +23,7 @@ MonoBehaviour:
   dexterity: 20
   intelligence: 5
   vitality: 20
-  resistance: 25
+  stamina: 0
   luck: 0
   baseLevel: 5
   weaponType: 2
@@ -37,6 +37,6 @@ MonoBehaviour:
   classMultiplier: 1
   fleeHealthThreshold: 0.25
   canFlee: 1
-  availableStrategies: 
+  availableStrategies: 02000000
   preferredCombatDistance: 8
   projectilePrefab: {fileID: 4267693198055553237, guid: 5e61c7a0ae152484ab8431f2d4ab964e, type: 3}

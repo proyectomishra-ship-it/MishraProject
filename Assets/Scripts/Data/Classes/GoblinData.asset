@@ -17,7 +17,7 @@ MonoBehaviour:
   defense: 8
   maxHealth: 50
   maxMana: 0
-  speed: 13
+  speed: 21
   agility: 40
   criticalChance: 0.5
   dexterity: 32
@@ -37,6 +37,6 @@ MonoBehaviour:
   classMultiplier: 1
   fleeHealthThreshold: 0.25
   canFlee: 0
-  availableStrategies: 
-  preferredCombatDistance: 8
+  availableStrategies: 01000000
+  preferredCombatDistance: 2
   projectilePrefab: {fileID: 0}

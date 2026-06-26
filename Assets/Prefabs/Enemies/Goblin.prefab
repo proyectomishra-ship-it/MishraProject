@@ -276,7 +276,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 21
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 80
@@ -317,9 +317,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GoblinAIController
   ShowTopMostFoldoutHeaderGroup: 1
-  detectionRadius: 30
+  detectionRadius: 60
   fieldOfViewAngle: 120
-  alertRadius: 15
+  alertRadius: 45
   lostTargetTime: 5
   idleDuration: 2
   waypoints: []

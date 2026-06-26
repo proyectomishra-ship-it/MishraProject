@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: OrcData
   m_EditorClassIdentifier: Assembly-CSharp::OrcData
   attack: 55
-  attackRange: 2
+  attackRange: 3
   defense: 30
   maxHealth: 150
   maxMana: 0
@@ -37,6 +37,6 @@ MonoBehaviour:
   classMultiplier: 1.2
   fleeHealthThreshold: 0.3
   canFlee: 1
-  availableStrategies: 
-  preferredCombatDistance: 8
+  availableStrategies: 01000000
+  preferredCombatDistance: 2
   projectilePrefab: {fileID: 0}

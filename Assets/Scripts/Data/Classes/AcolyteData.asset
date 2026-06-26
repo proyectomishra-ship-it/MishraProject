@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95731b8d0d3236f4991984d7d992733a, type: 3}
   m_Name: AcolyteData
   m_EditorClassIdentifier: Assembly-CSharp::AcolyteData
-  attack: 52
+  attack: 40
   attackRange: 20
   defense: 15
-  maxHealth: 40
+  maxHealth: 75
   maxMana: 45
   speed: 10
   agility: 20
@@ -37,6 +37,6 @@ MonoBehaviour:
   classMultiplier: 1
   fleeHealthThreshold: 0.25
   canFlee: 1
-  availableStrategies: 
+  availableStrategies: 02000000
   preferredCombatDistance: 8
   projectilePrefab: {fileID: 3272488517719803676, guid: 81b95ce514956ff478d426dca39245a5, type: 3}
