@@ -48,7 +48,6 @@ public class Player : Character
         {
             // Jugador remoto: ocultar todos los renderers (Skinned, Mesh, etc.)
             // para que no aparezcan en la cámara del jugador local.
-            // Cada cliente ve solo su propio personaje.
             OcultarRenderersRemotos();
             return;
         }
@@ -90,17 +89,29 @@ public class Player : Character
 
     private IEnumerator InitializeWhenReady()
     {
-        // Esperar que los stats estén listos
-        yield return new WaitUntil(
-            () => statsSync != null && statsSync.NetMaxHealth.Value > 0);
+        // FIX BUG 1: WaitUntil con timeout para evitar bloqueo indefinido.
+        // Si CharacterData.MaxHealth es 0 o el juego corre sin networking,
+        // NetMaxHealth.Value nunca supera 0 y la coroutine quedaba bloqueada,
+        // impidiendo que el inventario se inicializara.
+        float timeout = 10f;
+        float elapsed = 0f;
+        while (statsSync.NetMaxHealth.Value <= 0 && elapsed < timeout)
+        {
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (statsSync.NetMaxHealth.Value <= 0)
+            Debug.LogWarning("[Player] NetMaxHealth nunca superó 0 tras 10s. " +
+                             "Verificá que CharacterData.MaxHealth > 0 y que haya un host/client activo.");
 
         // Buscar HUD con reintentos por si la escena aún está cargando
-        float timeout = 5f;
-        float elapsed = 0f;
-        while (hud == null && elapsed < timeout)
+        float hudTimeout = 5f;
+        float hudElapsed = 0f;
+        while (hud == null && hudElapsed < hudTimeout)
         {
             hud = FindFirstObjectByType<PlayerHUD>();
-            elapsed += Time.deltaTime;
+            hudElapsed += Time.deltaTime;
             yield return null;
         }
 
@@ -276,9 +287,6 @@ public class Player : Character
 
     /// <summary>
     /// Desactiva todos los Renderer del jugador remoto en este cliente.
-    /// Cada cliente ve solamente su propio personaje; los demás son invisibles.
-    /// Los renderers siguen existiendo en el servidor (para colisiones, etc.)
-    /// pero no se dibujan en la pantalla de este cliente.
     /// </summary>
     private void OcultarRenderersRemotos()
     {
