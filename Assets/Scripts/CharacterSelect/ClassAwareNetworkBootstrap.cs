@@ -15,6 +15,9 @@ using Unity.Netcode;
 /// </summary>
 public class ClassAwareNetworkBootstrap : MonoBehaviour
 {
+    [Header("Datos globales")]
+    [SerializeField] private ItemDatabase itemDatabase;
+
     [Header("Prefabs de jugador por clase")]
     [SerializeField] private GameObject warriorPrefab;
     [SerializeField] private GameObject magePrefab;
@@ -41,6 +44,19 @@ public class ClassAwareNetworkBootstrap : MonoBehaviour
     //   un componente que vive en Scene1 y puede ser asignado normalmente
     //   en el Inspector porque está en la misma escena que los puntos.
     // -------------------------------------------------------
+
+    private void Awake()
+    {
+        // FIX: este script reemplazó el spawn automático de NetworkBootstrap,
+        // pero nunca inicializaba el ItemDatabase. Sin esto, ItemDatabase.Instance
+        // queda null y EquipmentController.Equip() explota con NullReferenceException
+        // en el primer OnNetworkSpawn() del Player (ver Player.EquiparArmaInicial()).
+        // Inicializar en Awake (no en Start) para que esté listo antes de cualquier spawn.
+        if (itemDatabase != null)
+            itemDatabase.Initialize();
+        else
+            Debug.LogError("[ClassSpawn] ItemDatabase no asignado en el Inspector de ClassAwareNetworkBootstrap.");
+    }
 
     private void Start()
     {

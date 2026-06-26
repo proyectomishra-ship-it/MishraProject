@@ -42,7 +42,19 @@ public class Player : Character
         base.OnNetworkSpawn();
 
         if (IsServer)
-            EquiparArmaInicial();
+        {
+            // FIX: cualquier excepción acá (ej: ItemDatabase mal inicializado)
+            // antes terminaba OnNetworkSpawn() por completo, salteando todo lo de abajo
+            // (HUD, inventario, input). Ahora queda contenida a este método.
+            try
+            {
+                EquiparArmaInicial();
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[Player] EquiparArmaInicial falló: {e.Message}\n{e.StackTrace}");
+            }
+        }
 
         if (!IsOwner)
         {

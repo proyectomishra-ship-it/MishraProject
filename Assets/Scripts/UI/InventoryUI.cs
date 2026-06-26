@@ -122,6 +122,12 @@ public class InventoryUI : MonoBehaviour
         // Congelar/liberar el mouse look de la cámara junto con el cursor
         cameraBinder?.SetLookEnabled(!isOpen);
 
+        // FIX: bloquear también el movimiento (WASD). Antes solo se pausaba
+        // el mouse look, pero el jugador seguía pudiendo caminar con el
+        // inventario abierto, lo que hacía que la cámara de preview
+        // (que sigue al personaje) se viera acercarse/alejarse.
+        localPlayer?.SetInputBlocked(isOpen);
+
         if (isOpen)
         {
             RefreshEquipmentSlots();

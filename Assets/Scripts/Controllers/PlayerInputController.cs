@@ -40,12 +40,24 @@ public class PlayerInputController : NetworkBehaviour
         inputActions = new PlayerInputActions();
         inputActions.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
         inputActions.Player.Move.canceled += ctx => moveInput = Vector2.zero;
-        inputActions.Player.Jump.performed += ctx => player.Jump();
+        inputActions.Player.Jump.performed += ctx => { if (!IsInputBlocked) player.Jump(); };
         inputActions.Player.Sprint.performed += ctx => isSprinting = true;
         inputActions.Player.Sprint.canceled += ctx => isSprinting = false;
-        inputActions.Player.Attack.performed += ctx => { isHoldingAttack = true; player.OnAttackPressed(); };
-        inputActions.Player.Attack.canceled += ctx => { isHoldingAttack = false; player.OnAttackReleased(); };
-        inputActions.Player.SpecialAttack.performed += ctx => player.SpecialAttack();
+        inputActions.Player.Attack.performed += ctx =>
+        {
+            if (IsInputBlocked) return;
+            isHoldingAttack = true;
+            player.OnAttackPressed();
+        };
+        inputActions.Player.Attack.canceled += ctx =>
+        {
+            // Siempre limpiamos el flag local (si no, queda "atascado" en true
+            // si el inventario se abre justo mientras mantenías click).
+            bool wasHolding = isHoldingAttack;
+            isHoldingAttack = false;
+            if (!IsInputBlocked && wasHolding) player.OnAttackReleased();
+        };
+        inputActions.Player.SpecialAttack.performed += ctx => { if (!IsInputBlocked) player.SpecialAttack(); };
         inputActions.Enable();
 
         Cursor.lockState = CursorLockMode.Locked;

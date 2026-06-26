@@ -48,6 +48,14 @@ public class EquipmentController : NetworkBehaviour
         if (!IsServer) return false;
         if (item == null) return false;
 
+        if (ItemDatabase.Instance == null)
+        {
+            Debug.LogError("[Equipment] ItemDatabase.Instance es NULL. " +
+                           "Verificá que el bootstrap de red haya llamado a ItemDatabase.Initialize() " +
+                           "antes de spawnear jugadores.");
+            return false;
+        }
+
         int id = ItemDatabase.Instance.GetId(item as ItemData);
         if (id < 0)
         {
@@ -97,7 +105,9 @@ public class EquipmentController : NetworkBehaviour
 
     private void HandleLocalSlotChanged(EquipmentSlot slot, IEquippable item)
     {
-        int id = item != null ? ItemDatabase.Instance.GetId(item as ItemData) : -1;
+        int id = (item != null && ItemDatabase.Instance != null)
+            ? ItemDatabase.Instance.GetId(item as ItemData)
+            : -1;
         sync.UpdateSlot(slot, id);
     }
 

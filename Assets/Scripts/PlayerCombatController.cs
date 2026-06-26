@@ -165,13 +165,13 @@ public class PlayerCombatController : NetworkBehaviour
 
     private void PerformAttack(bool heavy)
     {
-        Character target = FindTarget();
+        Character target = FindTarget(); // Puede ser null
 
-        if (target == null)
+        // Si tu juego requiere obligatoriamente hit validation para hacer daño,
+        // se la aplicamos SOLO si hay un target al que golpear.
+        if (target != null && !ValidateHit(target))
         {
-            Debug.LogWarning(
-                "[PlayerCombat] No valid target");
-
+            Debug.LogWarning("[PlayerCombat] Hit validation failed");
             return;
         }
 
