@@ -30,3 +30,4 @@ MonoBehaviour:
     value: 0.95
   - stat: 5
     value: -0.05
+  startingWeapon: {fileID: 11400000, guid: 53a655d49feb5f64db24045bb94353b8, type: 2}

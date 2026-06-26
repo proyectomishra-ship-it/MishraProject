@@ -41,6 +41,9 @@ public class Player : Character
     {
         base.OnNetworkSpawn();
 
+        if (IsServer)
+            EquiparArmaInicial();
+
         if (!IsOwner)
         {
             // Jugador remoto: ocultar todos los renderers (Skinned, Mesh, etc.)
@@ -68,6 +71,21 @@ public class Player : Character
         // Inicializar HUD e inventario en coroutine para evitar
         // problemas de timing al cargar la escena
         StartCoroutine(InitializeWhenReady());
+    }
+
+    // =====================================================
+    // ARMA INICIAL POR CLASE
+    // =====================================================
+
+    private void EquiparArmaInicial()
+    {
+        if (classData == null || classData.StartingWeapon == null) return;
+        if (equipmentController == null) return;
+        if (equipmentController.IsOccupied(EquipmentSlot.Weapon)) return;
+
+        bool ok = equipmentController.Equip(classData.StartingWeapon);
+        Debug.Log($"[Player] Arma inicial '{classData.StartingWeapon.ItemName}': " +
+                  $"{(ok ? "equipada" : "falló — verificar ItemDatabase")}");
     }
 
     private IEnumerator InitializeWhenReady()

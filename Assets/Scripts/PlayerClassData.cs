@@ -18,6 +18,10 @@ public class PlayerClassData : ScriptableObject
     [Header("Multipliers")]
     [SerializeField] private List<StatModifier> multipliers;
 
+    [Header("Equipamiento inicial")]
+    [SerializeField] private WeaponData startingWeapon;
+
     public List<StatModifier> LevelScaling => levelScaling;
     public List<StatModifier> Multipliers => multipliers;
+    public WeaponData StartingWeapon => startingWeapon;
 }

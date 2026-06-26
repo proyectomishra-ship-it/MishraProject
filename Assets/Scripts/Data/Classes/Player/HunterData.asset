@@ -34,3 +34,4 @@ MonoBehaviour:
     value: 1.15
   - stat: 10
     value: 1.1
+  startingWeapon: {fileID: 11400000, guid: d13aebf166f4c604f9db3105edc39cad, type: 2}

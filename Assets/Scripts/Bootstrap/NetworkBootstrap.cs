@@ -10,13 +10,18 @@ public class NetworkBootstrap : MonoBehaviour
     [Header("Datos globales")]
     [SerializeField] private ItemDatabase itemDatabase;
 
-    private void Start()
+    private void Awake()
     {
+        // Inicializar en Awake (no en Start) para que ItemDatabase.Instance
+        // esté disponible antes de cualquier OnNetworkSpawn().
         if (itemDatabase != null)
             itemDatabase.Initialize();
         else
-            Debug.LogWarning("[NetBootstrap] ItemDatabase no asignado.");
+            Debug.LogError("[NetBootstrap] ItemDatabase no asignado en el Inspector.");
+    }
 
+    private void Start()
+    {
         if (NetworkManager.Singleton == null)
         {
             Debug.LogError("[NetBootstrap] NetworkManager.Singleton es NULL");
