@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 using Unity.Netcode;
@@ -25,10 +26,8 @@ public class EnemyAIController : NetworkBehaviour
     [SerializeField] private float randomPatrolRadius = 10f;
 
     [Header("Flee")]
-
     [SerializeField] private float fleeHealthThreshold = 0.25f;
     [SerializeField] private float fleeDistance = 15f;
-
     [SerializeField] private bool canFlee = true;
 
     // Componentes
@@ -43,7 +42,6 @@ public class EnemyAIController : NetworkBehaviour
     public EnemyStateAttack AttackState { get; protected set; }
     public EnemyStateFlee FleeState { get; protected set; }
 
-
     public Character CurrentTarget { get; private set; }
     public bool IsAlerted { get; private set; }
 
@@ -52,7 +50,6 @@ public class EnemyAIController : NetworkBehaviour
 
     public bool HasPatrolPoints =>
         (waypoints != null && waypoints.Length > 0) || useRandomPatrol;
-
 
     public bool ShouldFlee
     {
@@ -81,7 +78,36 @@ public class EnemyAIController : NetworkBehaviour
 
         Agent = GetComponent<NavMeshAgent>();
         if (Agent == null)
+        {
             Debug.LogError($"[EnemyAIController] Falta NavMeshAgent en {enemy.name}");
+            return;
+        }
+
+        StartCoroutine(InitializeAI());
+    }
+
+    private IEnumerator InitializeAI()
+    {
+        // Esperar un frame para que el NetworkObject esté posicionado en el spawn point.
+        // Sin esta espera, la posición puede leerse como 0,0,0 o el origen de la escena.
+        yield return null;
+
+        // Snap al NavMesh más cercano: seguridad si el enemigo está levemente
+        // fuera de la malla por imprecisión en el editor.
+        if (!NavMesh.SamplePosition(enemy.transform.position, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+        {
+            Debug.LogError($"[{enemy.name}] No hay NavMesh dentro de 2m. " +
+                           "Verificá la posición del enemigo en la escena.");
+            yield break;
+        }
+
+        Agent.Warp(hit.position);
+
+        if (!Agent.isOnNavMesh)
+        {
+            Debug.LogError($"[{enemy.name}] Warp falló — el agente no quedó en NavMesh.");
+            yield break;
+        }
 
         randomPatrolOrigin = enemy.transform.position;
 
@@ -100,6 +126,7 @@ public class EnemyAIController : NetworkBehaviour
         if (AttackState == null)
             Debug.LogError($"[EnemyAIController] CreateAttackState() devolvió null en {enemy.name}");
 
+        // Empezar en patrol si tiene puntos definidos, idle si no
         StateMachine.ChangeState(HasPatrolPoints ? PatrolState : IdleState);
     }
 
@@ -183,7 +210,6 @@ public class EnemyAIController : NetworkBehaviour
             * transform.forward * Perception.DetectionRadius;
         Gizmos.DrawLine(transform.position, transform.position + fovLeft);
         Gizmos.DrawLine(transform.position, transform.position + fovRight);
-
 
         if (!canFlee) return;
         Gizmos.color = Color.magenta;

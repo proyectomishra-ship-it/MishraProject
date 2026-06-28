@@ -293,6 +293,11 @@ public class Player : Character
         playerCombatController?.OnAttackHeld();
     }
 
+    public override void OnAttackReleased()
+    {
+        playerCombatController?.OnAttackReleased();
+    }
+
     // =====================================================
     // CÁMARA / VISIBILIDAD
     // =====================================================
