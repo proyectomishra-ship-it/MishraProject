@@ -23,31 +23,6 @@ public class ClassSelectionUI : NetworkBehaviour
     [SerializeField] private TextMeshProUGUI selectedClassText;
     [SerializeField] private GameObject waitingPanel;
 
-    // =========================================================================
-    // FIX: roomCodePanel + roomCodeText
-    //
-    // PROBLEMA ORIGINAL:
-    //   NetworkMenuUI generaba el join code (Relay) o la IP:Puerto (LAN) y los
-    //   guardaba en PlayerPrefs["PendingRoomCode"] antes de cargar esta escena.
-    //   Sin embargo, ClassSelectionUI nunca leía ese valor, por lo que el host
-    //   no podía ver el código para compartirlo con los demás jugadores.
-    //   El joinCodeDisplay de NetworkMenuUI quedaba visible durante un frame o
-    //   dos antes del cambio de escena, haciendo el código ilegible en la práctica.
-    //
-    // FIX APLICADO:
-    //   1. Añadir roomCodePanel (GameObject) y roomCodeText (TMP) serializados.
-    //   2. En Start(), leer PlayerPrefs["PendingRoomCode"].
-    //   3. Si existe y somos host → mostrar el panel con el código.
-    //   4. Si no existe o somos cliente → ocultar el panel.
-    //   5. Limpiar la clave de PlayerPrefs para evitar que persista entre partidas.
-    //
-    // SETUP EN UNITY INSPECTOR (CharacterSelect scene):
-    //   a) Crear un GameObject "RoomCodePanel" hijo del Canvas.
-    //   b) Darle un fondo visible (Image con color semitransparente, por ejemplo).
-    //   c) Añadir un hijo TextMeshProUGUI llamado "RoomCodeText".
-    //   d) Asignar ambos en los campos de abajo.
-    //   e) Dejar el panel ACTIVO en el Editor; el script lo oculta si no hay código.
-    // =========================================================================
     [Header("Código de sala (solo visible para el host)")]
     [SerializeField] private GameObject roomCodePanel;
     [SerializeField] private TextMeshProUGUI roomCodeText;
@@ -61,7 +36,10 @@ public class ClassSelectionUI : NetworkBehaviour
         NetworkVariableWritePermission.Server
     );
 
-    // Cuántos jugadores hay conectados cuando se cargó esta escena
+    // FIX: Cuántos jugadores hay conectados.
+    // En versiones anteriores esto se fijaba UNA SOLA VEZ en OnNetworkSpawn(),
+    // cuando el cliente de Relay todavía no había llegado → totalPlayers = 1.
+    // Ahora se actualiza en tiempo real vía OnClientConnectedCallback.
     private NetworkVariable<int> totalPlayers = new NetworkVariable<int>(
         1,
         NetworkVariableReadPermission.Everyone,
@@ -85,31 +63,19 @@ public class ClassSelectionUI : NetworkBehaviour
         Cursor.visible = true;
 
         SetStatus("Elegí tu clase para continuar.");
-
-        // FIX: Leer el código de sala guardado por NetworkMenuUI y mostrarlo.
-        // NetworkMenuUI guarda el join code (Relay) o la IP:Puerto (LAN) en
-        // PlayerPrefs["PendingRoomCode"] justo antes de cargar esta escena.
-        // Start() corre después de que los PlayerPrefs ya están disponibles,
-        // así que podemos leerlo aquí de forma segura.
         MostrarCodigoDeSala();
     }
 
-    // =========================================================================
-    // FIX: método que lee y muestra el código de sala al host.
-    // Si no hay código (cliente) o no hay TextMeshPro asignado, oculta el panel.
-    // =========================================================================
     private void MostrarCodigoDeSala()
     {
         string code = PlayerPrefs.GetString("PendingRoomCode", "");
 
         if (!string.IsNullOrEmpty(code))
         {
-            // Hay un código → somos el host (los clientes no tienen esta clave).
             if (roomCodePanel != null) roomCodePanel.SetActive(true);
 
             if (roomCodeText != null)
             {
-                // Detectar si es Relay (no contiene ':') o LAN (IP:Puerto).
                 bool esLAN = code.Contains(":");
                 if (esLAN)
                     roomCodeText.text = $"Conectar por LAN:\n<b>{code}</b>\n(IP : Puerto)";
@@ -117,7 +83,6 @@ public class ClassSelectionUI : NetworkBehaviour
                     roomCodeText.text = $"Código de sala online:\n<b>{code}</b>\n(Compartilo con los jugadores)";
             }
 
-            // Limpiar PlayerPrefs para que no persista en la próxima sesión.
             PlayerPrefs.DeleteKey("PendingRoomCode");
             PlayerPrefs.Save();
 
@@ -125,7 +90,6 @@ public class ClassSelectionUI : NetworkBehaviour
         }
         else
         {
-            // Sin código → somos cliente o el valor ya se leyó.
             if (roomCodePanel != null) roomCodePanel.SetActive(false);
         }
     }
@@ -136,11 +100,20 @@ public class ClassSelectionUI : NetworkBehaviour
         readyCount.OnValueChanged += OnReadyCountChanged;
         totalPlayers.OnValueChanged += OnTotalPlayersChanged;
 
-        // El host registra el total de jugadores conectados
         if (IsServer)
+        {
+            // Contar jugadores actuales (incluye el host)
             totalPlayers.Value = NetworkManager.Singleton.ConnectedClients.Count;
 
-        // Cambiar texto del botón según si es host o cliente
+            // FIX: Relay — el cliente se conecta DESPUÉS de que se cargó CharacterSelect,
+            // por lo que OnNetworkSpawn ya disparó con Count = 1.
+            // Ahora escuchamos las conexiones futuras para actualizar totalPlayers en tiempo real.
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
+
+            Debug.Log($"[ClassSelect] Lobby iniciado con {totalPlayers.Value} jugador(es).");
+        }
+
         if (readyButtonText != null)
             readyButtonText.text = IsHost ? "Iniciar Partida" : "Listo";
     }
@@ -149,7 +122,47 @@ public class ClassSelectionUI : NetworkBehaviour
     {
         readyCount.OnValueChanged -= OnReadyCountChanged;
         totalPlayers.OnValueChanged -= OnTotalPlayersChanged;
+
+        // FIX: desuscribir siempre (aunque NetworkManager ya esté destruyéndose, es seguro)
+        if (IsServer && NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
+            NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
+        }
     }
+
+    // ─── Callbacks de conexión (solo servidor) ────────────────────────────────
+
+    /// <summary>
+    /// FIX: Se llama cuando un cliente nuevo se conecta al host.
+    /// Actualiza totalPlayers para que ConfirmClassServerRpc espere a todos.
+    /// </summary>
+    private void OnClientConnected(ulong clientId)
+    {
+        if (!IsServer) return;
+        totalPlayers.Value = NetworkManager.Singleton.ConnectedClients.Count;
+        Debug.Log($"[ClassSelect] Nuevo cliente: {clientId}. Total jugadores: {totalPlayers.Value}");
+    }
+
+    /// <summary>
+    /// Si un jugador se desconecta antes de confirmar, ajustar contadores para
+    /// que el juego no quede bloqueado esperando a alguien que ya no está.
+    /// </summary>
+    private void OnClientDisconnected(ulong clientId)
+    {
+        if (!IsServer) return;
+
+        int newTotal = Mathf.Max(1, NetworkManager.Singleton.ConnectedClients.Count);
+        totalPlayers.Value = newTotal;
+
+        // Si el que se fue ya había confirmado y ahora readyCount >= totalPlayers → iniciar
+        if (readyCount.Value >= totalPlayers.Value && readyCount.Value > 0)
+            LoadGameScene();
+
+        Debug.Log($"[ClassSelect] Cliente desconectado: {clientId}. Total: {totalPlayers.Value}");
+    }
+
+    // ─── Selección de clase ───────────────────────────────────────────────────
 
     private void SelectClass(string className)
     {
@@ -206,8 +219,6 @@ public class ClassSelectionUI : NetworkBehaviour
         Debug.Log($"[ClassSelect] {clientId} eligió {className}. " +
                   $"Listos: {readyCount.Value}/{totalPlayers.Value}");
 
-        // El host puede iniciar aunque no todos estén listos (es su decisión)
-        // Solo forzar inicio cuando TODOS confirmen
         if (readyCount.Value >= totalPlayers.Value)
             LoadGameScene();
     }
@@ -221,6 +232,8 @@ public class ClassSelectionUI : NetworkBehaviour
             UnityEngine.SceneManagement.LoadSceneMode.Single
         );
     }
+
+    // ─── Callbacks de NetworkVariables ────────────────────────────────────────
 
     private void OnReadyCountChanged(int oldVal, int newVal)
     {

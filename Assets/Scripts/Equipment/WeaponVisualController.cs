@@ -4,9 +4,9 @@ using UnityEngine;
 /// <summary>
 /// Muestra el visual del arma equipada en la mano del jugador.
 ///
-/// SETUP (una vez, en los tres prefabs):
-///   1. Agregar este componente al prefab (Warrior / Hunter / Mage).
-///   2. Asignar "Placeholder Weapon" → el objeto "Cube" hijo del Capsule.
+/// SETUP (una vez, en los tres prefabs) — ya hecho:
+///   1. Componente en el root del prefab (Warrior / Hunter / Mage).
+///   2. "Placeholder Weapon" → el objeto "Cube" hijo del Capsule.
 ///      Si no se asigna, lo busca automáticamente por nombre.
 ///
 /// El Cube actúa como socket:
@@ -15,6 +15,13 @@ using UnityEngine;
 ///                        su MeshRenderer se oculta y el prefab
 ///                        se instancia dentro con local pos/rot cero.
 ///   • Sin arma         → el Cube se desactiva por completo.
+///
+/// NOTA SOBRE JUGADORES REMOTOS:
+///   El visual SOLO se muestra para el jugador local (IsOwner = true).
+///   OcultarRenderersRemotos() oculta el modelo completo de los otros
+///   jugadores; cuando esa función sea actualizada para mostrar cuerpos,
+///   basta con quitar los dos checks "if (!equipmentController.IsOwner)"
+///   para que todos vean las armas de todos.
 /// </summary>
 public class WeaponVisualController : MonoBehaviour
 {
@@ -32,7 +39,7 @@ public class WeaponVisualController : MonoBehaviour
 
     private void Awake()
     {
-        // Buscar el Cube lo antes posible
+        // Buscar el Cube lo antes posible (fallback si no fue asignado en Inspector)
         if (placeholderWeapon == null)
         {
             Transform found = FindInChildren(transform, "Cube");
@@ -46,7 +53,8 @@ public class WeaponVisualController : MonoBehaviour
         if (placeholderWeapon != null)
             placeholderRenderer = placeholderWeapon.GetComponent<MeshRenderer>();
 
-        // Suscribir en Awake para no perdernos ningún evento
+        // Suscribir en Awake: Player es el último en la lista de componentes,
+        // así que Character.Awake() (que inicializa equipmentController) ya corrió.
         equipmentController = GetComponent<EquipmentController>();
         if (equipmentController == null)
         {
@@ -59,12 +67,22 @@ public class WeaponVisualController : MonoBehaviour
 
     private IEnumerator Start()
     {
-        // Esperar 2 frames: OnNetworkSpawn de Player y EquipmentController
-        // necesitan terminar antes de que podamos leer el estado inicial del arma.
+        // Esperar 2 frames:
+        //   • OnNetworkSpawn de EquipmentController ya corrió (suscripción a NetworkVariable).
+        //   • OnNetworkSpawn de Player ya corrió (EquiparArmaInicial en el servidor,
+        //     OcultarRenderersRemotos para remotos).
+        //   • La NetworkVariable ya tiene el valor inicial propagado.
         yield return null;
         yield return null;
 
         if (equipmentController == null) yield break;
+
+        // FIX: Solo actualizar el visual para el jugador local.
+        // Para remotos, OcultarRenderersRemotos() oculta todo el modelo.
+        // Sin este check, SetCubeMeshVisible(true) re-habilitaría el renderer
+        // del Cube después de que OcultarRenderersRemotos lo deshabilitó,
+        // dejando el arma flotando en el aire sin cuerpo.
+        if (!equipmentController.IsOwner) yield break;
 
         var weapon = equipmentController.GetEquippedWeapon();
 
@@ -88,6 +106,12 @@ public class WeaponVisualController : MonoBehaviour
     private void HandleSlotChanged(EquipmentSlot slot, IEquippable item)
     {
         if (slot != EquipmentSlot.Weapon) return;
+
+        // FIX: misma razón que Start() — evitar el arma flotante en remotos.
+        // HandleSlotChanged se llama en TODOS los clientes cuando la NetworkVariable
+        // cambia. Sin este check, el Cube del jugador remoto se activaría
+        // sobreescribiendo lo que hizo OcultarRenderersRemotos().
+        if (!equipmentController.IsOwner) return;
 
         Debug.Log($"[WeaponVisual] {name} — OnSlotChanged: " +
                   $"arma = '{(item as WeaponData)?.ItemName ?? "ninguna"}'");
@@ -130,7 +154,6 @@ public class WeaponVisualController : MonoBehaviour
                 Vector3.zero,
                 Quaternion.identity);
 
-            // Escala: copiar la del Cube para que el modelo tenga el mismo tamaño
             spawnedVisual.transform.localScale = Vector3.one;
 
             Debug.Log($"[WeaponVisual] Prefab '{weapon.WeaponVisualPrefab.name}' instanciado " +

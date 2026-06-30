@@ -8,29 +8,42 @@ using UnityEngine;
 ///
 /// SETUP DEL PREFAB:
 ///   - Agregá un GameObject hijo llamado "CameraPivot" al prefab del Player
-///   - Agregá un CinemachineCamera como hijo del Player prefab (puede ir dentro de CameraPivot)
+///   - Agregá un CinemachineCamera como hijo del Player prefab
 ///   - Dejá el CinemachineBrain en la Main Camera de la escena (no se toca)
 ///
 /// COMPORTAMIENTO:
-///   - IsOwner  → espera un frame, apunta la CinemachineCamera al CameraPivot y la activa
-///   - !IsOwner → desactiva la CinemachineCamera para no interferir con la cámara local
+///   - IsOwner  → espera a que el NetworkTransform sincronice el spawn point,
+///               luego apunta la CinemachineCamera al CameraPivot y la activa.
+///   - !IsOwner → desactiva la CinemachineCamera para no interferir con la cámara local.
 ///
-/// POR QUÉ EL FRAME DE ESPERA:
-///   OnNetworkSpawn() corre antes de que el NetworkObject termine de posicionarse.
-///   Si configurás el Follow en ese mismo frame, Cinemachine puede leer una posición
-///   incorrecta (0,0,0 o el origen de la escena) y la cámara "vuela" o no arranca.
-///   Esperar un frame garantiza que el transform ya está en el spawn point correcto.
+/// POR QUÉ NO ALCANZA CON 1 FRAME (fix para Relay):
+///   En LAN/host, el NetworkTransform sincroniza la posición de spawn en el mismo
+///   frame que el spawn (misma máquina). 1 frame de espera era suficiente.
+///
+///   En Relay, la posición de spawn viaja como mensaje de red separado con una
+///   latencia de 50–300 ms. En ese tiempo el transform queda en (0, 0, 0) —
+///   dentro del terreno. La cámara se activaba mirando hacia adentro del suelo
+///   → pantalla negra hasta que NetworkTransform por fin sincronizaba y el
+///   jugador saltaba al spawn point real.
+///
+///   La solución: esperar activamente hasta que transform.position sea distinto
+///   del origen, con un timeout de seguridad.
 /// </summary>
 public class PlayerCameraBinder : NetworkBehaviour
 {
     [Tooltip("Si está vacío, se busca automáticamente en los hijos del prefab.")]
     [SerializeField] private CinemachineCamera virtualCamera;
 
+    [Tooltip("Nombre del hijo que usará como Follow/LookAt target.")]
+    [SerializeField] private string cameraPivotName = "CameraPivot";
+
     // Referencia al controlador de input de cámara (mouse look)
     private CinemachineInputAxisController _inputAxisController;
 
-    [Tooltip("Nombre del hijo que usará como Follow/LookAt target.")]
-    [SerializeField] private string cameraPivotName = "CameraPivot";
+    // Posición en la que el prefab fue instanciado ANTES de que NetworkTransform
+    // sincronice el spawn point real. Se usa como centinela: mientras el transform
+    // esté ahí, el sync todavía no llegó.
+    private Vector3 _initialLocalPos;
 
     public override void OnNetworkSpawn()
     {
@@ -53,18 +66,53 @@ public class PlayerCameraBinder : NetworkBehaviour
             return;
         }
 
-        // Jugador local: configurar la cámara en el próximo frame
-        // para que el transform ya esté en el spawn point correcto.
-        StartCoroutine(ActivateCameraNextFrame());
+        // Guardar la posición inicial para detectar cuándo NetworkTransform sincronizó.
+        // En el momento del spawn, el objeto puede estar en (0,0,0) o en el origen
+        // de la escena hasta que el primer paquete de posición llegue del servidor.
+        _initialLocalPos = transform.position;
+
+        StartCoroutine(ActivateCameraWhenReady());
     }
 
-    private IEnumerator ActivateCameraNextFrame()
+    private IEnumerator ActivateCameraWhenReady()
     {
-        // Esperar un frame — en este punto el NetworkObject ya fue posicionado
-        // en el spawn point por ClassAwareNetworkBootstrap.
+        // ── Paso 1: esperar al menos 1 frame para que NGO termine el spawn ────
         yield return null;
 
-        // Buscar el pivot (punto de seguimiento de la cámara)
+        // ── Paso 2 (FIX Relay): esperar hasta que el NetworkTransform haya
+        //    sincronizado la posición de spawn real.
+        //
+        //    En LAN/host: la posición ya es correcta en el frame siguiente (no hay
+        //    latencia de red), el while termina de inmediato.
+        //
+        //    En Relay: el transform arranca en _initialLocalPos (normalmente cerca
+        //    del origen) y el servidor manda la posición correcta como paquete
+        //    separado. Esperamos hasta recibirlo.
+        //
+        //    Timeout de 5 s: si el servidor no manda la posición en ese tiempo
+        //    (conexión muy mala o SpawnPointRegistry en el origen exacto),
+        //    activamos la cámara igual para no bloquear al jugador.
+        if (!IsServer) // Solo los clientes puros tienen este problema
+        {
+            const float kTimeout = 5f;
+            float elapsed = 0f;
+
+            while (Vector3.Distance(transform.position, _initialLocalPos) < 0.05f
+                   && elapsed < kTimeout)
+            {
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            if (elapsed >= kTimeout)
+                Debug.LogWarning("[Camera] Timeout esperando sync de posición de spawn. " +
+                                 "Activando cámara en posición actual. " +
+                                 "Verificá la latencia de Relay y SpawnPointRegistry.");
+            else
+                Debug.Log($"[Camera] Posición sincronizada en {elapsed:F2}s → {transform.position}");
+        }
+
+        // ── Paso 3: configurar y activar la cámara ────────────────────────────
         Transform pivot = transform.Find(cameraPivotName);
         if (pivot == null)
         {
@@ -74,12 +122,10 @@ public class PlayerCameraBinder : NetworkBehaviour
             pivot = transform;
         }
 
-        // Asignar target y activar
         virtualCamera.Follow = pivot;
         virtualCamera.LookAt = pivot;
         virtualCamera.gameObject.SetActive(true);
 
-        // Guardar referencia al InputAxisController para poder pausarlo
         _inputAxisController = virtualCamera.GetComponent<CinemachineInputAxisController>();
 
         Debug.Log($"[Camera] Cámara local activada. Follow → '{pivot.name}' en {pivot.position}");
