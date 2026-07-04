@@ -12617,6 +12617,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: barto
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: a4693d9d76639bb488cf137d512192b7, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -17507,6 +17511,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: a1489dd17ee49504b87d522fa661ea90, type: 3}
       propertyPath: m_Name
       value: SM_Prop_lanza
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: a1489dd17ee49504b87d522fa661ea90, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -34527,6 +34535,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_Prop_Martillo_1
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: c9ad51bd39edddd4f95fbd9f3a1a9656, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -44655,6 +44667,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_Prop_pocion (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 472beb222c24f324594c21c2f5182752, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -47525,6 +47541,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_Prop_FarolaJaponesa
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 8ad0c35c635efbe4ba0215d320797b31, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -49648,7 +49668,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!20 &330585545
 Camera:
   m_ObjectHideFlags: 0
@@ -54403,6 +54423,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_Prop_arco (arma) (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: f368c6199cecc1747a7e3a3009a8eb07, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -58252,6 +58276,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: f368c6199cecc1747a7e3a3009a8eb07, type: 3}
       propertyPath: m_Name
       value: SM_Prop_arco (arma)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: f368c6199cecc1747a7e3a3009a8eb07, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -62785,6 +62813,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 91c44b12f4039fe428b9386d2585d520, type: 3}
       propertyPath: m_Name
       value: SM_Prop_arbol (modelo 3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 91c44b12f4039fe428b9386d2585d520, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -92960,6 +92992,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_Prop_Farol
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: f33fb6a1a90f157478637a22c73467c4, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -114340,6 +114376,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_Prop_pocion (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 11166b6ad3194794182d92886a8c8096, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -114930,6 +114970,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 925c11b0b4975664ca9294fae2bff519, type: 3}
       propertyPath: m_Name
       value: SM_Prop_Escudo
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 925c11b0b4975664ca9294fae2bff519, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -133745,6 +133789,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: bc638d1ee4e61734daa1d6a4b05ccbcc, type: 3}
       propertyPath: m_Name
       value: SM_Prop_EspadaDeJade
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: bc638d1ee4e61734daa1d6a4b05ccbcc, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -159623,6 +159671,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_Prop_baston magico
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 9a55f63b4aac46b4fb732b4edb9130b0, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -171108,6 +171160,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_Prop_hacha
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: b3209c11bfdb739478fcdeadf68f143e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -179351,6 +179407,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: slime blocking
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 9149cd9144a35d34bb2e4ee5790159a9, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -183541,6 +183601,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 3280ccdea4d2e7f478ed18f08d779d30, type: 3}
       propertyPath: m_Name
       value: SM_Prop_arbol (modelo 1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 3280ccdea4d2e7f478ed18f08d779d30, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -199182,6 +199246,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 3280ccdea4d2e7f478ed18f08d779d30, type: 3}
       propertyPath: m_Name
       value: SM_Prop_arbol (modelo 1) (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 3280ccdea4d2e7f478ed18f08d779d30, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -223310,6 +223378,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_Prop_arbol (modelo 2)
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 39d16a2de9f43e3498ad63bcf2c89d1b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -227630,6 +227702,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 3bfad73d4f53f784fb8d5b645a50100a, type: 3}
       propertyPath: m_Name
       value: bartoCOLOR
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 3bfad73d4f53f784fb8d5b645a50100a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -250610,6 +250686,10 @@ PrefabInstance:
     - target: {fileID: 4025430886852021986, guid: 33813192a25747749a7ae3962b7227f0, type: 3}
       propertyPath: m_Name
       value: Pickup_Sword
+      objectReference: {fileID: 0}
+    - target: {fileID: 4025430886852021986, guid: 33813192a25747749a7ae3962b7227f0, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4905232821063410045, guid: 33813192a25747749a7ae3962b7227f0, type: 3}
       propertyPath: GlobalObjectIdHash
@@ -276481,6 +276561,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_Prop_pocion (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 9c4231870f54c5343a8e9d6547e3c81e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -288382,6 +288466,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_Prop_arbol (modelo 2) (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 39d16a2de9f43e3498ad63bcf2c89d1b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -298027,6 +298115,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: fa821146a1ddaf849904e36f8cf28f61, type: 3}
       propertyPath: m_Name
       value: SM_Prop_cuchillo
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: fa821146a1ddaf849904e36f8cf28f61, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -320879,6 +320971,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: bf72ad17c6a2ed54885488909114abce, type: 3}
       propertyPath: m_Name
       value: 'SM_Prop_cesped basico '
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: bf72ad17c6a2ed54885488909114abce, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

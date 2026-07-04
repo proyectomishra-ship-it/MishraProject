@@ -918,6 +918,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponVisualController
   placeholderWeapon: {fileID: 5751389350660997824}
+  visualScaleMultiplier: 55
 --- !u!1 &7443041332243402106
 GameObject:
   m_ObjectHideFlags: 0

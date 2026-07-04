@@ -18,10 +18,6 @@ using UnityEngine;
 ///
 /// NOTA SOBRE JUGADORES REMOTOS:
 ///   El visual SOLO se muestra para el jugador local (IsOwner = true).
-///   OcultarRenderersRemotos() oculta el modelo completo de los otros
-///   jugadores; cuando esa función sea actualizada para mostrar cuerpos,
-///   basta con quitar los dos checks "if (!equipmentController.IsOwner)"
-///   para que todos vean las armas de todos.
 /// </summary>
 public class WeaponVisualController : MonoBehaviour
 {
@@ -29,7 +25,12 @@ public class WeaponVisualController : MonoBehaviour
     [Tooltip("El objeto 'Cube' que ya existe en el prefab, hijo del Capsule.")]
     [SerializeField] private GameObject placeholderWeapon;
 
-    // ── Estado interno ────────────────────────────────────────────────────────
+    [Tooltip("Multiplicador de tamaño del arma visible, además de compensar la " +
+             "escala del Cube. El mesh original suele estar modelado chico " +
+             "(convención típica de packs de props de bajo poly) — subí este " +
+             "número hasta que se vea bien. Podés poner un valor distinto en " +
+             "cada prefab (Warrior/Mage/Hunter) si cada arma necesita su propio tamaño.")]
+    [SerializeField] private float visualScaleMultiplier = 4f;
 
     private EquipmentController equipmentController;
     private MeshRenderer placeholderRenderer;
@@ -39,54 +40,72 @@ public class WeaponVisualController : MonoBehaviour
 
     private void Awake()
     {
-        // Buscar el Cube lo antes posible (fallback si no fue asignado en Inspector)
+        // DIAGNÓSTICO: log incondicional, primera línea del método.
+        // Si esto no aparece en consola, este componente NO está corriendo
+        // en el objeto que estás probando — revisar en el Inspector del
+        // GameObject 'Mage(Clone)'/'Warrior(Clone)' en tiempo de Play si el
+        // componente dice "Missing (Mono Script)" en vez de mostrar sus campos.
+        Debug.Log($"[WeaponVisual] >>> Awake() en '{gameObject.name}'");
+
         if (placeholderWeapon == null)
         {
             Transform found = FindInChildren(transform, "Cube");
             if (found != null)
+            {
                 placeholderWeapon = found.gameObject;
+                Debug.Log($"[WeaponVisual] >>> Cube encontrado por búsqueda automática: '{placeholderWeapon.name}'.");
+            }
             else
-                Debug.LogWarning($"[WeaponVisual] {name}: no se encontró 'Cube'. " +
+            {
+                Debug.LogWarning($"[WeaponVisual] >>> {name}: no se encontró 'Cube'. " +
                                   "Asigná el campo 'Placeholder Weapon' en el Inspector.");
+            }
+        }
+        else
+        {
+            Debug.Log($"[WeaponVisual] >>> placeholderWeapon ya asignado en Inspector: '{placeholderWeapon.name}'.");
         }
 
         if (placeholderWeapon != null)
             placeholderRenderer = placeholderWeapon.GetComponent<MeshRenderer>();
 
-        // Suscribir en Awake: Player es el último en la lista de componentes,
-        // así que Character.Awake() (que inicializa equipmentController) ya corrió.
         equipmentController = GetComponent<EquipmentController>();
         if (equipmentController == null)
         {
-            Debug.LogError($"[WeaponVisual] {name}: falta EquipmentController en el mismo GameObject.");
+            Debug.LogError($"[WeaponVisual] >>> ABORTA en '{name}': falta EquipmentController en este GameObject.");
             return;
         }
 
         equipmentController.OnSlotChanged += HandleSlotChanged;
+        Debug.Log($"[WeaponVisual] >>> Suscripto a OnSlotChanged en '{gameObject.name}'. Awake() completo.");
     }
 
     private IEnumerator Start()
     {
-        // Esperar 2 frames:
-        //   • OnNetworkSpawn de EquipmentController ya corrió (suscripción a NetworkVariable).
-        //   • OnNetworkSpawn de Player ya corrió (EquiparArmaInicial en el servidor,
-        //     OcultarRenderersRemotos para remotos).
-        //   • La NetworkVariable ya tiene el valor inicial propagado.
+        Debug.Log($"[WeaponVisual] >>> Start() INICIO en '{gameObject.name}'. Esperando 2 frames...");
+
         yield return null;
         yield return null;
 
-        if (equipmentController == null) yield break;
+        if (equipmentController == null)
+        {
+            Debug.LogError($"[WeaponVisual] >>> Start() ABORTA en '{gameObject.name}': " +
+                           "equipmentController es null (Awake() no lo encontró).");
+            yield break;
+        }
 
-        // FIX: Solo actualizar el visual para el jugador local.
-        // Para remotos, OcultarRenderersRemotos() oculta todo el modelo.
-        // Sin este check, SetCubeMeshVisible(true) re-habilitaría el renderer
-        // del Cube después de que OcultarRenderersRemotos lo deshabilitó,
-        // dejando el arma flotando en el aire sin cuerpo.
-        if (!equipmentController.IsOwner) yield break;
+        Debug.Log($"[WeaponVisual] >>> Start() en '{gameObject.name}': IsOwner = {equipmentController.IsOwner}");
+
+        if (!equipmentController.IsOwner)
+        {
+            Debug.Log($"[WeaponVisual] >>> Start() ABORTA en '{gameObject.name}': " +
+                      "no es el jugador local (IsOwner = false).");
+            yield break;
+        }
 
         var weapon = equipmentController.GetEquippedWeapon();
 
-        Debug.Log($"[WeaponVisual] {name} — refresh inicial: " +
+        Debug.Log($"[WeaponVisual] >>> {name} — refresh inicial: " +
                   $"arma = '{weapon?.ItemName ?? "ninguna"}'");
 
         RefreshWeaponVisual(weapon);
@@ -105,13 +124,20 @@ public class WeaponVisualController : MonoBehaviour
 
     private void HandleSlotChanged(EquipmentSlot slot, IEquippable item)
     {
-        if (slot != EquipmentSlot.Weapon) return;
+        Debug.Log($"[WeaponVisual] >>> HandleSlotChanged() en '{gameObject.name}': " +
+                  $"slot={slot}, item='{(item as ItemData)?.ItemName ?? "null"}'");
 
-        // FIX: misma razón que Start() — evitar el arma flotante en remotos.
-        // HandleSlotChanged se llama en TODOS los clientes cuando la NetworkVariable
-        // cambia. Sin este check, el Cube del jugador remoto se activaría
-        // sobreescribiendo lo que hizo OcultarRenderersRemotos().
-        if (!equipmentController.IsOwner) return;
+        if (slot != EquipmentSlot.Weapon)
+        {
+            Debug.Log($"[WeaponVisual] >>> Ignorado: slot '{slot}' no es Weapon.");
+            return;
+        }
+
+        if (!equipmentController.IsOwner)
+        {
+            Debug.Log($"[WeaponVisual] >>> ABORTA en '{gameObject.name}': IsOwner = false.");
+            return;
+        }
 
         Debug.Log($"[WeaponVisual] {name} — OnSlotChanged: " +
                   $"arma = '{(item as WeaponData)?.ItemName ?? "ninguna"}'");
@@ -123,48 +149,70 @@ public class WeaponVisualController : MonoBehaviour
 
     private void RefreshWeaponVisual(WeaponData weapon)
     {
-        // Destruir prefab real anterior
+        Debug.Log($"[WeaponVisual] >>> RefreshWeaponVisual('{weapon?.ItemName ?? "null"}') en '{gameObject.name}'. " +
+                  $"placeholderWeapon = {(placeholderWeapon != null ? placeholderWeapon.name : "NULL")}");
+
         if (spawnedVisual != null)
         {
             Destroy(spawnedVisual);
             spawnedVisual = null;
         }
 
-        // Sin arma → ocultar todo
         if (weapon == null)
         {
             SetCubeActive(false);
             return;
         }
 
-        // Hay arma → activar el Cube (como socket o como placeholder)
+        if (placeholderWeapon == null)
+        {
+            Debug.LogError($"[WeaponVisual] >>> ABORTA en '{gameObject.name}': placeholderWeapon es NULL. " +
+                           "No hay Cube asignado donde instanciar el arma.");
+            return;
+        }
+
         SetCubeActive(true);
 
         if (weapon.WeaponVisualPrefab != null)
         {
-            // Prefab real: ocultar el mesh del Cube, instanciar el modelo
             SetCubeMeshVisible(false);
 
             spawnedVisual = Instantiate(
                 weapon.WeaponVisualPrefab,
                 placeholderWeapon.transform);
 
-            // Posición/rotación cero → queda exactamente donde está el Cube
             spawnedVisual.transform.SetLocalPositionAndRotation(
                 Vector3.zero,
                 Quaternion.identity);
 
-            spawnedVisual.transform.localScale = Vector3.one;
+            // FIX: localScale = Vector3.one significaba escala MUNDIAL = escala
+            // del Cube padre (en Warrior/Mage: ~0.33-0.55, un valor que quedó de
+            // cuando el Cube se usaba con otro propósito, no pensado para esto).
+            // Resultado: el arma nacía a un tercio de su tamaño real.
+            //
+            // Se compensa la escala del padre para que el arma nazca SIEMPRE a
+            // su tamaño natural (escala mundial 1,1,1), sin importar qué escala
+            // tenga el Cube — funciona igual aunque el Cube cambie de escala
+            // más adelante (por ejemplo al ajustar la animación).
+            Vector3 parentLossyScale = placeholderWeapon.transform.lossyScale;
+            spawnedVisual.transform.localScale = new Vector3(
+                (parentLossyScale.x != 0f ? 1f / parentLossyScale.x : 1f) * visualScaleMultiplier,
+                (parentLossyScale.y != 0f ? 1f / parentLossyScale.y : 1f) * visualScaleMultiplier,
+                (parentLossyScale.z != 0f ? 1f / parentLossyScale.z : 1f) * visualScaleMultiplier
+            );
 
-            Debug.Log($"[WeaponVisual] Prefab '{weapon.WeaponVisualPrefab.name}' instanciado " +
-                       $"como hijo del Cube para '{weapon.ItemName}'");
+            Debug.Log($"[WeaponVisual] >>> Prefab '{weapon.WeaponVisualPrefab.name}' instanciado " +
+                      $"como hijo de '{placeholderWeapon.name}' para '{weapon.ItemName}'. " +
+                      $"Escala del Cube padre: {parentLossyScale}, multiplicador: {visualScaleMultiplier} " +
+                      $"→ localScale final: {spawnedVisual.transform.localScale}. " +
+                      $"Posición mundial resultante: {spawnedVisual.transform.position}, " +
+                      $"activeInHierarchy = {spawnedVisual.activeInHierarchy}");
         }
         else
         {
-            // Sin prefab real → mostrar el Cube placeholder
             SetCubeMeshVisible(true);
-
-            Debug.Log($"[WeaponVisual] Cube placeholder activo para '{weapon.ItemName}'");
+            Debug.Log($"[WeaponVisual] >>> Cube placeholder activo para '{weapon.ItemName}' " +
+                      "(sin WeaponVisualPrefab asignado).");
         }
     }
 
@@ -172,14 +220,30 @@ public class WeaponVisualController : MonoBehaviour
 
     private void SetCubeActive(bool active)
     {
-        if (placeholderWeapon != null)
-            placeholderWeapon.SetActive(active);
+        if (placeholderWeapon == null)
+        {
+            Debug.LogError($"[WeaponVisual] >>> SetCubeActive({active}) ABORTA: placeholderWeapon es NULL.");
+            return;
+        }
+
+        placeholderWeapon.SetActive(active);
+
+        // DIAGNÓSTICO: activeSelf puede ser true mientras activeInHierarchy es false
+        // si algún padre en la cadena (Capsule, root, etc.) está desactivado.
+        // SetActive(true) no falla ni avisa en ese caso — el objeto queda
+        // técnicamente "activo" pero invisible igual.
+        Debug.Log($"[WeaponVisual] >>> SetCubeActive({active}) en '{placeholderWeapon.name}'. " +
+                  $"activeSelf = {placeholderWeapon.activeSelf}, " +
+                  $"activeInHierarchy = {placeholderWeapon.activeInHierarchy}");
     }
 
     private void SetCubeMeshVisible(bool visible)
     {
         if (placeholderRenderer != null)
             placeholderRenderer.enabled = visible;
+        else
+            Debug.LogWarning($"[WeaponVisual] >>> placeholderRenderer es NULL en '{name}' " +
+                             "(el Cube no tiene MeshRenderer directo — normal si solo se usa como socket).");
     }
 
     private static Transform FindInChildren(Transform parent, string targetName)

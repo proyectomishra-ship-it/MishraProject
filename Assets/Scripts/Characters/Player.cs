@@ -90,13 +90,69 @@ public class Player : Character
 
     private void EquiparArmaInicial()
     {
-        if (classData == null || classData.StartingWeapon == null) return;
-        if (equipmentController == null) return;
-        if (equipmentController.IsOccupied(EquipmentSlot.Weapon)) return;
+        // DIAGNÓSTICO: log incondicional, ANTES de cualquier guard clause.
+        // Si esto no aparece en la consola, EquiparArmaInicial() ni siquiera
+        // se está llamando (revisar que este archivo se haya recompilado:
+        // buscar errores de compilación en la consola — ícono rojo abajo
+        // a la derecha del Editor — ya que un error en CUALQUIER script del
+        // proyecto bloquea la recompilación de TODOS, y Unity sigue corriendo
+        // en silencio la última versión compilada con éxito).
+        Debug.Log($"[Player] >>> EquiparArmaInicial() INICIO — GameObject: '{gameObject.name}'");
+
+        if (classData == null)
+        {
+            Debug.LogError($"[Player] >>> ABORTA en '{gameObject.name}': " +
+                           "el campo 'Class Data' está vacío en el Inspector del prefab.");
+            return;
+        }
+
+        if (classData.StartingWeapon == null)
+        {
+            Debug.LogError($"[Player] >>> ABORTA en '{gameObject.name}': " +
+                           $"classData ('{classData.name}') no tiene 'Starting Weapon' asignado.");
+            return;
+        }
+
+        if (equipmentController == null)
+        {
+            Debug.LogError($"[Player] >>> ABORTA en '{gameObject.name}': " +
+                           "equipmentController es null (falta el componente EquipmentController " +
+                           "en este GameObject, o Character.Awake() no corrió antes que esto).");
+            return;
+        }
+
+        if (equipmentController.IsOccupied(EquipmentSlot.Weapon))
+        {
+            Debug.LogWarning($"[Player] >>> ABORTA en '{gameObject.name}': " +
+                             "el slot de arma ya estaba ocupado (¿EquiparArmaInicial se llamó dos veces?).");
+            return;
+        }
+
+        Debug.Log($"[Player] >>> classData='{classData.name}' → arma='{classData.StartingWeapon.ItemName}'. " +
+                  "Agregando al inventario y equipando...");
+
+        // FIX: antes esto solo llamaba a Equip(), que actualiza el slot de
+        // equipamiento pero nunca toca el InventoryController. Resultado:
+        // el arma se veía en la mano pero no existía como item en el
+        // inventario, y si el jugador la desequipaba, desaparecía por
+        // completo en vez de volver a la mochila (nunca estuvo ahí).
+        //
+        // Se agrega primero al inventario (igual que cualquier otro item
+        // adquirido) y luego se equipa — mismo orden conceptual que usaría
+        // un pickup normal seguido de un equip manual desde la UI.
+        bool added = inventoryController != null &&
+                     inventoryController.AddItem(classData.StartingWeapon, 1);
+
+        if (!added)
+            Debug.LogWarning($"[Player] >>> No se pudo agregar '{classData.StartingWeapon.ItemName}' " +
+                             "al inventario (inventoryController null, o inventario lleno). " +
+                             "Se equipará igual, pero no aparecerá en la mochila.");
+        else
+            Debug.Log($"[Player] >>> '{classData.StartingWeapon.ItemName}' agregado al inventario OK.");
 
         bool ok = equipmentController.Equip(classData.StartingWeapon);
-        Debug.Log($"[Player] Arma inicial '{classData.StartingWeapon.ItemName}': " +
-                  $"{(ok ? "equipada" : "falló — verificar ItemDatabase")}");
+        Debug.Log($"[Player] >>> Arma inicial '{classData.StartingWeapon.ItemName}': " +
+                  $"{(ok ? "equipada OK" : "FALLÓ — verificar ItemDatabase.Instance")}");
     }
 
     private IEnumerator InitializeWhenReady()
