@@ -4,13 +4,20 @@ using Unity.Netcode;
 
 public class Enemy : Character
 {
+    [Header("Enemy")]
     [SerializeField] private int experienceReward = 50;
     [SerializeField] private float classMultiplier = 1f;
+
+    [Header("Quest")]
+    [Tooltip("Unique ID used by the quest system to identify this enemy type.")]
+    [SerializeField] private string enemyTypeID;
 
     private EnemyAIController aiController;
     private EnemyGroupMember groupMember;
 
     protected CombatController combatController;
+
+    private bool deathProcessed;
 
     public event Action<Enemy> OnEnemyDeath;
 
@@ -21,21 +28,27 @@ public class Enemy : Character
         combatController = GetComponent<CombatController>();
 
         if (combatController == null)
-            Debug.LogError($"[Enemy] Falta CombatController");
+            Debug.LogError(
+                "[Enemy] Falta CombatController",
+                this);
 
         combatController?.Initialize(this);
 
         aiController = GetComponent<EnemyAIController>();
 
         if (aiController == null)
-            Debug.LogError($"[Enemy] Falta EnemyAIController");
+            Debug.LogError(
+                "[Enemy] Falta EnemyAIController",
+                this);
 
         aiController?.Initialize(this);
 
         groupMember = GetComponent<EnemyGroupMember>();
 
         if (groupMember == null)
-            Debug.LogError($"[Enemy] Falta EnemyGroupMember");
+            Debug.LogError(
+                "[Enemy] Falta EnemyGroupMember",
+                this);
     }
 
     // =========================
@@ -77,7 +90,8 @@ public class Enemy : Character
 
     private void DistributeExperience()
     {
-        if (!IsServer) return;
+        if (!IsServer)
+            return;
 
         var contributors = damageReceiver.GetDamageContributors();
 
@@ -86,13 +100,15 @@ public class Enemy : Character
         foreach (var entry in contributors)
             totalDamage += entry.Value;
 
-        if (totalDamage <= 0f) return;
+        if (totalDamage <= 0f)
+            return;
 
         foreach (var entry in contributors)
         {
             if (entry.Key is Player player)
             {
-                float damageShare = entry.Value / totalDamage;
+                float damageShare =
+                    entry.Value / totalDamage;
 
                 int baseXP =
                     GetExperienceReward(player.GetLevel());
@@ -109,6 +125,42 @@ public class Enemy : Character
     }
 
     // =========================
+    // QUESTS
+    // =========================
+
+    private void ReportQuestKill()
+    {
+        if (!IsServer)
+            return;
+
+        if (string.IsNullOrWhiteSpace(enemyTypeID))
+        {
+            Debug.LogWarning(
+                $"[Enemy] {name} no tiene Enemy Type ID configurado. " +
+                "No se reportará la muerte al sistema de misiones.",
+                this);
+
+            return;
+        }
+
+        if (NetworkQuestManager.Instance == null)
+        {
+            Debug.LogWarning(
+                $"[Enemy] NetworkQuestManager no encontrado. " +
+                $"No se reportará la muerte de {name}.",
+                this);
+
+            return;
+        }
+
+        NetworkQuestManager.Instance.ReportEnemyKilled(
+            enemyTypeID);
+
+        Debug.Log(
+            $"[Enemy] Quest kill reportado: {enemyTypeID}");
+    }
+
+    // =========================
     // DEATH
     // =========================
 
@@ -120,16 +172,54 @@ public class Enemy : Character
             return;
         }
 
+        if (deathProcessed)
+        {
+            Debug.LogWarning(
+                $"[Enemy] Die() llamado nuevamente para {name}. " +
+                "La muerte ya fue procesada.",
+                this);
+
+            return;
+        }
+
+        deathProcessed = true;
+
         Debug.Log($"[Enemy] Die -> {name}");
+
+        // =========================
+        // GROUP
+        // =========================
 
         groupMember?.NotifyDeath();
 
+        // =========================
+        // XP
+        // =========================
+
         DistributeExperience();
+
+        // =========================
+        // DROPS
+        // =========================
 
         GetComponent<DropController>()
             ?.OnEnemyDied();
 
+        // =========================
+        // QUEST SYSTEM
+        // =========================
+
+        ReportQuestKill();
+
+        // =========================
+        // OTHER SYSTEMS
+        // =========================
+
         OnEnemyDeath?.Invoke(this);
+
+        // =========================
+        // BASE DEATH
+        // =========================
 
         base.Die();
     }
