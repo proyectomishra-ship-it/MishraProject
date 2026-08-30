@@ -84,7 +84,7 @@ public class EnemyGroupMember : NetworkBehaviour
         {
             DemiGodAIController => EnemyRole.Leader,
             OrcAIController => EnemyRole.Tank,
-            OrcArcherAIController or AcolyteAIController => EnemyRole.Ranged,
+            SlimeAIController or AcolyteAIController => EnemyRole.Ranged,
             GoblinAIController => EnemyRole.Flanker,
             _ => EnemyRole.Unassigned
         };

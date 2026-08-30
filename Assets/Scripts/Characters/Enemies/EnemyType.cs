@@ -2,7 +2,7 @@ public enum EnemyType
 {
     Goblin,
     Orc,
-    OrcArcher,
+    Slime,
     Acolyte,
     Demigod,
 }

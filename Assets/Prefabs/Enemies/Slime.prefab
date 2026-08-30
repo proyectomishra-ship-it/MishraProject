@@ -173,7 +173,7 @@ GameObject:
   - component: {fileID: -2547478260151408326}
   - component: {fileID: -3368698729655879383}
   m_Layer: 6
-  m_Name: OrcArcher
+  m_Name: Slime
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -207,7 +207,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 4124542001
+  GlobalObjectIdHash: 3556515244
   InScenePlacedSourceGlobalObjectIdHash: 4124542001
   DeferredDespawnTick: 0
   Ownership: 1
