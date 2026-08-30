@@ -11,10 +11,15 @@ public class Player : Character
 
     private PlayerInputController inputController;
     private MovementController movementController;
-
     private PlayerCombatController playerCombatController;
 
+    private GoldController goldController;
+
     private InventoryUI inventoryUI;
+
+    // =====================================================
+    // LIFECYCLE
+    // =====================================================
 
     protected override void Awake()
     {
@@ -23,6 +28,10 @@ public class Player : Character
         inputController = GetComponent<PlayerInputController>();
         movementController = GetComponent<MovementController>();
         playerCombatController = GetComponent<PlayerCombatController>();
+        goldController = GetComponent<GoldController>();
+
+        if (goldController == null)
+            Debug.LogError("[Player] Falta GoldController");
 
         if (inputController == null)
             Debug.LogError("[Player] Falta PlayerInputController");
@@ -43,23 +52,31 @@ public class Player : Character
 
         if (IsServer)
         {
-            // FIX: cualquier excepción acá (ej: ItemDatabase mal inicializado)
-            // antes terminaba OnNetworkSpawn() por completo, salteando todo lo de abajo
-            // (HUD, inventario, input). Ahora queda contenida a este método.
+            // =================================================
+            // ARMA INICIAL
+            // =================================================
+
+            // Cualquier excepción acá (ej: ItemDatabase mal inicializado)
+            // queda contenida para evitar que OnNetworkSpawn()
+            // termine prematuramente y saltee la inicialización
+            // del HUD, inventario, input, etc.
             try
             {
                 EquiparArmaInicial();
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"[Player] EquiparArmaInicial falló: {e.Message}\n{e.StackTrace}");
+                Debug.LogError(
+                    $"[Player] EquiparArmaInicial falló: " +
+                    $"{e.Message}\n{e.StackTrace}"
+                );
             }
         }
 
         if (!IsOwner)
         {
-            // Jugador remoto: ocultar todos los renderers (Skinned, Mesh, etc.)
-            // para que no aparezcan en la cámara del jugador local.
+            // Jugador remoto:
+            // ocultar todos sus renderers en este cliente.
             OcultarRenderersRemotos();
             return;
         }
@@ -70,18 +87,86 @@ public class Player : Character
 
         if (statsSync == null)
         {
-            Debug.LogError("[Player] Falta CharacterStatsSyncController");
+            Debug.LogError(
+                "[Player] Falta CharacterStatsSyncController"
+            );
+
             return;
         }
 
         inventoryUI = FindFirstObjectByType<InventoryUI>();
 
         if (inventoryUI == null)
-            Debug.LogWarning("[Player] No se encontro InventoryUI");
+            Debug.LogWarning(
+                "[Player] No se encontro InventoryUI"
+            );
 
         // Inicializar HUD e inventario en coroutine para evitar
-        // problemas de timing al cargar la escena
+        // problemas de timing al cargar la escena.
         StartCoroutine(InitializeWhenReady());
+    }
+
+    // =====================================================
+    // GOLD
+    // =====================================================
+
+    /// <summary>
+    /// Cantidad actual de oro del jugador.
+    /// El valor real es mantenido por GoldController.
+    /// </summary>
+    public int GetGold()
+    {
+        return goldController != null
+            ? goldController.Gold
+            : 0;
+    }
+
+    /// <summary>
+    /// Agrega oro al jugador.
+    /// GoldController verifica que la operación se ejecute
+    /// en el servidor.
+    /// </summary>
+    public bool AddGold(int amount)
+    {
+        if (goldController == null)
+        {
+            Debug.LogError(
+                $"[Player] No se puede agregar oro a {name}: " +
+                "GoldController es null."
+            );
+
+            return false;
+        }
+
+        return goldController.AddGold(amount);
+    }
+
+    /// <summary>
+    /// Intenta quitar oro del jugador.
+    /// Devuelve false si no tiene suficiente.
+    /// </summary>
+    public bool RemoveGold(int amount)
+    {
+        if (goldController == null)
+        {
+            Debug.LogError(
+                $"[Player] No se puede quitar oro a {name}: " +
+                "GoldController es null."
+            );
+
+            return false;
+        }
+
+        return goldController.RemoveGold(amount);
+    }
+
+    /// <summary>
+    /// Comprueba si el jugador posee determinada cantidad de oro.
+    /// </summary>
+    public bool HasGold(int amount)
+    {
+        return goldController != null &&
+               goldController.HasGold(amount);
     }
 
     // =====================================================
@@ -90,130 +175,186 @@ public class Player : Character
 
     private void EquiparArmaInicial()
     {
-        // DIAGNÓSTICO: log incondicional, ANTES de cualquier guard clause.
-        // Si esto no aparece en la consola, EquiparArmaInicial() ni siquiera
-        // se está llamando (revisar que este archivo se haya recompilado:
-        // buscar errores de compilación en la consola — ícono rojo abajo
-        // a la derecha del Editor — ya que un error en CUALQUIER script del
-        // proyecto bloquea la recompilación de TODOS, y Unity sigue corriendo
-        // en silencio la última versión compilada con éxito).
-        Debug.Log($"[Player] >>> EquiparArmaInicial() INICIO — GameObject: '{gameObject.name}'");
+        Debug.Log(
+            $"[Player] >>> EquiparArmaInicial() INICIO — " +
+            $"GameObject: '{gameObject.name}'"
+        );
 
         if (classData == null)
         {
-            Debug.LogError($"[Player] >>> ABORTA en '{gameObject.name}': " +
-                           "el campo 'Class Data' está vacío en el Inspector del prefab.");
+            Debug.LogError(
+                $"[Player] >>> ABORTA en '{gameObject.name}': " +
+                "el campo 'Class Data' está vacío en el Inspector " +
+                "del prefab."
+            );
+
             return;
         }
 
         if (classData.StartingWeapon == null)
         {
-            Debug.LogError($"[Player] >>> ABORTA en '{gameObject.name}': " +
-                           $"classData ('{classData.name}') no tiene 'Starting Weapon' asignado.");
+            Debug.LogError(
+                $"[Player] >>> ABORTA en '{gameObject.name}': " +
+                $"classData ('{classData.name}') no tiene " +
+                "'Starting Weapon' asignado."
+            );
+
             return;
         }
 
         if (equipmentController == null)
         {
-            Debug.LogError($"[Player] >>> ABORTA en '{gameObject.name}': " +
-                           "equipmentController es null (falta el componente EquipmentController " +
-                           "en este GameObject, o Character.Awake() no corrió antes que esto).");
+            Debug.LogError(
+                $"[Player] >>> ABORTA en '{gameObject.name}': " +
+                "equipmentController es null (falta el componente " +
+                "EquipmentController en este GameObject, o " +
+                "Character.Awake() no corrió antes que esto)."
+            );
+
             return;
         }
 
         if (equipmentController.IsOccupied(EquipmentSlot.Weapon))
         {
-            Debug.LogWarning($"[Player] >>> ABORTA en '{gameObject.name}': " +
-                             "el slot de arma ya estaba ocupado (¿EquiparArmaInicial se llamó dos veces?).");
+            Debug.LogWarning(
+                $"[Player] >>> ABORTA en '{gameObject.name}': " +
+                "el slot de arma ya estaba ocupado " +
+                "(¿EquiparArmaInicial se llamó dos veces?)."
+            );
+
             return;
         }
 
-        Debug.Log($"[Player] >>> classData='{classData.name}' → arma='{classData.StartingWeapon.ItemName}'. " +
-                  "Agregando al inventario y equipando...");
+        Debug.Log(
+            $"[Player] >>> classData='{classData.name}' → " +
+            $"arma='{classData.StartingWeapon.ItemName}'. " +
+            "Agregando al inventario y equipando..."
+        );
 
-        // FIX: antes esto solo llamaba a Equip(), que actualiza el slot de
-        // equipamiento pero nunca toca el InventoryController. Resultado:
-        // el arma se veía en la mano pero no existía como item en el
-        // inventario, y si el jugador la desequipaba, desaparecía por
-        // completo en vez de volver a la mochila (nunca estuvo ahí).
-        //
-        // Se agrega primero al inventario (igual que cualquier otro item
-        // adquirido) y luego se equipa — mismo orden conceptual que usaría
-        // un pickup normal seguido de un equip manual desde la UI.
-        bool added = inventoryController != null &&
-                     inventoryController.AddItem(classData.StartingWeapon, 1);
+        // Agregar primero al inventario para que el arma exista
+        // realmente como item y pueda regresar al inventario
+        // cuando sea desequipada.
+        bool added =
+            inventoryController != null &&
+            inventoryController.AddItem(
+                classData.StartingWeapon,
+                1
+            );
 
         if (!added)
-            Debug.LogWarning($"[Player] >>> No se pudo agregar '{classData.StartingWeapon.ItemName}' " +
-                             "al inventario (inventoryController null, o inventario lleno). " +
-                             "Se equipará igual, pero no aparecerá en la mochila.");
+        {
+            Debug.LogWarning(
+                $"[Player] >>> No se pudo agregar " +
+                $"'{classData.StartingWeapon.ItemName}' al inventario " +
+                "(inventoryController null, o inventario lleno). " +
+                "Se equipará igual, pero no aparecerá en la mochila."
+            );
+        }
         else
-            Debug.Log($"[Player] >>> '{classData.StartingWeapon.ItemName}' agregado al inventario OK.");
+        {
+            Debug.Log(
+                $"[Player] >>> " +
+                $"'{classData.StartingWeapon.ItemName}' " +
+                "agregado al inventario OK."
+            );
+        }
 
-        bool ok = equipmentController.Equip(classData.StartingWeapon);
-        Debug.Log($"[Player] >>> Arma inicial '{classData.StartingWeapon.ItemName}': " +
-                  $"{(ok ? "equipada OK" : "FALLÓ — verificar ItemDatabase.Instance")}");
+        bool ok =
+            equipmentController.Equip(
+                classData.StartingWeapon
+            );
+
+        Debug.Log(
+            $"[Player] >>> Arma inicial " +
+            $"'{classData.StartingWeapon.ItemName}': " +
+            $"{(ok ? "equipada OK" : "FALLÓ — verificar ItemDatabase.Instance")}"
+        );
     }
+
+    // =====================================================
+    // INITIALIZATION
+    // =====================================================
 
     private IEnumerator InitializeWhenReady()
     {
-        // FIX BUG 1: WaitUntil con timeout para evitar bloqueo indefinido.
-        // Si CharacterData.MaxHealth es 0 o el juego corre sin networking,
-        // NetMaxHealth.Value nunca supera 0 y la coroutine quedaba bloqueada,
-        // impidiendo que el inventario se inicializara.
+        // Esperar a que las estadísticas hayan sido sincronizadas.
+        // Timeout para evitar bloqueo indefinido.
         float timeout = 10f;
         float elapsed = 0f;
-        while (statsSync.NetMaxHealth.Value <= 0 && elapsed < timeout)
+
+        while (
+            statsSync.NetMaxHealth.Value <= 0 &&
+            elapsed < timeout)
         {
             elapsed += Time.deltaTime;
             yield return null;
         }
 
         if (statsSync.NetMaxHealth.Value <= 0)
-            Debug.LogWarning("[Player] NetMaxHealth nunca superó 0 tras 10s. " +
-                             "Verificá que CharacterData.MaxHealth > 0 y que haya un host/client activo.");
+        {
+            Debug.LogWarning(
+                "[Player] NetMaxHealth nunca superó 0 tras 10s. " +
+                "Verificá que CharacterData.MaxHealth > 0 y que " +
+                "haya un host/client activo."
+            );
+        }
 
-        // Buscar HUD con reintentos por si la escena aún está cargando
+        // Buscar HUD con reintentos por si la escena todavía está cargando.
         float hudTimeout = 5f;
         float hudElapsed = 0f;
+
         while (hud == null && hudElapsed < hudTimeout)
         {
             hud = FindFirstObjectByType<PlayerHUD>();
+
             hudElapsed += Time.deltaTime;
+
             yield return null;
         }
 
         if (hud == null)
         {
-            Debug.LogError("[Player] PlayerHUD no encontrado después de esperar.");
+            Debug.LogError(
+                "[Player] PlayerHUD no encontrado después de esperar."
+            );
         }
         else
         {
             hud.Initialize(statsSync);
         }
 
-        // Esperar un frame extra para que el transform esté en posición final
+        // Esperar un frame extra para que el transform
+        // esté en su posición final.
         yield return null;
 
-        // Inicializar el inventario después para que la cámara de preview
-        // reciba el transform ya posicionado correctamente
+        // Inicializar el inventario después para que la cámara
+        // de preview reciba el transform correctamente posicionado.
         if (inventoryUI != null)
         {
             inventoryUI.Initialize(
                 inventoryController,
                 equipmentController,
-                this);
+                this
+            );
         }
     }
 
+    // =====================================================
+    // STATS
+    // =====================================================
+
     protected override CharacterStats CreateStats()
     {
-        return new PlayerStats(characterData, classData);
+        return new PlayerStats(
+            characterData,
+            classData
+        );
     }
 
     public void AddExp(int amount)
     {
-        if (!IsServer) return;
+        if (!IsServer)
+            return;
 
         ((PlayerStats)stats).AddExperience(amount);
     }
@@ -225,28 +366,43 @@ public class Player : Character
 
     public void RequestEquip(int itemId)
     {
-        if (IsOwner) EquipServerRpc(itemId);
+        if (IsOwner)
+            EquipServerRpc(itemId);
     }
 
     public void RequestUnequip(EquipmentSlot slot)
     {
-        if (IsOwner) UnequipServerRpc((int)slot);
+        if (IsOwner)
+            UnequipServerRpc((int)slot);
     }
 
     [ServerRpc]
     private void EquipServerRpc(int itemId)
     {
         var item = ItemDatabase.Instance.Get(itemId);
-        if (item is not IEquippable equippable) return;
+
+        if (item is not IEquippable equippable)
+            return;
+
         bool ok = equipmentController.Equip(equippable);
-        Debug.Log($"[Player] Equipado '{item.ItemName}': {ok}");
+
+        Debug.Log(
+            $"[Player] Equipado '{item.ItemName}': {ok}"
+        );
     }
 
     [ServerRpc]
     private void UnequipServerRpc(int slotIndex)
     {
-        bool ok = equipmentController.Unequip((EquipmentSlot)slotIndex);
-        Debug.Log($"[Player] Desequipado slot {(EquipmentSlot)slotIndex}: {ok}");
+        bool ok =
+            equipmentController.Unequip(
+                (EquipmentSlot)slotIndex
+            );
+
+        Debug.Log(
+            $"[Player] Desequipado slot " +
+            $"{(EquipmentSlot)slotIndex}: {ok}"
+        );
     }
 
     // =====================================================
@@ -258,7 +414,10 @@ public class Player : Character
         Quaternion rotation)
     {
         if (IsOwner)
-            MoveServerRpc(worldDirection, rotation);
+            MoveServerRpc(
+                worldDirection,
+                rotation
+            );
     }
 
     public void Run(
@@ -266,7 +425,10 @@ public class Player : Character
         Quaternion rotation)
     {
         if (IsOwner)
-            RunServerRpc(worldDirection, rotation);
+            RunServerRpc(
+                worldDirection,
+                rotation
+            );
     }
 
     public void Stop()
@@ -276,8 +438,8 @@ public class Player : Character
     }
 
     /// <summary>
-    /// Bloquea o desbloquea el input del jugador (movimiento y ataque).
-    /// Llamar al abrir/cerrar el inventario.
+    /// Bloquea o desbloquea el input del jugador
+    /// (movimiento y ataque).
     /// </summary>
     public void SetInputBlocked(bool blocked)
     {
@@ -304,7 +466,8 @@ public class Player : Character
     {
         movementController?.Move(
             worldDirection,
-            rotation);
+            rotation
+        );
     }
 
     [ServerRpc]
@@ -314,7 +477,8 @@ public class Player : Character
     {
         movementController?.Run(
             worldDirection,
-            rotation);
+            rotation
+        );
     }
 
     [ServerRpc]
@@ -359,13 +523,21 @@ public class Player : Character
     // =====================================================
 
     /// <summary>
-    /// Desactiva todos los Renderer del jugador remoto en este cliente.
+    /// Desactiva todos los Renderer del jugador remoto
+    /// en este cliente.
     /// </summary>
     private void OcultarRenderersRemotos()
     {
-        foreach (Renderer r in GetComponentsInChildren<Renderer>(includeInactive: true))
+        foreach (
+            Renderer r in GetComponentsInChildren<Renderer>(
+                includeInactive: true))
+        {
             r.enabled = false;
+        }
 
-        Debug.Log($"[Player] Renderers ocultos para jugador remoto: {gameObject.name}");
+        Debug.Log(
+            $"[Player] Renderers ocultos para jugador remoto: " +
+            $"{gameObject.name}"
+        );
     }
 }

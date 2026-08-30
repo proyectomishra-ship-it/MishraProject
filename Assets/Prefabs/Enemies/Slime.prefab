@@ -173,7 +173,7 @@ GameObject:
   - component: {fileID: -2547478260151408326}
   - component: {fileID: -3368698729655879383}
   m_Layer: 6
-  m_Name: OrcArcher
+  m_Name: Slime
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -304,6 +304,7 @@ MonoBehaviour:
   characterData: {fileID: 11400000, guid: fe18f72878ce67b4ca5a960261132aeb, type: 2}
   experienceReward: 100
   classMultiplier: 1
+  enemyType: 2
 --- !u!114 &2949089841560888660
 MonoBehaviour:
   m_ObjectHideFlags: 0
