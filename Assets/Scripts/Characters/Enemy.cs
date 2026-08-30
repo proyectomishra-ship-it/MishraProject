@@ -9,8 +9,8 @@ public class Enemy : Character
     [SerializeField] private float classMultiplier = 1f;
 
     [Header("Quest")]
-    [Tooltip("Unique ID used by the quest system to identify this enemy type.")]
-    [SerializeField] private string enemyTypeID;
+    [Tooltip("Tipo de enemigo utilizado por el sistema de misiones.")]
+    [SerializeField] private EnemyType enemyType;
 
     private EnemyAIController aiController;
     private EnemyGroupMember groupMember;
@@ -21,6 +21,16 @@ public class Enemy : Character
 
     public event Action<Enemy> OnEnemyDeath;
 
+    // =========================
+    // PROPERTIES
+    // =========================
+
+    public EnemyType EnemyType => enemyType;
+
+    // =========================
+    // AWAKE
+    // =========================
+
     protected override void Awake()
     {
         base.Awake();
@@ -28,27 +38,33 @@ public class Enemy : Character
         combatController = GetComponent<CombatController>();
 
         if (combatController == null)
+        {
             Debug.LogError(
                 "[Enemy] Falta CombatController",
                 this);
+        }
 
         combatController?.Initialize(this);
 
         aiController = GetComponent<EnemyAIController>();
 
         if (aiController == null)
+        {
             Debug.LogError(
                 "[Enemy] Falta EnemyAIController",
                 this);
+        }
 
         aiController?.Initialize(this);
 
         groupMember = GetComponent<EnemyGroupMember>();
 
         if (groupMember == null)
+        {
             Debug.LogError(
                 "[Enemy] Falta EnemyGroupMember",
                 this);
+        }
     }
 
     // =========================
@@ -98,7 +114,9 @@ public class Enemy : Character
         float totalDamage = 0f;
 
         foreach (var entry in contributors)
+        {
             totalDamage += entry.Value;
+        }
 
         if (totalDamage <= 0f)
             return;
@@ -133,16 +151,6 @@ public class Enemy : Character
         if (!IsServer)
             return;
 
-        if (string.IsNullOrWhiteSpace(enemyTypeID))
-        {
-            Debug.LogWarning(
-                $"[Enemy] {name} no tiene Enemy Type ID configurado. " +
-                "No se reportará la muerte al sistema de misiones.",
-                this);
-
-            return;
-        }
-
         if (NetworkQuestManager.Instance == null)
         {
             Debug.LogWarning(
@@ -154,10 +162,10 @@ public class Enemy : Character
         }
 
         NetworkQuestManager.Instance.ReportEnemyKilled(
-            enemyTypeID);
+            enemyType);
 
         Debug.Log(
-            $"[Enemy] Quest kill reportado: {enemyTypeID}");
+            $"[Enemy] Quest kill reportado: {enemyType}");
     }
 
     // =========================
@@ -184,7 +192,8 @@ public class Enemy : Character
 
         deathProcessed = true;
 
-        Debug.Log($"[Enemy] Die -> {name}");
+        Debug.Log(
+            $"[Enemy] Die -> {name} ({enemyType})");
 
         // =========================
         // GROUP

@@ -7,5 +7,6 @@ using UnityEngine;
 public class KillObjectiveData : QuestObjectiveData
 {
     [Header("Target")]
-    public string enemyTypeID;
+    [Tooltip("Tipo de enemigo que debe ser derrotado.")]
+    public EnemyType enemyType;
 }

@@ -7,7 +7,7 @@ using UnityEngine;
 public class QuestData : ScriptableObject
 {
     [Header("Identification")]
-    [Tooltip("Unique ID used by the networking system.")]
+    [Tooltip("Unique ID used by the quest system.")]
     public string questID;
 
     [Header("Basic Information")]

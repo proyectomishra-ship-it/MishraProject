@@ -13,11 +13,13 @@ public class NetworkQuestManager : NetworkBehaviour
 
     private readonly Dictionary<string, QuestData> questDatabase = new();
 
+    private readonly Dictionary<string, QuestRuntimeState> activeQuests = new();
+
     private NetworkList<NetworkQuestState> networkQuests;
 
-    // =========================================================
-    // LIFECYCLE
-    // =========================================================
+    // =========================
+    // UNITY
+    // =========================
 
     private void Awake()
     {
@@ -31,6 +33,10 @@ public class NetworkQuestManager : NetworkBehaviour
 
         networkQuests = new NetworkList<NetworkQuestState>();
     }
+
+    // =========================
+    // NETWORK SPAWN
+    // =========================
 
     public override void OnNetworkSpawn()
     {
@@ -49,14 +55,16 @@ public class NetworkQuestManager : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
         if (networkQuests != null)
+        {
             networkQuests.OnListChanged -= OnNetworkQuestListChanged;
+        }
 
         base.OnNetworkDespawn();
     }
 
-    // =========================================================
+    // =========================
     // QUEST DATABASE
-    // =========================================================
+    // =========================
 
     private void BuildQuestDatabase()
     {
@@ -65,14 +73,15 @@ public class NetworkQuestManager : NetworkBehaviour
         foreach (QuestData quest in availableQuests)
         {
             if (quest == null)
+            {
                 continue;
+            }
 
             if (string.IsNullOrWhiteSpace(quest.questID))
             {
                 Debug.LogError(
                     $"Quest '{quest.name}' has no Quest ID.",
-                    quest
-                );
+                    quest);
 
                 continue;
             }
@@ -81,19 +90,20 @@ public class NetworkQuestManager : NetworkBehaviour
             {
                 Debug.LogError(
                     $"Duplicate Quest ID detected: {quest.questID}",
-                    quest
-                );
+                    quest);
 
                 continue;
             }
 
-            questDatabase.Add(quest.questID, quest);
+            questDatabase.Add(
+                quest.questID,
+                quest);
         }
     }
 
-    // =========================================================
-    // INITIALIZATION
-    // =========================================================
+    // =========================
+    // INITIALIZE QUESTS
+    // =========================
 
     private void InitializeQuests()
     {
@@ -102,23 +112,30 @@ public class NetworkQuestManager : NetworkBehaviour
         foreach (QuestData quest in availableQuests)
         {
             if (quest == null)
+            {
                 continue;
+            }
 
             QuestState initialState;
 
-            // Por ahora ambas comienzan disponibles.
-            // Más adelante las secundarias podrán ser ofrecidas
-            // por la Guild y las principales podrán depender
-            // de la progresión de la historia.
-            initialState = QuestState.Available;
-
-            NetworkQuestState networkState = new NetworkQuestState
+            if (quest.questType == QuestType.Main)
             {
-                QuestID = quest.questID,
-                State = initialState,
-                Progress = 0,
-                RequiredAmount = GetTotalRequiredAmount(quest)
-            };
+                initialState = QuestState.Available;
+            }
+            else
+            {
+                initialState = QuestState.Available;
+            }
+
+            NetworkQuestState networkState =
+                new NetworkQuestState
+                {
+                    QuestID = quest.questID,
+                    State = initialState,
+                    Progress = 0,
+                    RequiredAmount =
+                        GetTotalRequiredAmount(quest)
+                };
 
             networkQuests.Add(networkState);
         }
@@ -126,15 +143,20 @@ public class NetworkQuestManager : NetworkBehaviour
 
     private int GetTotalRequiredAmount(QuestData quest)
     {
-        if (quest.objectives == null || quest.objectives.Length == 0)
+        if (quest.objectives == null ||
+            quest.objectives.Length == 0)
+        {
             return 0;
+        }
 
         int amount = 0;
 
         foreach (QuestObjectiveData objective in quest.objectives)
         {
             if (objective == null)
+            {
                 continue;
+            }
 
             amount += objective.requiredAmount;
         }
@@ -149,68 +171,75 @@ public class NetworkQuestManager : NetworkBehaviour
     public void RequestAcceptQuest(string questID)
     {
         if (!IsClient)
+        {
             return;
+        }
 
-        AcceptQuestServerRpc(
-            new FixedString128Bytes(questID)
-        );
+        AcceptQuestServerRpc(questID);
     }
 
     [Rpc(
         SendTo.Server,
-        InvokePermission = RpcInvokePermission.Everyone
-    )]
+        InvokePermission = RpcInvokePermission.Everyone)]
     private void AcceptQuestServerRpc(
-        FixedString128Bytes questID)
+        string questID)
     {
-        string id = questID.ToString();
+        if (!IsServer)
+        {
+            return;
+        }
 
-        if (!questDatabase.TryGetValue(id, out QuestData quest))
+        if (!questDatabase.TryGetValue(
+                questID,
+                out QuestData quest))
         {
             Debug.LogWarning(
-                $"Quest '{id}' does not exist."
-            );
+                $"Quest '{questID}' does not exist.");
 
             return;
         }
 
-        int index = FindNetworkQuestIndex(id);
+        int index =
+            FindNetworkQuestIndex(questID);
 
         if (index < 0)
+        {
             return;
+        }
 
-        NetworkQuestState currentState = networkQuests[index];
+        NetworkQuestState currentState =
+            networkQuests[index];
 
         if (currentState.State != QuestState.Available)
         {
             Debug.LogWarning(
-                $"Quest '{id}' cannot be accepted because " +
-                $"its state is {currentState.State}."
-            );
+                $"Quest '{questID}' cannot be accepted " +
+                $"because its state is {currentState.State}.");
 
             return;
         }
 
-        currentState.State = QuestState.Active;
+        currentState.State =
+            QuestState.Active;
 
-        networkQuests[index] = currentState;
+        networkQuests[index] =
+            currentState;
 
         Debug.Log(
-            $"Quest '{quest.questName}' accepted globally."
-        );
+            $"Quest '{quest.questName}' accepted globally.");
     }
 
     // =========================================================
     // KILL OBJECTIVE
     // =========================================================
 
-    public void ReportEnemyKilled(string enemyTypeID)
+    public void ReportEnemyKilled(
+        EnemyType enemyType)
     {
         if (!IsServer)
         {
             Debug.LogWarning(
-                "ReportEnemyKilled must be called on the server."
-            );
+                "ReportEnemyKilled must be called on the server.");
 
             return;
         }
@@ -218,69 +247,87 @@ public class NetworkQuestManager : NetworkBehaviour
         foreach (QuestData quest in availableQuests)
         {
             if (quest == null)
+            {
                 continue;
+            }
 
-            int questIndex = FindNetworkQuestIndex(quest.questID);
+            int questIndex =
+                FindNetworkQuestIndex(
+                    quest.questID);
 
             if (questIndex < 0)
+            {
                 continue;
+            }
 
             NetworkQuestState networkState =
                 networkQuests[questIndex];
 
             if (networkState.State != QuestState.Active)
+            {
                 continue;
-
-            if (quest.objectives == null)
-                continue;
+            }
 
             bool questChanged = false;
 
-            for (int i = 0; i < quest.objectives.Length; i++)
+            if (quest.objectives == null)
+            {
+                continue;
+            }
+
+            for (int i = 0;
+                 i < quest.objectives.Length;
+                 i++)
             {
                 QuestObjectiveData objective =
                     quest.objectives[i];
 
                 if (objective is not KillObjectiveData killObjective)
+                {
                     continue;
+                }
 
-                if (killObjective.enemyTypeID != enemyTypeID)
+                if (killObjective.enemyType != enemyType)
+                {
                     continue;
+                }
 
                 int newProgress =
                     networkState.Progress + 1;
 
-                newProgress = Mathf.Min(
-                    newProgress,
-                    networkState.RequiredAmount
-                );
+                newProgress =
+                    Mathf.Min(
+                        newProgress,
+                        networkState.RequiredAmount);
 
-                networkState.Progress = newProgress;
+                networkState.Progress =
+                    newProgress;
 
                 questChanged = true;
 
                 Debug.Log(
                     $"Quest '{quest.questName}' progress: " +
                     $"{networkState.Progress}/" +
-                    $"{networkState.RequiredAmount}"
-                );
+                    $"{networkState.RequiredAmount}");
 
                 break;
             }
 
             if (!questChanged)
+            {
                 continue;
+            }
 
             if (networkState.Progress >=
                 networkState.RequiredAmount)
             {
                 CompleteQuest(
                     quest,
-                    ref networkState
-                );
+                    ref networkState);
             }
 
-            networkQuests[questIndex] = networkState;
+            networkQuests[questIndex] =
+                networkState;
         }
     }
 
@@ -292,17 +339,18 @@ public class NetworkQuestManager : NetworkBehaviour
         QuestData quest,
         ref NetworkQuestState networkState)
     {
-        networkState.State = QuestState.Completed;
+        networkState.State =
+            QuestState.Completed;
 
         Debug.Log(
-            $"QUEST COMPLETED: {quest.questName}"
-        );
+            $"QUEST COMPLETED: {quest.questName}");
 
         GiveRewardsToAllPlayers(quest);
 
         if (quest.nextQuest != null)
         {
-            ActivateNextQuest(quest.nextQuest);
+            ActivateNextQuest(
+                quest.nextQuest);
         }
     }
 
@@ -314,18 +362,20 @@ public class NetworkQuestManager : NetworkBehaviour
         QuestData quest)
     {
         if (!IsServer)
+        {
             return;
+        }
 
         foreach (
             KeyValuePair<ulong, NetworkClient> clientPair
             in NetworkManager.Singleton.ConnectedClients)
         {
-            ulong clientId = clientPair.Key;
+            ulong clientId =
+                clientPair.Key;
 
             GiveRewardsToPlayer(
                 clientId,
-                quest
-            );
+                quest);
         }
     }
 
@@ -335,16 +385,19 @@ public class NetworkQuestManager : NetworkBehaviour
     {
         Debug.Log(
             $"Giving rewards from '{quest.questName}' " +
-            $"to player {clientId}."
-        );
+            $"to player {clientId}.");
 
         if (quest.rewards == null)
+        {
             return;
+        }
 
         foreach (QuestRewardData reward in quest.rewards)
         {
             if (reward == null)
+            {
                 continue;
+            }
 
             switch (reward.rewardType)
             {
@@ -352,8 +405,7 @@ public class NetworkQuestManager : NetworkBehaviour
 
                     Debug.Log(
                         $"Player {clientId} receives " +
-                        $"{reward.amount} XP."
-                    );
+                        $"{reward.amount} XP.");
 
                     // TODO:
                     // Conectar con Player.AddExp()
@@ -364,11 +416,10 @@ public class NetworkQuestManager : NetworkBehaviour
 
                     Debug.Log(
                         $"Player {clientId} receives " +
-                        $"{reward.amount} Gold."
-                    );
+                        $"{reward.amount} Gold.");
 
                     // TODO:
-                    // Conectar con GoldController.
+                    // Conectar con GoldController
 
                     break;
             }
@@ -383,18 +434,19 @@ public class NetworkQuestManager : NetworkBehaviour
         QuestData nextQuest)
     {
         if (nextQuest == null)
+        {
             return;
+        }
 
-        int index = FindNetworkQuestIndex(
-            nextQuest.questID
-        );
+        int index =
+            FindNetworkQuestIndex(
+                nextQuest.questID);
 
         if (index < 0)
         {
             Debug.LogWarning(
                 $"Next quest '{nextQuest.questID}' " +
-                $"is not registered."
-            );
+                $"is not registered.");
 
             return;
         }
@@ -408,13 +460,15 @@ public class NetworkQuestManager : NetworkBehaviour
             return;
         }
 
-        nextState.State = QuestState.Available;
+        nextState.State =
+            QuestState.Available;
 
-        networkQuests[index] = nextState;
+        networkQuests[index] =
+            nextState;
 
         Debug.Log(
-            $"Next quest available: {nextQuest.questName}"
-        );
+            $"Next quest available: " +
+            $"{nextQuest.questName}");
     }
 
     // =========================================================
@@ -424,9 +478,13 @@ public class NetworkQuestManager : NetworkBehaviour
     private int FindNetworkQuestIndex(
         string questID)
     {
-        for (int i = 0; i < networkQuests.Count; i++)
+        for (int i = 0;
+             i < networkQuests.Count;
+             i++)
         {
-            if (networkQuests[i].QuestID.ToString() == questID)
+            if (networkQuests[i]
+                    .QuestID
+                    .ToString() == questID)
             {
                 return i;
             }
@@ -436,23 +494,25 @@ public class NetworkQuestManager : NetworkBehaviour
     }
 
     private void OnNetworkQuestListChanged(
-        NetworkListEvent<NetworkQuestState> changeEvent)
+        NetworkListEvent<NetworkQuestState>
+            changeEvent)
     {
         NetworkQuestState state;
 
         switch (changeEvent.Type)
         {
-            case NetworkListEvent<NetworkQuestState>.EventType.Add:
+            case NetworkListEvent<NetworkQuestState>
+                .EventType.Add:
 
                 state = changeEvent.Value;
 
                 Debug.Log(
-                    $"Quest added: {state.QuestID}"
-                );
+                    $"Quest added: {state.QuestID}");
 
                 break;
 
-            case NetworkListEvent<NetworkQuestState>.EventType.Value:
+            case NetworkListEvent<NetworkQuestState>
+                .EventType.Value:
 
                 state = changeEvent.Value;
 
@@ -460,34 +520,33 @@ public class NetworkQuestManager : NetworkBehaviour
                     $"Quest updated: {state.QuestID} " +
                     $"[{state.State}] " +
                     $"{state.Progress}/" +
-                    $"{state.RequiredAmount}"
-                );
+                    $"{state.RequiredAmount}");
 
                 break;
 
-            case NetworkListEvent<NetworkQuestState>.EventType.Clear:
+            case NetworkListEvent<NetworkQuestState>
+                .EventType.Clear:
 
                 Debug.Log(
-                    "Quest list cleared."
-                );
+                    "Quest list cleared.");
 
                 break;
 
-            case NetworkListEvent<NetworkQuestState>.EventType.Remove:
+            case NetworkListEvent<NetworkQuestState>
+                .EventType.Remove:
 
                 Debug.Log(
-                    "Quest removed."
-                );
+                    "Quest removed.");
 
                 break;
 
-            case NetworkListEvent<NetworkQuestState>.EventType.Insert:
+            case NetworkListEvent<NetworkQuestState>
+                .EventType.Insert:
 
                 state = changeEvent.Value;
 
                 Debug.Log(
-                    $"Quest inserted: {state.QuestID}"
-                );
+                    $"Quest inserted: {state.QuestID}");
 
                 break;
         }
@@ -501,11 +560,14 @@ public class NetworkQuestManager : NetworkBehaviour
         string questID,
         out NetworkQuestState state)
     {
-        int index = FindNetworkQuestIndex(questID);
+        int index =
+            FindNetworkQuestIndex(questID);
 
         if (index >= 0)
         {
-            state = networkQuests[index];
+            state =
+                networkQuests[index];
+
             return true;
         }
 
@@ -534,17 +596,26 @@ public struct NetworkQuestState :
         BufferSerializer<T> serializer)
         where T : IReaderWriter
     {
-        serializer.SerializeValue(ref QuestID);
-        serializer.SerializeValue(ref State);
-        serializer.SerializeValue(ref Progress);
-        serializer.SerializeValue(ref RequiredAmount);
+        serializer.SerializeValue(
+            ref QuestID);
+
+        serializer.SerializeValue(
+            ref State);
+
+        serializer.SerializeValue(
+            ref Progress);
+
+        serializer.SerializeValue(
+            ref RequiredAmount);
     }
 
-    public bool Equals(NetworkQuestState other)
+    public bool Equals(
+        NetworkQuestState other)
     {
-        return QuestID.Equals(other.QuestID) &&
-               State == other.State &&
-               Progress == other.Progress &&
-               RequiredAmount == other.RequiredAmount;
+        return
+            QuestID.Equals(other.QuestID) &&
+            State == other.State &&
+            Progress == other.Progress &&
+            RequiredAmount == other.RequiredAmount;
     }
 }
