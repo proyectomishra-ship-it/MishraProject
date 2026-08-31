@@ -31,22 +31,41 @@ public class InventoryStore : IInventory
         return true;
     }
 
+    /// <summary>
+    /// FIX: antes solo miraba el primer slot que contuviera el item y
+    /// fallaba si ESE slot no alcanzaba, aun cuando el total en el
+    /// inventario sí era suficiente (típico con materiales de crafteo
+    /// repartidos en varios stacks tras varios pickups). Ahora suma across
+    /// slots, igual que ya hacían GetQuantity/HasItem. Todo o nada: si el
+    /// total no alcanza, no se toca ningún slot.
+    /// </summary>
     public bool RemoveItem(ItemData item, int amount = 1)
     {
-        for (int i = 0; i < slots.Count; i++)
+        if (item == null || amount <= 0) return false;
+        if (GetQuantity(item) < amount) return false;
+
+        int remaining = amount;
+
+        for (int i = 0; i < slots.Count && remaining > 0; i++)
         {
             if (slots[i].item != item) continue;
-            if (slots[i].quantity < amount) return false;
 
-            if (slots[i].quantity == amount)
+            int toRemove = Math.Min(slots[i].quantity, remaining);
+            remaining -= toRemove;
+
+            if (slots[i].quantity == toRemove)
+            {
                 slots.RemoveAt(i);
+                i--; // compensar el corrimiento de índices tras el RemoveAt
+            }
             else
-                slots[i] = (item, slots[i].quantity - amount);
-
-            OnChanged?.Invoke();
-            return true;
+            {
+                slots[i] = (item, slots[i].quantity - toRemove);
+            }
         }
-        return false;
+
+        OnChanged?.Invoke();
+        return true;
     }
 
     public bool HasItem(ItemData item, int amount = 1) => GetQuantity(item) >= amount;

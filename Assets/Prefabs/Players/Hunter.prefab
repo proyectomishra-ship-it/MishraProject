@@ -30,6 +30,7 @@ GameObject:
   - component: {fileID: 1179369870442879496}
   - component: {fileID: 7648748261978975736}
   - component: {fileID: 7338017994978780666}
+  - component: {fileID: 395255024593071542}
   m_Layer: 3
   m_Name: Hunter
   m_TagString: Player
@@ -483,6 +484,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efefdcc655d7de64d8613fe0a01f7fe9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GoldController
+  ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &395255024593071542
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2211492265159698303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5427c064e9e4cf59188aa11e4997cef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CraftingController
   ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &6088325270206399613
 GameObject:

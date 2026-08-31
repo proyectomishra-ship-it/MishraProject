@@ -94255,6 +94255,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkBootstrap
   itemDatabase: {fileID: 11400000, guid: 9aa89c58547ddf349b9af0c0f2e9e646, type: 2}
+  craftingRecipeDatabase: {fileID: 11400000, guid: b2d6e07761d841ba8353cda0b399353b, type: 2}
 --- !u!1 &692224504
 GameObject:
   m_ObjectHideFlags: 0
@@ -228323,6 +228324,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryUI
   inventoryPanel: {fileID: 129766450}
+  itemsTabButton: {fileID: 0}
+  craftingTabButton: {fileID: 0}
+  itemsPageRoot: {fileID: 0}
+  craftingPageRoot: {fileID: 0}
   characterPreview: {fileID: 1482239328}
   equipmentContainer: {fileID: 534774556}
   slotPrefab: {fileID: 1976854554811346813, guid: 3e15182fcd1e30b4399df071fe37c7a4, type: 3}
@@ -228335,6 +228340,21 @@ MonoBehaviour:
   equipButton: {fileID: 1429997701}
   equipButtonText: {fileID: 1945699055}
   detailPanel: {fileID: 1951351348}
+  recipeGridContainer: {fileID: 0}
+  recipeCellPrefab: {fileID: 0}
+  craftingIcon: {fileID: 0}
+  craftingName: {fileID: 0}
+  craftingDescription: {fileID: 0}
+  ingredientListContainer: {fileID: 0}
+  ingredientLinePrefab: {fileID: 0}
+  goldCostText: {fileID: 0}
+  craftButton: {fileID: 0}
+  craftButtonText: {fileID: 0}
+  craftFeedbackText: {fileID: 0}
+  craftingDetailPanel: {fileID: 0}
+  sufficientColor: {r: 1, g: 1, b: 1, a: 1}
+  insufficientColor: {r: 1, g: 0.35, b: 0.35, a: 1}
+  feedbackDuration: 2
   previewCamera: {fileID: 1461453270}
 --- !u!1 &1600208437
 GameObject:

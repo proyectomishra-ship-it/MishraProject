@@ -9,6 +9,7 @@ public class NetworkBootstrap : MonoBehaviour
 {
     [Header("Datos globales")]
     [SerializeField] private ItemDatabase itemDatabase;
+    [SerializeField] private CraftingRecipeDatabase craftingRecipeDatabase;
 
     private void Awake()
     {
@@ -18,6 +19,13 @@ public class NetworkBootstrap : MonoBehaviour
             itemDatabase.Initialize();
         else
             Debug.LogError("[NetBootstrap] ItemDatabase no asignado en el Inspector.");
+
+        // Igual que ItemDatabase: necesitamos CraftingRecipeDatabase.Instance
+        // disponible antes de que cualquier Player reciba un CraftServerRpc.
+        if (craftingRecipeDatabase != null)
+            craftingRecipeDatabase.Initialize();
+        else
+            Debug.LogError("[NetBootstrap] CraftingRecipeDatabase no asignado en el Inspector.");
     }
 
     private void Start()

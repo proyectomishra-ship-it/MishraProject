@@ -56,8 +56,36 @@ public class InventoryController : NetworkBehaviour, IInventory
         return store.RemoveItem(item, amount);
     }
 
-    public bool HasItem(ItemData item, int amount = 1) => store.HasItem(item, amount);
-    public int  GetQuantity(ItemData item)             => store.GetQuantity(item);
+    public bool HasItem(ItemData item, int amount = 1) => GetQuantity(item) >= amount;
 
-    public IReadOnlyList<(ItemData item, int quantity)> GetAll() => store.GetAll();
+    // FIX: store solo se puebla en el servidor (AddItem/RemoveItem están
+    // gateados por IsServer). Un cliente puro necesita leer de la
+    // NetworkList ya sincronizada en vez del store local, que para él
+    // siempre está vacío. El servidor (y el host, que también es servidor)
+    // siguen leyendo directo del store, sin pasar por la traducción de IDs.
+    public int GetQuantity(ItemData item)
+    {
+        if (IsServer) return store.GetQuantity(item);
+
+        int id = ItemDatabase.Instance != null ? ItemDatabase.Instance.GetId(item) : -1;
+        if (id < 0) return 0;
+
+        int total = 0;
+        foreach (var slot in sync.GetSlotsSnapshot())
+            if (slot.ItemId == id) total += slot.Quantity;
+        return total;
+    }
+
+    public IReadOnlyList<(ItemData item, int quantity)> GetAll()
+    {
+        if (IsServer) return store.GetAll();
+
+        var result = new List<(ItemData item, int quantity)>();
+        foreach (var slot in sync.GetSlotsSnapshot())
+        {
+            var item = ItemDatabase.Instance != null ? ItemDatabase.Instance.Get(slot.ItemId) : null;
+            if (item != null) result.Add((item, slot.Quantity));
+        }
+        return result;
+    }
 }

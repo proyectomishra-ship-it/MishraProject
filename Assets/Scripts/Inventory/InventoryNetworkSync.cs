@@ -58,4 +58,18 @@ public class InventoryNetworkSync : NetworkBehaviour
 
     public void Unsubscribe(NetworkList<Slot>.OnListChangedDelegate cb)
         => networkSlots.OnListChanged -= cb;
+
+    /// <summary>
+    /// FIX: snapshot de solo lectura de la NetworkList ya sincronizada.
+    /// Necesario porque InventoryController.GetAll/GetQuantity leían siempre
+    /// del InventoryStore local, que en un cliente puro (sin autoridad de
+    /// servidor) nunca se puebla — AddItem/RemoveItem solo corren en el
+    /// servidor. Acá exponemos la NetworkList (que sí llega al dueño) para
+    /// que el cliente tenga de dónde leer su propio inventario.
+    /// </summary>
+    public IEnumerable<Slot> GetSlotsSnapshot()
+    {
+        foreach (var s in networkSlots)
+            yield return s;
+    }
 }
