@@ -7,7 +7,8 @@ public class NetworkQuestManager : NetworkBehaviour
 {
     public static NetworkQuestManager Instance { get; private set; }
 
-    [Header("Available Quests")]
+
+[Header("Available Quests")]
     [SerializeField]
     private QuestData[] availableQuests;
 
@@ -17,9 +18,9 @@ public class NetworkQuestManager : NetworkBehaviour
 
     private NetworkList<NetworkQuestState> networkQuests;
 
-    // =========================
+    // =========================================================
     // UNITY
-    // =========================
+    // =========================================================
 
     private void Awake()
     {
@@ -31,12 +32,13 @@ public class NetworkQuestManager : NetworkBehaviour
 
         Instance = this;
 
-        networkQuests = new NetworkList<NetworkQuestState>();
+        networkQuests =
+            new NetworkList<NetworkQuestState>();
     }
 
-    // =========================
+    // =========================================================
     // NETWORK SPAWN
-    // =========================
+    // =========================================================
 
     public override void OnNetworkSpawn()
     {
@@ -49,22 +51,24 @@ public class NetworkQuestManager : NetworkBehaviour
             InitializeQuests();
         }
 
-        networkQuests.OnListChanged += OnNetworkQuestListChanged;
+        networkQuests.OnListChanged +=
+            OnNetworkQuestListChanged;
     }
 
     public override void OnNetworkDespawn()
     {
         if (networkQuests != null)
         {
-            networkQuests.OnListChanged -= OnNetworkQuestListChanged;
+            networkQuests.OnListChanged -=
+                OnNetworkQuestListChanged;
         }
 
         base.OnNetworkDespawn();
     }
 
-    // =========================
+    // =========================================================
     // QUEST DATABASE
-    // =========================
+    // =========================================================
 
     private void BuildQuestDatabase()
     {
@@ -101,9 +105,9 @@ public class NetworkQuestManager : NetworkBehaviour
         }
     }
 
-    // =========================
+    // =========================================================
     // INITIALIZE QUESTS
-    // =========================
+    // =========================================================
 
     private void InitializeQuests()
     {
@@ -116,16 +120,8 @@ public class NetworkQuestManager : NetworkBehaviour
                 continue;
             }
 
-            QuestState initialState;
-
-            if (quest.questType == QuestType.Main)
-            {
-                initialState = QuestState.Available;
-            }
-            else
-            {
-                initialState = QuestState.Available;
-            }
+            QuestState initialState =
+                QuestState.Available;
 
             NetworkQuestState networkState =
                 new NetworkQuestState
@@ -141,7 +137,8 @@ public class NetworkQuestManager : NetworkBehaviour
         }
     }
 
-    private int GetTotalRequiredAmount(QuestData quest)
+    private int GetTotalRequiredAmount(
+        QuestData quest)
     {
         if (quest.objectives == null ||
             quest.objectives.Length == 0)
@@ -151,7 +148,9 @@ public class NetworkQuestManager : NetworkBehaviour
 
         int amount = 0;
 
-        foreach (QuestObjectiveData objective in quest.objectives)
+        foreach (
+            QuestObjectiveData objective
+            in quest.objectives)
         {
             if (objective == null)
             {
@@ -168,7 +167,8 @@ public class NetworkQuestManager : NetworkBehaviour
     // QUEST ACCEPTANCE
     // =========================================================
 
-    public void RequestAcceptQuest(string questID)
+    public void RequestAcceptQuest(
+        string questID)
     {
         if (!IsClient)
         {
@@ -234,12 +234,20 @@ public class NetworkQuestManager : NetworkBehaviour
     // =========================================================
 
     public void ReportEnemyKilled(
-        EnemyType enemyType)
+        EnemyTypeData enemyType)
     {
         if (!IsServer)
         {
             Debug.LogWarning(
                 "ReportEnemyKilled must be called on the server.");
+
+            return;
+        }
+
+        if (enemyType == null)
+        {
+            Debug.LogWarning(
+                "ReportEnemyKilled recibió un EnemyTypeData null.");
 
             return;
         }
@@ -275,9 +283,10 @@ public class NetworkQuestManager : NetworkBehaviour
                 continue;
             }
 
-            for (int i = 0;
-                 i < quest.objectives.Length;
-                 i++)
+            for (
+                int i = 0;
+                i < quest.objectives.Length;
+                i++)
             {
                 QuestObjectiveData objective =
                     quest.objectives[i];
@@ -287,7 +296,17 @@ public class NetworkQuestManager : NetworkBehaviour
                     continue;
                 }
 
-                if (killObjective.enemyType != enemyType)
+                // =================================================
+                // COMPARACIÓN DIRECTA DE SCRIPTABLEOBJECTS
+                // =================================================
+                //
+                // Tanto Enemy como KillObjectiveData apuntan al
+                // mismo EnemyTypeData.
+                //
+                // No necesitamos comparar strings ni IDs.
+                // =================================================
+
+                if (killObjective.EnemyType != enemyType)
                 {
                     continue;
                 }
@@ -318,7 +337,8 @@ public class NetworkQuestManager : NetworkBehaviour
                 continue;
             }
 
-            if (networkState.Progress >=
+            if (
+                networkState.Progress >=
                 networkState.RequiredAmount)
             {
                 CompleteQuest(
@@ -366,8 +386,14 @@ public class NetworkQuestManager : NetworkBehaviour
             return;
         }
 
+        if (NetworkManager.Singleton == null)
+        {
+            return;
+        }
+
         foreach (
-            KeyValuePair<ulong, NetworkClient> clientPair
+            KeyValuePair<ulong, NetworkClient>
+            clientPair
             in NetworkManager.Singleton.ConnectedClients)
         {
             ulong clientId =
@@ -392,7 +418,9 @@ public class NetworkQuestManager : NetworkBehaviour
             return;
         }
 
-        foreach (QuestRewardData reward in quest.rewards)
+        foreach (
+            QuestRewardData reward
+            in quest.rewards)
         {
             if (reward == null)
             {
@@ -446,7 +474,7 @@ public class NetworkQuestManager : NetworkBehaviour
         {
             Debug.LogWarning(
                 $"Next quest '{nextQuest.questID}' " +
-                $"is not registered.");
+                "is not registered.");
 
             return;
         }
@@ -454,7 +482,8 @@ public class NetworkQuestManager : NetworkBehaviour
         NetworkQuestState nextState =
             networkQuests[index];
 
-        if (nextState.State != QuestState.Locked &&
+        if (
+            nextState.State != QuestState.Locked &&
             nextState.State != QuestState.Available)
         {
             return;
@@ -478,11 +507,13 @@ public class NetworkQuestManager : NetworkBehaviour
     private int FindNetworkQuestIndex(
         string questID)
     {
-        for (int i = 0;
-             i < networkQuests.Count;
-             i++)
+        for (
+            int i = 0;
+            i < networkQuests.Count;
+            i++)
         {
-            if (networkQuests[i]
+            if (
+                networkQuests[i]
                     .QuestID
                     .ToString() == questID)
             {
@@ -504,7 +535,8 @@ public class NetworkQuestManager : NetworkBehaviour
             case NetworkListEvent<NetworkQuestState>
                 .EventType.Add:
 
-                state = changeEvent.Value;
+                state =
+                    changeEvent.Value;
 
                 Debug.Log(
                     $"Quest added: {state.QuestID}");
@@ -514,7 +546,8 @@ public class NetworkQuestManager : NetworkBehaviour
             case NetworkListEvent<NetworkQuestState>
                 .EventType.Value:
 
-                state = changeEvent.Value;
+                state =
+                    changeEvent.Value;
 
                 Debug.Log(
                     $"Quest updated: {state.QuestID} " +
@@ -543,7 +576,8 @@ public class NetworkQuestManager : NetworkBehaviour
             case NetworkListEvent<NetworkQuestState>
                 .EventType.Insert:
 
-                state = changeEvent.Value;
+                state =
+                    changeEvent.Value;
 
                 Debug.Log(
                     $"Quest inserted: {state.QuestID}");
@@ -561,7 +595,8 @@ public class NetworkQuestManager : NetworkBehaviour
         out NetworkQuestState state)
     {
         int index =
-            FindNetworkQuestIndex(questID);
+            FindNetworkQuestIndex(
+                questID);
 
         if (index >= 0)
         {
@@ -574,6 +609,8 @@ public class NetworkQuestManager : NetworkBehaviour
         state = default;
         return false;
     }
+
+
 }
 
 // =============================================================
@@ -581,12 +618,13 @@ public class NetworkQuestManager : NetworkBehaviour
 // =============================================================
 
 public struct NetworkQuestState :
-    INetworkSerializable,
-    System.IEquatable<NetworkQuestState>
+INetworkSerializable,
+System.IEquatable<NetworkQuestState>
 {
     public FixedString128Bytes QuestID;
 
-    public QuestState State;
+
+public QuestState State;
 
     public int Progress;
 
@@ -618,4 +656,6 @@ public struct NetworkQuestState :
             Progress == other.Progress &&
             RequiredAmount == other.RequiredAmount;
     }
+
+
 }

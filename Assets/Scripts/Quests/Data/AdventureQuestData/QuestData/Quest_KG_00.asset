@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ebb553c95b13a547bef685eee69972d, type: 3}
+  m_Name: Quest_KG_00
+  m_EditorClassIdentifier: Assembly-CSharp::QuestData
+  questID: Quest_KG_00
+  questName: Eliminar Goblins
+  description: Una horda de Goblins ha estado asechando a los aventureros del bosque,
+    ve y eliminalos
+  questType: 0
+  objectives:
+  - {fileID: 11400000, guid: 81722e4f8782fca46aa9ccd4fcfc70e3, type: 2}
+  rewards:
+  - {fileID: 11400000, guid: bdb6f83d78030f542b7d905dc7dcc42e, type: 2}
+  - {fileID: 11400000, guid: 17cadaa11f5b73643baa497489965ff3, type: 2}
+  nextQuest: {fileID: 11400000, guid: 4781e4efabf518a46a2913b8c7c50634, type: 2}

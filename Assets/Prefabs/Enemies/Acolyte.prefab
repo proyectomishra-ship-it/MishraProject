@@ -304,7 +304,7 @@ MonoBehaviour:
   characterData: {fileID: 11400000, guid: 0e41975195d8993429cc8e20e1297d1f, type: 2}
   experienceReward: 300
   classMultiplier: 1
-  enemyType: 3
+  enemyType: {fileID: 11400000, guid: 23f02a0115365664596e5e1252d6ea2e, type: 2}
 --- !u!114 &824124112956362579
 MonoBehaviour:
   m_ObjectHideFlags: 0
