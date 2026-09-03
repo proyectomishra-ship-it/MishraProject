@@ -207,7 +207,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3556515244
+  GlobalObjectIdHash: 4124542001
   InScenePlacedSourceGlobalObjectIdHash: 4124542001
   DeferredDespawnTick: 0
   Ownership: 1
@@ -304,7 +304,7 @@ MonoBehaviour:
   characterData: {fileID: 11400000, guid: fe18f72878ce67b4ca5a960261132aeb, type: 2}
   experienceReward: 100
   classMultiplier: 1
-  enemyType: 2
+  enemyType: {fileID: 11400000, guid: 8f3668046e51ba848a248d58b9968a6c, type: 2}
 --- !u!114 &2949089841560888660
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -330,7 +330,7 @@ MonoBehaviour:
   fleeDistance: 15
   canFlee: 1
   preferredCombatDistance: 12
-  arrowPrefab: {fileID: 4267693198055553237, guid: 5e61c7a0ae152484ab8431f2d4ab964e, type: 3}
+  projectilePrefab: {fileID: 0}
 --- !u!114 &8260277821304529040
 MonoBehaviour:
   m_ObjectHideFlags: 0

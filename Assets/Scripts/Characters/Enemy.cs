@@ -8,9 +8,10 @@ public class Enemy : Character
     [SerializeField] private int experienceReward = 50;
     [SerializeField] private float classMultiplier = 1f;
 
-    [Header("Quest")]
+
+[Header("Quest")]
     [Tooltip("Tipo de enemigo utilizado por el sistema de misiones.")]
-    [SerializeField] private EnemyType enemyType;
+    [SerializeField] private EnemyTypeData enemyType;
 
     private EnemyAIController aiController;
     private EnemyGroupMember groupMember;
@@ -21,15 +22,23 @@ public class Enemy : Character
 
     public event Action<Enemy> OnEnemyDeath;
 
-    // =========================
+    // =========================================================
     // PROPERTIES
-    // =========================
+    // =========================================================
 
-    public EnemyType EnemyType => enemyType;
+    public EnemyTypeData EnemyType => enemyType;
 
-    // =========================
+    /// <summary>
+    /// ID utilizado internamente por el sistema de misiones.
+    /// </summary>
+    public string EnemyTypeID =>
+        enemyType != null
+            ? enemyType.EnemyTypeID
+            : string.Empty;
+
+    // =========================================================
     // AWAKE
-    // =========================
+    // =========================================================
 
     protected override void Awake()
     {
@@ -67,9 +76,9 @@ public class Enemy : Character
         }
     }
 
-    // =========================
+    // =========================================================
     // COMBAT
-    // =========================
+    // =========================================================
 
     public override void OnAttackPressed()
     {
@@ -91,9 +100,9 @@ public class Enemy : Character
         combatController?.SpecialAttack();
     }
 
-    // =========================
+    // =========================================================
     // XP
-    // =========================
+    // =========================================================
 
     public int GetExperienceReward(int playerLevel)
     {
@@ -109,7 +118,8 @@ public class Enemy : Character
         if (!IsServer)
             return;
 
-        var contributors = damageReceiver.GetDamageContributors();
+        var contributors =
+            damageReceiver.GetDamageContributors();
 
         float totalDamage = 0f;
 
@@ -132,7 +142,8 @@ public class Enemy : Character
                     GetExperienceReward(player.GetLevel());
 
                 int finalXP =
-                    Mathf.RoundToInt(baseXP * damageShare);
+                    Mathf.RoundToInt(
+                        baseXP * damageShare);
 
                 player.AddExp(finalXP);
 
@@ -142,35 +153,70 @@ public class Enemy : Character
         }
     }
 
-    // =========================
+    // =========================================================
     // QUESTS
-    // =========================
+    // =========================================================
 
     private void ReportQuestKill()
     {
         if (!IsServer)
             return;
 
+        // -----------------------------------------------------
+        // VALIDACIÓN DEL TIPO DE ENEMIGO
+        // -----------------------------------------------------
+
+        if (enemyType == null)
+        {
+            Debug.LogWarning(
+                $"[Enemy] {name} no tiene Enemy Type configurado. " +
+                "No se reportará la muerte al sistema de misiones.",
+                this);
+
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(enemyType.EnemyTypeID))
+        {
+            Debug.LogWarning(
+                $"[Enemy] El EnemyTypeData '{enemyType.name}' " +
+                $"asignado a {name} no tiene Enemy Type ID configurado. " +
+                "No se reportará la muerte al sistema de misiones.",
+                this);
+
+            return;
+        }
+
+        // -----------------------------------------------------
+        // NETWORK QUEST MANAGER
+        // -----------------------------------------------------
+
         if (NetworkQuestManager.Instance == null)
         {
             Debug.LogWarning(
-                $"[Enemy] NetworkQuestManager no encontrado. " +
+                "[Enemy] NetworkQuestManager no encontrado. " +
                 $"No se reportará la muerte de {name}.",
                 this);
 
             return;
         }
 
+        // -----------------------------------------------------
+        // REPORTAR KILL
+        // -----------------------------------------------------
+
         NetworkQuestManager.Instance.ReportEnemyKilled(
             enemyType);
 
         Debug.Log(
-            $"[Enemy] Quest kill reportado: {enemyType}");
+            $"[Enemy] Quest kill reportado: " +
+            $"{enemyType.DisplayName} " +
+            $"(ID: {enemyType.EnemyTypeID})");
     }
 
-    // =========================
+    // =========================================================
     // DEATH
-    // =========================
+    // =========================================================
 
     protected override void Die()
     {
@@ -192,44 +238,51 @@ public class Enemy : Character
 
         deathProcessed = true;
 
-        Debug.Log(
-            $"[Enemy] Die -> {name} ({enemyType})");
+        string enemyTypeName =
+            enemyType != null
+                ? enemyType.DisplayName
+                : "SIN TIPO";
 
-        // =========================
+        Debug.Log(
+            $"[Enemy] Die -> {name} ({enemyTypeName})");
+
+        // =====================================================
         // GROUP
-        // =========================
+        // =====================================================
 
         groupMember?.NotifyDeath();
 
-        // =========================
+        // =====================================================
         // XP
-        // =========================
+        // =====================================================
 
         DistributeExperience();
 
-        // =========================
+        // =====================================================
         // DROPS
-        // =========================
+        // =====================================================
 
         GetComponent<DropController>()
             ?.OnEnemyDied();
 
-        // =========================
+        // =====================================================
         // QUEST SYSTEM
-        // =========================
+        // =====================================================
 
         ReportQuestKill();
 
-        // =========================
+        // =====================================================
         // OTHER SYSTEMS
-        // =========================
+        // =====================================================
 
         OnEnemyDeath?.Invoke(this);
 
-        // =========================
+        // =====================================================
         // BASE DEATH
-        // =========================
+        // =====================================================
 
         base.Die();
     }
+
+
 }
