@@ -14,6 +14,7 @@ public class Player : Character
     private PlayerCombatController playerCombatController;
 
     private GoldController goldController;
+    private CraftingController craftingController;
 
     private InventoryUI inventoryUI;
 
@@ -29,6 +30,7 @@ public class Player : Character
         movementController = GetComponent<MovementController>();
         playerCombatController = GetComponent<PlayerCombatController>();
         goldController = GetComponent<GoldController>();
+        craftingController = GetComponent<CraftingController>();
 
         if (goldController == null)
             Debug.LogError("[Player] Falta GoldController");
@@ -42,8 +44,12 @@ public class Player : Character
         if (playerCombatController == null)
             Debug.LogError("[Player] Falta PlayerCombatController");
 
+        if (craftingController == null)
+            Debug.LogError("[Player] Falta CraftingController");
+
         movementController?.Initialize(this);
         playerCombatController?.Initialize(this);
+        craftingController?.Initialize(this);
     }
 
     public override void OnNetworkSpawn()
@@ -403,6 +409,61 @@ public class Player : Character
             $"[Player] Desequipado slot " +
             $"{(EquipmentSlot)slotIndex}: {ok}"
         );
+    }
+
+    // =====================================================
+    // CRAFTING
+    // Llamado desde InventoryUI (pestaña Crafteo) en el cliente local.
+    // =====================================================
+
+    /// <summary>
+    /// Se dispara en el cliente dueño con el resultado de cada intento de
+    /// crafteo (éxito o el motivo del fallo). InventoryUI se suscribe para
+    /// mostrar feedback ("faltan materiales", etc.).
+    /// </summary>
+    public event System.Action<int, CraftResult> OnCraftResult;
+
+    public void RequestCraft(int recipeId)
+    {
+        if (IsOwner)
+            CraftServerRpc(recipeId);
+    }
+
+    [ServerRpc]
+    private void CraftServerRpc(int recipeId)
+    {
+        var recipe = CraftingRecipeDatabase.Instance != null
+            ? CraftingRecipeDatabase.Instance.Get(recipeId)
+            : null;
+
+        if (recipe == null)
+        {
+            Debug.LogWarning(
+                $"[Player] CraftServerRpc: receta {recipeId} no encontrada."
+            );
+
+            NotifyCraftResultClientRpc(recipeId, CraftResult.InvalidRecipe);
+            return;
+        }
+
+        CraftResult result = craftingController != null
+            ? craftingController.TryCraft(recipe)
+            : CraftResult.InvalidRecipe;
+
+        Debug.Log(
+            $"[Player] Crafteo receta {recipeId} ('{recipe.name}'): {result}"
+        );
+
+        NotifyCraftResultClientRpc(recipeId, result);
+    }
+
+    [ClientRpc]
+    private void NotifyCraftResultClientRpc(int recipeId, CraftResult result)
+    {
+        // Solo le importa al dueño local; los demás clientes lo ignoran.
+        if (!IsOwner) return;
+
+        OnCraftResult?.Invoke(recipeId, result);
     }
 
     // =====================================================

@@ -510,6 +510,7 @@ GameObject:
   - component: {fileID: -6347264321509245934}
   - component: {fileID: 2313866983129379394}
   - component: {fileID: 7439726110942344124}
+  - component: {fileID: 3312559137007884073}
   m_Layer: 3
   m_Name: Mage
   m_TagString: Player
@@ -963,6 +964,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efefdcc655d7de64d8613fe0a01f7fe9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GoldController
+  ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &3312559137007884073
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7950557235140198998}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5427c064e9e4cf59188aa11e4997cef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CraftingController
   ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1001 &6402258335825744577
 PrefabInstance:
