@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 990315f64ead8b249aac3a861753d459, type: 3}
   m_Name: Goblin
   m_EditorClassIdentifier: Assembly-CSharp::EnemyTypeData
-  enemyTypeID: 
-  displayName: 
+  enemyTypeID: Goblin
+  displayName: Goblin
