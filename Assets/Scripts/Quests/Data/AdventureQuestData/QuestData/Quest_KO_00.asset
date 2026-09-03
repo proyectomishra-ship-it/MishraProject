@@ -22,4 +22,5 @@ MonoBehaviour:
   rewards:
   - {fileID: 11400000, guid: bdb6f83d78030f542b7d905dc7dcc42e, type: 2}
   - {fileID: 11400000, guid: da13fb68888e538438e3480c3378d823, type: 2}
+  - {fileID: 11400000, guid: 17cadaa11f5b73643baa497489965ff3, type: 2}
   nextQuest: {fileID: 0}
