@@ -30,10 +30,10 @@ public class InventoryUI : MonoBehaviour
     [Tooltip("Botones para alternar entre la vista de Objetos y la de Crafteo.")]
     [SerializeField] private Button itemsTabButton;
     [SerializeField] private Button craftingTabButton;
-    [Tooltip("Raíz que agrupa la grilla de items + su panel de detalle.")]
-    [SerializeField] private GameObject itemsPageRoot;
-    [Tooltip("Raíz que agrupa la grilla de recetas + su panel de detalle.")]
-    [SerializeField] private GameObject craftingPageRoot;
+    [Tooltip("Hijo de PanelCenter: agrupa LabelItems + ItemScrollView (lo que ya existía).")]
+    [SerializeField] private GameObject itemsGridRoot;
+    [Tooltip("Hijo de PanelCenter, hermano de Items Grid Root: contiene la grilla de recetas nueva.")]
+    [SerializeField] private GameObject craftingGridRoot;
 
     [Header("Panel izquierdo — Personaje y equipamiento")]
     [SerializeField] private RawImage characterPreview;
@@ -215,12 +215,13 @@ public class InventoryUI : MonoBehaviour
     {
         currentTab = tab;
 
-        itemsPageRoot?.SetActive(tab == Tab.Items);
-        craftingPageRoot?.SetActive(tab == Tab.Crafting);
+        itemsGridRoot?.SetActive(tab == Tab.Items);
+        craftingGridRoot?.SetActive(tab == Tab.Crafting);
 
         // Limpiar ambos detalles al cambiar de pestaña evita estados
         // "fantasma" (ej: una receta seleccionada quedando activa
-        // mientras se mira la pestaña de Objetos).
+        // mientras se mira la pestaña de Objetos). ClearDetail/
+        // ClearCraftingDetail ya llaman a UpdateDetailVisibility().
         ClearDetail();
         ClearCraftingDetail();
 
@@ -228,6 +229,19 @@ public class InventoryUI : MonoBehaviour
             RefreshItemGrid();
         else
             RefreshRecipeGrid();
+    }
+
+    /// <summary>
+    /// detailPanel y craftingDetailPanel pueden colgar directamente de
+    /// PanelRight como hermanos (no hace falta envolverlos en una raíz por
+    /// pestaña): cada uno se muestra solo si SU pestaña está activa Y hay
+    /// algo seleccionado. Se llama después de tocar currentTab, selectedItem
+    /// o selectedRecipe.
+    /// </summary>
+    private void UpdateDetailVisibility()
+    {
+        detailPanel?.SetActive(currentTab == Tab.Items && selectedItem != null);
+        craftingDetailPanel?.SetActive(currentTab == Tab.Crafting && selectedRecipe != null);
     }
 
     // =========================
@@ -302,7 +316,6 @@ public class InventoryUI : MonoBehaviour
         selectedItem = item;
         selectedQty = qty;
 
-        if (detailPanel != null) detailPanel.SetActive(true);
         if (detailIcon != null)
         {
             detailIcon.sprite = item.Icon;
@@ -326,13 +339,15 @@ public class InventoryUI : MonoBehaviour
             }
         }
 
+        UpdateDetailVisibility();
+
         Debug.Log($"[InventoryUI] Seleccionado: {item.ItemName} x{qty}");
     }
 
     private void ClearDetail()
     {
         selectedItem = null;
-        if (detailPanel != null) detailPanel.SetActive(false);
+        UpdateDetailVisibility();
     }
 
     private void OnEquipButtonClicked()
@@ -404,8 +419,6 @@ public class InventoryUI : MonoBehaviour
         selectedRecipe = recipe;
         selectedRecipeId = recipeId;
 
-        if (craftingDetailPanel != null) craftingDetailPanel.SetActive(true);
-
         var output = recipe.Output;
         if (craftingIcon != null)
         {
@@ -436,6 +449,8 @@ public class InventoryUI : MonoBehaviour
         foreach (var ui in recipeUIs)
             ui.SetSelected(ui.Recipe == recipe);
 
+        UpdateDetailVisibility();
+
         Debug.Log($"[InventoryUI] Receta seleccionada: {(output != null ? output.ItemName : "???")}");
     }
 
@@ -462,7 +477,7 @@ public class InventoryUI : MonoBehaviour
     {
         selectedRecipe = null;
         selectedRecipeId = -1;
-        if (craftingDetailPanel != null) craftingDetailPanel.SetActive(false);
+        UpdateDetailVisibility();
     }
 
     private void OnCraftButtonClicked()
