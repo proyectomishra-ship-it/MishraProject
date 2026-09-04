@@ -461,7 +461,7 @@ MonoBehaviour:
       Enabled: 1
       Input:
         InputAction: {fileID: -5630151704836100654, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-        Gain: 0
+        Gain: 5
         CancelDeltaTime: 0
       InputValue: 0
       Driver:
@@ -683,8 +683,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovementController
   ShowTopMostFoldoutHeaderGroup: 1
-  jumpForce: 5
-  gravity: -9.81
+  jumpForce: 9
+  gravity: -20.81
   runMultiplier: 2
   rotationSpeed: 10
 --- !u!114 &2035890717121098228

@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ebb553c95b13a547bef685eee69972d, type: 3}
+  m_Name: MQ_03_Kill_Acolyte
+  m_EditorClassIdentifier: Assembly-CSharp::QuestData
+  questID: MQ_03_Kill_Acolyte
+  questName: Acaba con el acolito
+  description: El acolito de un culto esta invocando slimes en el bosque, debes detenerlo
+    antes de que sea tarde
+  questType: 0
+  objectives:
+  - {fileID: 11400000, guid: f60e32c1b4a17f4449b6c836310ea576, type: 2}
+  rewards:
+  - {fileID: 11400000, guid: 26962f426da8f4c4f826c2650c0783c4, type: 2}
+  - {fileID: 11400000, guid: 5d4b941f99c1d1f40906678205ba4b04, type: 2}
+  nextQuest: {fileID: 11400000, guid: 4600d59138a3b8348bec93e544e6129a, type: 2}

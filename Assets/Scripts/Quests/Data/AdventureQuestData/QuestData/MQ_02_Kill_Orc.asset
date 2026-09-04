@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ebb553c95b13a547bef685eee69972d, type: 3}
+  m_Name: MQ_02_Kill_Orc
+  m_EditorClassIdentifier: Assembly-CSharp::QuestData
+  questID: MQ_02_Kill_Orc
+  questName: Elimina al Orco
+  description: Un poderoso orco esta asaltando las rutas comerciales, debes detenerlo
+    de inmediato
+  questType: 0
+  objectives:
+  - {fileID: 11400000, guid: e3c8762ebd016c542995051d740454b4, type: 2}
+  rewards:
+  - {fileID: 11400000, guid: bdb6f83d78030f542b7d905dc7dcc42e, type: 2}
+  - {fileID: 11400000, guid: 17cadaa11f5b73643baa497489965ff3, type: 2}
+  nextQuest: {fileID: 11400000, guid: 126e22455709dcf449439d4946178d99, type: 2}

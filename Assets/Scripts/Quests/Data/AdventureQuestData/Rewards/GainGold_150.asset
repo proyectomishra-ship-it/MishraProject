@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fc0bf90c5b4318c41843876deab00cb6, type: 3}
-  m_Name: GainGold_00
+  m_Name: GainGold_150
   m_EditorClassIdentifier: Assembly-CSharp::QuestRewardData
   rewardType: 1
-  amount: 50
+  amount: 100
   item: {fileID: 0}
