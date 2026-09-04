@@ -161041,6 +161041,8 @@ MonoBehaviour:
   availableQuests:
   - {fileID: 11400000, guid: 8801eca7cec7b3049b549dd93b50f91b, type: 2}
   - {fileID: 11400000, guid: 4781e4efabf518a46a2913b8c7c50634, type: 2}
+  - {fileID: 11400000, guid: 126e22455709dcf449439d4946178d99, type: 2}
+  - {fileID: 11400000, guid: 4600d59138a3b8348bec93e544e6129a, type: 2}
 --- !u!4 &1079892940
 Transform:
   m_ObjectHideFlags: 0

@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3ebb553c95b13a547bef685eee69972d, type: 3}
-  m_Name: Quest_KG_00
+  m_Name: MQ_01_Kill_Goblins
   m_EditorClassIdentifier: Assembly-CSharp::QuestData
-  questID: Quest_KG_00
+  questID: MQ_01_Kill_Goblins
   questName: Eliminar Goblins
   description: Una horda de Goblins ha estado asechando a los aventureros del bosque,
     ve y eliminalos

@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8d41b5554accf3d42855cc6496c0f5a6, type: 3}
-  m_Name: Kill_Orc_00
+  m_Name: Kill_Slime_01
   m_EditorClassIdentifier: Assembly-CSharp::KillObjectiveData
-  objectiveID: Kill_Orc_00
-  description: Elimina 1 Orco
+  objectiveID: Kill_Slime_01
+  description: Elimina 1 Slime
   requiredAmount: 1
-  enemyType: {fileID: 11400000, guid: d5baa4c16c27ebb41af4754232bfec37, type: 2}
+  enemyType: {fileID: 11400000, guid: 8f3668046e51ba848a248d58b9968a6c, type: 2}

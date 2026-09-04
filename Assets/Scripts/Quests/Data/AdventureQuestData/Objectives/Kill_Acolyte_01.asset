@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8d41b5554accf3d42855cc6496c0f5a6, type: 3}
-  m_Name: Kill_Goblin_00
+  m_Name: Kill_Acolyte_01
   m_EditorClassIdentifier: Assembly-CSharp::KillObjectiveData
-  objectiveID: Kill_Goblin_00
-  description: Elimina 3 Goblins
-  requiredAmount: 3
-  enemyType: {fileID: 11400000, guid: ba715031d42214d47bbf7b52e3834439, type: 2}
+  objectiveID: Kill_Acolyte_00
+  description: Elimina 1 Acolito
+  requiredAmount: 1
+  enemyType: {fileID: 11400000, guid: 23f02a0115365664596e5e1252d6ea2e, type: 2}
