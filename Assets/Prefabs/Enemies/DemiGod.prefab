@@ -392,7 +392,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealthBarSpawner
   ShowTopMostFoldoutHeaderGroup: 1
-  healthBarPrefab: {fileID: 1249204079835270806, guid: 0e746c2f5a15d6c4eaf0cb96f8b17dd8, type: 3}
+  healthBarPrefab: {fileID: 5271852602185435557, guid: 13a49ca8af7333d49951b83376b03092, type: 3}
 --- !u!114 &-7363812818642782310
 MonoBehaviour:
   m_ObjectHideFlags: 0
