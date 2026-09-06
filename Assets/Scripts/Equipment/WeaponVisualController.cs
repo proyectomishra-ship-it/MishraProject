@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// Muestra el visual del arma equipada en la mano del jugador.
 ///
-/// SETUP (una vez, en los tres prefabs) — ya hecho:
+/// SETUP (una vez, en los tres prefabs):
 ///   1. Componente en el root del prefab (Warrior / Hunter / Mage).
 ///   2. "Placeholder Weapon" → el objeto "Cube" hijo del Capsule.
 ///      Si no se asigna, lo busca automáticamente por nombre.
@@ -15,6 +15,23 @@ using UnityEngine;
 ///                        su MeshRenderer se oculta y el prefab
 ///                        se instancia dentro con local pos/rot cero.
 ///   • Sin arma         → el Cube se desactiva por completo.
+///
+/// FIX — POR QUÉ EL ARMA APARECÍA EN EL PISO / DENTRO DEL PERSONAJE:
+///   Cube nacía como hijo fijo de "Capsule" (el collider físico). Capsule
+///   NO es parte del esqueleto animado: es un objeto aparte del modelo con
+///   huesos ("zita COMPLETO"), así que nunca se mueve con la animación. El
+///   offset local de Cube se había ajustado a mano mirando una sola pose,
+///   sin ninguna relación real con dónde está la mano. Por eso el arma
+///   podía terminar en el piso, y mover el Cube para "corregir la altura"
+///   la metía dentro del cuerpo — no había ningún hueso de por medio, solo
+///   un número fijo en el espacio local de Capsule.
+///   Ahora, en Awake(), si existe un transform llamado 'handBoneName' en
+///   algún lugar de la jerarquía (el hueso real de la mano — ej. "hand.R",
+///   que sí existe en "zita COMPLETO"), Cube se reparenta ahí. Así el arma
+///   queda pegada a la mano de verdad, incluso el día que haya animaciones
+///   (el Animator de este prefab todavía no tiene Controller asignado). Si
+///   no se encuentra el hueso, se mantiene el comportamiento viejo (Cube
+///   hijo de Capsule) y se loguea un warning en vez de romper todo.
 ///
 /// NOTA SOBRE JUGADORES REMOTOS:
 ///   El visual SOLO se muestra para el jugador local (IsOwner = true).
@@ -29,8 +46,27 @@ public class WeaponVisualController : MonoBehaviour
              "escala del Cube. El mesh original suele estar modelado chico " +
              "(convención típica de packs de props de bajo poly) — subí este " +
              "número hasta que se vea bien. Podés poner un valor distinto en " +
-             "cada prefab (Warrior/Mage/Hunter) si cada arma necesita su propio tamaño.")]
+             "cada prefab (Warrior/Mage/Hunter) si cada arma necesita su propio tamaño. " +
+             "OJO: después del fix de reparenting al hueso de la mano, la escala acumulada " +
+             "en ese punto de la jerarquía cambia respecto de Capsule — probablemente haya " +
+             "que retocar este número.")]
     [SerializeField] private float visualScaleMultiplier = 4f;
+
+    [Header("Hueso de la mano (FIX de posición — ver comentario de la clase)")]
+    [Tooltip("Nombre exacto del transform del hueso de la mano dentro del modelo del " +
+             "personaje (p. ej. 'hand.R' o 'hand.L', que existen en \"zita COMPLETO\"). " +
+             "Si se encuentra, Cube se reparenta a este hueso en Awake() para que el arma " +
+             "siga la mano de verdad. Dejar vacío para desactivar la búsqueda y volver al " +
+             "comportamiento anterior (Cube fijo, hijo de Capsule).")]
+    [SerializeField] private string handBoneName = "hand.R";
+
+    [Tooltip("Posición local del socket una vez reparentado al hueso de la mano. Arrancá " +
+             "en (0,0,0) y ajustá viendo el resultado en Play Mode hasta que el arma quede " +
+             "bien agarrada.")]
+    [SerializeField] private Vector3 handSocketLocalPosition = Vector3.zero;
+
+    [Tooltip("Rotación local (en grados) del socket una vez reparentado al hueso de la mano.")]
+    [SerializeField] private Vector3 handSocketLocalEulerAngles = Vector3.zero;
 
     private EquipmentController equipmentController;
     private MeshRenderer placeholderRenderer;
@@ -69,6 +105,8 @@ public class WeaponVisualController : MonoBehaviour
         if (placeholderWeapon != null)
             placeholderRenderer = placeholderWeapon.GetComponent<MeshRenderer>();
 
+        AttachSocketToHandBone();
+
         equipmentController = GetComponent<EquipmentController>();
         if (equipmentController == null)
         {
@@ -78,6 +116,42 @@ public class WeaponVisualController : MonoBehaviour
 
         equipmentController.OnSlotChanged += HandleSlotChanged;
         Debug.Log($"[WeaponVisual] >>> Suscripto a OnSlotChanged en '{gameObject.name}'. Awake() completo.");
+    }
+
+    /// <summary>
+    /// FIX: reparenta 'placeholderWeapon' (Cube) al hueso real de la mano, si se
+    /// encuentra uno con nombre 'handBoneName' en la jerarquía del personaje, en vez
+    /// de dejarlo fijo como hijo de Capsule. Ver el comentario de la clase para el
+    /// diagnóstico completo de por qué esto hacía falta. Se llama una sola vez desde
+    /// Awake(). Si no se encuentra el hueso, no rompe nada: el Cube queda donde ya
+    /// estaba (comportamiento anterior) y se loguea un warning.
+    /// </summary>
+    private void AttachSocketToHandBone()
+    {
+        if (placeholderWeapon == null || string.IsNullOrEmpty(handBoneName))
+            return;
+
+        Transform handBone = FindInChildren(transform, handBoneName);
+        if (handBone == null)
+        {
+            Debug.LogWarning($"[WeaponVisual] >>> No se encontró el hueso '{handBoneName}' en " +
+                              $"'{name}'. '{placeholderWeapon.name}' sigue siendo hijo de " +
+                              "'Capsule' (comportamiento anterior: el arma puede no seguir a la " +
+                              "mano y aparecer fuera de posición). Revisá el nombre del hueso en " +
+                              "el modelo, o dejá 'Hand Bone Name' vacío para silenciar este " +
+                              "warning si es intencional.");
+            return;
+        }
+
+        placeholderWeapon.transform.SetParent(handBone, worldPositionStays: false);
+        placeholderWeapon.transform.localPosition = handSocketLocalPosition;
+        placeholderWeapon.transform.localRotation = Quaternion.Euler(handSocketLocalEulerAngles);
+
+        Debug.Log($"[WeaponVisual] >>> FIX aplicado en '{name}': '{placeholderWeapon.name}' " +
+                  $"reparentado de 'Capsule' al hueso '{handBone.name}'. Si el arma no queda " +
+                  "perfecta en la mano, ajustá 'Hand Socket Local Position/Euler Angles' en el " +
+                  "Inspector (y probablemente 'Visual Scale Multiplier' también, porque la " +
+                  "escala acumulada en este punto de la jerarquía ya no es la de Capsule).");
     }
 
     private IEnumerator Start()
@@ -252,6 +326,13 @@ public class WeaponVisualController : MonoBehaviour
         {
             Transform child = parent.GetChild(i);
             if (child.name == targetName) return child;
+
+            // No bajar a ramas desactivadas (ej. "blocking zita", el modelo de
+            // bloqueo que queda desactivado una vez que está el modelo final). Si
+            // esa rama tuviera algún día un objeto con el mismo nombre, no queremos
+            // engancharnos a algo que ni siquiera se está mostrando.
+            if (!child.gameObject.activeSelf) continue;
+
             Transform found = FindInChildren(child, targetName);
             if (found != null) return found;
         }

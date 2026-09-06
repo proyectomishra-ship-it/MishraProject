@@ -500,6 +500,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 35328277338285925}
   - {fileID: 6582927186361018442}
   - {fileID: 9024439348919354618}
   - {fileID: 5068293825852641465}
@@ -920,6 +921,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponVisualController
   placeholderWeapon: {fileID: 5751389350660997824}
   visualScaleMultiplier: 55
+  handBoneName: hand.R
+  handSocketLocalPosition: {x: 0, y: 0, z: 0}
+  handSocketLocalEulerAngles: {x: 0, y: 0, z: 0}
 --- !u!114 &2169750553952034921
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -971,11 +975,11 @@ Transform:
   m_GameObject: {fileID: 7443041332243402106}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.00739, y: 1.52, z: 0}
+  m_LocalPosition: {x: 0.1, y: 0.63, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5068293825852641465}
+  m_Father: {fileID: 8899490741512041317}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &4745821063172978514
 PrefabInstance:
@@ -1103,9 +1107,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: a3b4f8f51c57b18419f867c3b67b1976, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3524862574918803882}
-    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: a3b4f8f51c57b18419f867c3b67b1976, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 35328277338285925}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a3b4f8f51c57b18419f867c3b67b1976, type: 3}
 --- !u!4 &5068293825852641465 stripped
