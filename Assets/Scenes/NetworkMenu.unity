@@ -643,7 +643,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ClassAwareNetworkBootstrap
   itemDatabase: {fileID: 11400000, guid: 9aa89c58547ddf349b9af0c0f2e9e646, type: 2}
-  warriorPrefab: {fileID: 6910758715300088518, guid: 740081080e89e5546a34461f39b4a42d, type: 3}
+  warriorPrefab: {fileID: 2211492265159698303, guid: f096273518de48c40a398a1428da7a18, type: 3}
   magePrefab: {fileID: 7950557235140198998, guid: 4c1a1df7eb56a1c419f71c122c4a43c5, type: 3}
   hunterPrefab: {fileID: 2211492265159698303, guid: cfa70754af3198640885246fcdca5cfd, type: 3}
 --- !u!1 &2092806944

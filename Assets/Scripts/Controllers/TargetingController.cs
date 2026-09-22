@@ -103,7 +103,8 @@ public class TargetingController : NetworkBehaviour
                 // Aim assist leve
                 if (Physics.SphereCast(ray, sphereRadius * 0.5f, out RaycastHit sHit, range, enemyLayer))
                 {
-                    detectedTarget = sHit.collider.GetComponent<Character>();
+                    detectedTarget =
+                     sHit.collider.GetComponentInParent<Character>();
                     hitSomething = detectedTarget != null;
                 }
             }
