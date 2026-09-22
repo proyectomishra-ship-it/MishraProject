@@ -4,16 +4,15 @@ public class EnemyPerceptionSystem
 {
     private Enemy enemy;
 
-   
     private float detectionRadius;
-
     private float fieldOfViewAngle;
-
- 
     private float alertRadius;
 
-    public EnemyPerceptionSystem(Enemy enemy, float detectionRadius,
-        float fieldOfViewAngle, float alertRadius)
+    public EnemyPerceptionSystem(
+        Enemy enemy,
+        float detectionRadius,
+        float fieldOfViewAngle,
+        float alertRadius)
     {
         this.enemy = enemy;
         this.detectionRadius = detectionRadius;
@@ -21,33 +20,69 @@ public class EnemyPerceptionSystem
         this.alertRadius = alertRadius;
     }
 
- 
+    // =========================================================
+    // DETECT PLAYER
+    // =========================================================
+
     public Character DetectPlayer(bool isAlerted)
     {
-        
-        float radius = isAlerted ? alertRadius : detectionRadius;
-        Collider[] hits = Physics.OverlapSphere(
-            enemy.transform.position, radius);
+        float radius =
+            isAlerted
+                ? alertRadius
+                : detectionRadius;
+
+        Collider[] hits =
+            Physics.OverlapSphere(
+                enemy.transform.position,
+                radius
+            );
 
         Character closest = null;
         float closestDistance = float.MaxValue;
 
         foreach (var hit in hits)
         {
-            Character target = hit.GetComponent<Character>();
-            if (target == null || target == enemy) continue;
-            if (target is not Player) continue;
+            // =================================================
+            // IMPORTANTE
+            //
+            // El collider puede estar en un hijo del Player.
+            // Por eso usamos GetComponentInParent.
+            // =================================================
 
-            float distance = Vector3.Distance(
-                enemy.transform.position, target.transform.position);
+            Character target =
+                hit.GetComponentInParent<Character>();
 
-            
+            if (target == null)
+                continue;
+
+            if (target == enemy)
+                continue;
+
+            if (target is not Player)
+                continue;
+
+            float distance =
+                Vector3.Distance(
+                    enemy.transform.position,
+                    target.transform.position
+                );
+
+            // =================================================
+            // ALERTED
+            //
+            // Si está alertado no necesitamos FOV.
+            // =================================================
+
             if (isAlerted && distance < closestDistance)
             {
                 closest = target;
                 closestDistance = distance;
                 continue;
             }
+
+            // =================================================
+            // FOV NORMAL
+            // =================================================
 
             if (IsInFieldOfView(target.transform.position) &&
                 distance < closestDistance)
@@ -57,22 +92,61 @@ public class EnemyPerceptionSystem
             }
         }
 
+        if (closest != null)
+        {
+            Debug.Log(
+                $"[{enemy.name}][PERCEPTION] " +
+                $"Player detectado -> {closest.name} | " +
+                $"Distance={closestDistance:F2} | " +
+                $"Alerted={isAlerted}"
+            );
+        }
+
         return closest;
     }
+
+    // =========================================================
+    // FIELD OF VIEW
+    // =========================================================
 
     private bool IsInFieldOfView(Vector3 targetPosition)
     {
         Vector3 directionToTarget =
-            (targetPosition - enemy.transform.position).normalized;
+            targetPosition - enemy.transform.position;
 
-        float angle = Vector3.Angle(
-            enemy.transform.forward, directionToTarget);
+        directionToTarget.y = 0f;
+
+        if (directionToTarget.sqrMagnitude <= 0.001f)
+            return true;
+
+        directionToTarget.Normalize();
+
+        Vector3 forward =
+            enemy.transform.forward;
+
+        forward.y = 0f;
+
+        forward.Normalize();
+
+        float angle =
+            Vector3.Angle(
+                forward,
+                directionToTarget
+            );
 
         return angle <= fieldOfViewAngle / 2f;
     }
 
-   
-    public float DetectionRadius => detectionRadius;
-    public float FieldOfViewAngle => fieldOfViewAngle;
-    public float AlertRadius => alertRadius;
+    // =========================================================
+    // PROPERTIES
+    // =========================================================
+
+    public float DetectionRadius =>
+        detectionRadius;
+
+    public float FieldOfViewAngle =>
+        fieldOfViewAngle;
+
+    public float AlertRadius =>
+        alertRadius;
 }

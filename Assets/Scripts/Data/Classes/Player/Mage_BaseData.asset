@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterData
   attack: 50
   attackRange: 30
-  defense: 7
+  defense: 4
   maxHealth: 70
   maxMana: 50
   speed: 9
@@ -23,7 +23,7 @@ MonoBehaviour:
   dexterity: 16
   intelligence: 40
   vitality: 10
-  resistance: 5
+  stamina: 0
   luck: 0
   baseLevel: 1
   weaponType: 6
