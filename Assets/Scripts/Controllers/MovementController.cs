@@ -106,4 +106,24 @@ public class MovementController : NetworkBehaviour
         _desiredSpeed = speed;
         _isMoving = worldDirection.sqrMagnitude > 0.01f;
     }
+
+
+    /// <summary>
+    /// Limpia completamente el estado de movimiento.
+    /// Se utiliza al morir y al respawnear para evitar
+    /// conservar velocidad, dirección o velocidad vertical residual.
+    /// </summary>
+    public void ResetMovementState()
+    {
+        if (!IsServer)
+            return;
+
+        _desiredDirection = Vector3.zero;
+        _desiredRotation = Quaternion.identity;
+        _desiredSpeed = 0f;
+        _isMoving = false;
+        verticalVelocity = 0f;
+
+        Debug.Log($"[MovementController] {name} — estado de movimiento reseteado.");
+    }
 }
