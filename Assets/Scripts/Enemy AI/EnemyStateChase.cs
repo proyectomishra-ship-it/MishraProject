@@ -28,11 +28,7 @@ public class EnemyStateChase : EnemyState
         if (ai.Agent != null)
             ai.Agent.isStopped = false;
 
-        Debug.Log(
-            $"[{enemy.name}][CHASE] ENTER -> " +
-            $"Target={ai.CurrentTarget?.name ?? "NULL"} | " +
-            $"EnemyPos={enemy.transform.position}"
-        );
+      
     }
 
     // =========================================================
@@ -47,9 +43,7 @@ public class EnemyStateChase : EnemyState
 
         if (ai.ShouldFlee)
         {
-            Debug.Log(
-                $"[{enemy.name}][CHASE] ShouldFlee=true -> FLEE"
-            );
+          
 
             ai.StateMachine.ChangeState(ai.FleeState);
             return;
@@ -61,9 +55,7 @@ public class EnemyStateChase : EnemyState
 
         if (ai.CurrentTarget == null)
         {
-            Debug.LogWarning(
-                $"[{enemy.name}][CHASE] CurrentTarget=NULL"
-            );
+           
 
             HandleLostTarget();
             return;
@@ -88,11 +80,7 @@ public class EnemyStateChase : EnemyState
 
             if (detected != ai.CurrentTarget)
             {
-                Debug.Log(
-                    $"[{enemy.name}][CHASE] Target actualizado: " +
-                    $"{ai.CurrentTarget?.name ?? "NULL"} -> {detected.name}"
-                );
-
+               
                 ai.SetTarget(detected);
             }
 
@@ -147,15 +135,7 @@ public class EnemyStateChase : EnemyState
             bool inRange =
                 horizontalDistance <= attackRange;
 
-            Debug.Log(
-                $"[{enemy.name}][CHASE] RANGE CHECK | " +
-                $"3DDistance={fullDistance:F2} | " +
-                $"HorizontalDistance={horizontalDistance:F2} | " +
-                $"AttackRange={attackRange:F2} | " +
-                $"InRange={inRange} | " +
-                $"EnemyPos={enemy.transform.position} | " +
-                $"TargetPos={ai.CurrentTarget.transform.position}"
-            );
+         
 
             // =================================================
             // ATTACK
@@ -163,12 +143,7 @@ public class EnemyStateChase : EnemyState
 
             if (inRange)
             {
-                Debug.Log(
-                    $"[{enemy.name}][CHASE] " +
-                    $"*** DENTRO DEL RANGO *** -> ATTACK | " +
-                    $"HorizontalDistance={horizontalDistance:F2} <= " +
-                    $"AttackRange={attackRange:F2}"
-                );
+                
 
                 if (ai.AttackState == null)
                 {
@@ -197,11 +172,7 @@ public class EnemyStateChase : EnemyState
             // PERCEPCIÓN PERDIDA
             // =================================================
 
-            Debug.Log(
-                $"[{enemy.name}][CHASE] " +
-                $"DetectPlayer() devolvió NULL | " +
-                $"CurrentTarget={ai.CurrentTarget.name}"
-            );
+           
 
             HandleLostTarget();
         }
@@ -221,26 +192,16 @@ public class EnemyStateChase : EnemyState
             if (ai.Agent != null)
                 ai.Agent.ResetPath();
 
-            Debug.Log(
-                $"[{enemy.name}][CHASE] TARGET PERDIDO"
-            );
+           
         }
 
         lostTargetTimer += Time.deltaTime;
 
-        Debug.Log(
-            $"[{enemy.name}][CHASE] " +
-            $"LostTargetTimer={lostTargetTimer:F2}/" +
-            $"{lostTargetTime:F2}"
-        );
+       
 
         if (lostTargetTimer >= lostTargetTime)
         {
-            Debug.Log(
-                $"[{enemy.name}][CHASE] " +
-                $"TARGET PERDIDO DURANTE {lostTargetTime:F1}s " +
-                $"-> regresar a estado anterior"
-            );
+            
 
             ai.SetTarget(null);
             ai.SetAlerted(false);
@@ -273,9 +234,6 @@ public class EnemyStateChase : EnemyState
         if (ai.Agent != null)
             ai.Agent.ResetPath();
 
-        Debug.Log(
-            $"[{enemy.name}][CHASE] EXIT -> " +
-            $"{ai.StateMachine.CurrentState?.GetType().Name ?? "NULL"}"
-        );
+     
     }
 }

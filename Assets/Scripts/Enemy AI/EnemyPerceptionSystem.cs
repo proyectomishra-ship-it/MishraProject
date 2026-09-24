@@ -92,15 +92,7 @@ public class EnemyPerceptionSystem
             }
         }
 
-        if (closest != null)
-        {
-            Debug.Log(
-                $"[{enemy.name}][PERCEPTION] " +
-                $"Player detectado -> {closest.name} | " +
-                $"Distance={closestDistance:F2} | " +
-                $"Alerted={isAlerted}"
-            );
-        }
+     
 
         return closest;
     }

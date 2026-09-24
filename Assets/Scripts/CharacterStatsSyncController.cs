@@ -84,7 +84,7 @@ public class CharacterStatsSyncController : NetworkBehaviour
     {
         NetHealth.Value = current;
         NetMaxHealth.Value = max;
-        Debug.Log($"[StatsSync] HP Sync {current}/{max}");
+     
     }
 
     private void OnManaChanged(float current, float max)
