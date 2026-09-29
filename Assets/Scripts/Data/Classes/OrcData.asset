@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: OrcData
   m_EditorClassIdentifier: Assembly-CSharp::OrcData
   attack: 55
-  attackRange: 2
+  attackRange: 4
   defense: 30
   maxHealth: 45
   maxMana: 0
@@ -23,7 +23,7 @@ MonoBehaviour:
   dexterity: 20
   intelligence: 2
   vitality: 26
-  resistance: 10
+  stamina: 0
   luck: 0
   baseLevel: 5
   weaponType: 0

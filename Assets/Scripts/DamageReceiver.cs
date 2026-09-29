@@ -28,6 +28,28 @@ public class DamageReceiver : NetworkBehaviour
             Debug.LogWarning("[DamageReceiver] Llamado en cliente (IGNORADO)");
             return;
         }
+        if (character is Player player)
+        {
+            if (player.IsDead())
+            {
+                Debug.Log(
+                    $"[DamageReceiver] {character.name} está muerto. "
+                    + "Daño ignorado."
+                );
+
+                return;
+            }
+
+            if (player.IsInvulnerable())
+            {
+                Debug.Log(
+                    $"[DamageReceiver] {character.name} tiene invulnerabilidad "
+                    + "post-respawn. Daño ignorado."
+                );
+
+                return;
+            }
+        }
 
         if (character.GetStats().CurrentHealth <= 0) return;
 

@@ -18,6 +18,7 @@ public class Player : Character
 
     private InventoryUI inventoryUI;
 
+    private PlayerRespawnController respawnController;
     // =====================================================
     // LIFECYCLE
     // =====================================================
@@ -31,6 +32,7 @@ public class Player : Character
         playerCombatController = GetComponent<PlayerCombatController>();
         goldController = GetComponent<GoldController>();
         craftingController = GetComponent<CraftingController>();
+        respawnController = GetComponent<PlayerRespawnController>();
 
         if (goldController == null)
             Debug.LogError("[Player] Falta GoldController");
@@ -46,6 +48,10 @@ public class Player : Character
 
         if (craftingController == null)
             Debug.LogError("[Player] Falta CraftingController");
+
+        if (respawnController == null) Debug.LogError(
+                $"[Player] {name} no tiene PlayerRespawnController.");
+        
 
         movementController?.Initialize(this);
         playerCombatController?.Initialize(this);
@@ -600,5 +606,50 @@ public class Player : Character
             $"[Player] Renderers ocultos para jugador remoto: " +
             $"{gameObject.name}"
         );
+    }
+    /// <summary>
+    /// Inicia el proceso de muerte y respawn del Player.
+    /// Solo tiene efecto en el servidor.
+    /// </summary>
+    public void StartRespawn()
+    {
+        if (!IsServer)
+            return;
+
+        if (respawnController == null)
+        {
+            Debug.LogError(
+                $"[Player] {name} no puede iniciar respawn: "
+                + "PlayerRespawnController es null."
+            );
+            return;
+        }
+
+        respawnController.StartDeath();
+    }
+
+    /// <summary>
+    /// Indica si el Player está actualmente muerto.
+    /// </summary>
+    public bool IsDead()
+    {
+        return respawnController != null && respawnController.IsDead.Value;
+    }
+
+    /// <summary>
+    /// Indica si el Player está protegido contra daño.
+    /// </summary>
+    public bool IsInvulnerable()
+    {
+        return respawnController != null && respawnController.IsInvulnerable.Value;
+    }
+    protected override void Die()
+    {
+        if (!IsServer)
+            return;
+
+        Debug.Log($"[Player] {name} murió. Iniciando respawn.");
+
+        StartRespawn();
     }
 }
