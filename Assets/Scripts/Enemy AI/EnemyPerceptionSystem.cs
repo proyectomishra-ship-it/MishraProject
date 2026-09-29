@@ -60,6 +60,10 @@ public class EnemyPerceptionSystem
 
             if (target is not Player)
                 continue;
+            Player player = target as Player;
+
+            if (player.IsDead())
+                continue;
 
             float distance =
                 Vector3.Distance(

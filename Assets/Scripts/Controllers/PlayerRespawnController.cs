@@ -29,7 +29,7 @@ public class PlayerRespawnController : NetworkBehaviour
     private MovementController movementController;
     private PlayerInputController inputController;
 
-    private Renderer[] playerRenderers;
+
 
     private Vector3 respawnPosition;
 
@@ -68,7 +68,7 @@ public class PlayerRespawnController : NetworkBehaviour
         movementController = GetComponent<MovementController>();
         inputController = GetComponent<PlayerInputController>();
 
-        playerRenderers = GetComponentsInChildren<Renderer>(true);
+
 
         if (player == null)
         {
@@ -293,10 +293,10 @@ public class PlayerRespawnController : NetworkBehaviour
     /// </summary>
     private void SetPlayerRenderersVisible(bool visible)
     {
-        if (playerRenderers == null)
-            return;
+        Renderer[] renderers =
+            GetComponentsInChildren<Renderer>(true);
 
-        foreach (Renderer renderer in playerRenderers)
+        foreach (Renderer renderer in renderers)
         {
             if (renderer != null)
                 renderer.enabled = visible;

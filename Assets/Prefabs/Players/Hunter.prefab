@@ -472,7 +472,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponVisualController
   placeholderWeapon: {fileID: 0}
-  visualScaleMultiplier: 55
+  visualScaleMultiplier: 1
   handBoneName: hand.R
   handSocketLocalPosition: {x: 0, y: 0, z: 0}
   handSocketLocalEulerAngles: {x: 0, y: 0, z: 0}
@@ -952,6 +952,10 @@ PrefabInstance:
     - target: {fileID: -5824510187379060028, guid: a3b4f8f51c57b18419f867c3b67b1976, type: 3}
       propertyPath: m_Layer
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: -5824510187379060028, guid: a3b4f8f51c57b18419f867c3b67b1976, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -1599826595754709761, guid: a3b4f8f51c57b18419f867c3b67b1976, type: 3}
       propertyPath: m_Layer
