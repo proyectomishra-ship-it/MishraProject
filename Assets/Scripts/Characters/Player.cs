@@ -51,7 +51,7 @@ public class Player : Character
 
         if (respawnController == null) Debug.LogError(
                 $"[Player] {name} no tiene PlayerRespawnController.");
-        
+
 
         movementController?.Initialize(this);
         playerCombatController?.Initialize(this);
@@ -243,9 +243,10 @@ public class Player : Character
             "Agregando al inventario y equipando..."
         );
 
-        // Agregar primero al inventario para que el arma exista
-        // realmente como item y pueda regresar al inventario
-        // cuando sea desequipada.
+        // Agregar primero al inventario: la mochila es la lista de todo lo
+        // que el jugador posee, y el equipamiento solo marca cuál item está
+        // en uso (equipar/desequipar no mueve el item de la mochila).
+        // EquipServerRpc exige que el item esté acá para poder equiparlo.
         bool added =
             inventoryController != null &&
             inventoryController.AddItem(
@@ -395,6 +396,21 @@ public class Player : Character
 
         if (item is not IEquippable equippable)
             return;
+
+        // El servidor es la autoridad: solo se puede equipar un item que
+        // realmente esté en la mochila de este jugador. Sin esto, un cliente
+        // modificado podría enviar cualquier id de ItemDatabase y equiparse
+        // un item que no posee. La UI ya solo ofrece items de la mochila,
+        // así que el uso normal no se ve afectado.
+        if (inventoryController == null || !inventoryController.HasItem(item))
+        {
+            Debug.LogWarning(
+                $"[Player] {name} intentó equipar '{item.ItemName}' " +
+                "sin tenerlo en el inventario. Ignorado."
+            );
+
+            return;
+        }
 
         bool ok = equipmentController.Equip(equippable);
 
