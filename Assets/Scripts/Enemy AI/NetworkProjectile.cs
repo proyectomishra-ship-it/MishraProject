@@ -25,9 +25,15 @@ public class NetworkProjectile : NetworkBehaviour
 
     private void Update()
     {
-        if (!IsServer) return;
-
+        // El movimiento corre en TODAS las instancias (servidor y clientes).
+        // El proyectil no tiene NetworkTransform, asi que si solo se movia en
+        // el servidor, los clientes lo veian quieto en el punto de disparo.
+        // La direccion ya llega con el spawn (Quaternion.LookRotation al
+        // instanciar), por lo que cada cliente simula el mismo recorrido.
+        // El dano, el lifetime y el despawn siguen siendo solo del servidor.
         transform.position += transform.forward * speed * Time.deltaTime;
+
+        if (!IsServer) return;
 
         timer += Time.deltaTime;
         if (timer >= lifetime)
