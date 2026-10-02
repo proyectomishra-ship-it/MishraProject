@@ -6,10 +6,11 @@ public class Enemy : Character
 {
     [Header("Enemy")]
     [SerializeField] private int experienceReward = 50;
+    [SerializeField] private int goldReward = 10;
     [SerializeField] private float classMultiplier = 1f;
+    public int GoldReward => goldReward;
 
-
-[Header("Quest")]
+    [Header("Quest")]
     [Tooltip("Tipo de enemigo utilizado por el sistema de misiones.")]
     [SerializeField] private EnemyTypeData enemyType;
 
@@ -152,6 +153,95 @@ public class Enemy : Character
             }
         }
     }
+    // =========================================================
+    // GOLD
+    // =========================================================
+    private void DistributeGold()
+    {
+        if (!IsServer)
+            return;
+
+        var contributors =
+            damageReceiver.GetDamageContributors();
+
+        float totalDamage = 0f;
+
+        foreach (var entry in contributors)
+        {
+            totalDamage += entry.Value;
+        }
+
+        if (totalDamage <= 0f)
+            return;
+
+        int totalGold =
+            GoldCalculator.CalculateGold(
+                goldReward,
+                GetLevel());
+
+        if (totalGold <= 0)
+            return;
+
+        // Guardamos únicamente los jugadores que participaron.
+        var players = new System.Collections.Generic.List<Player>();
+
+        foreach (var entry in contributors)
+        {
+            if (entry.Key is Player player)
+            {
+                players.Add(player);
+            }
+        }
+
+        if (players.Count == 0)
+            return;
+
+        int distributedGold = 0;
+
+        for (int i = 0; i < players.Count; i++)
+        {
+            Player player = players[i];
+
+            float damageShare =
+                contributors[player] / totalDamage;
+
+            int playerGold;
+
+            if (i == players.Count - 1)
+            {
+                // El último jugador recibe el sobrante.
+                // Esto garantiza que no se genere ni desaparezca oro.
+                playerGold =
+                    totalGold - distributedGold;
+            }
+            else
+            {
+                playerGold =
+                    Mathf.RoundToInt(
+                        totalGold * damageShare);
+
+                // Evitamos que el redondeo haga que
+                // repartamos más oro del disponible.
+                int remainingGold =
+                    totalGold - distributedGold;
+
+                playerGold =
+                    Mathf.Min(
+                        playerGold,
+                        remainingGold);
+            }
+
+            if (playerGold > 0)
+            {
+                player.AddGold(playerGold);
+                distributedGold += playerGold;
+
+                Debug.Log(
+                    $"[GoldReward] {player.name} recibe " +
+                    $"{playerGold} oro.");
+            }
+        }
+    }
 
     // =========================================================
     // QUESTS
@@ -257,6 +347,10 @@ public class Enemy : Character
         // =====================================================
 
         DistributeExperience();
+        // =====================================================
+        // GOLD
+        // =====================================================
+        DistributeGold();
 
         // =====================================================
         // DROPS

@@ -303,9 +303,11 @@ public class PlayerRespawnController : NetworkBehaviour
         }
     }
 
-    private void OnDestroy()
+    public override void OnDestroy()
     {
         if (respawnCoroutine != null)
             StopCoroutine(respawnCoroutine);
+
+        base.OnDestroy();
     }
 }
