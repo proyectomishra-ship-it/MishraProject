@@ -356,14 +356,29 @@ public class Enemy : Character
         // DROPS
         // =====================================================
 
-        GetComponent<DropController>()
-            ?.OnEnemyDied();
+        DropController dropController =
+     GetComponent<DropController>();
 
-        // =====================================================
-        // QUEST SYSTEM
-        // =====================================================
+        if (dropController == null)
+        {
+            Debug.LogError(
+                $"[Enemy] {name} no tiene DropController " +
+                "en el mismo GameObject.",
+                this);
+        }
+        else
+        {
+            Debug.Log(
+                $"[Enemy] Solicitando drops para {name}.",
+                this);
 
-        ReportQuestKill();
+            dropController.OnEnemyDied();
+        }
+            // =====================================================
+            // QUEST SYSTEM
+            // =====================================================
+
+            ReportQuestKill();
 
         // =====================================================
         // OTHER SYSTEMS

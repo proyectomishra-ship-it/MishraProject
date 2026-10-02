@@ -6,7 +6,8 @@ public class EnemyHealthBarSpawner : NetworkBehaviour
     [SerializeField]
     private EnemyHealthBarController healthBarPrefab;
 
-    private EnemyHealthBarController instance;
+
+private EnemyHealthBarController instance;
 
     public override void OnNetworkSpawn()
     {
@@ -28,14 +29,26 @@ public class EnemyHealthBarSpawner : NetworkBehaviour
             return;
         }
 
-        instance = Instantiate(healthBarPrefab);
+        // Crear la barra como hija del Player del enemigo.
+        instance = Instantiate(
+            healthBarPrefab,
+            transform
+        );
 
         instance.Initialize(sync);
 
         EnemyHealthBarFollow follow =
             instance.GetComponent<EnemyHealthBarFollow>();
 
-        follow.SetTarget(transform);
+        if (follow != null)
+        {
+            follow.SetTarget(transform);
+        }
+        else
+        {
+            Debug.LogError(
+                $"[{name}] Falta EnemyHealthBarFollow en la barra");
+        }
     }
 
     public override void OnNetworkDespawn()
@@ -45,4 +58,6 @@ public class EnemyHealthBarSpawner : NetworkBehaviour
             Destroy(instance.gameObject);
         }
     }
+
+
 }

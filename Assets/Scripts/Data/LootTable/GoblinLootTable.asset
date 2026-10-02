@@ -12,7 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c278709e6e717a4c957ec834362144b, type: 3}
   m_Name: GoblinLootTable
   m_EditorClassIdentifier: Assembly-CSharp::LootTableData
-  entries: []
-  dropChance: 0.75
+  entries:
+  - pickupPrefab: {fileID: 8465245626746728198, guid: eb7ad1fe16d3c88479d0fbe2b919c256, type: 3}
+    weight: 1
+    minQty: 1
+    maxQty: 1
+  - pickupPrefab: {fileID: 8667081609754078232, guid: 420cd594c7462e445bfaa500cb67ecc4, type: 3}
+    weight: 1
+    minQty: 1
+    maxQty: 1
+  - pickupPrefab: {fileID: 4025430886852021986, guid: 33813192a25747749a7ae3962b7227f0, type: 3}
+    weight: 1
+    minQty: 1
+    maxQty: 1
+  dropChance: 1
   minDrops: 0
   maxDrops: 1

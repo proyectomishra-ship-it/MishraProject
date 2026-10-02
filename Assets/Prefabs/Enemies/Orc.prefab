@@ -26,6 +26,7 @@ GameObject:
   - component: {fileID: 1345232341178550195}
   - component: {fileID: 2495585097734856660}
   - component: {fileID: -7338421870450463850}
+  - component: {fileID: 4749061441089400680}
   m_Layer: 6
   m_Name: Orc
   m_TagString: Untagged
@@ -157,6 +158,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   characterData: {fileID: 11400000, guid: da0f44b7b4a5f024d89f03065cf884be, type: 2}
   experienceReward: 150
+  goldReward: 10
   classMultiplier: 1
   enemyType: {fileID: 11400000, guid: d5baa4c16c27ebb41af4754232bfec37, type: 2}
 --- !u!114 &2119158155385085822
@@ -410,6 +412,22 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+--- !u!114 &4749061441089400680
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 486879105537464321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30e987484e9f5124699e754a166504a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DropController
+  ShowTopMostFoldoutHeaderGroup: 1
+  lootTable: {fileID: 11400000, guid: 48271b5e1b67a524c93504193643d065, type: 2}
+  pickupPrefab: {fileID: 4273785195938979488, guid: 7d5da6c904456cd43a9650abe115ae80, type: 3}
+  spreadRadius: 1.5
 --- !u!1 &4345575999677381695
 GameObject:
   m_ObjectHideFlags: 0

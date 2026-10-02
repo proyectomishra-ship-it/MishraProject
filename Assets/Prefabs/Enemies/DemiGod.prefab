@@ -58,6 +58,7 @@ GameObject:
   - component: {fileID: 3084592583816804984}
   - component: {fileID: -495038836468385053}
   - component: {fileID: -7363812818642782310}
+  - component: {fileID: 6001794245436955104}
   m_Layer: 6
   m_Name: DemiGod
   m_TagString: Untagged
@@ -190,6 +191,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   characterData: {fileID: 11400000, guid: a6395c22e55074e4aad6759457c0308c, type: 2}
   experienceReward: 500
+  goldReward: 10
   classMultiplier: 1
   enemyType: {fileID: 11400000, guid: ac37f87c06a543c4faf9c7e637c22916, type: 2}
 --- !u!114 &8787552271937325525
@@ -451,6 +453,22 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+--- !u!114 &6001794245436955104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6213672842236241244}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30e987484e9f5124699e754a166504a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DropController
+  ShowTopMostFoldoutHeaderGroup: 1
+  lootTable: {fileID: 11400000, guid: 48271b5e1b67a524c93504193643d065, type: 2}
+  pickupPrefab: {fileID: 4273785195938979488, guid: 7d5da6c904456cd43a9650abe115ae80, type: 3}
+  spreadRadius: 1.5
 --- !u!1 &6942961023349357977
 GameObject:
   m_ObjectHideFlags: 0

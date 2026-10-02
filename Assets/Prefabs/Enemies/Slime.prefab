@@ -173,6 +173,7 @@ GameObject:
   - component: {fileID: 965379376661360753}
   - component: {fileID: -2547478260151408326}
   - component: {fileID: -3368698729655879383}
+  - component: {fileID: 6353871848762795884}
   m_Layer: 6
   m_Name: Slime
   m_TagString: Untagged
@@ -304,6 +305,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   characterData: {fileID: 11400000, guid: fe18f72878ce67b4ca5a960261132aeb, type: 2}
   experienceReward: 100
+  goldReward: 10
   classMultiplier: 1
   enemyType: {fileID: 11400000, guid: 8f3668046e51ba848a248d58b9968a6c, type: 2}
 --- !u!114 &2949089841560888660
@@ -556,6 +558,22 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+--- !u!114 &6353871848762795884
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6607487739926507352}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30e987484e9f5124699e754a166504a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DropController
+  ShowTopMostFoldoutHeaderGroup: 1
+  lootTable: {fileID: 11400000, guid: 48271b5e1b67a524c93504193643d065, type: 2}
+  pickupPrefab: {fileID: 4273785195938979488, guid: 7d5da6c904456cd43a9650abe115ae80, type: 3}
+  spreadRadius: 1.5
 --- !u!1001 &2512222984759952799
 PrefabInstance:
   m_ObjectHideFlags: 0
