@@ -179,14 +179,22 @@ public class ClassAwareNetworkBootstrap : MonoBehaviour
 
     private string ResolveClassName(ulong clientId)
     {
-        if (GameSessionData.Instance != null)
-        {
-            string cls = GameSessionData.Instance.GetPlayerClass(clientId);
-            if (!string.IsNullOrEmpty(cls)) return cls;
-        }
+        // GetPlayerClass devolvia "Warrior" cuando el cliente no estaba
+        // registrado, asi que el fallback a PlayerPrefs de abajo nunca corria
+        // y un cliente sin clase terminaba como Warrior sin ningun aviso.
+        if (GameSessionData.Instance != null &&
+            GameSessionData.Instance.TryGetPlayerClass(clientId, out string cls))
+            return cls;
 
-        // Fallback a PlayerPrefs (host jugando solo o sesión sin GameSessionData)
-        return PlayerPrefs.GetString("SelectedClass", "Warrior");
+        // PlayerPrefs es local a esta maquina (la del servidor), por lo que
+        // solo es valido para el host. Para cualquier otro cliente seria la
+        // clase elegida por el host, no la suya.
+        if (clientId == NetworkManager.ServerClientId)
+            return PlayerPrefs.GetString("SelectedClass", "Warrior");
+
+        Debug.LogWarning($"[ClassSpawn] clientId {clientId} no registro una clase en " +
+                         "GameSessionData. Se usara 'Warrior' por defecto.");
+        return "Warrior";
     }
 
     private GameObject GetPrefabForClass(string className) => className switch

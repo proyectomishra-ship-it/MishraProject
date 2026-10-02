@@ -10,7 +10,7 @@ public class QuestTrackerUI : MonoBehaviour
     [SerializeField] private TMP_Text questObjectivesText;
     [SerializeField] private TMP_Text questRewardsText;
 
-private NetworkQuestManager questManager;
+    private NetworkQuestManager questManager;
 
     private void OnEnable()
     {
@@ -22,6 +22,11 @@ private NetworkQuestManager questManager;
         if (questManager != null)
         {
             questManager.OnQuestDataChanged -= RefreshUI;
+
+            // Se libera la referencia para que, al volver a activarse
+            // (por ejemplo al cerrar el inventario), OnEnable se vuelva
+            // a suscribir al evento.
+            questManager = null;
         }
     }
 
@@ -113,8 +118,7 @@ private NetworkQuestManager questManager;
             questTitleText.text = "No hay misiones activas";
         }
 
-
-if (questNameText != null)
+        if (questNameText != null)
         {
             questNameText.text = string.Empty;
         }
@@ -128,10 +132,7 @@ if (questNameText != null)
         {
             questRewardsText.text = string.Empty;
         }
-
-
-}
-
+    }
 
     private string BuildObjectiveText(
         QuestData questData,
@@ -221,6 +222,4 @@ if (questNameText != null)
 
         return result;
     }
-
-
 }

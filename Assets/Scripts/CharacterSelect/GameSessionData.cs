@@ -29,6 +29,13 @@ public class GameSessionData : MonoBehaviour
         Debug.Log($"[GameSessionData] ClientId {clientId} → {className}");
     }
 
+    /// <summary>
+    /// Devuelve true solo si ese cliente registro una clase. A diferencia de
+    /// GetPlayerClass, no inventa un valor por defecto.
+    /// </summary>
+    public bool TryGetPlayerClass(ulong clientId, out string className)
+        => playerClasses.TryGetValue(clientId, out className) && !string.IsNullOrEmpty(className);
+
     public string GetPlayerClass(ulong clientId)
     {
         return playerClasses.TryGetValue(clientId, out string cls) ? cls : "Warrior";
