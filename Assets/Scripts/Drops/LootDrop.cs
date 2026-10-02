@@ -1,16 +1,20 @@
+using UnityEngine;
+
 /// <summary>
-/// Resultado inmutable de una tirada de loot.
+/// Resultado de una tirada de loot.
+/// Contiene el prefab físico que debe aparecer
+/// y la cantidad de unidades que representa.
+/// 
 /// Solo datos, cero lógica.
-/// ACCIÓN: archivo nuevo en Assets/Scripts/Drops/
 /// </summary>
 public readonly struct LootDrop
 {
-    public readonly ItemData Item;
-    public readonly int      Quantity;
+    public readonly GameObject PickupPrefab;
+    public readonly int Quantity;
 
-    public LootDrop(ItemData item, int quantity)
+    public LootDrop(GameObject pickupPrefab, int quantity)
     {
-        Item     = item;
+        PickupPrefab = pickupPrefab;
         Quantity = quantity;
     }
 }

@@ -172,6 +172,7 @@ GameObject:
   - component: {fileID: 1535219069391089}
   - component: {fileID: -4094408156573138052}
   - component: {fileID: 5480610269788589556}
+  - component: {fileID: 6516773240660146794}
   m_Layer: 6
   m_Name: Goblin
   m_TagString: Untagged
@@ -208,7 +209,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2838185071
+  GlobalObjectIdHash: 4249552721
   InScenePlacedSourceGlobalObjectIdHash: 4249552721
   DeferredDespawnTick: 0
   Ownership: 1
@@ -304,6 +305,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   characterData: {fileID: 11400000, guid: 0b6c3080a641e714092261b98988bf88, type: 2}
   experienceReward: 100
+  goldReward: 10
   classMultiplier: 1
   enemyType: {fileID: 11400000, guid: ba715031d42214d47bbf7b52e3834439, type: 2}
 --- !u!114 &86565851316333055
@@ -554,6 +556,22 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+--- !u!114 &6516773240660146794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8782805890344179306}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30e987484e9f5124699e754a166504a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DropController
+  ShowTopMostFoldoutHeaderGroup: 1
+  lootTable: {fileID: 11400000, guid: 48271b5e1b67a524c93504193643d065, type: 2}
+  pickupPrefab: {fileID: 4273785195938979488, guid: 7d5da6c904456cd43a9650abe115ae80, type: 3}
+  spreadRadius: 1.5
 --- !u!1001 &4256796809999203180
 PrefabInstance:
   m_ObjectHideFlags: 0
