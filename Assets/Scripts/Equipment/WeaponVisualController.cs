@@ -34,7 +34,9 @@ using UnityEngine;
 ///   hijo de Capsule) y se loguea un warning en vez de romper todo.
 ///
 /// NOTA SOBRE JUGADORES REMOTOS:
-///   El visual SOLO se muestra para el jugador local (IsOwner = true).
+///   El visual se arma en todos los clientes (propio y remotos) a partir del
+///   estado sincronizado en EquipmentNetworkSync, que el servidor replica a
+///   todos. Las camaras siguen siendo locales (ver PlayerCameraBinder).
 /// </summary>
 public class WeaponVisualController : MonoBehaviour
 {
@@ -72,6 +74,13 @@ public class WeaponVisualController : MonoBehaviour
     private MeshRenderer placeholderRenderer;
     private GameObject spawnedVisual;
 
+    // Ultimo arma para la que se armo el visual. Evita destruir y recrear el
+    // arma en la mano cuando el refresh se pide de nuevo para la misma arma
+    // (por ejemplo el refresh inicial de Start() despues del que ya hizo
+    // EquipmentController al spawnear).
+    private bool visualApplied;
+    private WeaponData appliedWeapon;
+
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     private void Awake()
@@ -103,7 +112,16 @@ public class WeaponVisualController : MonoBehaviour
         }
 
         if (placeholderWeapon != null)
+        {
             placeholderRenderer = placeholderWeapon.GetComponent<MeshRenderer>();
+
+            // El Cube es solo un socket visual en la mano. Sus colliders no
+            // sirven para el combate y, al estar activos, empujan a los
+            // CharacterController de otros jugadores (ahora que el arma
+            // tambien se arma en jugadores remotos, cada copia del jugador
+            // tendria un cubo solido pegado a la mano).
+            DisableColliders(placeholderWeapon);
+        }
 
         AttachSocketToHandBone();
 
@@ -170,13 +188,6 @@ public class WeaponVisualController : MonoBehaviour
 
         Debug.Log($"[WeaponVisual] >>> Start() en '{gameObject.name}': IsOwner = {equipmentController.IsOwner}");
 
-        if (!equipmentController.IsOwner)
-        {
-            Debug.Log($"[WeaponVisual] >>> Start() ABORTA en '{gameObject.name}': " +
-                      "no es el jugador local (IsOwner = false).");
-            yield break;
-        }
-
         var weapon = equipmentController.GetEquippedWeapon();
 
         Debug.Log($"[WeaponVisual] >>> {name} — refresh inicial: " +
@@ -207,12 +218,6 @@ public class WeaponVisualController : MonoBehaviour
             return;
         }
 
-        if (!equipmentController.IsOwner)
-        {
-            Debug.Log($"[WeaponVisual] >>> ABORTA en '{gameObject.name}': IsOwner = false.");
-            return;
-        }
-
         Debug.Log($"[WeaponVisual] {name} — OnSlotChanged: " +
                   $"arma = '{(item as WeaponData)?.ItemName ?? "ninguna"}'");
 
@@ -226,6 +231,12 @@ public class WeaponVisualController : MonoBehaviour
         Debug.Log($"[WeaponVisual] >>> RefreshWeaponVisual('{weapon?.ItemName ?? "null"}') en '{gameObject.name}'. " +
                   $"placeholderWeapon = {(placeholderWeapon != null ? placeholderWeapon.name : "NULL")}");
 
+        if (visualApplied && weapon == appliedWeapon)
+        {
+            Debug.Log($"[WeaponVisual] >>> Sin cambios: '{weapon?.ItemName ?? "ninguna"}' ya esta aplicada en '{gameObject.name}'.");
+            return;
+        }
+
         if (spawnedVisual != null)
         {
             Destroy(spawnedVisual);
@@ -235,6 +246,8 @@ public class WeaponVisualController : MonoBehaviour
         if (weapon == null)
         {
             SetCubeActive(false);
+            visualApplied = true;
+            appliedWeapon = null;
             return;
         }
 
@@ -245,6 +258,9 @@ public class WeaponVisualController : MonoBehaviour
             return;
         }
 
+        visualApplied = true;
+        appliedWeapon = weapon;
+
         SetCubeActive(true);
 
         if (weapon.WeaponVisualPrefab != null)
@@ -254,6 +270,9 @@ public class WeaponVisualController : MonoBehaviour
             spawnedVisual = Instantiate(
                 weapon.WeaponVisualPrefab,
                 placeholderWeapon.transform);
+
+            // Mismo motivo que arriba: el modelo del arma es solo visual.
+            DisableColliders(spawnedVisual);
 
             spawnedVisual.transform.SetLocalPositionAndRotation(
                 Vector3.zero,
@@ -291,6 +310,12 @@ public class WeaponVisualController : MonoBehaviour
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private static void DisableColliders(GameObject root)
+    {
+        foreach (Collider col in root.GetComponentsInChildren<Collider>(true))
+            col.enabled = false;
+    }
 
     private void SetCubeActive(bool active)
     {

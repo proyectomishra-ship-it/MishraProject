@@ -11,9 +11,9 @@ using UnityEngine;
 [RequireComponent(typeof(EquipmentNetworkSync))]
 public class EquipmentController : NetworkBehaviour
 {
-    private EquipmentSlotSet        slots;
+    private EquipmentSlotSet slots;
     private EquipmentStatApplicator applicator;
-    private EquipmentNetworkSync    sync;
+    private EquipmentNetworkSync sync;
 
     /// <summary>
     /// Slot modificado + item nuevo (null = desequipado).
@@ -25,13 +25,26 @@ public class EquipmentController : NetworkBehaviour
 
     public void Initialize(Character owner)
     {
-        slots      = new EquipmentSlotSet();
+        slots = new EquipmentSlotSet();
         applicator = new EquipmentStatApplicator(owner.GetStats());
         slots.OnSlotChanged += HandleLocalSlotChanged;
     }
 
     public override void OnNetworkSpawn()
-        => sync.Subscribe(HandleNetworkChanged);
+    {
+        sync.Subscribe(HandleNetworkChanged);
+
+        // Re-emite el estado actual de los slots ocupados. Cubre dos casos en
+        // los que el evento de cambio nunca llega a los suscriptores:
+        //   - Cliente: el valor inicial de la NetworkVariable llega con el
+        //     spawn y NGO no dispara OnValueChanged para el.
+        //   - Servidor/host: si Player.OnNetworkSpawn equipo el arma inicial
+        //     ANTES de que este componente se suscribiera a la variable.
+        // Sin esto, WeaponVisualController dependia de esperar 2 frames.
+        foreach (EquipmentSlot slot in System.Enum.GetValues(typeof(EquipmentSlot)))
+            if (IsOccupied(slot))
+                OnSlotChanged?.Invoke(slot, GetEquipped(slot));
+    }
 
     public override void OnNetworkDespawn()
         => sync.Unsubscribe(HandleNetworkChanged);
@@ -112,10 +125,16 @@ public class EquipmentController : NetworkBehaviour
     }
 
     private void HandleNetworkChanged(
-        EquipmentNetworkSync.Snapshot _,
-        EquipmentNetworkSync.Snapshot __)
+        EquipmentNetworkSync.Snapshot previous,
+        EquipmentNetworkSync.Snapshot current)
     {
+        // Solo se notifican los slots que realmente cambiaron. Antes se
+        // disparaban los 7 en cada cambio, asi que equipar un casco hacia que
+        // WeaponVisualController destruyera y recreara el arma en la mano.
         foreach (EquipmentSlot slot in System.Enum.GetValues(typeof(EquipmentSlot)))
+        {
+            if (previous.Get(slot) == current.Get(slot)) continue;
             OnSlotChanged?.Invoke(slot, GetEquipped(slot));
+        }
     }
 }
