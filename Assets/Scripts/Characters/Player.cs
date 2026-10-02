@@ -86,12 +86,7 @@ public class Player : Character
         }
 
         if (!IsOwner)
-        {
-            // Jugador remoto:
-            // ocultar todos sus renderers en este cliente.
-            OcultarRenderersRemotos();
             return;
-        }
 
         inputController?.Initialize(this);
 
@@ -599,29 +594,6 @@ public class Player : Character
     public override void OnAttackReleased()
     {
         playerCombatController?.OnAttackReleased();
-    }
-
-    // =====================================================
-    // CÁMARA / VISIBILIDAD
-    // =====================================================
-
-    /// <summary>
-    /// Desactiva todos los Renderer del jugador remoto
-    /// en este cliente.
-    /// </summary>
-    private void OcultarRenderersRemotos()
-    {
-        foreach (
-            Renderer r in GetComponentsInChildren<Renderer>(
-                includeInactive: true))
-        {
-            r.enabled = false;
-        }
-
-        Debug.Log(
-            $"[Player] Renderers ocultos para jugador remoto: " +
-            $"{gameObject.name}"
-        );
     }
     /// <summary>
     /// Inicia el proceso de muerte y respawn del Player.

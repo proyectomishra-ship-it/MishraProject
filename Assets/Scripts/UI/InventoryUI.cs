@@ -26,6 +26,10 @@ public class InventoryUI : MonoBehaviour
     [Header("Panel principal")]
     [SerializeField] private GameObject inventoryPanel;
 
+    [Header("HUD a ocultar con el inventario abierto")]
+    [Tooltip("Objetos que se apagan al abrir el inventario (misiones, oro, etc.).")]
+    [SerializeField] private GameObject[] hudToHideWhenOpen;
+
     [Header("Pestañas")]
     [Tooltip("Botones para alternar entre la vista de Objetos y la de Crafteo.")]
     [SerializeField] private Button itemsTabButton;
@@ -39,6 +43,17 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private RawImage characterPreview;
     [SerializeField] private Transform equipmentContainer;
     [SerializeField] private InventorySlotUI slotPrefab;
+
+    [System.Serializable]
+    public struct SlotPlaceholder
+    {
+        public EquipmentSlot slot;
+        public Sprite sprite;
+    }
+
+    [Tooltip("Silueta que se muestra en cada slot de equipamiento mientras esta vacio. " +
+             "Si un tipo no esta en la lista, ese slot muestra su etiqueta de texto.")]
+    [SerializeField] private List<SlotPlaceholder> slotPlaceholders = new();
 
     [Header("Objetos — Grilla de items")]
     [SerializeField] private Transform itemGridContainer;
@@ -182,6 +197,7 @@ public class InventoryUI : MonoBehaviour
     {
         isOpen = !isOpen;
         inventoryPanel?.SetActive(isOpen);
+        SetHudVisible(!isOpen);
 
         if (isOpen) previewCamera?.Show();
         else previewCamera?.Hide();
@@ -205,6 +221,18 @@ public class InventoryUI : MonoBehaviour
         }
 
         Debug.Log($"[InventoryUI] {(isOpen ? "Abierto" : "Cerrado")}");
+    }
+
+    /// <summary>
+    /// Muestra u oculta el HUD (misiones, oro, etc.) segun el inventario
+    /// este cerrado o abierto.
+    /// </summary>
+    private void SetHudVisible(bool visible)
+    {
+        if (hudToHideWhenOpen == null) return;
+
+        foreach (var go in hudToHideWhenOpen)
+            if (go != null) go.SetActive(visible);
     }
 
     // =========================
@@ -271,11 +299,25 @@ public class InventoryUI : MonoBehaviour
             foreach (EquipmentSlot slot in System.Enum.GetValues(typeof(EquipmentSlot)))
             {
                 var slotUI = Instantiate(slotPrefab, equipmentContainer);
+                // Nombre visible en la Hierarchy para saber cual es cada slot.
+                slotUI.name = $"Slot_{slot}";
                 slotUI.Setup(slot, equipment);
                 slotUI.OnUnequipRequested += RequestUnequip;
                 slotUIs.Add(slotUI);
             }
         }
+
+        foreach (var slotUI in slotUIs)
+            slotUI.SetPlaceholder(GetPlaceholderSprite(slotUI.Slot));
+    }
+
+    private Sprite GetPlaceholderSprite(EquipmentSlot slot)
+    {
+        foreach (var entry in slotPlaceholders)
+            if (entry.slot == slot && entry.sprite != null)
+                return entry.sprite;
+
+        return null;
     }
 
     private void RefreshEquipmentSlots()
