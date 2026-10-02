@@ -1,4 +1,5 @@
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
+using System.Collections.Generic;
 using System.Text;
 using Unity.Netcode;
 using UnityEngine;
@@ -26,6 +27,10 @@ public class NetworkEnemyDiagnostics : MonoBehaviour
     private float sceneTime;
     private NetworkManager subscribedTo;
 
+    // Objetos de red conocidos en esta maquina (id -> nombre), para detectar
+    // cuando uno aparece o desaparece y en que escena estaba.
+    private readonly Dictionary<ulong, string> known = new Dictionary<ulong, string>();
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void AutoCreate()
     {
@@ -41,10 +46,12 @@ public class NetworkEnemyDiagnostics : MonoBehaviour
         if (nm == null || !nm.IsListening)
         {
             subscribedTo = null;
+            known.Clear();
             return;
         }
 
         SubscribeSceneEvents(nm);
+        TrackSpawnedObjects(nm);
 
         if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != GameScene)
         {
@@ -73,9 +80,52 @@ public class NetworkEnemyDiagnostics : MonoBehaviour
         if (subscribedTo == nm || nm.SceneManager == null) return;
 
         subscribedTo = nm;
+
+        // Hace que el propio Netcode escriba mas detalle sobre spawns y
+        // problemas de escena en la consola.
+        nm.LogLevel = LogLevel.Developer;
+
         nm.SceneManager.OnSceneEvent += e =>
             Debug.Log($"[Diag:{Role(nm)}] SceneEvent {e.SceneEventType} " +
                       $"escena='{e.SceneName}' clientId={e.ClientId} t={Time.realtimeSinceStartup:F1}s");
+    }
+
+    private void TrackSpawnedObjects(NetworkManager nm)
+    {
+        if (nm.SpawnManager == null) return;
+
+        var current = nm.SpawnManager.SpawnedObjects;
+        string active = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+
+        // Objetos nuevos
+        foreach (var kv in current)
+        {
+            if (known.ContainsKey(kv.Key)) continue;
+
+            string objName = kv.Value != null ? kv.Value.name : "(null)";
+            string scene = kv.Value != null ? kv.Value.gameObject.scene.name : "?";
+            known[kv.Key] = objName;
+
+            Debug.Log($"[Diag:{Role(nm)}] + SPAWN id={kv.Key} '{objName}' " +
+                      $"escena='{scene}' escenaActiva='{active}' t={Time.realtimeSinceStartup:F1}s");
+        }
+
+        // Objetos que desaparecieron
+        List<ulong> gone = null;
+        foreach (var kv in known)
+        {
+            if (current.ContainsKey(kv.Key)) continue;
+            (gone ??= new List<ulong>()).Add(kv.Key);
+        }
+
+        if (gone == null) return;
+
+        foreach (ulong id in gone)
+        {
+            Debug.Log($"[Diag:{Role(nm)}] - DESPAWN id={id} '{known[id]}' " +
+                      $"escenaActiva='{active}' t={Time.realtimeSinceStartup:F1}s");
+            known.Remove(id);
+        }
     }
 
     private void Report(NetworkManager nm)
