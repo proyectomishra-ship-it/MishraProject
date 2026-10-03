@@ -44,6 +44,10 @@ public class PlayerCombatController : NetworkBehaviour
     private bool isHoldingAttack;
     private bool heavyTriggered;
 
+    // Animacion + cooldown de ataque (1 / AttackSpeed del arma)
+    private PlayerAnimationController anim;
+    private float nextAttackTime;
+
     // =========================================================
     // INIT
     // =========================================================
@@ -56,6 +60,7 @@ public class PlayerCombatController : NetworkBehaviour
         equipment = player.GetEquipment();
         resources = player.GetResourceController();
         targeting = player.GetComponent<TargetingController>();
+        anim = player.GetComponent<PlayerAnimationController>();
     }
 
     // =========================================================
@@ -165,6 +170,8 @@ public class PlayerCombatController : NetworkBehaviour
 
     private void PerformAttack(bool heavy)
     {
+        if (!CanAttackNow()) return;
+
         Character target = FindTarget();
 
         // FIX: null check expl�cito antes de validar.
@@ -174,12 +181,14 @@ public class PlayerCombatController : NetworkBehaviour
         if (target == null)
         {
             Debug.LogWarning("[PlayerCombat] Sin enemigo en rango para atacar");
+            PlayAttackFeedback(heavy ? PlayerAttackAnim.Heavy : PlayerAttackAnim.Light); // golpe al aire
             return;
         }
 
         if (!ValidateHit(target))
         {
             Debug.LogWarning("[PlayerCombat] Hit validation failed");
+            PlayAttackFeedback(heavy ? PlayerAttackAnim.Heavy : PlayerAttackAnim.Light);
             return;
         }
 
@@ -209,6 +218,8 @@ public class PlayerCombatController : NetworkBehaviour
         // EXECUTE VIA BEHAVIOR
         // =====================================================
 
+        PlayAttackFeedback(heavy ? PlayerAttackAnim.Heavy : PlayerAttackAnim.Light);
+
         IWeaponBehavior behavior = GetCurrentBehavior();
 
         if (heavy)
@@ -235,6 +246,8 @@ public class PlayerCombatController : NetworkBehaviour
 
     private void PerformSpecialAttack()
     {
+        if (!CanAttackNow()) return;
+
         Character target = FindTarget();
 
         if (target == null)
@@ -242,6 +255,7 @@ public class PlayerCombatController : NetworkBehaviour
             Debug.LogWarning(
                 "[PlayerCombat] No special target");
 
+            PlayAttackFeedback(PlayerAttackAnim.Special);
             return;
         }
 
@@ -250,6 +264,7 @@ public class PlayerCombatController : NetworkBehaviour
             Debug.LogWarning(
                 "[PlayerCombat] Special validation failed");
 
+            PlayAttackFeedback(PlayerAttackAnim.Special);
             return;
         }
 
@@ -268,11 +283,37 @@ public class PlayerCombatController : NetworkBehaviour
             return;
         }
 
+        PlayAttackFeedback(PlayerAttackAnim.Special);
+
         GetCurrentBehavior()
             .PerformSpecialAttack(player, target);
 
         Debug.Log(
             $"[PlayerCombat] SPECIAL {player.name} -> {target.name}");
+    }
+
+    // =========================================================
+    // ANIMACION / COOLDOWN
+    // =========================================================
+
+    private bool CanAttackNow()
+    {
+        return !player.IsDead() && Time.time >= nextAttackTime;
+    }
+
+    /// <summary>
+    /// Arranca el cooldown (AttackSpeed = ataques por segundo) y reproduce la
+    /// animacion en todos los clientes. Se llama tambien cuando el golpe no
+    /// conecta, para que el swing se vea igual.
+    /// </summary>
+    private void PlayAttackFeedback(PlayerAttackAnim kind)
+    {
+        WeaponData weapon = GetCurrentWeapon();
+        float attacksPerSecond = weapon != null && weapon.AttackSpeed > 0f ? weapon.AttackSpeed : 1f;
+        nextAttackTime = Time.time + 1f / attacksPerSecond;
+
+        if (anim != null)
+            anim.PlayAttack(kind);
     }
 
     // =========================================================

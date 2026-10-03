@@ -16,6 +16,9 @@ public class MovementController : NetworkBehaviour
 
     private float verticalVelocity = 0f;
 
+    /// <summary>Multiplicador de velocidad al correr. Lo lee PlayerAnimationController.</summary>
+    public float RunMultiplier => runMultiplier;
+
     // ── Estado de movimiento ──────────────────────────────────────────────────
     // El servidor guarda el último input recibido y lo aplica en su propio
     // Update(), desacoplado del framerate/latencia del cliente.

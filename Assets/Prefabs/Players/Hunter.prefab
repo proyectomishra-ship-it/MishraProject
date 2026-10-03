@@ -26,7 +26,6 @@ GameObject:
   - component: {fileID: 8560221558370070960}
   - component: {fileID: 757137758013402256}
   - component: {fileID: 2204349867824630421}
-  - component: {fileID: 1549136592635594134}
   - component: {fileID: 1179369870442879496}
   - component: {fileID: 3528034692115460981}
   - component: {fileID: 7338017994978780666}
@@ -416,28 +415,6 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
---- !u!95 &1549136592635594134
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2211492265159698303}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 0}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &1179369870442879496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -517,6 +494,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   respawnDelay: 5
   postRespawnInvulnerability: 1.5
+  hideModelOnDeath: 0
   IsDead:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0

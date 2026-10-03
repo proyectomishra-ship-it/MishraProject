@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
@@ -62,6 +63,9 @@ public class InventoryUI : MonoBehaviour
     [Header("Objetos — Detalle del item")]
     [SerializeField] private Image detailIcon;
     [SerializeField] private TextMeshProUGUI detailName;
+    [Tooltip("Opcional: texto con las estadisticas, ubicado debajo del nombre. " +
+             "Si queda vacio, las estadisticas se muestran al inicio de la descripcion.")]
+    [SerializeField] private TextMeshProUGUI detailStats;
     [SerializeField] private TextMeshProUGUI detailDescription;
     [SerializeField] private TextMeshProUGUI detailQuantity;
     [SerializeField] private Button equipButton;
@@ -364,7 +368,25 @@ public class InventoryUI : MonoBehaviour
             detailIcon.enabled = item.Icon != null;
         }
         if (detailName != null) detailName.text = item.ItemName;
-        if (detailDescription != null) detailDescription.text = item.Description;
+
+        // Estadisticas del item (armas y equipamiento). Vacio para el resto.
+        string stats = BuildItemStats(item);
+        if (detailStats != null)
+        {
+            // Hay un texto dedicado debajo del nombre.
+            detailStats.text = stats;
+            detailStats.gameObject.SetActive(!string.IsNullOrEmpty(stats));
+            if (detailDescription != null) detailDescription.text = item.Description;
+        }
+        else if (detailDescription != null)
+        {
+            // Sin texto dedicado: las stats van primero y la descripcion despues.
+            bool hasDesc = !string.IsNullOrEmpty(item.Description);
+            detailDescription.text = string.IsNullOrEmpty(stats) ? item.Description
+                                   : hasDesc ? stats + "\n\n" + item.Description
+                                   : stats;
+        }
+
         if (detailQuantity != null) detailQuantity.text = qty > 1 ? $"Cantidad: {qty}" : "";
 
         bool isEquippable = item is IEquippable;
@@ -391,6 +413,90 @@ public class InventoryUI : MonoBehaviour
         selectedItem = null;
         UpdateDetailVisibility();
     }
+
+    // =========================
+    // ESTADISTICAS DEL ITEM
+    // =========================
+
+    /// <summary>
+    /// Arma el texto de estadisticas de un item equipable.
+    /// Armas: tipo, modificadores, velocidad, ataque fuerte y especial.
+    /// Otro equipamiento: solo sus modificadores. Devuelve "" si no aplica.
+    /// </summary>
+    private static string BuildItemStats(ItemData item)
+    {
+        if (item is not IEquippable equippable) return "";
+
+        var sb = new StringBuilder();
+
+        if (item is WeaponData weapon)
+        {
+            AppendLine(sb, $"Tipo: {WeaponTypeLabel(weapon.WeaponType)}");
+            AppendModifiers(sb, weapon.Modifiers);
+            AppendLine(sb, $"Velocidad de ataque: x{Fmt(weapon.AttackSpeed)}");
+
+            string heavy = $"Ataque fuerte: x{Fmt(weapon.HeavyMultiplier)}";
+            if (weapon.StaminaCost > 0f) heavy += $" ({Fmt(weapon.StaminaCost)} stamina)";
+            AppendLine(sb, heavy);
+
+            string special = $"Ataque especial: x{Fmt(weapon.SpecialMultiplier)}";
+            if (weapon.ManaCost > 0f) special += $" ({Fmt(weapon.ManaCost)} maná)";
+            AppendLine(sb, special);
+        }
+        else
+        {
+            AppendModifiers(sb, equippable.Modifiers);
+        }
+
+        return sb.ToString().TrimEnd('\n');
+    }
+
+    private static void AppendModifiers(StringBuilder sb, List<StatModifier> modifiers)
+    {
+        if (modifiers == null) return;
+
+        foreach (var mod in modifiers)
+        {
+            if (mod == null) continue;
+            string sign = mod.value >= 0f ? "+" : "";
+            AppendLine(sb, $"{StatLabel(mod.stat)}: {sign}{Fmt(mod.value)}");
+        }
+    }
+
+    // '\n' fijo (en vez de AppendLine) para que TextMeshPro lo trate igual en todas las plataformas.
+    private static void AppendLine(StringBuilder sb, string text) => sb.Append(text).Append('\n');
+
+    private static string Fmt(float value) => value.ToString("0.##");
+
+    private static string StatLabel(StatType stat) => stat switch
+    {
+        StatType.Attack => "Ataque",
+        StatType.AttackRange => "Rango de ataque",
+        StatType.Defense => "Defensa",
+        StatType.MaxHealth => "Vida máxima",
+        StatType.MaxMana => "Maná máximo",
+        StatType.Speed => "Velocidad",
+        StatType.Agility => "Agilidad",
+        StatType.CriticalChance => "Prob. crítica",
+        StatType.Dexterity => "Destreza",
+        StatType.Intelligence => "Inteligencia",
+        StatType.Vitality => "Vitalidad",
+        StatType.Stamina => "Stamina",
+        StatType.Luck => "Suerte",
+        _ => stat.ToString()
+    };
+
+    private static string WeaponTypeLabel(WeaponType type) => type switch
+    {
+        WeaponType.Sword => "Espada",
+        WeaponType.Axe => "Hacha",
+        WeaponType.Bow => "Arco",
+        WeaponType.Dagger => "Daga",
+        WeaponType.Staff => "Bastón",
+        WeaponType.Mace => "Maza",
+        WeaponType.Grimoire => "Grimorio",
+        _ => "-"
+    };
 
     private void OnEquipButtonClicked()
     {
