@@ -19,6 +19,7 @@ public class Player : Character
     private InventoryUI inventoryUI;
 
     private PlayerRespawnController respawnController;
+    private PlayerAnimationController animationController;
     // =====================================================
     // LIFECYCLE
     // =====================================================
@@ -33,6 +34,7 @@ public class Player : Character
         goldController = GetComponent<GoldController>();
         craftingController = GetComponent<CraftingController>();
         respawnController = GetComponent<PlayerRespawnController>();
+        animationController = GetComponent<PlayerAnimationController>();
 
         if (goldController == null)
             Debug.LogError("[Player] Falta GoldController");
@@ -595,6 +597,27 @@ public class Player : Character
     {
         playerCombatController?.OnAttackReleased();
     }
+
+    /// <summary>
+    /// Click derecho. Character.SpecialAttack() esta vacio y Player no lo
+    /// sobreescribia, asi que el ataque especial del jugador nunca llegaba al
+    /// servidor. RequestSpecialAttackServerRpc ya existia en PlayerCombatController.
+    /// </summary>
+    public override void SpecialAttack()
+    {
+        if (IsOwner)
+            playerCombatController?.RequestSpecialAttackServerRpc();
+    }
+
+    /// <summary>
+    /// DamageReceiver.TakeDamage lo llama en el servidor. Dispara la animacion de golpe.
+    /// </summary>
+    protected override void OnDamaged(Character attacker)
+    {
+        if (animationController != null)
+            animationController.PlayHit();
+    }
+
     /// <summary>
     /// Inicia el proceso de muerte y respawn del Player.
     /// Solo tiene efecto en el servidor.
