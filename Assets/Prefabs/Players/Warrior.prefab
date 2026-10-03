@@ -26,12 +26,12 @@ GameObject:
   - component: {fileID: 8560221558370070960}
   - component: {fileID: 757137758013402256}
   - component: {fileID: 2204349867824630421}
-  - component: {fileID: 1549136592635594134}
   - component: {fileID: 1179369870442879496}
   - component: {fileID: 7648748261978975736}
   - component: {fileID: 7338017994978780666}
   - component: {fileID: 395255024593071542}
   - component: {fileID: 5933784223730678207}
+  - component: {fileID: 2831718485654646793}
   m_Layer: 3
   m_Name: Warrior
   m_TagString: Player
@@ -416,28 +416,6 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
---- !u!95 &1549136592635594134
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2211492265159698303}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 0}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &1179369870442879496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -517,6 +495,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   respawnDelay: 5
   postRespawnInvulnerability: 1.5
+  hideModelOnDeath: 0
   IsDead:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -527,6 +506,30 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+--- !u!114 &2831718485654646793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2211492265159698303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f0217b6618c462488d137db32dfc3c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimationController
+  ShowTopMostFoldoutHeaderGroup: 1
+  animationSet: {fileID: 11400000, guid: ee2bddf7f8919f84db42e94b0d8cc7b6, type: 2}
+  animator: {fileID: 0}
+  speedDampTime: 0.08
+  teleportDistance: 3
+  minMoveSpeed: 0.05
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  groundCheckDistance: 0.2
+  airborneDelay: 0.1
+  minTimeBetweenHits: 0.4
 --- !u!1 &6088325270206399613
 GameObject:
   m_ObjectHideFlags: 0
@@ -1012,10 +1015,40 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: a3b4f8f51c57b18419f867c3b67b1976, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8064567673304040158}
   m_SourcePrefab: {fileID: 100100000, guid: a3b4f8f51c57b18419f867c3b67b1976, type: 3}
 --- !u!4 &5999509703906680391 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a3b4f8f51c57b18419f867c3b67b1976, type: 3}
   m_PrefabInstance: {fileID: 6109189195264211372}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &6343701491557958909 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: a3b4f8f51c57b18419f867c3b67b1976, type: 3}
+  m_PrefabInstance: {fileID: 6109189195264211372}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &8064567673304040158
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6343701491557958909}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: a3b4f8f51c57b18419f867c3b67b1976, type: 3}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

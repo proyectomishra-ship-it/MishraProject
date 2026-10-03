@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6ded05ef88ffde41bc735584a710ed9, type: 3}
+  m_Name: ZitaAnimationSet
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimationSet
+  baseClips:
+    idle: {fileID: -623603649343465320, guid: 8445ff8a55b0a6b41aed2ef98d37df18, type: 3}
+    walk: {fileID: 1930374127952063625, guid: 9bea3b300291edf4c8ea5487f9a8af3a, type: 3}
+    run: {fileID: -4572650651892053679, guid: 1b2c6990cb54e77408d55c52e14f644d, type: 3}
+    jump: {fileID: 0}
+    fall: {fileID: 0}
+    land: {fileID: 0}
+    attackLight: {fileID: 0}
+    attackHeavy: {fileID: 0}
+    attackSpecial: {fileID: 0}
+    hit: {fileID: 0}
+    death: {fileID: 0}
+    revive: {fileID: 0}
+  weaponOverrides: []
+  controller: {fileID: 0}
