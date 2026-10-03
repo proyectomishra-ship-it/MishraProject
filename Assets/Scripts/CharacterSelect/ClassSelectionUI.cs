@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -48,6 +49,18 @@ public class ClassSelectionUI : NetworkBehaviour
 
     private string selectedClass = "";
     private bool isReady = false;
+
+    // ─── Estado de confirmaciones (solo se usa en el servidor) ────────────────
+
+    // Clases que el servidor acepta. Deben coincidir con las del bootstrap.
+    private static readonly HashSet<string> ValidClasses = new() { "Warrior", "Mage", "Hunter" };
+
+    // Clientes que ya confirmaron. readyCount se deriva de este set, de modo que
+    // un mismo cliente no puede sumar dos veces y los que se desconectan dejan de contar.
+    private readonly HashSet<ulong> confirmedClients = new();
+
+    // Evita cargar la escena de juego más de una vez.
+    private bool gameStarting = false;
 
     private void Start()
     {
@@ -155,9 +168,13 @@ public class ClassSelectionUI : NetworkBehaviour
         int newTotal = Mathf.Max(1, NetworkManager.Singleton.ConnectedClients.Count);
         totalPlayers.Value = newTotal;
 
-        // Si el que se fue ya había confirmado y ahora readyCount >= totalPlayers → iniciar
-        if (readyCount.Value >= totalPlayers.Value && readyCount.Value > 0)
-            LoadGameScene();
+        // El que se fue ya no cuenta como listo (antes seguía sumando en readyCount
+        // y podía arrancar la partida sin que otro jugador hubiera confirmado).
+        confirmedClients.Remove(clientId);
+        RefreshReadyCount();
+
+        // Si los que quedan ya están todos listos → iniciar
+        TryStartGame();
 
         Debug.Log($"[ClassSelect] Cliente desconectado: {clientId}. Total: {totalPlayers.Value}");
     }
@@ -212,15 +229,57 @@ public class ClassSelectionUI : NetworkBehaviour
     private void ConfirmClassServerRpc(string className, RpcParams rpcParams = default)
     {
         ulong clientId = rpcParams.Receive.SenderClientId;
-        GameSessionData.Instance?.SetPlayerClass(clientId, className);
 
-        readyCount.Value++;
+        // La partida ya está arrancando: ignorar confirmaciones tardías.
+        if (gameStarting) return;
+
+        // Validar la clase en el servidor: no se confía en lo que manda el cliente.
+        if (string.IsNullOrEmpty(className) || !ValidClasses.Contains(className))
+        {
+            Debug.LogWarning($"[ClassSelect] {clientId} envió una clase inválida: '{className}'. Ignorado.");
+            return;
+        }
+
+        // Un cliente solo puede confirmar una vez. Add devuelve false si ya estaba.
+        if (!confirmedClients.Add(clientId))
+        {
+            Debug.LogWarning($"[ClassSelect] {clientId} ya había confirmado. Ignorado.");
+            return;
+        }
+
+        GameSessionData.Instance?.SetPlayerClass(clientId, className);
+        RefreshReadyCount();
 
         Debug.Log($"[ClassSelect] {clientId} eligió {className}. " +
                   $"Listos: {readyCount.Value}/{totalPlayers.Value}");
 
-        if (readyCount.Value >= totalPlayers.Value)
+        TryStartGame();
+    }
+
+    /// <summary>
+    /// Recalcula readyCount a partir de los clientes confirmados que siguen conectados.
+    /// </summary>
+    private void RefreshReadyCount()
+    {
+        if (!IsServer || NetworkManager.Singleton == null) return;
+
+        confirmedClients.RemoveWhere(id => !NetworkManager.Singleton.ConnectedClients.ContainsKey(id));
+        readyCount.Value = confirmedClients.Count;
+    }
+
+    /// <summary>
+    /// Arranca la partida solo si todos los jugadores conectados confirmaron.
+    /// </summary>
+    private void TryStartGame()
+    {
+        if (!IsServer || gameStarting) return;
+
+        int connected = NetworkManager.Singleton.ConnectedClients.Count;
+        if (readyCount.Value > 0 && readyCount.Value >= connected)
+        {
+            gameStarting = true;
             LoadGameScene();
+        }
     }
 
     private void LoadGameScene()

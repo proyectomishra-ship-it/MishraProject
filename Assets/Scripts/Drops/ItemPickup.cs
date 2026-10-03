@@ -20,6 +20,7 @@ public class ItemPickup : NetworkBehaviour
 
     private bool pickedUp;
     private bool isAnimating;
+    private bool positionCaptured;
     private Vector3 startPosition;
     private Collider itemCollider;
 
@@ -36,13 +37,25 @@ public class ItemPickup : NetworkBehaviour
 
     private void Awake()
     {
-        startPosition = transform.position;
         itemCollider = GetComponent<Collider>();
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        // La posicion base NO se puede capturar en Awake(). Netcode instancia
+        // el prefab en el cliente con su posicion por defecto (la guardada en
+        // el prefab) y recien despues aplica la posicion sincronizada. En el
+        // servidor si funcionaba, porque alli el objeto se instancia ya en su
+        // lugar. Con Awake(), en el cliente el pickup quedaba clavado cerca del
+        // origen del mundo y nunca se veia donde cayo.
+        // En OnNetworkSpawn la posicion ya es la correcta en todas las maquinas.
+        startPosition = transform.position;
+        positionCaptured = true;
     }
 
     private void Update()
     {
-        if (isAnimating)
+        if (!positionCaptured || isAnimating)
             return;
 
         float y = Mathf.Sin(Time.time * bobSpeed) * bobHeight;
@@ -70,7 +83,13 @@ public class ItemPickup : NetworkBehaviour
             return;
 
         if (!player.GetInventory().AddItem(itemData, quantity))
+        {
+            Debug.Log($"[Pickup] {player.name} no pudo recoger {itemData.name} " +
+                      "(inventario lleno o item invalido).");
             return;
+        }
+
+        Debug.Log($"[Pickup] {player.name} recogio {itemData.name} x{quantity}.");
 
         pickedUp = true;
 
