@@ -17,6 +17,7 @@ public class ClassAwareNetworkBootstrap : MonoBehaviour
 {
     [Header("Datos globales")]
     [SerializeField] private ItemDatabase itemDatabase;
+    [SerializeField] private CraftingRecipeDatabase craftingRecipeDatabase;
 
     [Header("Prefabs de jugador por clase")]
     [SerializeField] private GameObject warriorPrefab;
@@ -56,6 +57,15 @@ public class ClassAwareNetworkBootstrap : MonoBehaviour
             itemDatabase.Initialize();
         else
             Debug.LogError("[ClassSpawn] ItemDatabase no asignado en el Inspector de ClassAwareNetworkBootstrap.");
+
+        // El GameObject NetworkBootstrap de Scene1 está desactivado, así que su
+        // Awake nunca corre y CraftingRecipeDatabase.Instance quedaba en null
+        // (grilla de recetas vacía y CraftServerRpc devolvía InvalidRecipe).
+        // Se inicializa acá, igual que ItemDatabase.
+        if (craftingRecipeDatabase != null)
+            craftingRecipeDatabase.Initialize();
+        else
+            Debug.LogError("[ClassSpawn] CraftingRecipeDatabase no asignado en el Inspector de ClassAwareNetworkBootstrap.");
     }
 
     private void Start()
