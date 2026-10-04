@@ -52,7 +52,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: Cave1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 3451118302482216456, guid: 32fb968191be0b84186047e5f28a8441, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
