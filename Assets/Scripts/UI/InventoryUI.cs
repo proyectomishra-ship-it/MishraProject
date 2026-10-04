@@ -340,17 +340,28 @@ public class InventoryUI : MonoBehaviour
 
     private void RefreshItemGrid()
     {
+        // Recordar la seleccion: al reconstruir la grilla se pierde, y antes el panel
+        // de detalle quedaba abierto mostrando un item que ya no estaba seleccionado.
+        ItemData previous = selectedItem;
+
         foreach (var ui in itemUIs) Destroy(ui.gameObject);
         itemUIs.Clear();
         selectedItem = null;
 
+        int previousQty = 0;
         foreach (var (item, qty) in inventory.GetAll())
         {
             var cell = Instantiate(itemCellPrefab, itemGridContainer);
             cell.Setup(item, qty);
             cell.OnSelected += ShowDetail;
             itemUIs.Add(cell);
+            if (item == previous) previousQty = qty;
         }
+
+        // Si el item sigue en el inventario, restaurar el detalle (cantidad y texto del
+        // boton actualizados). Si ya no esta (se equipo, se tiro...), cerrar el panel.
+        if (previous != null && previousQty > 0) ShowDetail(previous, previousQty);
+        else UpdateDetailVisibility();
     }
 
     // =========================
@@ -419,34 +430,16 @@ public class InventoryUI : MonoBehaviour
     // =========================
 
     /// <summary>
-    /// Arma el texto de estadisticas de un item equipable.
-    /// Armas: tipo, modificadores, velocidad, ataque fuerte y especial.
-    /// Otro equipamiento: solo sus modificadores. Devuelve "" si no aplica.
+    /// Arma el texto de estadisticas basicas de un item equipable (arma o armadura):
+    /// solo sus modificadores de stats (Ataque, Rango de ataque, etc.).
+    /// Devuelve "" si el item no es equipable.
     /// </summary>
     private static string BuildItemStats(ItemData item)
     {
         if (item is not IEquippable equippable) return "";
 
         var sb = new StringBuilder();
-
-        if (item is WeaponData weapon)
-        {
-            AppendLine(sb, $"Tipo: {WeaponTypeLabel(weapon.WeaponType)}");
-            AppendModifiers(sb, weapon.Modifiers);
-            AppendLine(sb, $"Velocidad de ataque: x{Fmt(weapon.AttackSpeed)}");
-
-            string heavy = $"Ataque fuerte: x{Fmt(weapon.HeavyMultiplier)}";
-            if (weapon.StaminaCost > 0f) heavy += $" ({Fmt(weapon.StaminaCost)} stamina)";
-            AppendLine(sb, heavy);
-
-            string special = $"Ataque especial: x{Fmt(weapon.SpecialMultiplier)}";
-            if (weapon.ManaCost > 0f) special += $" ({Fmt(weapon.ManaCost)} maná)";
-            AppendLine(sb, special);
-        }
-        else
-        {
-            AppendModifiers(sb, equippable.Modifiers);
-        }
+        AppendModifiers(sb, equippable.Modifiers);
 
         return sb.ToString().TrimEnd('\n');
     }
@@ -484,18 +477,6 @@ public class InventoryUI : MonoBehaviour
         StatType.Stamina => "Stamina",
         StatType.Luck => "Suerte",
         _ => stat.ToString()
-    };
-
-    private static string WeaponTypeLabel(WeaponType type) => type switch
-    {
-        WeaponType.Sword => "Espada",
-        WeaponType.Axe => "Hacha",
-        WeaponType.Bow => "Arco",
-        WeaponType.Dagger => "Daga",
-        WeaponType.Staff => "Bastón",
-        WeaponType.Mace => "Maza",
-        WeaponType.Grimoire => "Grimorio",
-        _ => "-"
     };
 
     private void OnEquipButtonClicked()
