@@ -9,6 +9,18 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 1d2653e5767b5b54e91d4e3f2fa46740, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1d2653e5767b5b54e91d4e3f2fa46740, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1d2653e5767b5b54e91d4e3f2fa46740, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1d2653e5767b5b54e91d4e3f2fa46740, type: 3}
       propertyPath: m_LocalPosition.x
       value: 495.98993
       objectReference: {fileID: 0}
@@ -52,7 +64,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: Gazebo de madera
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 3451118302482216456, guid: 1d2653e5767b5b54e91d4e3f2fa46740, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:

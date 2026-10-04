@@ -9,6 +9,18 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: e9842527af1f8d043ae874265cf19d06, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e9842527af1f8d043ae874265cf19d06, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e9842527af1f8d043ae874265cf19d06, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e9842527af1f8d043ae874265cf19d06, type: 3}
       propertyPath: m_LocalPosition.x
       value: 443.53708
       objectReference: {fileID: 0}
@@ -52,7 +64,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: casa 7
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 3451118302482216456, guid: e9842527af1f8d043ae874265cf19d06, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:

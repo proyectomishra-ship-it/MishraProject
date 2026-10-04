@@ -9,6 +9,18 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 9a848677ccb6ded45855805bf1fa6d0f, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9a848677ccb6ded45855805bf1fa6d0f, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9a848677ccb6ded45855805bf1fa6d0f, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9a848677ccb6ded45855805bf1fa6d0f, type: 3}
       propertyPath: m_LocalPosition.x
       value: 423.7919
       objectReference: {fileID: 0}
@@ -52,7 +64,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: Cobertizo
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 3451118302482216456, guid: 9a848677ccb6ded45855805bf1fa6d0f, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
