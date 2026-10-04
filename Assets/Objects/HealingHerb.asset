@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: Hierba Curativa
   itemType: 2
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: ee4bd19f8aa8c334cb79e5f8632b68d2, type: 3}
   description: Una hierba de aroma dulce. Ingrediente base para pociones curativas.
   stackable: 1
   maxStack: 99

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: Agua Pura
   itemType: 2
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: a62dd10964759074eab576254a92d982, type: 3}
   description: Agua de manantial, libre de impurezas. Se usa como base para pociones.
   stackable: 1
   maxStack: 99
