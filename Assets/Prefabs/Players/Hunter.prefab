@@ -449,7 +449,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponVisualController
   placeholderWeapon: {fileID: 0}
-  visualScaleMultiplier: 1
+  visualScaleMultiplier: 1.5
   handBoneName: hand.R
   handSocketLocalPosition: {x: 0, y: 0, z: 0}
   handSocketLocalEulerAngles: {x: 0, y: 0, z: 0}
