@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   itemName: "Bast\xF3n M\xE1gico B\xE1sico"
   itemType: 1
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 18b044c2da4cb3c42b76868ba5b02331, type: 3}
   description: 
   stackable: 1
   maxStack: 99

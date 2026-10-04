@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   itemName: "Espada B\xE1sica"
   itemType: 1
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 2649827e9a4dc124e9ce4d51b7f560ba, type: 3}
   description: 
   stackable: 1
   maxStack: 99

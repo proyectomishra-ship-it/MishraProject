@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36d1be4f3c53a0248bb31bb9e9f1d9cc, type: 3}
   m_Name: HealthPotion_Basic
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: Poción de Vida Básica
+  itemName: "Poci\xF3n de Vida B\xE1sica"
   itemType: 0
-  icon: {fileID: 0}
-  description: Una poción sencilla. Restaura una porción de vida al beberla.
+  icon: {fileID: 21300000, guid: 511b23c62bd8f9e4db41729e1fb63f2b, type: 3}
+  description: "Una poci\xF3n sencilla. Restaura una porci\xF3n de vida al beberla."
   stackable: 1
   maxStack: 99
