@@ -856,7 +856,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   respawnDelay: 5
   postRespawnInvulnerability: 1.5
-  hideModelOnDeath: 0
+  hideModelOnDeath: 1
+  hideDelayAfterDeath: 0
   IsDead:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0

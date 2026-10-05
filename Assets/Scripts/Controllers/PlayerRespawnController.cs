@@ -1,4 +1,5 @@
-using System.Collections;
+ï»¿using System.Collections;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -7,28 +8,32 @@ using UnityEngine;
 /// 
 /// Responsabilidades:
 /// - Mantener el estado IsDead.
-/// - Guardar la posición de respawn.
+/// - Guardar la posiciï¿½n de respawn.
 /// - Ocultar/mostrar los renderers del Player.
 /// - Bloquear/desbloquear el input.
 /// - Detener el movimiento.
 /// - Esperar el tiempo configurado.
 /// - Restaurar los recursos.
-/// - Aplicar una breve invulnerabilidad después del respawn.
+/// - Aplicar una breve invulnerabilidad despuï¿½s del respawn.
 /// 
-/// El servidor es la única autoridad que inicia y ejecuta el respawn.
+/// El servidor es la ï¿½nica autoridad que inicia y ejecuta el respawn.
 /// </summary>
 public class PlayerRespawnController : NetworkBehaviour
 {
     [Header("Respawn")]
     [SerializeField] private float respawnDelay = 5f;
 
-    [Header("Protección post-respawn")]
+    [Header("Protecciï¿½n post-respawn")]
     [SerializeField] private float postRespawnInvulnerability = 1.5f;
 
     [Header("Visual")]
-    [Tooltip("Ocultar el modelo al morir. Con animacion de muerte debe quedar en false, " +
-             "si no la animacion nunca se ve.")]
-    [SerializeField] private bool hideModelOnDeath = false;
+    [Tooltip("Ocultar el modelo del jugador (y su arma) al morir y volver a mostrarlo al " +
+             "respawnear. Se aplica en TODOS los clientes a partir de IsDead.")]
+    [SerializeField] private bool hideModelOnDeath = true;
+
+    [Tooltip("Segundos que el modelo sigue visible despues de morir, para que se vea la " +
+             "animacion de muerte. 0 = desaparece al instante. Debe ser menor que Respawn Delay.")]
+    [SerializeField] private float hideDelayAfterDeath = 0f;
 
     private Player player;
     private MovementController movementController;
@@ -39,11 +44,16 @@ public class PlayerRespawnController : NetworkBehaviour
     private Vector3 respawnPosition;
 
     private Coroutine respawnCoroutine;
+    private Coroutine hideCoroutine;
+
+    // Renderers que ESTE script apago. Al volver a mostrar solo se reactivan
+    // esos, para no encender renderers que el prefab tiene apagados a proposito.
+    private readonly List<Renderer> hiddenRenderers = new List<Renderer>();
 
     private bool isInitialized;
 
     /// <summary>
-    /// Indica si el Player está actualmente muerto.
+    /// Indica si el Player estï¿½ actualmente muerto.
     /// El servidor escribe. Los clientes pueden leer.
     /// </summary>
     public NetworkVariable<bool> IsDead = new(
@@ -53,7 +63,7 @@ public class PlayerRespawnController : NetworkBehaviour
     );
 
     /// <summary>
-    /// Indica si el Player está protegido contra daño después del respawn.
+    /// Indica si el Player estï¿½ protegido contra daï¿½o despuï¿½s del respawn.
     /// </summary>
     public NetworkVariable<bool> IsInvulnerable = new(
         false,
@@ -62,8 +72,8 @@ public class PlayerRespawnController : NetworkBehaviour
     );
 
     /// <summary>
-    /// Posición que se utilizará para el próximo respawn.
-    /// Actualmente será la posición donde murió.
+    /// Posiciï¿½n que se utilizarï¿½ para el prï¿½ximo respawn.
+    /// Actualmente serï¿½ la posiciï¿½n donde muriï¿½.
     /// </summary>
     public Vector3 RespawnPosition => respawnPosition;
 
@@ -103,9 +113,72 @@ public class PlayerRespawnController : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        // El estado visual inicial debe ser el de un jugador vivo.
-        if (!IsDead.Value)
-            SetPlayerRenderersVisible(true);
+        // El ocultar/mostrar visual se dispara desde IsDead, que se sincroniza
+        // a todos. Antes se hacia solo en el servidor (StartDeath/Respawn), asi
+        // que los clientes nunca veian desaparecer ni reaparecer al jugador.
+        IsDead.OnValueChanged += HandleDeadChanged;
+
+        // Jugador que ya estaba muerto cuando este cliente lo recibio.
+        if (IsDead.Value)
+            ApplyDeadVisual(true);
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        IsDead.OnValueChanged -= HandleDeadChanged;
+        CancelPendingHide();
+
+        base.OnNetworkDespawn();
+    }
+
+    private void HandleDeadChanged(bool previous, bool current)
+    {
+        if (current)
+            ApplyDeadVisual(false);
+        else
+            ApplyAliveVisual();
+    }
+
+    private void ApplyDeadVisual(bool immediate)
+    {
+        if (!hideModelOnDeath)
+            return;
+
+        CancelPendingHide();
+
+        if (immediate || hideDelayAfterDeath <= 0f)
+        {
+            SetPlayerRenderersVisible(false);
+            return;
+        }
+
+        hideCoroutine = StartCoroutine(HideAfterDelay());
+    }
+
+    private void ApplyAliveVisual()
+    {
+        CancelPendingHide();
+        SetPlayerRenderersVisible(true);
+    }
+
+    private IEnumerator HideAfterDelay()
+    {
+        yield return new WaitForSeconds(hideDelayAfterDeath);
+
+        hideCoroutine = null;
+
+        // Si respawneo mientras esperabamos, no ocultar.
+        if (IsDead.Value)
+            SetPlayerRenderersVisible(false);
+    }
+
+    private void CancelPendingHide()
+    {
+        if (hideCoroutine == null)
+            return;
+
+        StopCoroutine(hideCoroutine);
+        hideCoroutine = null;
     }
 
     /// <summary>
@@ -120,7 +193,7 @@ public class PlayerRespawnController : NetworkBehaviour
         if (!isInitialized)
         {
             Debug.LogError(
-                $"[PlayerRespawnController] {name} intentó morir antes de inicializarse."
+                $"[PlayerRespawnController] {name} intentï¿½ morir antes de inicializarse."
             );
             return;
         }
@@ -129,20 +202,20 @@ public class PlayerRespawnController : NetworkBehaviour
         if (IsDead.Value)
         {
             Debug.LogWarning(
-                $"[PlayerRespawnController] {name} ya está muerto. "
+                $"[PlayerRespawnController] {name} ya estï¿½ muerto. "
                 + "Se ignora una segunda solicitud de muerte."
             );
             return;
         }
 
-        // Guardamos la posición exacta donde murió.
+        // Guardamos la posiciï¿½n exacta donde muriï¿½.
         respawnPosition = transform.position;
 
         IsDead.Value = true;
         IsInvulnerable.Value = true;
 
         Debug.Log(
-            $"[PlayerRespawnController] {name} murió. "
+            $"[PlayerRespawnController] {name} muriï¿½. "
             + $"RespawnPosition={respawnPosition}"
         );
 
@@ -154,10 +227,8 @@ public class PlayerRespawnController : NetworkBehaviour
         if (inputController != null)
             inputController.IsInputBlocked = true;
 
-        // Ocultar el modelo, pero NO desactivar el Player.
-        // Con animacion de muerte el modelo tiene que seguir visible.
-        if (hideModelOnDeath)
-            SetPlayerRenderersVisible(false);
+        // El modelo se oculta desde HandleDeadChanged (IsDead), en todos los
+        // clientes. El Player NO se desactiva.
 
         if (respawnCoroutine != null)
             StopCoroutine(respawnCoroutine);
@@ -194,29 +265,28 @@ public class PlayerRespawnController : NetworkBehaviour
         );
 
         // Actualmente respawnPosition coincide con el lugar de muerte.
-        // Lo mantenemos explícito para poder cambiar esta estrategia
+        // Lo mantenemos explï¿½cito para poder cambiar esta estrategia
         // posteriormente por checkpoints, spawn points, etc.
         transform.position = respawnPosition;
 
-        // Limpiar cualquier estado físico/movimiento residual.
+        // Limpiar cualquier estado fï¿½sico/movimiento residual.
         if (movementController != null)
             movementController.ResetMovementState();
 
-        // Restaurar recursos al máximo.
+        // Restaurar recursos al mï¿½ximo.
         RestoreResources();
 
         // Player vuelve a estar vivo.
         IsDead.Value = false;
 
-        // Mostrar nuevamente el modelo.
-        SetPlayerRenderersVisible(true);
+        // El modelo se vuelve a mostrar desde HandleDeadChanged (IsDead = false).
 
         // Desbloquear input.
         if (inputController != null)
             inputController.IsInputBlocked = false;
 
         Debug.Log(
-            $"[PlayerRespawnController] {name} respawneó correctamente."
+            $"[PlayerRespawnController] {name} respawneï¿½ correctamente."
         );
 
         if (postRespawnInvulnerability > 0f)
@@ -232,7 +302,7 @@ public class PlayerRespawnController : NetworkBehaviour
     /// <summary>
     /// Restaura HP, Mana y Stamina utilizando las APIs existentes.
     /// Esto permite que CharacterStatsSyncController reciba
-    /// automáticamente los cambios mediante sus eventos.
+    /// automï¿½ticamente los cambios mediante sus eventos.
     /// </summary>
     private void RestoreResources()
     {
@@ -290,23 +360,36 @@ public class PlayerRespawnController : NetworkBehaviour
             IsInvulnerable.Value = false;
 
         Debug.Log(
-            $"[PlayerRespawnController] Protección post-respawn finalizada para {name}."
+            $"[PlayerRespawnController] Protecciï¿½n post-respawn finalizada para {name}."
         );
     }
 
     /// <summary>
-    /// Oculta o muestra todos los Renderer pertenecientes al Player.
-    /// No desactiva GameObjects ni componentes.
+    /// Oculta o muestra los Renderer del Player (incluido el arma, que es hija
+    /// del modelo). No desactiva GameObjects ni componentes.
+    /// Al ocultar recuerda cuales apago, y al mostrar reactiva solo esos.
     /// </summary>
     private void SetPlayerRenderersVisible(bool visible)
     {
-        Renderer[] renderers =
-            GetComponentsInChildren<Renderer>(true);
-
-        foreach (Renderer renderer in renderers)
+        if (visible)
         {
-            if (renderer != null)
-                renderer.enabled = visible;
+            foreach (Renderer renderer in hiddenRenderers)
+            {
+                if (renderer != null)
+                    renderer.enabled = true;
+            }
+
+            hiddenRenderers.Clear();
+            return;
+        }
+
+        foreach (Renderer renderer in GetComponentsInChildren<Renderer>(true))
+        {
+            if (renderer != null && renderer.enabled)
+            {
+                renderer.enabled = false;
+                hiddenRenderers.Add(renderer);
+            }
         }
     }
 
