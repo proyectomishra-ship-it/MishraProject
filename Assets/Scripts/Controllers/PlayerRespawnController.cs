@@ -25,11 +25,6 @@ public class PlayerRespawnController : NetworkBehaviour
     [Header("Protección post-respawn")]
     [SerializeField] private float postRespawnInvulnerability = 1.5f;
 
-    [Header("Visual")]
-    [Tooltip("Ocultar el modelo al morir. Con animacion de muerte debe quedar en false, " +
-             "si no la animacion nunca se ve.")]
-    [SerializeField] private bool hideModelOnDeath = false;
-
     private Player player;
     private MovementController movementController;
     private PlayerInputController inputController;
@@ -155,9 +150,7 @@ public class PlayerRespawnController : NetworkBehaviour
             inputController.IsInputBlocked = true;
 
         // Ocultar el modelo, pero NO desactivar el Player.
-        // Con animacion de muerte el modelo tiene que seguir visible.
-        if (hideModelOnDeath)
-            SetPlayerRenderersVisible(false);
+        SetPlayerRenderersVisible(false);
 
         if (respawnCoroutine != null)
             StopCoroutine(respawnCoroutine);
@@ -310,11 +303,9 @@ public class PlayerRespawnController : NetworkBehaviour
         }
     }
 
-    public override void OnDestroy()
+    override public void OnDestroy()
     {
         if (respawnCoroutine != null)
             StopCoroutine(respawnCoroutine);
-
-        base.OnDestroy();
     }
 }
