@@ -47,7 +47,15 @@ public class MovementController : NetworkBehaviour
         if (controller.isGrounded && verticalVelocity < 0f)
             verticalVelocity = -2f;
         verticalVelocity += gravity * Time.deltaTime;
-        controller.Move(Vector3.up * verticalVelocity * Time.deltaTime);
+
+        // IMPORTANTE: una SOLA llamada a controller.Move por frame.
+        // CharacterController.isGrounded refleja unicamente el resultado de la
+        // ULTIMA Move. Antes habia dos (una vertical y otra horizontal): al
+        // moverse, la ultima era la horizontal, que no empuja contra el suelo,
+        // isGrounded daba false y Jump() se ignoraba. Quieto funcionaba porque
+        // la ultima Move era la vertical. Combinando ambas, el movimiento
+        // vertical siempre forma parte de la ultima Move.
+        Vector3 motion = Vector3.up * verticalVelocity;
 
         // Movimiento horizontal — se aplica UNA vez por frame del servidor,
         // sin importar cuántos RPCs hayan llegado desde el cliente.
@@ -58,8 +66,10 @@ public class MovementController : NetworkBehaviour
                 _desiredRotation,
                 rotationSpeed * Time.deltaTime
             );
-            controller.Move(_desiredDirection * _desiredSpeed * Time.deltaTime);
+            motion += _desiredDirection * _desiredSpeed;
         }
+
+        controller.Move(motion * Time.deltaTime);
     }
 
     /// <summary>
