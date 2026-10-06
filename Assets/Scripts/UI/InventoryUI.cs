@@ -71,8 +71,6 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private Button equipButton;
     [SerializeField] private TextMeshProUGUI equipButtonText;
     [SerializeField] private GameObject detailPanel;
-    [Tooltip("Opcional: mensaje al usar un consumible (ej: 'Vida al máximo').")]
-    [SerializeField] private TextMeshProUGUI itemFeedbackText;
 
     [Header("Crafteo — Grilla de recetas")]
     [SerializeField] private Transform recipeGridContainer;
@@ -84,8 +82,6 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI craftingDescription;
     [SerializeField] private Transform ingredientListContainer;
     [SerializeField] private TextMeshProUGUI ingredientLinePrefab;
-    [Tooltip("Opcional: línea con icono. Si se asigna, reemplaza a Ingredient Line Prefab.")]
-    [SerializeField] private IngredientLineUI ingredientLineUIPrefab;
     [SerializeField] private TextMeshProUGUI goldCostText;
     [SerializeField] private Button craftButton;
     [SerializeField] private TextMeshProUGUI craftButtonText;
@@ -111,7 +107,7 @@ public class InventoryUI : MonoBehaviour
     private readonly List<InventorySlotUI> slotUIs = new();
     private readonly List<InventoryItemUI> itemUIs = new();
     private readonly List<CraftingRecipeUI> recipeUIs = new();
-    private readonly List<GameObject> ingredientLineInstances = new();
+    private readonly List<TextMeshProUGUI> ingredientLineInstances = new();
 
     private ItemData selectedItem;
     private int selectedQty;
@@ -151,13 +147,11 @@ public class InventoryUI : MonoBehaviour
 
         BuildEquipmentSlots();
 
-        // Un solo refresco por frame: la NetworkList del cliente dispara N+1
-        // eventos por cada cambio (Clear + un Add por slot). Ver LateUpdate().
-        inventory.OnChanged += QueueRefresh;
+        inventory.OnChanged += RefreshItemGrid;
+        inventory.OnChanged += RefreshCraftableStates;
         equipment.OnSlotChanged += (_, __) => RefreshEquipmentSlots();
-        if (gold != null) gold.OnGoldChanged += HandleGoldChanged;
+        if (gold != null) gold.OnGoldChanged += (_, __) => RefreshCraftableStates();
         player.OnCraftResult += HandleCraftResult;
-        player.OnConsumeResult += HandleConsumeResult;
 
         if (equipButton != null) equipButton.onClick.AddListener(OnEquipButtonClicked);
         if (craftButton != null) craftButton.onClick.AddListener(OnCraftButtonClicked);
@@ -176,14 +170,11 @@ public class InventoryUI : MonoBehaviour
     private void OnDestroy()
     {
         if (inventory != null)
-            inventory.OnChanged -= QueueRefresh;
-        if (gold != null)
-            gold.OnGoldChanged -= HandleGoldChanged;
-        if (localPlayer != null)
         {
-            localPlayer.OnCraftResult -= HandleCraftResult;
-            localPlayer.OnConsumeResult -= HandleConsumeResult;
+            inventory.OnChanged -= RefreshItemGrid;
+            inventory.OnChanged -= RefreshCraftableStates;
         }
+        if (localPlayer != null) localPlayer.OnCraftResult -= HandleCraftResult;
     }
 
     // =========================
@@ -198,46 +189,12 @@ public class InventoryUI : MonoBehaviour
         if (Keyboard.current.tabKey.wasPressedThisFrame)
             ToggleInventory();
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        // DEBUG: F9 con el inventario abierto = +5 de cada material.
-        if (isOpen && Keyboard.current.f9Key.wasPressedThisFrame)
-            localPlayer.DebugRequestMaterials();
-#endif
-
         if (feedbackTimer > 0f)
         {
             feedbackTimer -= Time.deltaTime;
-            if (feedbackTimer <= 0f)
-            {
-                if (craftFeedbackText != null) craftFeedbackText.gameObject.SetActive(false);
-                if (itemFeedbackText != null) itemFeedbackText.gameObject.SetActive(false);
-            }
+            if (feedbackTimer <= 0f && craftFeedbackText != null)
+                craftFeedbackText.gameObject.SetActive(false);
         }
-    }
-
-    // =========================
-    // REFRESCO DIFERIDO (debounce)
-    // =========================
-
-    private bool refreshQueued;
-
-    private void QueueRefresh() => refreshQueued = true;
-    private void HandleGoldChanged(int _, int __) => QueueRefresh();
-
-    /// <summary>
-    /// Agrupa todos los cambios de inventario/oro de un mismo frame en un
-    /// único refresco. Evita reconstruir la grilla N veces y el parpadeo del
-    /// estado intermedio (inventario "vacío" tras el Clear de la NetworkList).
-    /// Con el panel cerrado no hace nada: al abrirlo, SetTab() ya refresca.
-    /// </summary>
-    private void LateUpdate()
-    {
-        if (!refreshQueued) return;
-        refreshQueued = false;
-        if (!isOpen) return;
-
-        if (currentTab == Tab.Items) RefreshItemGrid();
-        else RefreshCraftableStates();
     }
 
     private void ToggleInventory()
@@ -444,17 +401,11 @@ public class InventoryUI : MonoBehaviour
         if (detailQuantity != null) detailQuantity.text = qty > 1 ? $"Cantidad: {qty}" : "";
 
         bool isEquippable = item is IEquippable;
-        bool isUsable = item.IsUsableConsumable;
         if (equipButton != null)
         {
-            // El mismo botón sirve para Equipar (armas/armaduras) y Usar (consumibles).
-            equipButton.gameObject.SetActive(isEquippable || isUsable);
+            equipButton.gameObject.SetActive(isEquippable);
 
-            if (isUsable)
-            {
-                if (equipButtonText != null) equipButtonText.text = "Usar";
-            }
-            else if (isEquippable)
+            if (isEquippable)
             {
                 var equippable = item as IEquippable;
                 bool occupied = equipment.IsOccupied(equippable.Slot);
@@ -483,18 +434,8 @@ public class InventoryUI : MonoBehaviour
     /// solo sus modificadores de stats (Ataque, Rango de ataque, etc.).
     /// Devuelve "" si el item no es equipable.
     /// </summary>
-    private static string BuildConsumableStats(ItemData item)
-    {
-        var sb = new StringBuilder();
-        if (item.HealthRestore > 0f) AppendLine(sb, $"Restaura {item.HealthRestore:0} de vida");
-        if (item.ManaRestore   > 0f) AppendLine(sb, $"Restaura {item.ManaRestore:0} de maná");
-        return sb.ToString();
-    }
-
     private static string BuildItemStats(ItemData item)
     {
-        if (item.IsUsableConsumable) return BuildConsumableStats(item);
-
         if (item is not IEquippable equippable) return "";
 
         var sb = new StringBuilder();
@@ -545,37 +486,7 @@ public class InventoryUI : MonoBehaviour
         int id = ItemDatabase.Instance.GetId(selectedItem);
         if (id < 0) return;
 
-        if (selectedItem.IsUsableConsumable)
-        {
-            localPlayer.RequestUseItem(id);
-            return;
-        }
-
         localPlayer.RequestEquip(id);
-    }
-
-    private void HandleConsumeResult(ConsumeResult result)
-    {
-        string msg = result switch
-        {
-            ConsumeResult.Success          => "¡Usado!",
-            ConsumeResult.NothingToRestore => "Ya estás al máximo.",
-            ConsumeResult.PlayerDead       => "No puedes usar objetos estando muerto.",
-            ConsumeResult.NotInInventory   => "Ya no tienes ese objeto.",
-            _                              => "No se puede usar."
-        };
-
-        if (itemFeedbackText != null)
-        {
-            itemFeedbackText.text = msg;
-            itemFeedbackText.color = result == ConsumeResult.Success ? sufficientColor : insufficientColor;
-            itemFeedbackText.gameObject.SetActive(true);
-            feedbackTimer = feedbackDuration;
-        }
-        else
-        {
-            Debug.Log($"[InventoryUI] Uso de consumible: {result}");
-        }
     }
 
     // =========================
@@ -674,34 +585,20 @@ public class InventoryUI : MonoBehaviour
 
     private void BuildIngredientList(CraftingRecipeData recipe)
     {
-        foreach (var line in ingredientLineInstances) Destroy(line);
+        foreach (var line in ingredientLineInstances) Destroy(line.gameObject);
         ingredientLineInstances.Clear();
 
-        if (ingredientListContainer == null) return;
-        if (ingredientLineUIPrefab == null && ingredientLinePrefab == null) return;
+        if (ingredientListContainer == null || ingredientLinePrefab == null) return;
 
         foreach (var ing in recipe.Ingredients)
         {
             if (ing.item == null) continue;
 
             int have = inventory.GetQuantity(ing.item);
-            Color color = have >= ing.quantity ? sufficientColor : insufficientColor;
-
-            if (ingredientLineUIPrefab != null)
-            {
-                // Línea con icono
-                var lineUI = Instantiate(ingredientLineUIPrefab, ingredientListContainer);
-                lineUI.Setup(ing.item, have, ing.quantity, color);
-                ingredientLineInstances.Add(lineUI.gameObject);
-            }
-            else
-            {
-                // Fallback: solo texto (comportamiento anterior)
-                var line = Instantiate(ingredientLinePrefab, ingredientListContainer);
-                line.text = $"{ing.item.ItemName}  {have} / {ing.quantity}";
-                line.color = color;
-                ingredientLineInstances.Add(line.gameObject);
-            }
+            var line = Instantiate(ingredientLinePrefab, ingredientListContainer);
+            line.text = $"{ing.item.ItemName}  {have} / {ing.quantity}";
+            line.color = have >= ing.quantity ? sufficientColor : insufficientColor;
+            ingredientLineInstances.Add(line);
         }
     }
 

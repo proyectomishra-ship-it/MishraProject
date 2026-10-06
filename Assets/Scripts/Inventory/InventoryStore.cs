@@ -8,48 +8,14 @@ using System.Collections.Generic;
 /// FIX: el stacking ahora maneja overflow correctamente.
 /// Si un stack se llena, el excedente se distribuye en nuevos slots.
 /// </summary>
-/// <summary>
-/// Opcional: permite agrupar varias operaciones del inventario y emitir un
-/// único OnChanged al final (un craft = un solo Sync de red en vez de uno
-/// por ingrediente). Se mantiene separada de IInventory para no romper
-/// otras implementaciones.
-/// </summary>
-public interface IBatchable
-{
-    void BeginBatch();
-    void EndBatch();
-}
-
-public class InventoryStore : IInventory, IBatchable
+public class InventoryStore : IInventory
 {
     private readonly List<(ItemData item, int quantity)> slots = new();
     private readonly int maxSlots;
 
     public event Action OnChanged;
 
-    private int batchDepth;
-    private bool dirtyInBatch;
-
     public InventoryStore(int maxSlots) => this.maxSlots = maxSlots;
-
-    public void BeginBatch() => batchDepth++;
-
-    public void EndBatch()
-    {
-        if (batchDepth == 0) return;
-        batchDepth--;
-        if (batchDepth == 0 && dirtyInBatch)
-        {
-            dirtyInBatch = false;
-            OnChanged?.Invoke();
-        }
-    }
-
-    private void NotifyChanged()
-    {
-        if (batchDepth > 0) { dirtyInBatch = true; return; }
-        OnChanged?.Invoke();
-    }
 
     public bool AddItem(ItemData item, int amount = 1)
     {
@@ -61,7 +27,7 @@ public class InventoryStore : IInventory, IBatchable
         // No stackable: cada unidad ocupa un slot
         if (slots.Count >= maxSlots) return false;
         slots.Add((item, amount));
-        NotifyChanged();
+        OnChanged?.Invoke();
         return true;
     }
 
@@ -98,7 +64,7 @@ public class InventoryStore : IInventory, IBatchable
             }
         }
 
-        NotifyChanged();
+        OnChanged?.Invoke();
         return true;
     }
 
@@ -151,7 +117,7 @@ public class InventoryStore : IInventory, IBatchable
 
         if (remaining == 0)
         {
-            NotifyChanged();
+            OnChanged?.Invoke();
             return true;
         }
 
