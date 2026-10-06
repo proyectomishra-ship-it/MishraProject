@@ -51,24 +51,36 @@ public static class CraftingSystem
         var check = CheckRequirements(inventory, recipe, currentGold);
         if (check != CraftResult.Success) return check;
 
-        foreach (var ing in recipe.Ingredients)
+        // Agrupa todos los cambios en UN solo OnChanged (= un solo Sync de red).
+        // Si el inventario no soporta batch, funciona igual que antes.
+        var batch = inventory as IBatchable;
+        batch?.BeginBatch();
+        try
         {
-            if (ing.item == null) continue;
-            inventory.RemoveItem(ing.item, ing.quantity);
-        }
-
-        if (!inventory.AddItem(recipe.Output, recipe.OutputQuantity))
-        {
-            // No debería pasar salvo que el inventario esté al límite justo
-            // en este momento. Devolvemos los ingredientes para no perderlos.
             foreach (var ing in recipe.Ingredients)
             {
                 if (ing.item == null) continue;
-                inventory.AddItem(ing.item, ing.quantity);
+                inventory.RemoveItem(ing.item, ing.quantity);
             }
-            return CraftResult.InventoryFull;
-        }
 
-        return CraftResult.Success;
+            if (!inventory.AddItem(recipe.Output, recipe.OutputQuantity))
+            {
+                // Sin lugar para el resultado: devolvemos los ingredientes.
+                // Dentro del batch el cliente nunca llega a ver el estado
+                // intermedio (ingredientes consumidos).
+                foreach (var ing in recipe.Ingredients)
+                {
+                    if (ing.item == null) continue;
+                    inventory.AddItem(ing.item, ing.quantity);
+                }
+                return CraftResult.InventoryFull;
+            }
+
+            return CraftResult.Success;
+        }
+        finally
+        {
+            batch?.EndBatch();
+        }
     }
 }

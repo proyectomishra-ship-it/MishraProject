@@ -8,14 +8,48 @@ using System.Collections.Generic;
 /// FIX: el stacking ahora maneja overflow correctamente.
 /// Si un stack se llena, el excedente se distribuye en nuevos slots.
 /// </summary>
-public class InventoryStore : IInventory
+/// <summary>
+/// Opcional: permite agrupar varias operaciones del inventario y emitir un
+/// único OnChanged al final (un craft = un solo Sync de red en vez de uno
+/// por ingrediente). Se mantiene separada de IInventory para no romper
+/// otras implementaciones.
+/// </summary>
+public interface IBatchable
+{
+    void BeginBatch();
+    void EndBatch();
+}
+
+public class InventoryStore : IInventory, IBatchable
 {
     private readonly List<(ItemData item, int quantity)> slots = new();
     private readonly int maxSlots;
 
     public event Action OnChanged;
 
+    private int batchDepth;
+    private bool dirtyInBatch;
+
     public InventoryStore(int maxSlots) => this.maxSlots = maxSlots;
+
+    public void BeginBatch() => batchDepth++;
+
+    public void EndBatch()
+    {
+        if (batchDepth == 0) return;
+        batchDepth--;
+        if (batchDepth == 0 && dirtyInBatch)
+        {
+            dirtyInBatch = false;
+            OnChanged?.Invoke();
+        }
+    }
+
+    private void NotifyChanged()
+    {
+        if (batchDepth > 0) { dirtyInBatch = true; return; }
+        OnChanged?.Invoke();
+    }
 
     public bool AddItem(ItemData item, int amount = 1)
     {
@@ -27,7 +61,7 @@ public class InventoryStore : IInventory
         // No stackable: cada unidad ocupa un slot
         if (slots.Count >= maxSlots) return false;
         slots.Add((item, amount));
-        OnChanged?.Invoke();
+        NotifyChanged();
         return true;
     }
 
@@ -64,7 +98,7 @@ public class InventoryStore : IInventory
             }
         }
 
-        OnChanged?.Invoke();
+        NotifyChanged();
         return true;
     }
 
@@ -117,7 +151,7 @@ public class InventoryStore : IInventory
 
         if (remaining == 0)
         {
-            OnChanged?.Invoke();
+            NotifyChanged();
             return true;
         }
 
