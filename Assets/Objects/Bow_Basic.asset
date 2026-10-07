@@ -14,10 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   itemName: "Arco B\xE1sico"
   itemType: 1
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: a2e2fb546a5a2c34ba9c8644e80dcdcd, type: 3}
   description: 
   stackable: 1
   maxStack: 99
+  healthRestore: 0
+  manaRestore: 0
   modifiers:
   - stat: 0
     value: 25

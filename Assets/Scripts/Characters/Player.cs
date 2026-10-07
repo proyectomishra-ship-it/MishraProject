@@ -461,7 +461,7 @@ public class Player : Character
                 $"[Player] CraftServerRpc: receta {recipeId} no encontrada."
             );
 
-            NotifyCraftResultClientRpc(recipeId, CraftResult.InvalidRecipe);
+            NotifyCraftResultClientRpc(recipeId, CraftResult.InvalidRecipe, OwnerOnly());
             return;
         }
 
@@ -473,16 +473,92 @@ public class Player : Character
             $"[Player] Crafteo receta {recipeId} ('{recipe.name}'): {result}"
         );
 
-        NotifyCraftResultClientRpc(recipeId, result);
+        NotifyCraftResultClientRpc(recipeId, result, OwnerOnly());
     }
 
+    // El resultado solo le importa al dueño: no lo mandamos al resto de clientes.
+    private ClientRpcParams OwnerOnly() => new ClientRpcParams
+    {
+        Send = new ClientRpcSendParams { TargetClientIds = new[] { OwnerClientId } }
+    };
+
     [ClientRpc]
-    private void NotifyCraftResultClientRpc(int recipeId, CraftResult result)
+    private void NotifyCraftResultClientRpc(int recipeId, CraftResult result, ClientRpcParams rpcParams = default)
     {
         // Solo le importa al dueño local; los demás clientes lo ignoran.
         if (!IsOwner) return;
 
         OnCraftResult?.Invoke(recipeId, result);
+    }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    // =====================================================
+    // DEBUG (solo editor / development build)
+    // F9 en el inventario → +5 de cada ItemType.Material.
+    // Sirve para probar el crafting sin depender de los drops.
+    // =====================================================
+
+    public void DebugRequestMaterials()
+    {
+        if (IsOwner)
+            DebugGiveMaterialsServerRpc();
+    }
+
+    [ServerRpc]
+    private void DebugGiveMaterialsServerRpc()
+    {
+        var db  = ItemDatabase.Instance;
+        var inv = GetInventory();
+        if (db == null || inv == null) return;
+
+        for (int id = 0; id < 256; id++)
+        {
+            var item = db.Get(id);
+            if (item != null && item.ItemType == ItemType.Material)
+                inv.AddItem(item, 5);
+        }
+    }
+#endif
+
+    // =====================================================
+    // CONSUMIBLES (pociones, etc.)
+    // Llamado desde InventoryUI (botón "Usar") en el cliente local.
+    // =====================================================
+
+    /// <summary>Resultado del último intento de usar un consumible (solo dueño).</summary>
+    public event System.Action<ConsumeResult> OnConsumeResult;
+
+    public void RequestUseItem(int itemId)
+    {
+        if (IsOwner)
+            UseItemServerRpc(itemId);
+    }
+
+    [ServerRpc]
+    private void UseItemServerRpc(int itemId)
+    {
+        var item = ItemDatabase.Instance != null
+            ? ItemDatabase.Instance.Get(itemId)
+            : null;
+
+        ConsumeResult result = IsDead()
+            ? ConsumeResult.PlayerDead
+            : ConsumableSystem.TryUse(GetInventory(), GetResourceController(), item);
+
+        Debug.Log($"[Player] Usar item {itemId} ('{(item != null ? item.name : "?")}'): {result}");
+
+        var target = new ClientRpcParams
+        {
+            Send = new ClientRpcSendParams { TargetClientIds = new[] { OwnerClientId } }
+        };
+        NotifyConsumeResultClientRpc(result, target);
+    }
+
+    [ClientRpc]
+    private void NotifyConsumeResultClientRpc(ConsumeResult result, ClientRpcParams rpcParams = default)
+    {
+        if (!IsOwner) return;
+        OnConsumeResult?.Invoke(result);
     }
 
     // =====================================================

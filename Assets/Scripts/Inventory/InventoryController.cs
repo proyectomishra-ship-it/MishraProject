@@ -10,7 +10,7 @@ using UnityEngine;
 /// Mover este archivo a Assets/Scripts/Inventory/
 /// </summary>
 [RequireComponent(typeof(InventoryNetworkSync))]
-public class InventoryController : NetworkBehaviour, IInventory
+public class InventoryController : NetworkBehaviour, IInventory, IBatchable
 {
     [SerializeField] private int maxSlots = 20;
 
@@ -31,17 +31,27 @@ public class InventoryController : NetworkBehaviour, IInventory
         store.OnChanged += () => OnChanged?.Invoke();
     }
 
+    // FIX: antes se desuscribía con una lambda NUEVA, que nunca coincide con la
+    // suscripta, así que el handler quedaba colgado. Con un método con nombre
+    // el += y el -= sí refieren al mismo delegado.
+    private void HandleNetworkListChanged(NetworkListEvent<InventoryNetworkSync.Slot> _)
+        => OnChanged?.Invoke();
+
     public override void OnNetworkSpawn()
     {
         if (IsOwner)
-            sync.Subscribe(_ => OnChanged?.Invoke());
+            sync.Subscribe(HandleNetworkListChanged);
     }
 
     public override void OnNetworkDespawn()
     {
         if (IsOwner)
-            sync.Unsubscribe(_ => OnChanged?.Invoke());
+            sync.Unsubscribe(HandleNetworkListChanged);
     }
+
+    // ── IBatchable (solo servidor: el store solo existe/muta ahí) ────────────
+    public void BeginBatch() { if (IsServer) store?.BeginBatch(); }
+    public void EndBatch()   { if (IsServer) store?.EndBatch(); }
 
     // ── IInventory ───────────────────────────────────────────────────────────
     public bool AddItem(ItemData item, int amount = 1)

@@ -571,8 +571,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DropController
   ShowTopMostFoldoutHeaderGroup: 1
-  lootTable: {fileID: 11400000, guid: 48271b5e1b67a524c93504193643d065, type: 2}
-  pickupPrefab: {fileID: 4273785195938979488, guid: 7d5da6c904456cd43a9650abe115ae80, type: 3}
+  lootTable: {fileID: 11400000, guid: 3c1f28f04cfc58247b20205cf4e10d5d, type: 2}
   spreadRadius: 1.5
 --- !u!1001 &2512222984759952799
 PrefabInstance:

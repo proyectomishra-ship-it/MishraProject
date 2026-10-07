@@ -18,3 +18,5 @@ MonoBehaviour:
   description: "Una poci\xF3n sencilla. Restaura una porci\xF3n de vida al beberla."
   stackable: 1
   maxStack: 99
+  healthRestore: 50
+  manaRestore: 0
