@@ -2698,7 +2698,7 @@ MonoBehaviour:
       m_Calls: []
   m_Sprite: {fileID: 0}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -43578,8 +43578,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1764835217}
   m_HandleRect: {fileID: 1764835216}
   m_Direction: 0
-  m_Value: 1
-  m_Size: 0.9999999
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -118398,8 +118398,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1326918394}
   m_HandleRect: {fileID: 1326918393}
   m_Direction: 0
-  m_Value: 1
-  m_Size: 0.9999999
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -215216,7 +215216,7 @@ MonoBehaviour:
       m_Calls: []
   m_Sprite: {fileID: 0}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -227863,6 +227863,7 @@ MonoBehaviour:
   equipButton: {fileID: 1429997701}
   equipButtonText: {fileID: 1945699055}
   detailPanel: {fileID: 1560303096}
+  itemFeedbackText: {fileID: 0}
   recipeGridContainer: {fileID: 1806328969}
   recipeCellPrefab: {fileID: 5807215118080253170, guid: 01e7bb6d02e50734988b28e223aecd18, type: 3}
   craftingIcon: {fileID: 12914007}
@@ -227870,6 +227871,7 @@ MonoBehaviour:
   craftingDescription: {fileID: 2071316273}
   ingredientListContainer: {fileID: 1051955407}
   ingredientLinePrefab: {fileID: 3965579441570878965, guid: 353c9a31481bae343bda0675f7a35b10, type: 3}
+  ingredientLineUIPrefab: {fileID: 0}
   goldCostText: {fileID: 224818632}
   craftButton: {fileID: 19174715}
   craftButtonText: {fileID: 2022825605}

@@ -91,10 +91,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d3dd7e1e2ff452f908119372920e639, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipeUI
-  iconImage: {fileID: 0}
-  quantityText: {fileID: 0}
-  selectionHighlight: {fileID: 0}
-  backgroundImage: {fileID: 0}
+  iconImage: {fileID: 3627718994777788533}
+  quantityText: {fileID: 8753066443043337263}
+  selectionHighlight: {fileID: 7837615180718448711}
+  backgroundImage: {fileID: 2766597107442292079}
   canCraftColor: {r: 0.22, g: 0.22, b: 0.22, a: 0.85}
   cannotCraftColor: {r: 0.18, g: 0.08, b: 0.08, a: 0.85}
 --- !u!1 &6381673231500022353
@@ -155,7 +155,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.3}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -343,8 +343,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 10}
-  m_SizeDelta: {x: -10, y: -30}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: -8, y: -8}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3398736007058399056
 CanvasRenderer:
@@ -376,7 +376,7 @@ MonoBehaviour:
       m_Calls: []
   m_Sprite: {fileID: 0}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1

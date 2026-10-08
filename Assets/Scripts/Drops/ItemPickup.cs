@@ -9,6 +9,16 @@ public class ItemPickup : NetworkBehaviour
     [SerializeField] private ItemData itemData;
     [SerializeField] private int quantity = 1;
 
+    [Header("Recogida")]
+    [Tooltip("Distancia (en metros) a la que el jugador recoge el objeto. " +
+             "Se aplica al SphereCollider en Awake, asi que no depende de la " +
+             "escala del prefab ni del radio guardado en el Collider.")]
+    [SerializeField, Min(0.25f)] private float pickupRadius = 2.2f;
+
+    [Tooltip("Segundos entre reintentos cuando el inventario esta lleno " +
+             "(evita spam de logs y trabajo inutil).")]
+    [SerializeField, Min(0.1f)] private float retryInterval = 0.5f;
+
     [Header("Visual — Idle")]
     [SerializeField] private float bobHeight = 0.2f;
     [SerializeField] private float bobSpeed = 2f;
@@ -23,6 +33,7 @@ public class ItemPickup : NetworkBehaviour
     private bool positionCaptured;
     private Vector3 startPosition;
     private Collider itemCollider;
+    private float nextAttemptTime;
 
     public void Setup(ItemData data, int qty)
     {
@@ -38,7 +49,33 @@ public class ItemPickup : NetworkBehaviour
     private void Awake()
     {
         itemCollider = GetComponent<Collider>();
+        ApplyPickupRadius();
     }
+
+    /// <summary>
+    /// Fija el radio efectivo de recogida en metros de mundo. Se divide por la
+    /// escala para que un prefab escalado no cambie la distancia real.
+    /// </summary>
+    private void ApplyPickupRadius()
+    {
+        if (itemCollider is not SphereCollider sphere)
+            return;
+
+        Vector3 s = transform.lossyScale;
+        float maxScale = Mathf.Max(Mathf.Abs(s.x), Mathf.Abs(s.y), Mathf.Abs(s.z));
+
+        sphere.isTrigger = true;
+        sphere.radius = pickupRadius / Mathf.Max(maxScale, 0.0001f);
+    }
+
+#if UNITY_EDITOR
+    // Muestra el radio de recogida al seleccionar el prefab/objeto en la Scene.
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = new Color(0.2f, 1f, 0.4f, 0.8f);
+        Gizmos.DrawWireSphere(transform.position, pickupRadius);
+    }
+#endif
 
     public override void OnNetworkSpawn()
     {
@@ -69,12 +106,22 @@ public class ItemPickup : NetworkBehaviour
             rotationSpeed * Time.deltaTime);
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other) => TryPickup(other);
+
+    // Stay: con un radio grande el jugador suele quedar DENTRO del area. Si el
+    // inventario estaba lleno al entrar y luego se libera un lugar, con solo
+    // OnTriggerEnter habria que salir y volver a entrar para recoger.
+    private void OnTriggerStay(Collider other) => TryPickup(other);
+
+    private void TryPickup(Collider other)
     {
         if (!IsServer || pickedUp)
             return;
 
         if (itemData == null)
+            return;
+
+        if (Time.time < nextAttemptTime)
             return;
 
         Player player = other.GetComponent<Player>();
@@ -84,6 +131,8 @@ public class ItemPickup : NetworkBehaviour
 
         if (!player.GetInventory().AddItem(itemData, quantity))
         {
+            nextAttemptTime = Time.time + retryInterval;
+
             Debug.Log($"[Pickup] {player.name} no pudo recoger {itemData.name} " +
                       "(inventario lleno o item invalido).");
             return;

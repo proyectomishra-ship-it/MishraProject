@@ -151,6 +151,11 @@ public class InventoryUI : MonoBehaviour
 
         BuildEquipmentSlots();
 
+        // Los iconos de detalle nunca deben deformarse, sin importar
+        // lo que haya guardado la escena.
+        if (detailIcon != null) detailIcon.preserveAspect = true;
+        if (craftingIcon != null) craftingIcon.preserveAspect = true;
+
         // Un solo refresco por frame: la NetworkList del cliente dispara N+1
         // eventos por cada cambio (Clear + un Add por slot). Ver LateUpdate().
         inventory.OnChanged += QueueRefresh;
@@ -159,10 +164,32 @@ public class InventoryUI : MonoBehaviour
         player.OnCraftResult += HandleCraftResult;
         player.OnConsumeResult += HandleConsumeResult;
 
-        if (equipButton != null) equipButton.onClick.AddListener(OnEquipButtonClicked);
-        if (craftButton != null) craftButton.onClick.AddListener(OnCraftButtonClicked);
-        if (itemsTabButton != null) itemsTabButton.onClick.AddListener(() => SetTab(Tab.Items));
-        if (craftingTabButton != null) craftingTabButton.onClick.AddListener(() => SetTab(Tab.Crafting));
+        // RemoveAllListeners antes de AddListener: si Initialize se llama otra vez
+        // sobre esta misma UI (reconexion, cambio de personaje sin recargar la
+        // escena), los botones no acumulan listeners duplicados. Sin esto,
+        // "Craftear" mandaria dos pedidos por cada clic.
+        // Solo quita listeners agregados por codigo; los asignados en el
+        // Inspector (persistentes) se conservan.
+        if (equipButton != null)
+        {
+            equipButton.onClick.RemoveAllListeners();
+            equipButton.onClick.AddListener(OnEquipButtonClicked);
+        }
+        if (craftButton != null)
+        {
+            craftButton.onClick.RemoveAllListeners();
+            craftButton.onClick.AddListener(OnCraftButtonClicked);
+        }
+        if (itemsTabButton != null)
+        {
+            itemsTabButton.onClick.RemoveAllListeners();
+            itemsTabButton.onClick.AddListener(() => SetTab(Tab.Items));
+        }
+        if (craftingTabButton != null)
+        {
+            craftingTabButton.onClick.RemoveAllListeners();
+            craftingTabButton.onClick.AddListener(() => SetTab(Tab.Crafting));
+        }
 
         if (detailPanel != null) detailPanel.SetActive(false);
         if (craftingDetailPanel != null) craftingDetailPanel.SetActive(false);
@@ -479,18 +506,21 @@ public class InventoryUI : MonoBehaviour
     // =========================
 
     /// <summary>
-    /// Arma el texto de estadisticas basicas de un item equipable (arma o armadura):
-    /// solo sus modificadores de stats (Ataque, Rango de ataque, etc.).
-    /// Devuelve "" si el item no es equipable.
+    /// Texto de efectos de un consumible (ej: "Restaura 50 de vida").
     /// </summary>
     private static string BuildConsumableStats(ItemData item)
     {
         var sb = new StringBuilder();
         if (item.HealthRestore > 0f) AppendLine(sb, $"Restaura {item.HealthRestore:0} de vida");
-        if (item.ManaRestore   > 0f) AppendLine(sb, $"Restaura {item.ManaRestore:0} de maná");
+        if (item.ManaRestore > 0f) AppendLine(sb, $"Restaura {item.ManaRestore:0} de maná");
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Arma el texto de estadisticas basicas de un item equipable (arma o armadura):
+    /// solo sus modificadores de stats (Ataque, Rango de ataque, etc.).
+    /// Para consumibles devuelve sus efectos. Devuelve "" si el item no es ninguno de los dos.
+    /// </summary>
     private static string BuildItemStats(ItemData item)
     {
         if (item.IsUsableConsumable) return BuildConsumableStats(item);
@@ -558,11 +588,11 @@ public class InventoryUI : MonoBehaviour
     {
         string msg = result switch
         {
-            ConsumeResult.Success          => "¡Usado!",
+            ConsumeResult.Success => "¡Usado!",
             ConsumeResult.NothingToRestore => "Ya estás al máximo.",
-            ConsumeResult.PlayerDead       => "No puedes usar objetos estando muerto.",
-            ConsumeResult.NotInInventory   => "Ya no tienes ese objeto.",
-            _                              => "No se puede usar."
+            ConsumeResult.PlayerDead => "No puedes usar objetos estando muerto.",
+            ConsumeResult.NotInInventory => "Ya no tienes ese objeto.",
+            _ => "No se puede usar."
         };
 
         if (itemFeedbackText != null)
