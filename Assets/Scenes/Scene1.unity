@@ -43578,8 +43578,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1764835217}
   m_HandleRect: {fileID: 1764835216}
   m_Direction: 0
-  m_Value: 0
-  m_Size: 1
+  m_Value: 1
+  m_Size: 0.9999999
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -118398,8 +118398,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1326918394}
   m_HandleRect: {fileID: 1326918393}
   m_Direction: 0
-  m_Value: 0
-  m_Size: 1
+  m_Value: 1
+  m_Size: 0.9999999
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -137099,6 +137099,57 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &966170330
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 966170332}
+  - component: {fileID: 966170331}
+  m_Layer: 0
+  m_Name: EnemySleepManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &966170331
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 966170330}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b091845ed7b4e84e8bf550d566d34b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemySleepManager
+  sleepDistance: 80
+  wakeDistance: 60
+  sleepWhenNoPlayers: 1
+  initGraceSeconds: 2
+  disableNavMeshAgentWhileAsleep: 1
+  checkInterval: 0.5
+  debugInfo: 1
+--- !u!4 &966170332
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 966170330}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1231.2732, y: 9.84597, z: -269.48145}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &967510861
 GameObject:
   m_ObjectHideFlags: 0
@@ -324074,3 +324125,4 @@ SceneRoots:
   - {fileID: 528948498}
   - {fileID: 635575150}
   - {fileID: 982081085}
+  - {fileID: 966170332}
