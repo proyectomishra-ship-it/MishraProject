@@ -3,43 +3,58 @@ using Unity.Netcode;
 using UnityEngine;
 
 /// <summary>
-/// Portal de cambio de ubicación. Se le asigna a cualquier entrada o salida
-/// (overworld -> cueva, cueva -> overworld, cueva -> cueva). Todo vive en la
-/// misma escena, así que el destino se asigna directo con un Transform.
+/// Portal de cambio de ubicación. Es el componente del prefab "Portal".
+/// Se usa igual para una entrada (overworld -> cueva), una salida (cueva -> overworld)
+/// o cualquier otro par de puntos del mapa.
+///
+/// USO (lo único que hay que configurar):
+///   1. Poner dos instancias del prefab Portal (por ejemplo la entrada y la salida de una cueva).
+///   2. En una de ellas, arrastrar la otra al campo "Linked Portal".
+///      El otro lado se vincula solo (vínculo bidireccional), no hace falta tocarlo.
+///   3. Rotar cada portal para que su eje Z (flecha azul) apunte hacia donde
+///      debe salir el jugador cuando LLEGA a ese portal.
+///
+/// Todo lo demás es automático:
+///   - Punto de llegada: el hijo "Arrival" del portal de destino (o, si falta, 3 m
+///     delante del portal).
+///   - Si el portal de destino está dentro de una cueva con LocationZone, se la
+///     activa ANTES de mover al jugador (para que el suelo exista).
+///   - Cooldown por jugador, jugador muerto ignorado, evaluación inmediata de
+///     enemigos (EnemySleepManager) al llegar.
 ///
 /// Online: SOLO el servidor lo procesa. El movimiento de los jugadores ya es
-/// server-authoritative (CharacterController movido en el servidor), así que el
-/// trigger se dispara ahí y el teletransporte se replica por NetworkTransform.
+/// server-authoritative, así que el trigger se dispara ahí y el teletransporte se
+/// replica por NetworkTransform.
 ///
-/// Protecciones para cambios repetidos:
-///   - Cooldown por jugador, aplicado ANTES de teletransportar.
-///   - Un jugador muerto no usa portales (PlayerRespawnController lo revive en
-///     su posición de muerte; teletransportarlo lo dejaría con el respawn en la
-///     ubicación equivocada).
-///   - Si el destino tiene LocationZone, se la activa ANTES de mover al jugador
-///     para que el suelo exista en el servidor.
-///   - El teletransporte pide una evaluación inmediata a EnemySleepManager.
-///
-/// SETUP:
-///   1. GameObject con un Collider (se fuerza isTrigger = true).
-///   2. Agregar este componente.
-///   3. "Destination": Transform vacío donde aparece el jugador (un poco sobre
-///      el suelo; su rotación define hacia dónde mira). Debe quedar FUERA del
-///      trigger del portal de vuelta.
-///   4. "Destination Zone": opcional, solo si el destino tiene una LocationZone
-///      para encender/apagar visuales.
+/// IMPORTANTE: el portal no debe estar dentro de un objeto que LocationZone apague
+/// (por ejemplo "Visuals"): el trigger tiene que estar siempre activo.
 /// </summary>
 [RequireComponent(typeof(Collider))]
 public class ScenePortal : MonoBehaviour
 {
-    [Header("Destino")]
-    [SerializeField] private Transform destination;
-    [Tooltip("Opcional. LocationZone del destino que se activa antes de llegar.")]
-    [SerializeField] private LocationZone destinationZone;
+    [Header("Vínculo")]
+    [Tooltip("Portal con el que se conecta. Arrastrá el otro portal acá; el otro lado se vincula solo.")]
+    [SerializeField] private ScenePortal linkedPortal;
+    [Tooltip("Si está activo, el portal de destino NO vuelve a este (portal de un solo sentido).")]
+    [SerializeField] private bool oneWay;
+
+    [Header("Llegada a ESTE portal")]
+    [Tooltip("Dónde aparece el jugador que llega a este portal. Si está vacío, 3 m delante del portal (eje Z).")]
+    [SerializeField] private Transform arrivalPoint;
+    [SerializeField] private float fallbackArrivalDistance = 3f;
 
     [Header("Comportamiento")]
     [Tooltip("Segundos sin poder usar ningún portal tras teletransportarse. Evita rebotes.")]
     [SerializeField] private float cooldownSeconds = 1.5f;
+
+    [Header("Avanzado (normalmente vacío)")]
+    [Tooltip("Si se asigna, tiene prioridad sobre el vínculo: lleva a este Transform.")]
+    [SerializeField] private Transform destinationOverride;
+    [Tooltip("Zona a activar antes de llegar al destino manual (opcional).")]
+    [SerializeField] private LocationZone destinationZoneOverride;
+
+    public ScenePortal LinkedPortal => linkedPortal;
+    public bool HasManualDestination => destinationOverride != null;
 
     // clientId -> Time.time hasta el cual está bloqueado
     private static readonly Dictionary<ulong, float> BlockedUntil = new();
@@ -58,6 +73,55 @@ public class ScenePortal : MonoBehaviour
         if (col != null && !col.isTrigger) col.isTrigger = true;
     }
 
+    private void Awake()
+    {
+        // Vínculo bidireccional automático: si el otro lado no apunta a nadie, apunta a este.
+        if (linkedPortal != null && !oneWay && linkedPortal.linkedPortal == null)
+            linkedPortal.linkedPortal = this;
+    }
+
+    /// <summary>Posición y rotación donde aparece un jugador que llega a ESTE portal.</summary>
+    public void GetArrival(out Vector3 position, out Quaternion rotation)
+    {
+        if (arrivalPoint != null)
+        {
+            position = arrivalPoint.position;
+            rotation = arrivalPoint.rotation;
+            return;
+        }
+
+        Vector3 fwd = transform.forward;
+        fwd.y = 0f;
+        fwd = fwd.sqrMagnitude < 0.001f ? Vector3.forward : fwd.normalized;
+
+        position = transform.position + fwd * fallbackArrivalDistance + Vector3.up * 0.1f;
+        rotation = Quaternion.LookRotation(fwd, Vector3.up);
+    }
+
+    private bool TryGetDestination(out Vector3 position, out Quaternion rotation, out LocationZone zone)
+    {
+        if (destinationOverride != null)
+        {
+            position = destinationOverride.position;
+            rotation = destinationOverride.rotation;
+            zone = destinationZoneOverride;
+            return true;
+        }
+
+        if (linkedPortal != null)
+        {
+            linkedPortal.GetArrival(out position, out rotation);
+            // Si el portal de destino está dentro de una cueva, se activa su zona.
+            zone = linkedPortal.GetComponentInParent<LocationZone>(true);
+            return true;
+        }
+
+        position = default;
+        rotation = default;
+        zone = null;
+        return false;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         var nm = NetworkManager.Singleton;
@@ -65,12 +129,6 @@ public class ScenePortal : MonoBehaviour
 
         var netObj = other.GetComponentInParent<NetworkObject>();
         if (netObj == null || !netObj.IsPlayerObject) return;
-
-        if (destination == null)
-        {
-            Debug.LogError($"[ScenePortal] '{name}' no tiene Destination asignado.", this);
-            return;
-        }
 
         var respawn = netObj.GetComponent<PlayerRespawnController>();
         if (respawn != null && respawn.IsDead.Value) return;
@@ -80,23 +138,30 @@ public class ScenePortal : MonoBehaviour
         if (BlockedUntil.TryGetValue(clientId, out float until) && Time.time < until)
             return;
 
+        if (!TryGetDestination(out Vector3 position, out Quaternion rotation, out LocationZone zone))
+        {
+            Debug.LogWarning($"[ScenePortal] '{name}' no está vinculado a ningún portal. " +
+                             "Arrastrá otro portal al campo 'Linked Portal'.", this);
+            return;
+        }
+
         var teleport = netObj.GetComponent<PlayerTeleportController>();
         if (teleport == null)
         {
             Debug.LogError($"[ScenePortal] El jugador {netObj.name} no tiene PlayerTeleportController. " +
-                           "Agregalo a los prefabs de Warrior/Mage/Hunter.", this);
+                           "Agregalo a los prefabs de jugador.", this);
             return;
         }
 
         BlockedUntil[clientId] = Time.time + cooldownSeconds;
 
         // Primero el destino (suelo/visuales), después el jugador.
-        if (destinationZone != null)
-            destinationZone.EnsureActive();
+        if (zone != null)
+            zone.EnsureActive();
 
-        teleport.TeleportServer(destination.position, destination.rotation);
+        teleport.TeleportServer(position, rotation);
 
-        Debug.Log($"[ScenePortal] Cliente {clientId} -> '{destination.name}'");
+        Debug.Log($"[ScenePortal] Cliente {clientId}: '{name}' -> {(linkedPortal != null ? linkedPortal.name : "destino manual")}");
     }
 
     private void OnDrawGizmos()
@@ -108,12 +173,21 @@ public class ScenePortal : MonoBehaviour
             Gizmos.DrawWireCube(col.bounds.center, col.bounds.size);
         }
 
-        if (destination != null)
+        // Dónde aparece quien llega a este portal.
+        GetArrival(out Vector3 arrivalPos, out Quaternion arrivalRot);
+        Gizmos.color = new Color(0.2f, 1f, 0.4f, 0.9f);
+        Gizmos.DrawWireSphere(arrivalPos, 0.35f);
+        Gizmos.DrawRay(arrivalPos, arrivalRot * Vector3.forward * 1.2f);
+
+        // Línea hacia el portal con el que está vinculado.
+        Transform target = destinationOverride != null ? destinationOverride
+                         : linkedPortal != null ? linkedPortal.transform
+                         : null;
+
+        if (target != null)
         {
             Gizmos.color = new Color(0.8f, 0.3f, 1f, 0.9f);
-            Gizmos.DrawLine(transform.position, destination.position);
-            Gizmos.DrawWireSphere(destination.position, 0.4f);
-            Gizmos.DrawRay(destination.position, destination.forward * 1.2f);
+            Gizmos.DrawLine(transform.position + Vector3.up, target.position + Vector3.up);
         }
     }
 }

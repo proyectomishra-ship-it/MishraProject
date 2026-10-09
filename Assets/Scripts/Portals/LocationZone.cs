@@ -41,10 +41,14 @@ public class LocationZone : MonoBehaviour
     /// <summary>true mientras la zona está activa (hay jugadores o falta el delay de apagado).</summary>
     public bool IsOccupied { get; private set; }
 
+    /// <summary>Objetos que esta zona enciende y apaga (lo usan las herramientas del editor).</summary>
+    public GameObject[] ToggledObjects => toggledObjects;
+
+    /// <summary>Centro de la zona en el mundo.</summary>
+    public Vector3 CenterPosition => (center != null ? center : transform).position;
+
     private float timer;
     private float lastPresenceTime;
-
-    private Vector3 CenterPosition => (center != null ? center : transform).position;
 
     private void Awake()
     {
