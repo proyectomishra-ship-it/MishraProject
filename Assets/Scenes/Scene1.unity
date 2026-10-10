@@ -67059,7 +67059,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 225670113}
   m_HandleRect: {fileID: 225670112}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -74577,6 +74577,10 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4109008541481446640, guid: 650384346e93b1d48be9ef05e1399e60, type: 3}
       propertyPath: m_Convex
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4109008541481446640, guid: 650384346e93b1d48be9ef05e1399e60, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7524051620583715947, guid: 650384346e93b1d48be9ef05e1399e60, type: 3}
@@ -166584,7 +166588,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1907289601}
   m_HandleRect: {fileID: 1907289600}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
