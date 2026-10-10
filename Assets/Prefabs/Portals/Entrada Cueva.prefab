@@ -34,15 +34,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1548575498942564942, guid: 58ea76421c198b04caf2630318c83ee6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 866.38
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1548575498942564942, guid: 58ea76421c198b04caf2630318c83ee6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 39.47
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1548575498942564942, guid: 58ea76421c198b04caf2630318c83ee6, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 110.48
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1548575498942564942, guid: 58ea76421c198b04caf2630318c83ee6, type: 3}
       propertyPath: m_LocalRotation.w
@@ -78,7 +78,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3756783297384703346, guid: 58ea76421c198b04caf2630318c83ee6, type: 3}
       propertyPath: m_Name
-      value: Portal Variant
+      value: Entrada Cueva
       objectReference: {fileID: 0}
     - target: {fileID: 3993240926397631703, guid: 58ea76421c198b04caf2630318c83ee6, type: 3}
       propertyPath: m_LocalScale.x
