@@ -32,6 +32,7 @@ GameObject:
   - component: {fileID: 395255024593071542}
   - component: {fileID: 5933784223730678207}
   - component: {fileID: 2831718485654646793}
+  - component: {fileID: -4954356335702940875}
   m_Layer: 3
   m_Name: Warrior
   m_TagString: Player
@@ -531,6 +532,19 @@ MonoBehaviour:
   groundCheckDistance: 0.2
   airborneDelay: 0.1
   minTimeBetweenHits: 0.4
+--- !u!114 &-4954356335702940875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2211492265159698303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92948eef4719d06438281cc32b2aca5a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerTeleportController
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &6088325270206399613
 GameObject:
   m_ObjectHideFlags: 0

@@ -31,6 +31,7 @@ GameObject:
   - component: {fileID: 7338017994978780666}
   - component: {fileID: 395255024593071542}
   - component: {fileID: 402124485947010731}
+  - component: {fileID: -6018011883459201462}
   m_Layer: 3
   m_Name: Hunter
   m_TagString: Player
@@ -506,6 +507,19 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+--- !u!114 &-6018011883459201462
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2211492265159698303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92948eef4719d06438281cc32b2aca5a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerTeleportController
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &6088325270206399613
 GameObject:
   m_ObjectHideFlags: 0
