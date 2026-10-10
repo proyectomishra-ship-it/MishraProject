@@ -17009,7 +17009,7 @@ PrefabInstance:
     m_RemovedGameObjects:
     - {fileID: 8355160742772255773, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
     m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 5973769559802262652, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
+    - targetCorrespondingSourceObject: {fileID: 217029042202127549, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 528948499}
     m_AddedComponents: []
@@ -17041,6 +17041,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57c3e8506d661d147ac485aa22b38f77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScenePortal
+--- !u!4 &106570997 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 217029042202127549, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
+  m_PrefabInstance: {fileID: 106570993}
+  m_PrefabAsset: {fileID: 0}
 --- !u!43 &108280257
 Mesh:
   m_ObjectHideFlags: 0
@@ -74491,7 +74496,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 106570994}
+    m_TransformParent: {fileID: 106570997}
     m_Modifications:
     - target: {fileID: 4109008541481446640, guid: 650384346e93b1d48be9ef05e1399e60, type: 3}
       propertyPath: m_Convex
@@ -74507,11 +74512,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8656448212599033604, guid: 650384346e93b1d48be9ef05e1399e60, type: 3}
       propertyPath: m_LocalScale.y
-      value: 501.66495
+      value: 501.66492
       objectReference: {fileID: 0}
     - target: {fileID: 8656448212599033604, guid: 650384346e93b1d48be9ef05e1399e60, type: 3}
       propertyPath: m_LocalScale.z
-      value: 136.00003
+      value: 136.00005
       objectReference: {fileID: 0}
     - target: {fileID: 8656448212599033604, guid: 650384346e93b1d48be9ef05e1399e60, type: 3}
       propertyPath: m_LocalPosition.x
