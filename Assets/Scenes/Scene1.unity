@@ -16925,6 +16925,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2046068984}
     m_Modifications:
+    - target: {fileID: 857402064383383112, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
+      propertyPath: activationRadius
+      value: 210
+      objectReference: {fileID: 0}
     - target: {fileID: 3524037918862594658, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
       propertyPath: m_LocalPosition.x
       value: -8.4
@@ -309705,7 +309709,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2046068984}
   m_Layer: 0
-  m_Name: Cave 1
+  m_Name: Cave A
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
