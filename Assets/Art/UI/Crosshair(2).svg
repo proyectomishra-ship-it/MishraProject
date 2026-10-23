@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 184 224">
+  <defs>
+    <style>
+      .cls-1{fill:none;stroke:#000000;stroke-miterlimit:10}
+    </style>
+  </defs>
+  <title>Crosshair</title>
+  <g id="Layer_1" data-name="Layer 1">
+    <g>
+      <g>
+        <path d="M78.46 102.837 L92.343 53.817" class="cls-1"/>
+        <path d="M78.46 102.837 L92.343 116.72" class="cls-1"/>
+        <path d="M106.226 102.837 L92.343 53.817" class="cls-1"/>
+        <path d="M106.226 102.837 L92.343 116.72" class="cls-1"/>
+      </g>
+      <g>
+        <path d="M75.974 132.66 L26.955 118.777" class="cls-1"/>
+        <path d="M75.974 132.66 L89.858 118.777" class="cls-1"/>
+        <path d="M75.974 104.893 L26.955 118.777" class="cls-1"/>
+        <path d="M75.974 104.893 L89.858 118.777" class="cls-1"/>
+      </g>
+      <g>
+        <path d="M106.226 134.46 L92.343 183.479" class="cls-1"/>
+        <path d="M106.226 134.46 L92.343 120.576" class="cls-1"/>
+        <path d="M78.46 134.46 L92.343 183.479" class="cls-1"/>
+        <path d="M78.46 134.46 L92.343 120.576" class="cls-1"/>
+      </g>
+      <g>
+        <path d="M108.026 104.893 L157.045 118.777" class="cls-1"/>
+        <path d="M108.026 104.893 L94.142 118.777" class="cls-1"/>
+        <path d="M108.026 132.66 L157.045 118.777" class="cls-1"/>
+        <path d="M108.026 132.66 L94.142 118.777" class="cls-1"/>
+      </g>
+    </g>
+  </g>
+</svg>

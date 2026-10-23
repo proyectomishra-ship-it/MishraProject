@@ -682,7 +682,7 @@ public class Player : Character
     public override void SpecialAttack()
     {
         if (IsOwner)
-            playerCombatController?.RequestSpecialAttackServerRpc();
+            playerCombatController?.RequestSpecialAttack();
     }
 
     /// <summary>
