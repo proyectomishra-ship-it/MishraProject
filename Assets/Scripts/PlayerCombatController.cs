@@ -1,33 +1,15 @@
-﻿using UnityEngine;
+﻿
+using UnityEngine;
 using Unity.Netcode;
 
-/// <summary>
-/// PlayerCombatController 2.0
-/// ------------------------------------------------------------------
-/// Recupera las ventajas del CombatController viejo:
-/// - Sistema basado en behaviors
-/// - Hold attacks
-/// - Multiplicadores por arma
-/// - AttackSpeed real
-/// - Validaci�n de target
-/// - SphereCast validation
-/// - Sistema extensible
-///
-/// PERO:
-/// - Sin tocar CombatController de enemies
-/// - Compatible con ranged
-/// - Compatible con magic
-/// - Compatible con mana/stamina
-/// - Separado exclusivamente para Player
-/// </summary>
 public class PlayerCombatController : NetworkBehaviour
 {
     private Player player;
-
     private CharacterStats stats;
     private EquipmentController equipment;
     private ResourceController resources;
     private TargetingController targeting;
+    private PlayerAnimationController anim;
 
     [Header("Fallback")]
     [SerializeField] private float holdThreshold = 0.4f;
@@ -35,7 +17,7 @@ public class PlayerCombatController : NetworkBehaviour
     [SerializeField] private float fallbackHeavyStaminaCost = 25f;
     [SerializeField] private float fallbackMagicManaCost = 20f;
 
-    [Header("Hit Validation")]
+    [Header("Melee Hit Validation")]
     [SerializeField] private float attackConeAngle = 60f;
     [SerializeField] private float sphereCastRadius = 0.8f;
     [SerializeField] private LayerMask enemyLayer;
@@ -43,19 +25,11 @@ public class PlayerCombatController : NetworkBehaviour
     private float holdTimer;
     private bool isHoldingAttack;
     private bool heavyTriggered;
-
-    // Animacion + cooldown de ataque (1 / AttackSpeed del arma)
-    private PlayerAnimationController anim;
     private float nextAttackTime;
-
-    // =========================================================
-    // INIT
-    // =========================================================
 
     public void Initialize(Player player)
     {
         this.player = player;
-
         stats = player.GetStats();
         equipment = player.GetEquipment();
         resources = player.GetResourceController();
@@ -63,38 +37,44 @@ public class PlayerCombatController : NetworkBehaviour
         anim = player.GetComponent<PlayerAnimationController>();
     }
 
-    // =========================================================
-    // HELPERS
-    // =========================================================
-
     private WeaponData GetCurrentWeapon()
-    {
-        return equipment?.GetEquippedWeapon();
-    }
+        => equipment?.GetEquippedWeapon();
 
     private IWeaponBehavior GetCurrentBehavior()
-    {
-        WeaponData weapon = GetCurrentWeapon();
-        return WeaponBehaviorFactory.Create(weapon, transform);
-    }
+        => WeaponBehaviorFactory.Create(GetCurrentWeapon(), transform);
 
     private float GetEffectiveHoldThreshold()
     {
         WeaponData weapon = GetCurrentWeapon();
 
-        if (weapon == null || weapon.AttackSpeed <= 0f)
-            return holdThreshold;
-
-        return holdThreshold / weapon.AttackSpeed;
+        return weapon == null || weapon.AttackSpeed <= 0f
+            ? holdThreshold
+            : holdThreshold / weapon.AttackSpeed;
     }
 
     private float GetHeavyMultiplier()
     {
         WeaponData weapon = GetCurrentWeapon();
-
         return weapon != null
             ? weapon.HeavyMultiplier
             : fallbackHeavyMultiplier;
+    }
+
+    // =========================================================
+    // AIM
+    // =========================================================
+
+    private Vector3 GetAimDirection()
+    {
+        Camera cam = Camera.main;
+
+        if (cam == null)
+            return player.transform.forward;
+
+        Ray ray = cam.ViewportPointToRay(
+            new Vector3(0.5f, 0.5f, 0f));
+
+        return ray.direction.normalized;
     }
 
     // =========================================================
@@ -103,7 +83,7 @@ public class PlayerCombatController : NetworkBehaviour
 
     public void OnAttackPressed()
     {
-        if (!IsOwner)
+        if (!IsOwner || player == null || player.IsDead())
             return;
 
         isHoldingAttack = true;
@@ -113,12 +93,8 @@ public class PlayerCombatController : NetworkBehaviour
 
     public void OnAttackHeld()
     {
-        if (!IsOwner ||
-            !isHoldingAttack ||
-            heavyTriggered)
-        {
+        if (!IsOwner || !isHoldingAttack || heavyTriggered)
             return;
-        }
 
         holdTimer += Time.deltaTime;
 
@@ -127,7 +103,7 @@ public class PlayerCombatController : NetworkBehaviour
             heavyTriggered = true;
             isHoldingAttack = false;
 
-            RequestHeavyAttackServerRpc();
+            RequestHeavyAttackServerRpc(GetAimDirection());
         }
     }
 
@@ -139,259 +115,303 @@ public class PlayerCombatController : NetworkBehaviour
         isHoldingAttack = false;
 
         if (!heavyTriggered)
-            RequestAttackServerRpc();
+            RequestAttackServerRpc(GetAimDirection());
     }
 
     // =========================================================
-    // RPCS
+    // RPC
     // =========================================================
 
     [ServerRpc]
-    private void RequestAttackServerRpc()
+    private void RequestAttackServerRpc(Vector3 aimDirection)
     {
-        PerformAttack(false);
+        PerformAttack(false, aimDirection);
     }
 
     [ServerRpc]
-    private void RequestHeavyAttackServerRpc()
+    private void RequestHeavyAttackServerRpc(Vector3 aimDirection)
     {
-        PerformAttack(true);
+        PerformAttack(true, aimDirection);
     }
 
-    [ServerRpc]
-    public void RequestSpecialAttackServerRpc()
+   
+    // Método local llamado desde Player.cs.
+    public void RequestSpecialAttack()
     {
-        PerformSpecialAttack();
-    }
-
-    // =========================================================
-    // CORE ATTACK
-    // =========================================================
-
-    private void PerformAttack(bool heavy)
-    {
-        if (!CanAttackNow()) return;
-
-        Character target = FindTarget();
-
-        // FIX: null check expl�cito antes de validar.
-        // El bloque anterior llamaba ValidateHit(null) causando NullReferenceException
-        // cuando no hab�a enemigos en rango, abortando el ataque sin ning�n mensaje visible.
-        // Adem�s llamaba ValidateHit dos veces de forma redundante cuando s� hab�a target.
-        if (target == null)
-        {
-            Debug.LogWarning("[PlayerCombat] Sin enemigo en rango para atacar");
-            PlayAttackFeedback(heavy ? PlayerAttackAnim.Heavy : PlayerAttackAnim.Light); // golpe al aire
+        if (!IsOwner || player == null || player.IsDead())
             return;
-        }
 
-        if (!ValidateHit(target))
-        {
-            Debug.LogWarning("[PlayerCombat] Hit validation failed");
-            PlayAttackFeedback(heavy ? PlayerAttackAnim.Heavy : PlayerAttackAnim.Light);
+        RequestSpecialAttackInternalServerRpc(GetAimDirection());
+    }
+
+    [ServerRpc]
+    private void RequestSpecialAttackInternalServerRpc(
+        Vector3 aimDirection)
+    {
+        PerformSpecialAttack(aimDirection);
+    }
+
+    // =========================================================
+    // ATTACK
+    // =========================================================
+
+    private void PerformAttack(bool heavy, Vector3 aimDirection)
+    {
+        if (!CanAttackNow())
             return;
-        }
+
+        aimDirection = NormalizeAim(aimDirection);
 
         WeaponData weapon = GetCurrentWeapon();
+        bool isRanged = weapon != null && weapon.IsRanged;
 
-        // =====================================================
-        // STAMINA COST FOR HEAVY
-        // =====================================================
+        // El ataque comienza aunque no exista un enemigo.
+        // El target solo es necesario para aplicar daño melee.
+        Character target = isRanged
+            ? null
+            : FindMeleeTarget(aimDirection);
 
         if (heavy)
         {
-            float staminaCost =
-                weapon != null
+            float cost = weapon != null
                 ? weapon.StaminaCost
                 : fallbackHeavyStaminaCost;
 
-            if (!resources.UseStamina(staminaCost))
+            if (resources == null || !resources.UseStamina(cost))
             {
-                Debug.Log(
-                    "[PlayerCombat] Not enough stamina");
-
+                Debug.Log("[PlayerCombat] Not enough stamina");
                 return;
             }
         }
 
-        // =====================================================
-        // EXECUTE VIA BEHAVIOR
-        // =====================================================
+        PlayAttackFeedback(
+            heavy ? PlayerAttackAnim.Heavy : PlayerAttackAnim.Light);
 
-        PlayAttackFeedback(heavy ? PlayerAttackAnim.Heavy : PlayerAttackAnim.Light);
+        // Ranged: dispara incluso si target es null.
+        if (isRanged)
+        {
+            IWeaponBehavior behavior = GetCurrentBehavior();
 
-        IWeaponBehavior behavior = GetCurrentBehavior();
+            if (behavior is IAimedWeaponBehavior aimedBehavior)
+            {
+                if (heavy)
+                    aimedBehavior.PerformAimedHeavyAttack(
+                        player, aimDirection, GetHeavyMultiplier());
+                else
+                    aimedBehavior.PerformAimedAttack(
+                        player, aimDirection);
+            }
+            else
+            {
+                Debug.LogError(
+                    "[PlayerCombat] El arma ranged no implementa " +
+                    "IAimedWeaponBehavior.");
+            }
+
+            return;
+        }
+
+        // Melee: sin blanco válido, el golpe falla pero se ejecuta.
+        if (target == null)
+            return;
+
+        IWeaponBehavior meleeBehavior = GetCurrentBehavior();
 
         if (heavy)
-        {
-            behavior.PerformHeavyAttack(
-                player,
-                target,
-                GetHeavyMultiplier());
-        }
+            meleeBehavior.PerformHeavyAttack(
+                player, target, GetHeavyMultiplier());
         else
-        {
-            behavior.PerformAttack(
-                player,
-                target);
-        }
+            meleeBehavior.PerformAttack(player, target);
 
         Debug.Log(
-            $"[PlayerCombat] ATTACK {player.name} -> {target.name} | Heavy:{heavy}");
+            $"[PlayerCombat] ATTACK {player.name} -> {target.name} " +
+            $"| Heavy:{heavy}");
     }
 
     // =========================================================
     // SPECIAL ATTACK
     // =========================================================
 
-    private void PerformSpecialAttack()
+    private void PerformSpecialAttack(Vector3 aimDirection)
     {
-        if (!CanAttackNow()) return;
-
-        Character target = FindTarget();
-
-        if (target == null)
-        {
-            Debug.LogWarning(
-                "[PlayerCombat] No special target");
-
-            PlayAttackFeedback(PlayerAttackAnim.Special);
+        if (!CanAttackNow())
             return;
-        }
 
-        if (!ValidateHit(target))
-        {
-            Debug.LogWarning(
-                "[PlayerCombat] Special validation failed");
-
-            PlayAttackFeedback(PlayerAttackAnim.Special);
-            return;
-        }
+        aimDirection = NormalizeAim(aimDirection);
 
         WeaponData weapon = GetCurrentWeapon();
+        bool isRanged = weapon != null && weapon.IsRanged;
 
-        float manaCost =
-            weapon != null
+        Character target = isRanged
+            ? null
+            : FindMeleeTarget(aimDirection);
+
+        // En melee no se consume maná si no hay un blanco válido.
+        if (!isRanged && target == null)
+        {
+            PlayAttackFeedback(PlayerAttackAnim.Special);
+            return;
+        }
+
+        float manaCost = weapon != null
             ? weapon.ManaCost
             : fallbackMagicManaCost;
 
-        if (!resources.UseMana(manaCost))
+        if (resources == null || !resources.UseMana(manaCost))
         {
-            Debug.Log(
-                "[PlayerCombat] Not enough mana");
-
+            Debug.Log("[PlayerCombat] Not enough mana");
             return;
         }
 
         PlayAttackFeedback(PlayerAttackAnim.Special);
 
-        GetCurrentBehavior()
-            .PerformSpecialAttack(player, target);
+        IWeaponBehavior behavior = GetCurrentBehavior();
 
-        Debug.Log(
-            $"[PlayerCombat] SPECIAL {player.name} -> {target.name}");
+        if (isRanged)
+        {
+            if (behavior is IAimedWeaponBehavior aimedBehavior)
+            {
+                aimedBehavior.PerformAimedSpecialAttack(
+                    player, aimDirection);
+            }
+            else
+            {
+                Debug.LogError(
+                    "[PlayerCombat] El arma especial no implementa " +
+                    "IAimedWeaponBehavior.");
+            }
+
+            return;
+        }
+
+        behavior.PerformSpecialAttack(player, target);
     }
 
     // =========================================================
-    // ANIMACION / COOLDOWN
+    // MELEE TARGET RESOLUTION — SERVER
+    // =========================================================
+
+    private Character FindMeleeTarget(Vector3 aimDirection)
+    {
+        float range = stats.AttackRange.Value;
+
+        if (range <= 0f)
+            return null;
+
+        Vector3 origin =
+            player.transform.position + Vector3.up;
+
+        Collider[] hits = Physics.OverlapSphere(
+            player.transform.position,
+            range,
+            enemyLayer,
+            QueryTriggerInteraction.Collide);
+
+        Character bestTarget = null;
+        float bestScore = float.MaxValue;
+
+        foreach (Collider hit in hits)
+        {
+            Character candidate =
+                hit.GetComponentInParent<Character>();
+
+            if (candidate == null ||
+                candidate == player ||
+                candidate.GetStats() == null ||
+                candidate.GetStats().CurrentHealth <= 0)
+            {
+                continue;
+            }
+
+            Vector3 targetPosition =
+                candidate.transform.position + Vector3.up;
+
+            Vector3 toTarget = targetPosition - origin;
+            float distance = toTarget.magnitude;
+
+            if (distance > range || distance <= 0.001f)
+                continue;
+
+            float angle = Vector3.Angle(
+                aimDirection, toTarget / distance);
+
+            if (angle > attackConeAngle)
+                continue;
+
+            // Comprobar que el golpe alcanza al candidato y no
+            // atraviesa un obstáculo antes de llegar a él.
+            if (!ValidateMeleeHit(candidate, origin, toTarget, distance))
+                continue;
+
+            float score = angle * 2f + distance;
+
+            if (score < bestScore)
+            {
+                bestScore = score;
+                bestTarget = candidate;
+            }
+        }
+
+        return bestTarget;
+    }
+
+    private bool ValidateMeleeHit(
+        Character target,
+        Vector3 origin,
+        Vector3 toTarget,
+        float distance)
+    {
+        if (!Physics.SphereCast(
+            origin,
+            sphereCastRadius,
+            toTarget.normalized,
+            out RaycastHit hit,
+            distance + 0.1f,
+            enemyLayer,
+            QueryTriggerInteraction.Collide))
+        {
+            return false;
+        }
+
+        Character hitCharacter =
+            hit.collider.GetComponentInParent<Character>();
+
+        return hitCharacter == target;
+    }
+
+    private Vector3 NormalizeAim(Vector3 direction)
+    {
+        if (direction.sqrMagnitude < 0.001f)
+            return player.transform.forward;
+
+        return direction.normalized;
+    }
+
+    // =========================================================
+    // ANIMATION / COOLDOWN
     // =========================================================
 
     private bool CanAttackNow()
     {
-        return !player.IsDead() && Time.time >= nextAttackTime;
+        return IsServer &&
+               player != null &&
+               !player.IsDead() &&
+               Time.time >= nextAttackTime;
     }
 
-    /// <summary>
-    /// Arranca el cooldown (AttackSpeed = ataques por segundo) y reproduce la
-    /// animacion en todos los clientes. Se llama tambien cuando el golpe no
-    /// conecta, para que el swing se vea igual.
-    /// </summary>
     private void PlayAttackFeedback(PlayerAttackAnim kind)
     {
         WeaponData weapon = GetCurrentWeapon();
-        float attacksPerSecond = weapon != null && weapon.AttackSpeed > 0f ? weapon.AttackSpeed : 1f;
-        nextAttackTime = Time.time + 1f / attacksPerSecond;
 
-        if (anim != null)
-            anim.PlayAttack(kind);
+        float attackSpeed =
+            weapon != null && weapon.AttackSpeed > 0f
+                ? weapon.AttackSpeed
+                : 1f;
+
+        nextAttackTime = Time.time + 1f / attackSpeed;
+
+        anim?.PlayAttack(kind);
     }
-
-    // =========================================================
-    // TARGETING
-    // =========================================================
-
-    private Character FindTarget()
-    {
-        Character target = targeting?.CurrentTarget;
-
-        if (target != null)
-            return target;
-
-        return CombatTargetingSystem.FindBestTarget(
-            player,
-            stats.AttackRange.Value,
-            attackConeAngle,
-            enemyLayer);
-    }
-
-    // =========================================================
-    // VALIDATION
-    // =========================================================
-
-    private bool ValidateHit(Character target)
-    {
-        if (target == null) return false; // FIX: guard extra por si acaso
-
-        WeaponData weapon = GetCurrentWeapon();
-
-        // =====================================================
-        // RANGED / MAGIC
-        // No necesitan spherecast melee
-        // =====================================================
-
-        if (weapon != null && weapon.IsRanged)
-            return true;
-
-        // =====================================================
-        // MELEE VALIDATION
-        // =====================================================
-
-        Vector3 origin =
-            transform.position + Vector3.up;
-
-        Vector3 targetPos =
-            target.transform.position + Vector3.up;
-
-        Vector3 direction =
-            (targetPos - origin).normalized;
-
-        float distance =
-            Vector3.Distance(origin, targetPos);
-
-        float castDistance = distance + 0.5f;
-
-        if (Physics.SphereCast(
-            origin,
-            sphereCastRadius,
-            direction,
-            out RaycastHit hit,
-            castDistance,
-            enemyLayer,
-            QueryTriggerInteraction.Collide))
-        {
-            Character hitCharacter =
-                hit.collider.GetComponentInParent<Character>();
-
-            return hitCharacter != null &&
-                   hitCharacter == target;
-        }
-
-        return false;
-    }
-
-    // =========================================================
-    // DEBUG
-    // =========================================================
 
     private void OnDrawGizmosSelected()
     {
@@ -399,7 +419,6 @@ public class PlayerCombatController : NetworkBehaviour
             return;
 
         Gizmos.color = Color.yellow;
-
         Gizmos.DrawWireSphere(
             transform.position,
             stats.AttackRange.Value);
