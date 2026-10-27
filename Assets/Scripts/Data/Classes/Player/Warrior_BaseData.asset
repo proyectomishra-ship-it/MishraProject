@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Warrior_BaseData
   m_EditorClassIdentifier: Assembly-CSharp::CharacterData
   attack: 60
-  attackRange: 2
+  attackRange: 4
   defense: 4
   maxHealth: 200
   maxMana: 0

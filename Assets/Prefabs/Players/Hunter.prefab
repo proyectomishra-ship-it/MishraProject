@@ -434,7 +434,7 @@ MonoBehaviour:
   enableHealthRegen: 1
   healthRegenPerVitality: 0.2
   healthCombatDelay: 5
-  enableManaRegen: 1
+  enableManaRegen: 0
   manaRegenPerIntelligence: 0.3
   enableStaminaRegen: 1
   staminaRegenPerStamina: 0.5

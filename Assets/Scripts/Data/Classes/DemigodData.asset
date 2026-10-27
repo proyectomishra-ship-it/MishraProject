@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DemigodData
   m_EditorClassIdentifier: Assembly-CSharp::DemigodData
   attack: 60
-  attackRange: 2
+  attackRange: 5
   defense: 40
   maxHealth: 300
   maxMana: 40
@@ -23,7 +23,7 @@ MonoBehaviour:
   dexterity: 30
   intelligence: 20
   vitality: 10
-  resistance: 14
+  stamina: 0
   luck: 0
   baseLevel: 5
   weaponType: 0

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GoblinData
   m_EditorClassIdentifier: Assembly-CSharp::GoblinData
   attack: 40
-  attackRange: 2
+  attackRange: 3
   defense: 8
   maxHealth: 18
   maxMana: 0
@@ -23,7 +23,7 @@ MonoBehaviour:
   dexterity: 32
   intelligence: 2
   vitality: 20
-  resistance: 22
+  stamina: 0
   luck: 0
   baseLevel: 5
   weaponType: 0

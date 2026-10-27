@@ -154,6 +154,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkProjectile
   ShowTopMostFoldoutHeaderGroup: 1
-  speed: 10
+  speed: 30
   lifetime: 5
   damage: 10
