@@ -20,6 +20,10 @@ public class Player : Character
 
     private PlayerRespawnController respawnController;
     private PlayerAnimationController animationController;
+
+    /// <summary>Datos de la clase (stats por nivel, arma inicial, habilidad especial).</summary>
+    public PlayerClassData ClassData => classData;
+
     // =====================================================
     // LIFECYCLE
     // =====================================================

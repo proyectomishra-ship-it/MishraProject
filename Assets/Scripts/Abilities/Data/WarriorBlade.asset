@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc8e86dff28e42aba84afc9787bf2f22, type: 3}
+  m_Name: WarriorBlade
+  m_EditorClassIdentifier: Assembly-CSharp::WarriorBladeAbility
+  cooldown: 10
+  damageMultiplier: 2.5
+  hitDelay: 0.12
+  bladeLength: 8
+  bladeWidth: 0.5
+  sweepAngle: 140
+  energyColor: {r: 1, g: 0.38, b: 0.12, a: 1}
+  slashDuration: 0.45
+  auraDuration: 1
+  visualOffset: {x: 0, y: 0.8, z: 0}
+  effectPrefab: {fileID: 0}

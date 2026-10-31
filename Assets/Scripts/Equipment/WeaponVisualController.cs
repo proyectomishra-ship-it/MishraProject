@@ -81,6 +81,13 @@ public class WeaponVisualController : MonoBehaviour
     private bool visualApplied;
     private WeaponData appliedWeapon;
 
+    /// <summary>
+    /// Socket donde está el arma (hueso de la mano). Las habilidades lo usan
+    /// para pegarle efectos al arma, como el aura del Warrior.
+    /// </summary>
+    public Transform WeaponSocket =>
+        placeholderWeapon != null ? placeholderWeapon.transform : null;
+
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     private void Awake()

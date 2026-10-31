@@ -31,3 +31,4 @@ MonoBehaviour:
   - stat: 11
     value: 1.05
   startingWeapon: {fileID: 11400000, guid: 5224577d8d7e9ac4fa971fc71b0027a3, type: 2}
+  specialAbility: {fileID: 11400000, guid: e078d78893a540c5ad9e24fa37907755, type: 2}

@@ -112,6 +112,30 @@ public class RangedWeaponBehavior :
     }
 
     // =========================================================
+    // HABILIDADES DE CLASE
+    // =========================================================
+
+    /// <summary>
+    /// Dispara un proyectil con dirección y daño explícitos (ej. ráfaga del Hunter).
+    /// Usa el proyectil especial del arma si tiene uno; si no, el normal.
+    /// </summary>
+    public void FireProjectile(
+        Character attacker,
+        Vector3 direction,
+        float damage)
+    {
+        if (weapon == null)
+            return;
+
+        SpawnProjectile(
+            weapon.GetSpecialProjectile(),
+            attacker,
+            direction,
+            damage,
+            true);
+    }
+
+    // =========================================================
     // PROJECTILE SPAWNING
     // =========================================================
 

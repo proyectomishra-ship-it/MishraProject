@@ -433,7 +433,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1757723156
+  GlobalObjectIdHash: 1806805644
   InScenePlacedSourceGlobalObjectIdHash: 3131095716
   DeferredDespawnTick: 0
   Ownership: 1
@@ -548,7 +548,7 @@ MonoBehaviour:
   holdThreshold: 0.4
   fallbackHeavyMultiplier: 2
   fallbackHeavyStaminaCost: 25
-  fallbackMagicManaCost: 20
+  fallbackMagicManaCost: 900
   attackConeAngle: 60
   sphereCastRadius: 0.8
   enemyLayer:
@@ -797,7 +797,7 @@ MonoBehaviour:
   healthRegenPerVitality: 0.2
   healthCombatDelay: 5
   enableManaRegen: 1
-  manaRegenPerIntelligence: 0.3
+  manaRegenPerIntelligence: 0.01
   enableStaminaRegen: 1
   staminaRegenPerStamina: 0.5
 --- !u!114 &2313866983129379394
