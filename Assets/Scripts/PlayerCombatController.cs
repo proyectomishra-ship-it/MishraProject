@@ -1,4 +1,5 @@
 ﻿
+using System.Collections;
 using UnityEngine;
 using Unity.Netcode;
 
@@ -26,6 +27,10 @@ public class PlayerCombatController : NetworkBehaviour
     private bool isHoldingAttack;
     private bool heavyTriggered;
     private float nextAttackTime;
+
+    // Habilidad especial de clase (Mage / Warrior / Hunter)
+    private float nextSpecialTime;
+    private Coroutine barrageRoutine;
 
     public void Initialize(Player player)
     {
@@ -171,7 +176,21 @@ public class PlayerCombatController : NetworkBehaviour
             ? null
             : FindMeleeTarget(aimDirection);
 
-        if (heavy)
+        if (weapon != null && weapon.IsMagic)
+        {
+            // Armas mágicas (Staff / Grimoire): cada hechizo cuesta maná.
+            // El ataque cargado cuesta ManaCost x HeavyMultiplier y no usa stamina.
+            float manaCost = weapon.ManaCost *
+                             (heavy ? weapon.HeavyMultiplier : 1f);
+
+            if (manaCost > 0f &&
+                (resources == null || !resources.UseMana(manaCost)))
+            {
+                Debug.Log("[PlayerCombat] Not enough mana");
+                return;
+            }
+        }
+        else if (heavy)
         {
             float cost = weapon != null
                 ? weapon.StaminaCost
@@ -239,6 +258,10 @@ public class PlayerCombatController : NetworkBehaviour
 
         aimDirection = NormalizeAim(aimDirection);
 
+        // Si la clase define una habilidad propia, reemplaza al especial del arma.
+        if (TryPerformClassSpecial(aimDirection))
+            return;
+
         WeaponData weapon = GetCurrentWeapon();
         bool isRanged = weapon != null && weapon.IsRanged;
 
@@ -285,6 +308,238 @@ public class PlayerCombatController : NetworkBehaviour
         }
 
         behavior.PerformSpecialAttack(player, target);
+    }
+
+    // =========================================================
+    // CLASS SPECIAL ABILITIES — SERVER
+    // Mage: onda expansiva | Warrior: hoja de energía | Hunter: ráfagas
+    // Cada una lee sus valores de su propio asset (ver SpecialAbility).
+    // =========================================================
+
+    /// <summary>
+    /// Devuelve true si la clase tiene habilidad propia (se haya podido
+    /// lanzar o no). Devuelve false si no tiene: en ese caso el llamador
+    /// sigue con el especial del arma de siempre.
+    /// </summary>
+    private bool TryPerformClassSpecial(Vector3 aimDirection)
+    {
+        SpecialAbility ability =
+            player.ClassData != null
+                ? player.ClassData.SpecialAbility
+                : null;
+
+        if (ability == null)
+            return false;
+
+        if (Time.time < nextSpecialTime)
+        {
+            Debug.Log(
+                $"[PlayerCombat] Special en cooldown " +
+                $"({nextSpecialTime - Time.time:F1}s)");
+
+            return true;
+        }
+
+        switch (ability)
+        {
+            case MageShockwaveAbility mage:
+                CastMageShockwave(mage);
+                return true;
+
+            case WarriorBladeAbility warrior:
+                CastWarriorBlade(warrior, aimDirection);
+                return true;
+
+            case HunterBarrageAbility hunter:
+                CastHunterBarrage(hunter, aimDirection);
+                return true;
+
+            default:
+                Debug.LogWarning(
+                    $"[PlayerCombat] Habilidad '{ability.name}' sin implementación " +
+                    "en PlayerCombatController. Se usa el especial del arma.");
+
+                return false;
+        }
+    }
+
+    // ---------- Mage ----------
+
+    private void CastMageShockwave(MageShockwaveAbility ability)
+    {
+        if (!SpendSpecialMana(ability.ManaCost))
+            return;
+
+        CommitSpecial(ability);
+
+        Vector3 center = player.transform.position;
+
+        var targets = SpecialAbilityEffects.FindEnemiesInRadius(
+            player, center, ability.Radius, enemyLayer);
+
+        float damage = stats.Attack.Value * ability.DamageMultiplier;
+
+        int hits = SpecialAbilityEffects.ApplyDamage(targets, player, damage);
+
+        PlaySpecialVfxClientRpc(center, player.transform.forward);
+
+        Debug.Log(
+            $"[PlayerCombat] SHOCKWAVE {player.name} | " +
+            $"enemigos:{hits} dmg:{damage:F0} radio:{ability.Radius}");
+    }
+
+    // ---------- Warrior ----------
+
+    private void CastWarriorBlade(
+        WarriorBladeAbility ability,
+        Vector3 aimDirection)
+    {
+        // Sin maná: solo cooldown. Se lanza aunque no haya enemigos al frente.
+        CommitSpecial(ability);
+
+        PlaySpecialVfxClientRpc(player.transform.position, aimDirection);
+
+        StartCoroutine(WarriorBladeHitRoutine(ability, aimDirection));
+    }
+
+    private IEnumerator WarriorBladeHitRoutine(
+        WarriorBladeAbility ability,
+        Vector3 aimDirection)
+    {
+        // El daño llega cuando la hoja ya está barriendo, no en el click.
+        if (ability.HitDelay > 0f)
+            yield return new WaitForSeconds(ability.HitDelay);
+
+        if (player == null || player.IsDead())
+            yield break;
+
+        // Los enemigos se buscan recién ahora: cuentan los que estén
+        // en el arco en este momento.
+        var targets = SpecialAbilityEffects.FindEnemiesInCone(
+            player,
+            aimDirection,
+            ability.BladeLength,
+            ability.SweepAngle,
+            enemyLayer);
+
+        float damage = stats.Attack.Value * ability.DamageMultiplier;
+
+        int hits = SpecialAbilityEffects.ApplyDamage(targets, player, damage);
+
+        Debug.Log(
+            $"[PlayerCombat] BLADE {player.name} | " +
+            $"enemigos:{hits} dmg:{damage:F0} largo:{ability.BladeLength}");
+    }
+
+    // ---------- Hunter ----------
+
+    private void CastHunterBarrage(
+        HunterBarrageAbility ability,
+        Vector3 aimDirection)
+    {
+        // Una ráfaga a la vez.
+        if (barrageRoutine != null)
+            return;
+
+        WeaponData weapon = GetCurrentWeapon();
+
+        if (weapon == null || !weapon.IsRanged)
+        {
+            Debug.LogWarning(
+                "[PlayerCombat] La ráfaga necesita un arma a distancia equipada.");
+
+            return;
+        }
+
+        CommitSpecial(ability);
+
+        // Mientras salen las flechas no se puede disparar el ataque normal encima.
+        nextAttackTime = Mathf.Max(
+            nextAttackTime,
+            Time.time + ability.TotalDuration + 0.2f);
+
+        barrageRoutine = StartCoroutine(
+            ArrowBarrageRoutine(weapon, ability, aimDirection));
+    }
+
+    /// <summary>
+    /// Dispara las flechas una tras otra, agrupadas en ráfagas:
+    /// pausa corta entre flechas y una más larga entre ráfagas.
+    /// </summary>
+    private IEnumerator ArrowBarrageRoutine(
+        WeaponData weapon,
+        HunterBarrageAbility ability,
+        Vector3 aimDirection)
+    {
+        var behavior = new RangedWeaponBehavior(weapon, transform);
+        float damage = stats.Attack.Value * ability.DamageMultiplier;
+
+        var betweenArrows = new WaitForSeconds(ability.DelayBetweenArrows);
+        var betweenBursts = new WaitForSeconds(ability.DelayBetweenBursts);
+
+        for (int i = 0; i < ability.TotalArrows; i++)
+        {
+            // Si muere a mitad de la ráfaga, se corta.
+            if (player == null || player.IsDead())
+                break;
+
+            // La primera flecha de cada ráfaga sale recta; el resto se abre un poco.
+            bool firstOfBurst = i % ability.ArrowsPerBurst == 0;
+
+            Vector3 direction = SpecialAbilityEffects.ApplySpread(
+                aimDirection,
+                firstOfBurst ? 0f : ability.SpreadAngle);
+
+            behavior.FireProjectile(player, direction, damage);
+
+            if (i == ability.TotalArrows - 1)
+                break;
+
+            bool endOfBurst = (i + 1) % ability.ArrowsPerBurst == 0;
+
+            yield return endOfBurst ? betweenBursts : betweenArrows;
+        }
+
+        barrageRoutine = null;
+    }
+
+    // ---------- Comunes ----------
+
+    /// <summary>Cobra el maná de la habilidad. Con costo 0 (Warrior, Hunter) siempre pasa.</summary>
+    private bool SpendSpecialMana(float manaCost)
+    {
+        if (manaCost <= 0f)
+            return true;
+
+        if (resources != null && resources.UseMana(manaCost))
+            return true;
+
+        Debug.Log("[PlayerCombat] Not enough mana");
+        return false;
+    }
+
+    /// <summary>Inicia el cooldown de la habilidad y dispara la animación de ataque especial.</summary>
+    private void CommitSpecial(SpecialAbility ability)
+    {
+        nextSpecialTime = Time.time + ability.Cooldown;
+        PlayAttackFeedback(PlayerAttackAnim.Special);
+    }
+
+    /// <summary>
+    /// Reproduce el efecto visual en todos los clientes. Cada cliente lo arma
+    /// con los valores de su propio asset de habilidad, así que por red
+    /// solo viajan la posición y la dirección.
+    /// </summary>
+    [ClientRpc]
+    private void PlaySpecialVfxClientRpc(Vector3 position, Vector3 direction)
+    {
+        SpecialAbility ability =
+            player != null && player.ClassData != null
+                ? player.ClassData.SpecialAbility
+                : null;
+
+        if (ability != null)
+            ability.PlayVfx(player, position, direction);
     }
 
     // =========================================================

@@ -18,20 +18,22 @@ MonoBehaviour:
   description: 
   stackable: 1
   maxStack: 99
+  healthRestore: 0
+  manaRestore: 0
   modifiers:
   - stat: 0
     value: 25
   - stat: 1
     value: 2
   weaponType: 6
-  attackSpeed: 1
+  attackSpeed: 2.09
   weaponVisualPrefab: {fileID: 3485906567957737707, guid: 8528f7f28d0fac2408ea415bb7312bb5, type: 3}
   projectilePrefab: {fileID: 3272488517719803676, guid: 81b95ce514956ff478d426dca39245a5, type: 3}
-  projectileSpeed: 15
+  projectileSpeed: 20
   specialProjectilePrefab: {fileID: 0}
   heavyMultiplier: 2
   specialMultiplier: 1.5
   staminaCost: 0
-  manaCost: 3
+  manaCost: 6
   meleeRange: 2
   projectileRange: 20

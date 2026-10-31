@@ -18,6 +18,8 @@ MonoBehaviour:
   description: 
   stackable: 1
   maxStack: 99
+  healthRestore: 0
+  manaRestore: 0
   modifiers:
   - stat: 0
     value: 25
@@ -33,5 +35,5 @@ MonoBehaviour:
   specialMultiplier: 1.5
   staminaCost: 25
   manaCost: 20
-  meleeRange: 2
+  meleeRange: 3
   projectileRange: 25
