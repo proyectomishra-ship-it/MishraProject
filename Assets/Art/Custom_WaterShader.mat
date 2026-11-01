@@ -12,7 +12,8 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
-  m_InvalidKeywords: []
+  m_InvalidKeywords:
+  - _USEDEPTH_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -29,27 +30,37 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Amplitude1: 0.548
-    - _Amplitude2: 0.828
-    - _Amplitude3: 0.48
+    - _Amplitude1: 0.059
+    - _Amplitude2: 0.02
+    - _Amplitude3: 0
+    - _DepthFade: 4
     - _FoamIntensity: 1
     - _FoamScale: 3
-    - _Frequency1: 4.2
-    - _Frequency2: 3.92
-    - _Frequency3: 3.84
+    - _FoamThreshold: 0.78
+    - _Frequency1: 0
+    - _Frequency2: 0.11
+    - _Frequency3: 0
     - _FresnelPower: 2
+    - _FresnelStrength: 0.6
+    - _NormalStrength: 1.5
     - _SeaLevel: 1.29
+    - _ShoreFoamWidth: 0.8
+    - _SpecIntensity: 0.8
+    - _SpecPower: 160
     - _Speed1: 1
     - _Speed2: 1.3
     - _Speed3: 1.8
-    - _Transparency: 0.8
+    - _Transparency: 0.929
+    - _UseDepth: 1
+    - _VertexWaves: 0
     m_Colors:
     - _DeepColor: {r: 0, g: 0.24999997, b: 0.8, a: 1}
     - _Direction1: {r: 1, g: 0, b: 0, a: 0}
     - _Direction2: {r: 0, g: 1, b: 0, a: 0}
     - _Direction3: {r: 0.7, g: 0.7, b: 0, a: 0}
-    - _FoamColor: {r: 1, g: 1, b: 1, a: 1}
-    - _FresnelColor: {r: 1, g: 1, b: 1, a: 1}
-    - _ShallowColor: {r: 0.39999998, g: 0.8, b: 1, a: 1}
+    - _FoamColor: {r: 0.15730685, g: 0.54568493, b: 0.9528302, a: 1}
+    - _FresnelColor: {r: 0.0985226, g: 0.43363467, b: 0.509434, a: 1}
+    - _ShallowColor: {r: 0, g: 0.3459121, b: 0.5188679, a: 1}
+    - _SunDirection: {r: 0.4, g: 0.7, b: 0.3, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
