@@ -22,11 +22,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3280ccdea4d2e7f478ed18f08d779d30, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3280ccdea4d2e7f478ed18f08d779d30, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: 0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3280ccdea4d2e7f478ed18f08d779d30, type: 3}
       propertyPath: m_LocalRotation.y
@@ -38,7 +38,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3280ccdea4d2e7f478ed18f08d779d30, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3280ccdea4d2e7f478ed18f08d779d30, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
@@ -54,7 +54,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 0dd319467a861a549aebb5305e5afba8, type: 2}
     - target: {fileID: 919132149155446097, guid: 3280ccdea4d2e7f478ed18f08d779d30, type: 3}
       propertyPath: m_Name
-      value: SM_Prop_arbol (modelo 1)
+      value: arbol prefab
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
