@@ -33,8 +33,8 @@ Material:
     - _Amplitude1: 0.144
     - _Amplitude2: 0.144
     - _Amplitude3: 0.05
-    - _Density: 1.08
-    - _DepthFade: 4
+    - _Density: 0.5
+    - _DepthFade: 6
     - _FlowSpeed: 1.87
     - _FlowUseObjectZ: 0
     - _FoamIntensity: 1
@@ -43,32 +43,32 @@ Material:
     - _Frequency1: 0.75
     - _Frequency2: 0.3
     - _Frequency3: 0.6
-    - _FresnelPower: 2
+    - _FresnelPower: 3.5
     - _FresnelStrength: 0.422
     - _LightInfluence: 0.039
     - _NormalStrength: 1.5
     - _RippleScale: 0.6
     - _RippleStretch: 3.65
     - _SeaLevel: 1.29
-    - _ShoreFoamWidth: 0.8
+    - _ShoreFoamWidth: 2
     - _SkyBlend: 0.622
     - _SpecIntensity: 0.8
     - _SpecPower: 160
     - _Speed1: 1
     - _Speed2: 1.3
     - _Speed3: 1.8
-    - _Transparency: 0.929
+    - _Transparency: 0.85
     - _UseDepth: 1
     - _VertexWaves: 0
     m_Colors:
-    - _DeepColor: {r: 0.03137255, g: 0.12941177, b: 0.14901961, a: 1}
+    - _DeepColor: {r: 0.078431375, g: 0.22352941, b: 0.22745098, a: 1}
     - _Direction1: {r: 1, g: 0, b: 0, a: 0}
     - _Direction2: {r: 0, g: 1, b: 0, a: 0}
     - _Direction3: {r: 0.7, g: 0.7, b: 0, a: 0}
     - _FlowDirection: {r: 0, g: 0, b: 0, a: 0}
     - _FoamColor: {r: 0.9019608, g: 0.9490196, b: 0.9490196, a: 1}
     - _FresnelColor: {r: 0.6, g: 0.72156864, b: 0.8, a: 1}
-    - _ShallowColor: {r: 0.21960784, g: 0.4, b: 0.32941177, a: 1}
+    - _ShallowColor: {r: 0.36862746, g: 0.56078434, b: 0.47843137, a: 1}
     - _SunDirection: {r: 0.4, g: 0.7, b: 0.3, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

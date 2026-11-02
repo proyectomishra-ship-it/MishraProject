@@ -13,6 +13,15 @@ Shader "Custom/WaterShader"
         _Density("Water Density (1/m)", Range(0.05, 5)) = 0.7
         _LightInfluence("Scene Light Influence", Range(0, 1)) = 0.85
 
+        [Header(Refraction)]
+        [Toggle] _UseRefraction("Use Refraction (needs Opaque Texture)", Float) = 1
+        _RefractionStrength("Refraction Strength", Range(0, 0.1)) = 0.03
+
+        [Header(Turbidity)]
+        _TurbidityColor("Turbidity Color", Color) = (0.38, 0.4, 0.26, 1)
+        _TurbidityAmount("Turbidity Amount", Range(0, 1)) = 0.25
+        _TurbidityScale("Turbidity Scale", Range(0.002, 0.2)) = 0.03
+
         [Header(River Flow)]
         _FlowDirection("Flow Direction (X,Z)", Vector) = (0, 1, 0, 0)
         [Toggle] _FlowUseObjectZ("Flow Along Object Z (blue arrow)", Float) = 0
@@ -87,6 +96,13 @@ Shader "Custom/WaterShader"
             float _Density;
             float _LightInfluence;
 
+            float _UseRefraction;
+            float _RefractionStrength;
+
+            float4 _TurbidityColor;
+            float _TurbidityAmount;
+            float _TurbidityScale;
+
             float4 _FlowDirection;
             float _FlowUseObjectZ;
             float _FlowSpeed;
@@ -118,6 +134,7 @@ Shader "Custom/WaterShader"
             half4 _MainLightColor;
 
             sampler2D_float _CameraDepthTexture;
+            sampler2D _CameraOpaqueTexture;
 
             // Dirección normalizada; si es (0,0) no devuelve NaN.
             float2 SafeDir(float4 d)
@@ -223,14 +240,38 @@ Shader "Custom/WaterShader"
                                             -(grad.y * _NormalStrength + sw.z)));
                 float3 V = normalize(_WorldSpaceCameraPos - i.worldPos);
 
-                // Profundidad respecto del suelo (Depth Texture activado en el URP asset).
-                float sceneZ = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE_PROJ(_CameraDepthTexture, UNITY_PROJ_COORD(i.screenPos)));
+                // ---- Profundidad y refracción ----
+                float2 screenUV = i.screenPos.xy / i.screenPos.w;
                 float surfZ = i.screenPos.w;
+
+                float sceneZ0 = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, screenUV));
+                float depthDiff0 = max(sceneZ0 - surfZ, 0.0);
+
+                // La refracción se apaga hacia la orilla (profundidad ~0) para no deformar el borde.
+                float2 uvR = screenUV + N.xz * _RefractionStrength * saturate(depthDiff0);
+                float sceneZR = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uvR));
+
+                // Si lo que hay en el pixel desplazado está DELANTE del agua (el personaje, una roca),
+                // no se refracta: evita que esos objetos se "estiren" dentro del agua.
+                float behind = step(surfZ, sceneZR);
+                uvR = lerp(screenUV, uvR, behind);
+                uvR = lerp(screenUV, uvR, _UseRefraction);
+
+                float sceneZ = lerp(sceneZ0, sceneZR, behind * _UseRefraction);
                 float depthDiff = max(sceneZ - surfZ, 0.0);
 
-                // 0 = poco profundo, 1 = profundo.
-                float deep = lerp(0.6, saturate(depthDiff / _DepthFade), _UseDepth);
+                // 0 = poco profundo, 1 = profundo; curva suave para evitar bordes duros.
+                float depth01 = saturate(depthDiff / _DepthFade);
+                depth01 = depth01 * depth01 * (3.0 - 2.0 * depth01);
+                float deep = lerp(0.6, depth01, _UseDepth);
+
                 float3 waterColor = lerp(_ShallowColor.rgb, _DeepColor.rgb, deep);
+
+                // Turbidez: manchones grandes más claros o terrosos que se desplazan con la corriente.
+                float2 tp = p * _TurbidityScale;
+                float turb = ValueNoise(tp + flow * _Time.y * 0.05) * 0.65
+                           + ValueNoise(tp * 2.7 - flow * _Time.y * 0.03) * 0.35;
+                waterColor = lerp(waterColor, _TurbidityColor.rgb, saturate((turb - 0.35) * 2.0) * _TurbidityAmount);
 
                 // Reflejo del cielo real (skybox / reflection probe) mezclado con un tinte.
                 float fres = pow(1.0 - saturate(dot(N, V)), _FresnelPower);
@@ -256,7 +297,8 @@ Shader "Custom/WaterShader"
                 // El agua se oscurece de noche y en escenas oscuras.
                 float3 ambient = ShadeSH9(float4(0, 1, 0, 1));
                 float3 lightTint = saturate(ambient + sunCol * 0.55) * 1.25;
-                col *= lerp(float3(1, 1, 1), lightTint, _LightInfluence);
+                float3 lightMul = lerp(float3(1, 1, 1), lightTint, _LightInfluence);
+                col *= lightMul;
 
                 // Espuma: orilla y zonas rápidas, con ruido en coordenadas de MUNDO.
                 float2 fp = p * _FoamScale * 0.4;
@@ -266,10 +308,10 @@ Shader "Custom/WaterShader"
                 float pattern = saturate(noise + texFoam);
 
                 float rapids = smoothstep(_FoamThreshold, 1.0, h0);
-                float shore = (1.0 - saturate(depthDiff / _ShoreFoamWidth)) * _UseDepth;
+                float shore = (1.0 - saturate(depthDiff0 / _ShoreFoamWidth)) * _UseDepth;
                 float foam = saturate((rapids + shore) * pattern * _FoamIntensity);
 
-                col = lerp(col, _FoamColor.rgb * lerp(float3(1, 1, 1), lightTint, _LightInfluence), foam);
+                col = lerp(col, _FoamColor.rgb * lightMul, foam);
 
                 // Opacidad según la profundidad: transparente en la orilla, más opaco al fondo.
                 float opacityDepth = _Transparency * (1.0 - exp(-depthDiff * _Density));
@@ -277,7 +319,19 @@ Shader "Custom/WaterShader"
                 opacity = saturate(opacity + fres * _FresnelStrength * 0.4);
                 opacity = max(opacity, foam * 0.85);
 
-                return fixed4(col, opacity);
+                // ---- Composición final ----
+                // Con refracción: se mezcla con el fondo real (el lecho visto a través del agua,
+                // con absorción: el rojo se pierde primero) y el alfa de salida es 1.
+                // Sin refracción: mezcla clásica por alfa sobre lo que haya detrás.
+                float3 bg = tex2D(_CameraOpaqueTexture, uvR).rgb;
+                float3 transmit = exp(-depthDiff * _Density * float3(1.0, 0.55, 0.4));
+                float3 bgTinted = bg * lerp(float3(1, 1, 1), transmit, 0.7);
+
+                float3 refracted = lerp(bgTinted, col, opacity);
+                float3 finalCol = lerp(col, refracted, _UseRefraction);
+                float finalAlpha = lerp(opacity, 1.0, _UseRefraction);
+
+                return fixed4(finalCol, finalAlpha);
             }
             ENDCG
         }
