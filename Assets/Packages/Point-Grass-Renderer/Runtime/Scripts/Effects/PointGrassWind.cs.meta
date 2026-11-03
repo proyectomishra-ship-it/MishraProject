@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: d938393f58ae1e844b929a6d939683ec
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 207854
+  packageName: Point Grass Renderer
+  packageVersion: 1.1.0
+  assetPath: Assets/Packages/Point-Grass-Renderer/Runtime/Scripts/Effects/PointGrassWind.cs
+  uploadId: 471879

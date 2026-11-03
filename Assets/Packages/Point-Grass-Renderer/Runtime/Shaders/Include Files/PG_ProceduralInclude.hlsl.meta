@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 1eb379bb8ab37f34291423f7c095334d
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 207854
+  packageName: Point Grass Renderer
+  packageVersion: 1.1.0
+  assetPath: Assets/Packages/Point-Grass-Renderer/Runtime/Shaders/Include Files/PG_ProceduralInclude.hlsl
+  uploadId: 471879

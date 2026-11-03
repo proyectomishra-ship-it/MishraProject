@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 00826f5dac341d64cb1ace16831589ab
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 207854
+  packageName: Point Grass Renderer
+  packageVersion: 1.1.0
+  assetPath: Assets/Packages/Point-Grass-Renderer/Editor/PointGrassRendererEditor.cs
+  uploadId: 471879

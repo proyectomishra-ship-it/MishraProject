@@ -1,0 +1,18 @@
+{
+    "name": "MicahW.PointGrassRenderer.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:5225a1339f767f54a8d5970154a686ca"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

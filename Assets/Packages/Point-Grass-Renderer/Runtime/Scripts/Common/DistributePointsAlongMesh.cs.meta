@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: bdf3e2b8cd29f1b4a9fba3316ef3a3a2
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 207854
+  packageName: Point Grass Renderer
+  packageVersion: 1.1.0
+  assetPath: Assets/Packages/Point-Grass-Renderer/Runtime/Scripts/Common/DistributePointsAlongMesh.cs
+  uploadId: 471879

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 9b78081a88c0a4f4499a76851d14c5f1
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2655988077585873504
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 207854
+  packageName: Point Grass Renderer
+  packageVersion: 1.1.0
+  assetPath: Assets/Packages/Point-Grass-Renderer/Runtime/Presets/PGR_Default.preset
+  uploadId: 471879
