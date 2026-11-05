@@ -395,6 +395,7 @@ GameObject:
   - component: {fileID: 2594329494115289533}
   - component: {fileID: -6691516443797418319}
   - component: {fileID: 5167366379400517830}
+  - component: {fileID: 1340053181572148318}
   m_Layer: 3
   m_Name: Mage
   m_TagString: Player
@@ -433,7 +434,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1806805644
+  GlobalObjectIdHash: 1757723156
   InScenePlacedSourceGlobalObjectIdHash: 3131095716
   DeferredDespawnTick: 0
   Ownership: 1
@@ -903,6 +904,21 @@ MonoBehaviour:
   centerGap: 4
   crosshairColor: {r: 1, g: 1, b: 1, a: 1}
   drawCenterDot: 1
+--- !u!114 &1340053181572148318
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7950557235140198998}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af95da0ba5b14044a99b36556a6e5b43, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MicahW.PointGrassRenderer.Runtime::MicahW.PointGrass.PointGrassDisplacer
+  localPosition: {x: 0, y: 0, z: 0}
+  radius: 0.8
+  strength: 1
 --- !u!1001 &1179055316870382376
 PrefabInstance:
   m_ObjectHideFlags: 0

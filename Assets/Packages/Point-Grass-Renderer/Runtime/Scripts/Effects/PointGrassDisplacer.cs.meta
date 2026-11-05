@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: af95da0ba5b14044a99b36556a6e5b43
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 207854
+  packageName: Point Grass Renderer
+  packageVersion: 1.1.0
+  assetPath: Assets/Packages/Point-Grass-Renderer/Runtime/Scripts/Effects/PointGrassDisplacer.cs
+  uploadId: 471879

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 5225a1339f767f54a8d5970154a686ca
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 207854
+  packageName: Point Grass Renderer
+  packageVersion: 1.1.0
+  assetPath: Assets/Packages/Point-Grass-Renderer/Runtime/MicahW.PointGrassRenderer.Runtime.asmdef
+  uploadId: 471879
