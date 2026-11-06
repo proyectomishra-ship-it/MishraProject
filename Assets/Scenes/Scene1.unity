@@ -7790,10 +7790,10 @@ RectTransform:
   - {fileID: 700044053}
   m_Father: {fileID: 1861225671}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 498.69135, y: -20}
+  m_SizeDelta: {x: 319.12756, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &46656153
 MonoBehaviour:
@@ -19334,6 +19334,89 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 129766450}
   m_CullTransparentMesh: 1
+--- !u!1 &130272339
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 130272340}
+  - component: {fileID: 130272341}
+  m_Layer: 0
+  m_Name: pasto (2)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &130272340
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 130272339}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1000, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 168166001}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &130272341
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 130272339}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb257b300d8d9d748bf8d0eeb8190b52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MicahW.PointGrassRenderer.Runtime::MicahW.PointGrass.PointGrassRenderer
+  distSource: 2
+  baseMesh: {fileID: 0}
+  terrain: {fileID: 15600000, guid: 04995d4dec6211c469f3a90cfbe25eb6, type: 2}
+  terrainLayers:
+  - {fileID: 8574412962073106934, guid: 43bec8b28fc755f4eac89ad4bab0e0f8, type: 2}
+  chunkCount: {x: 8, y: 8}
+  sceneFilters: []
+  bladeType: 0
+  multipleMeshes: 0
+  grassBladeMesh: {fileID: 0}
+  grassBladeMeshes:
+  - {fileID: 0}
+  meshDensityValues:
+  - 1
+  multipleMaterials: 0
+  material: {fileID: 2100000, guid: 73721fb36dd0bbc42b6bdb0b14872604, type: 2}
+  materials:
+  - {fileID: 0}
+  shadowMode: 1
+  renderLayer:
+    m_LayerIndex: 0
+  pointCount: 30000
+  multiplyByArea: 0
+  pointLODFactor: 0.5
+  randomiseSeed: 1
+  seed: 0
+  overwriteNormalDirection: 0
+  forcedNormal: {x: 0, y: 1, z: 0}
+  useDensity: 1
+  densityCutoff: 0.5
+  useLength: 0
+  lengthMapping: {x: 0, y: 0.55675685}
+  projectType: 0
+  projectMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  boundingBoxOffset:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0.5, y: 0.5, z: 0.5}
 --- !u!1 &133405781
 GameObject:
   m_ObjectHideFlags: 0
@@ -22988,10 +23071,10 @@ RectTransform:
   - {fileID: 1011683492}
   m_Father: {fileID: 1861225671}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 159.56378, y: -20}
+  m_SizeDelta: {x: 319.12756, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &154554249
 MonoBehaviour:
@@ -25877,6 +25960,7 @@ Transform:
   - {fileID: 863633083}
   - {fileID: 1133399900}
   - {fileID: 583619480}
+  - {fileID: 130272340}
   m_Father: {fileID: 1011153573}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!154 &168166002
@@ -25909,7 +25993,7 @@ Terrain:
   m_Enabled: 1
   serializedVersion: 6
   m_TerrainData: {fileID: 15600000, guid: 04995d4dec6211c469f3a90cfbe25eb6, type: 2}
-  m_TreeDistance: 5000
+  m_TreeDistance: 400
   m_TreeBillboardDistance: 2000
   m_TreeCrossFadeLength: 0
   m_TreeMaximumFullLODCount: 10000
@@ -31887,7 +31971,7 @@ RectTransform:
   m_Father: {fileID: 846957151}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -43358,10 +43442,10 @@ RectTransform:
   - {fileID: 2102122767}
   m_Father: {fileID: 985510622}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 426.5352, y: -259.38196}
+  m_SizeDelta: {x: 853.0704, y: 349.1171}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &281553561
 MonoBehaviour:
@@ -43630,9 +43714,9 @@ RectTransform:
   m_Father: {fileID: 1439761769}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 20}
+  m_SizeDelta: {x: -17, y: 20}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &286070834
 MonoBehaviour:
@@ -44789,63 +44873,6 @@ MonoBehaviour:
   m_SelectedFaces: 
   m_SelectedEdges: []
   m_SelectedVertices: 
---- !u!1001 &294574355
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: -8679921383154817045, guid: e81b94435bbd56049ba076b5d8f8364e, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 403.6959
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: e81b94435bbd56049ba076b5d8f8364e, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 150.85364
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: e81b94435bbd56049ba076b5d8f8364e, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 742.0382
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: e81b94435bbd56049ba076b5d8f8364e, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.7071067
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: e81b94435bbd56049ba076b5d8f8364e, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: e81b94435bbd56049ba076b5d8f8364e, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: e81b94435bbd56049ba076b5d8f8364e, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: e81b94435bbd56049ba076b5d8f8364e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: e81b94435bbd56049ba076b5d8f8364e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: e81b94435bbd56049ba076b5d8f8364e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 919132149155446097, guid: e81b94435bbd56049ba076b5d8f8364e, type: 3}
-      propertyPath: m_Name
-      value: Arbusto
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: e81b94435bbd56049ba076b5d8f8364e, type: 3}
 --- !u!1001 &296229223
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -63586,6 +63613,89 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &433198914
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 433198915}
+  - component: {fileID: 433198916}
+  m_Layer: 0
+  m_Name: pasto4
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &433198915
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 433198914}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 1000}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1492123103}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &433198916
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 433198914}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb257b300d8d9d748bf8d0eeb8190b52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MicahW.PointGrassRenderer.Runtime::MicahW.PointGrass.PointGrassRenderer
+  distSource: 2
+  baseMesh: {fileID: 0}
+  terrain: {fileID: 15600000, guid: 9ab0519eedea4424383f70a0fb632db4, type: 2}
+  terrainLayers:
+  - {fileID: 8574412962073106934, guid: 43bec8b28fc755f4eac89ad4bab0e0f8, type: 2}
+  chunkCount: {x: 8, y: 8}
+  sceneFilters: []
+  bladeType: 0
+  multipleMeshes: 0
+  grassBladeMesh: {fileID: 0}
+  grassBladeMeshes:
+  - {fileID: 0}
+  meshDensityValues:
+  - 1
+  multipleMaterials: 0
+  material: {fileID: 2100000, guid: 73721fb36dd0bbc42b6bdb0b14872604, type: 2}
+  materials:
+  - {fileID: 0}
+  shadowMode: 1
+  renderLayer:
+    m_LayerIndex: 0
+  pointCount: 30000
+  multiplyByArea: 0
+  pointLODFactor: 0.5
+  randomiseSeed: 1
+  seed: 0
+  overwriteNormalDirection: 0
+  forcedNormal: {x: 0, y: 1, z: 0}
+  useDensity: 1
+  densityCutoff: 0.5
+  useLength: 0
+  lengthMapping: {x: 0, y: 0.55675685}
+  projectType: 0
+  projectMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  boundingBoxOffset:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0.5, y: 0.5, z: 0.5}
 --- !u!43 &444393156
 Mesh:
   m_ObjectHideFlags: 0
@@ -67035,9 +67145,9 @@ RectTransform:
   m_Father: {fileID: 1439761769}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
-  m_AnchorMax: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 20, y: 0}
+  m_SizeDelta: {x: 20, y: -17}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &476517962
 MonoBehaviour:
@@ -67660,63 +67770,6 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
---- !u!1001 &486707931
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: -8679921383154817045, guid: 7de48aa8e0c77344cb055ddabfd5c26b, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 428.40417
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 7de48aa8e0c77344cb055ddabfd5c26b, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 150.84047
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 7de48aa8e0c77344cb055ddabfd5c26b, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 746.8155
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 7de48aa8e0c77344cb055ddabfd5c26b, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.7071067
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 7de48aa8e0c77344cb055ddabfd5c26b, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 7de48aa8e0c77344cb055ddabfd5c26b, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 7de48aa8e0c77344cb055ddabfd5c26b, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 7de48aa8e0c77344cb055ddabfd5c26b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 7de48aa8e0c77344cb055ddabfd5c26b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 7de48aa8e0c77344cb055ddabfd5c26b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 919132149155446097, guid: 7de48aa8e0c77344cb055ddabfd5c26b, type: 3}
-      propertyPath: m_Name
-      value: silla de madera 3
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 7de48aa8e0c77344cb055ddabfd5c26b, type: 3}
 --- !u!1 &486892647
 GameObject:
   m_ObjectHideFlags: 0
@@ -118405,9 +118458,9 @@ RectTransform:
   m_Father: {fileID: 1952867078}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 20}
+  m_SizeDelta: {x: -17, y: 20}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &834392139
 MonoBehaviour:
@@ -127694,9 +127747,9 @@ RectTransform:
   m_Father: {fileID: 1439761769}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: -17, y: -17}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &897358097
 MonoBehaviour:
@@ -139696,9 +139749,9 @@ RectTransform:
   m_Father: {fileID: 1952867078}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: -17, y: -17}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &986148044
 MonoBehaviour:
@@ -139977,7 +140030,7 @@ Terrain:
   m_Enabled: 1
   serializedVersion: 6
   m_TerrainData: {fileID: 15600000, guid: fd5a08deb93117347bbf78b1ea7f8bae, type: 2}
-  m_TreeDistance: 5000
+  m_TreeDistance: 400
   m_TreeBillboardDistance: 2000
   m_TreeCrossFadeLength: 0
   m_TreeMaximumFullLODCount: 10000
@@ -140022,6 +140075,7 @@ Transform:
   m_Children:
   - {fileID: 1434804173}
   - {fileID: 49109329}
+  - {fileID: 1591122525}
   m_Father: {fileID: 1011153573}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &990743757
@@ -162471,7 +162525,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: MicahW.PointGrassRenderer.Runtime::MicahW.PointGrass.PointGrassWind
   windScale: 0.25
   noiseRange: {x: -0.45, y: 1}
-  windDirection: {x: 0.35, y: -0.1, z: 0.75}
+  windDirection: {x: 0.7, y: -0.2, z: 1.5}
   windScroll: {x: 0.35, y: -0.1, z: 0.75}
 --- !u!4 &1094295876
 Transform:
@@ -166467,9 +166521,9 @@ RectTransform:
   m_Father: {fileID: 1952867078}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
-  m_AnchorMax: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 20, y: 0}
+  m_SizeDelta: {x: 20, y: -17}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1103601176
 MonoBehaviour:
@@ -175279,10 +175333,10 @@ RectTransform:
   - {fileID: 1509218999}
   m_Father: {fileID: 985510622}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 426.5352, y: -109.73513}
+  m_SizeDelta: {x: 853.0704, y: 349.1171}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1164217402
 MonoBehaviour:
@@ -192152,7 +192206,7 @@ RectTransform:
   m_Father: {fileID: 1230039025}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -217097,6 +217151,7 @@ Transform:
   - {fileID: 1600208438}
   - {fileID: 1065206345}
   - {fileID: 1840603932}
+  - {fileID: 433198915}
   m_Father: {fileID: 1011153573}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!154 &1492123104
@@ -217129,7 +217184,7 @@ Terrain:
   m_Enabled: 1
   serializedVersion: 6
   m_TerrainData: {fileID: 15600000, guid: 9ab0519eedea4424383f70a0fb632db4, type: 2}
-  m_TreeDistance: 5000
+  m_TreeDistance: 400
   m_TreeBillboardDistance: 2000
   m_TreeCrossFadeLength: 0
   m_TreeMaximumFullLODCount: 10000
@@ -227694,6 +227749,89 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &1591122524
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1591122525}
+  - component: {fileID: 1591122526}
+  m_Layer: 0
+  m_Name: pasto (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1591122525
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1591122524}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1000, y: 0, z: 500}
+  m_LocalScale: {x: 1, y: 0.5, z: 0.5}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 988240640}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1591122526
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1591122524}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb257b300d8d9d748bf8d0eeb8190b52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MicahW.PointGrassRenderer.Runtime::MicahW.PointGrass.PointGrassRenderer
+  distSource: 2
+  baseMesh: {fileID: 0}
+  terrain: {fileID: 15600000, guid: fd5a08deb93117347bbf78b1ea7f8bae, type: 2}
+  terrainLayers:
+  - {fileID: 8574412962073106934, guid: 43bec8b28fc755f4eac89ad4bab0e0f8, type: 2}
+  chunkCount: {x: 8, y: 8}
+  sceneFilters: []
+  bladeType: 0
+  multipleMeshes: 0
+  grassBladeMesh: {fileID: 0}
+  grassBladeMeshes:
+  - {fileID: 0}
+  meshDensityValues:
+  - 1
+  multipleMaterials: 0
+  material: {fileID: 2100000, guid: 73721fb36dd0bbc42b6bdb0b14872604, type: 2}
+  materials:
+  - {fileID: 0}
+  shadowMode: 1
+  renderLayer:
+    m_LayerIndex: 0
+  pointCount: 30000
+  multiplyByArea: 0
+  pointLODFactor: 0.5
+  randomiseSeed: 1
+  seed: 0
+  overwriteNormalDirection: 0
+  forcedNormal: {x: 0, y: 1, z: 0}
+  useDensity: 1
+  densityCutoff: 0.5
+  useLength: 0
+  lengthMapping: {x: 0, y: 0.55675685}
+  projectType: 0
+  projectMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  boundingBoxOffset:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0.5, y: 0.5, z: 0.5}
 --- !u!43 &1592553508
 Mesh:
   m_ObjectHideFlags: 0
@@ -227957,7 +228095,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1598571554
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -232732,63 +232870,6 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
---- !u!1001 &1634569106
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: -8679921383154817045, guid: 8a7cc2d40af09c746ac60076b706207b, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 409.91583
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 8a7cc2d40af09c746ac60076b706207b, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 150.84045
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 8a7cc2d40af09c746ac60076b706207b, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 736.7229
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 8a7cc2d40af09c746ac60076b706207b, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.7071067
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 8a7cc2d40af09c746ac60076b706207b, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 8a7cc2d40af09c746ac60076b706207b, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 8a7cc2d40af09c746ac60076b706207b, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 8a7cc2d40af09c746ac60076b706207b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 8a7cc2d40af09c746ac60076b706207b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 8a7cc2d40af09c746ac60076b706207b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 919132149155446097, guid: 8a7cc2d40af09c746ac60076b706207b, type: 3}
-      propertyPath: m_Name
-      value: Caja
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 8a7cc2d40af09c746ac60076b706207b, type: 3}
 --- !u!1001 &1635551802
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -250459,10 +250540,10 @@ RectTransform:
   - {fileID: 133405782}
   m_Father: {fileID: 985510622}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 426.5352, y: -184.55855}
+  m_SizeDelta: {x: 853.0704, y: 349.1171}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1707143571
 MonoBehaviour:
@@ -262563,7 +262644,7 @@ RectTransform:
   m_Father: {fileID: 2135573758}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -263506,7 +263587,7 @@ GameObject:
   - component: {fileID: 1774706447}
   - component: {fileID: 1774706446}
   m_Layer: 0
-  m_Name: pasto
+  m_Name: pasto3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -263545,7 +263626,7 @@ MonoBehaviour:
   shadowMode: 1
   renderLayer:
     m_LayerIndex: 0
-  pointCount: 60000
+  pointCount: 30000
   multiplyByArea: 0
   pointLODFactor: 0.5
   randomiseSeed: 1
@@ -263571,12 +263652,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1774706445}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 497, y: 0, z: 492}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1987212564}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1775927885
 GameObject:
@@ -264679,10 +264760,10 @@ RectTransform:
   - {fileID: 1122536778}
   m_Father: {fileID: 985510622}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 853.0704, y: 349.1171}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1782320321
 MonoBehaviour:
@@ -284927,7 +285008,7 @@ RectTransform:
   m_Father: {fileID: 712662335}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -301359,6 +301440,7 @@ Transform:
   m_Children:
   - {fileID: 1186268272}
   - {fileID: 1142577797}
+  - {fileID: 1774706447}
   m_Father: {fileID: 1011153573}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!154 &1987212565
@@ -301391,7 +301473,7 @@ Terrain:
   m_Enabled: 1
   serializedVersion: 6
   m_TerrainData: {fileID: 15600000, guid: cc903690dbff9b34fad1ac965d4f7606, type: 2}
-  m_TreeDistance: 5000
+  m_TreeDistance: 400
   m_TreeBillboardDistance: 2000
   m_TreeCrossFadeLength: 0
   m_TreeMaximumFullLODCount: 10000
@@ -324601,9 +324683,5 @@ SceneRoots:
   - {fileID: 635575150}
   - {fileID: 966170332}
   - {fileID: 2046068984}
-  - {fileID: 294574355}
-  - {fileID: 1634569106}
-  - {fileID: 486707931}
-  - {fileID: 1774706447}
   - {fileID: 1094295876}
   - {fileID: 913885394}
