@@ -554,7 +554,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af95da0ba5b14044a99b36556a6e5b43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: MicahW.PointGrassRenderer.Runtime::MicahW.PointGrass.PointGrassDisplacer
-  localPosition: {x: -2, y: -1, z: -1}
+  localPosition: {x: 0, y: 0, z: 0}
   radius: 1.2
   strength: 1
 --- !u!1 &6088325270206399613

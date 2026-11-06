@@ -66,15 +66,15 @@ Material:
     - BOOLEAN_GROUNDCOL: 0
     - BOOLEAN_USEMESHNORMALS: 0
     - ENUM_TRANSFORM: 0
-    - _Height: 3
+    - _Height: 2.7
     - _QueueControl: 0
     - _QueueOffset: 0
     - _Smoothness: 0
     - _TopBright: 0.5
-    - _Width: 0.11
+    - _Width: 0.9
     - _WindStr: 1.2
     m_Colors:
     - _BottomCol: {r: 0.078431375, g: 0.21568628, b: 0.047058824, a: 1}
-    - _TopCol: {r: 0.33333334, g: 0.50980395, b: 0.15686275, a: 0.2784314}
+    - _TopCol: {r: 0.74509805, g: 0.6666667, b: 0.3137255, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
