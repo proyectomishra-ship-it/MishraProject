@@ -26,7 +26,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _ArchSpring: 0.55
-    - _Aspect: 0.77
+    - _Aspect: 1
     - _Drift: 0.015
     - _DustAmount: 0.8
     - _EdgeGlow: 0.7
