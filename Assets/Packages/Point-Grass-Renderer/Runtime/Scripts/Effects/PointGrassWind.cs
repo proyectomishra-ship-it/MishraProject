@@ -77,6 +77,9 @@ namespace MicahW.PointGrass {
         }
 
         public void RefreshValues() {
+
+            GetShaderIDs();
+
             PackedProperties properties = PackProperties();
 
             Shader.SetGlobalVector(ID_vecA, properties.vecA);

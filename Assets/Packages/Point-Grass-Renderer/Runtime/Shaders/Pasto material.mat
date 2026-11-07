@@ -70,11 +70,11 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     - _Smoothness: 0
-    - _TopBright: 0.5
-    - _Width: 0.08
-    - _WindStr: 0.4
+    - _TopBright: 0.6
+    - _Width: 0.6
+    - _WindStr: 1.2
     m_Colors:
-    - _BottomCol: {r: 0.078431375, g: 0.21568628, b: 0.047058824, a: 1}
-    - _TopCol: {r: 0.33333334, g: 0.50980395, b: 0.15686275, a: 0.2784314}
+    - _BottomCol: {r: 0.25490198, g: 0.4117647, b: 0.13725491, a: 1}
+    - _TopCol: {r: 0.49019608, g: 0.6862745, b: 0.21568628, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
