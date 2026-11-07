@@ -19399,7 +19399,7 @@ MonoBehaviour:
   shadowMode: 0
   renderLayer:
     m_LayerIndex: 0
-  pointCount: 30000
+  pointCount: 5000
   multiplyByArea: 0
   pointLODFactor: 0.5
   randomiseSeed: 1
@@ -63678,7 +63678,7 @@ MonoBehaviour:
   shadowMode: 0
   renderLayer:
     m_LayerIndex: 0
-  pointCount: 30000
+  pointCount: 5000
   multiplyByArea: 0
   pointLODFactor: 0.5
   randomiseSeed: 1
@@ -227814,7 +227814,7 @@ MonoBehaviour:
   shadowMode: 0
   renderLayer:
     m_LayerIndex: 0
-  pointCount: 30000
+  pointCount: 5000
   multiplyByArea: 0
   pointLODFactor: 0.5
   randomiseSeed: 1
@@ -263626,7 +263626,7 @@ MonoBehaviour:
   shadowMode: 0
   renderLayer:
     m_LayerIndex: 0
-  pointCount: 30000
+  pointCount: 5000
   multiplyByArea: 0
   pointLODFactor: 0.5
   randomiseSeed: 1
