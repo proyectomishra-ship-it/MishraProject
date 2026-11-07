@@ -26,16 +26,17 @@ Material:
     m_Ints: []
     m_Floats:
     - _ArchSpring: 0.55
-    - _Aspect: 0.77
-    - _Drift: 0.015
+    - _Aspect: 0.85
+    - _Drift: 0.093
     - _DustAmount: 0.8
     - _EdgeGlow: 0.7
     - _EdgeSoftness: 0.035
     - _MistAmount: 0.8
-    - _NebulaAmount: 1
-    - _NebulaScale: 2
+    - _NebulaAmount: 2
+    - _NebulaScale: 3.17
     - _Opacity: 1
     - _ParallaxDepth: 0.18
+    - _Speed: 3.5
     - _StarAmount: 0.5
     - _StarBrightness: 2
     - _Twinkle: 1.5

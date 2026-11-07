@@ -33,6 +33,7 @@ Shader "Custom/FantasyPortalStars"
         _Twinkle("Twinkle Speed", Range(0, 8)) = 1.5
 
         [Header(Movement)]
+        _Speed("Animation Speed (todo el portal)", Range(0, 5)) = 1.7
         _Drift("Drift Speed", Range(-0.5, 0.5)) = 0.015
         _NebulaScale("Nebula Scale", Range(0.5, 6)) = 2
         _NebulaAmount("Nebula Amount", Range(0, 2)) = 1
@@ -82,6 +83,7 @@ Shader "Custom/FantasyPortalStars"
                 half _StarBrightness;
                 half _DustAmount;
                 half _Twinkle;
+                half _Speed;
                 half _Drift;
                 half _NebulaScale;
                 half _NebulaAmount;
@@ -161,7 +163,7 @@ Shader "Custom/FantasyPortalStars"
             // maxBright=0: solo puntos finos (polvo estelar).
             float3 StarLayer(float2 uv, float density, float speed, float seed, float amount, float maxBright)
             {
-                float t = _Time.y;
+                float t = _Time.y * _Speed;
                 float2 g = float2(uv.x * _Aspect, uv.y) * density;
                 g.y -= t * speed * density;
 
@@ -204,7 +206,7 @@ Shader "Custom/FantasyPortalStars"
 
             half4 frag(Varyings IN) : SV_Target
             {
-                float t = _Time.y;
+                float t = _Time.y * _Speed;
                 float2 uv = IN.uv;
 
                 // x: -1..1 ; y: 0 (piso) .. 1 (tope del arco)
