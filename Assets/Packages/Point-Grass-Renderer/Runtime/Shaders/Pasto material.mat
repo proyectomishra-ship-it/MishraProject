@@ -66,12 +66,12 @@ Material:
     - BOOLEAN_GROUNDCOL: 0
     - BOOLEAN_USEMESHNORMALS: 0
     - ENUM_TRANSFORM: 0
-    - _Height: 1.6
+    - _Height: 0.9
     - _QueueControl: 0
     - _QueueOffset: 0
     - _Smoothness: 0
     - _TopBright: 0.5
-    - _Width: 0.12
+    - _Width: 0.4
     - _WindStr: 1.2
     m_Colors:
     - _BottomCol: {r: 0.15686275, g: 0.27450982, b: 0.078431375, a: 1}

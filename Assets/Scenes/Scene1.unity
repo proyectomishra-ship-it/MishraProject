@@ -19385,9 +19385,9 @@ MonoBehaviour:
   - {fileID: 8574412962073106934, guid: 43bec8b28fc755f4eac89ad4bab0e0f8, type: 2}
   chunkCount: {x: 8, y: 8}
   sceneFilters: []
-  bladeType: 1
+  bladeType: 2
   multipleMeshes: 0
-  grassBladeMesh: {fileID: 0}
+  grassBladeMesh: {fileID: 4300000, guid: befb8a5e72a329a439626e2285cf9fe9, type: 2}
   grassBladeMeshes:
   - {fileID: 0}
   meshDensityValues:
@@ -19399,9 +19399,9 @@ MonoBehaviour:
   shadowMode: 0
   renderLayer:
     m_LayerIndex: 0
-  pointCount: 5000
+  pointCount: 500
   multiplyByArea: 0
-  pointLODFactor: 0.5
+  pointLODFactor: 1
   randomiseSeed: 1
   seed: 0
   overwriteNormalDirection: 0
@@ -63664,9 +63664,9 @@ MonoBehaviour:
   - {fileID: 8574412962073106934, guid: 43bec8b28fc755f4eac89ad4bab0e0f8, type: 2}
   chunkCount: {x: 8, y: 8}
   sceneFilters: []
-  bladeType: 1
+  bladeType: 2
   multipleMeshes: 0
-  grassBladeMesh: {fileID: 0}
+  grassBladeMesh: {fileID: 4300000, guid: c9556d54342c09541ae28d2a6537b584, type: 2}
   grassBladeMeshes:
   - {fileID: 0}
   meshDensityValues:
@@ -63678,9 +63678,9 @@ MonoBehaviour:
   shadowMode: 0
   renderLayer:
     m_LayerIndex: 0
-  pointCount: 5000
+  pointCount: 500
   multiplyByArea: 0
-  pointLODFactor: 0.5
+  pointLODFactor: 1
   randomiseSeed: 1
   seed: 0
   overwriteNormalDirection: 0
@@ -227800,9 +227800,9 @@ MonoBehaviour:
   - {fileID: 8574412962073106934, guid: 43bec8b28fc755f4eac89ad4bab0e0f8, type: 2}
   chunkCount: {x: 8, y: 8}
   sceneFilters: []
-  bladeType: 1
+  bladeType: 2
   multipleMeshes: 0
-  grassBladeMesh: {fileID: 0}
+  grassBladeMesh: {fileID: 4300000, guid: c9556d54342c09541ae28d2a6537b584, type: 2}
   grassBladeMeshes:
   - {fileID: 0}
   meshDensityValues:
@@ -227814,9 +227814,9 @@ MonoBehaviour:
   shadowMode: 0
   renderLayer:
     m_LayerIndex: 0
-  pointCount: 5000
+  pointCount: 500
   multiplyByArea: 0
-  pointLODFactor: 0.5
+  pointLODFactor: 1
   randomiseSeed: 1
   seed: 0
   overwriteNormalDirection: 0
@@ -263612,9 +263612,9 @@ MonoBehaviour:
   - {fileID: 8574412962073106934, guid: 43bec8b28fc755f4eac89ad4bab0e0f8, type: 2}
   chunkCount: {x: 8, y: 8}
   sceneFilters: []
-  bladeType: 1
+  bladeType: 2
   multipleMeshes: 0
-  grassBladeMesh: {fileID: 0}
+  grassBladeMesh: {fileID: 4300000, guid: 2f8ca6aa8ad10b74eb78b87df9b2bb37, type: 2}
   grassBladeMeshes:
   - {fileID: 0}
   meshDensityValues:
@@ -263626,9 +263626,9 @@ MonoBehaviour:
   shadowMode: 0
   renderLayer:
     m_LayerIndex: 0
-  pointCount: 5000
+  pointCount: 500
   multiplyByArea: 0
-  pointLODFactor: 0.5
+  pointLODFactor: 1
   randomiseSeed: 1
   seed: 0
   overwriteNormalDirection: 0
