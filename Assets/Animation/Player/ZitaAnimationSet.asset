@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: ZitaAnimationSet
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimationSet
   baseClips:
-    idle: {fileID: -623603649343465320, guid: 8445ff8a55b0a6b41aed2ef98d37df18, type: 3}
-    walk: {fileID: 1930374127952063625, guid: 9bea3b300291edf4c8ea5487f9a8af3a, type: 3}
-    run: {fileID: -4572650651892053679, guid: 1b2c6990cb54e77408d55c52e14f644d, type: 3}
+    idle: {fileID: 0}
+    walk: {fileID: 0}
+    run: {fileID: 0}
     jump: {fileID: 0}
     fall: {fileID: 0}
     land: {fileID: 0}
