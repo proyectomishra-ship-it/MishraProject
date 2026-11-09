@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d5bebc328c68ae4a894eec391aa4b84, type: 3}
+  m_Name: UITheme
+  m_EditorClassIdentifier: Assembly-CSharp::UITheme
+  stoneDark: {r: 0.105882354, g: 0.09411765, b: 0.08627451, a: 1}
+  stoneMid: {r: 0.18039216, g: 0.16078432, b: 0.14117648, a: 1}
+  bronze: {r: 0.65882355, g: 0.47058824, b: 0.22745098, a: 1}
+  gold: {r: 0.8509804, g: 0.69411767, b: 0.39607844, a: 1}
+  textPrimary: {r: 0.9098039, g: 0.8627451, b: 0.7529412, a: 1}
+  textMuted: {r: 0.6117647, g: 0.57254905, b: 0.4862745, a: 1}
+  textAccent: {r: 0.8509804, g: 0.69411767, b: 0.39607844, a: 1}
+  textDanger: {r: 0.7529412, g: 0.22352941, b: 0.16862746, a: 1}
+  borderThickness: 2
+  accent: {r: 0.78431374, g: 0.39215687, b: 0.16862746, a: 1}
+  success: {r: 0.36862746, g: 0.61960787, b: 0.2901961, a: 1}
+  danger: {r: 0.7529412, g: 0.22352941, b: 0.16862746, a: 1}
+  health: {r: 0.7019608, g: 0.14901961, b: 0.18039216, a: 1}
+  mana: {r: 0.18431373, g: 0.37254903, b: 0.70980394, a: 1}
+  xp: {r: 0.83137256, g: 0.6509804, b: 0.16470589, a: 1}
+  stamina: {r: 0.30980393, g: 0.56078434, b: 0.22745098, a: 1}
+  rarityCommon: {r: 0.7882353, g: 0.7607843, b: 0.69803923, a: 1}
+  rarityUncommon: {r: 0.30980393, g: 0.65882355, b: 0.2627451, a: 1}
+  rarityRare: {r: 0.23921569, g: 0.49803922, b: 0.8392157, a: 1}
+  rarityEpic: {r: 0.627451, g: 0.27450982, b: 0.8392157, a: 1}
+  rarityLegendary: {r: 0.9098039, g: 0.5294118, b: 0.16470589, a: 1}
+  title:
+    font: {fileID: 11400000, guid: 1b056b146a9c6804c89d74599dfdab57, type: 2}
+    fontSize: 64
+    color: {r: 1, g: 1, b: 1, a: 1}
+    characterSpacing: 6
+    allCaps: 1
+  heading:
+    font: {fileID: 11400000, guid: 1b056b146a9c6804c89d74599dfdab57, type: 2}
+    fontSize: 36
+    color: {r: 1, g: 1, b: 1, a: 1}
+    characterSpacing: 3
+    allCaps: 0
+  body:
+    font: {fileID: 11400000, guid: 9e96732576098744ba605f45e9bfaa48, type: 2}
+    fontSize: 24
+    color: {r: 1, g: 1, b: 1, a: 1}
+    characterSpacing: 0
+    allCaps: 0
+  caption:
+    font: {fileID: 11400000, guid: 9e96732576098744ba605f45e9bfaa48, type: 2}
+    fontSize: 18
+    color: {r: 1, g: 1, b: 1, a: 1}
+    characterSpacing: 0
+    allCaps: 0
+  button:
+    font: {fileID: 11400000, guid: 1b056b146a9c6804c89d74599dfdab57, type: 2}
+    fontSize: 28
+    color: {r: 1, g: 1, b: 1, a: 1}
+    characterSpacing: 4
+    allCaps: 1
+  sprites:
+    panel: {fileID: 0}
+    button: {fileID: 0}
+    buttonHover: {fileID: 0}
+    buttonPressed: {fileID: 0}
+    slot: {fileID: 0}
+    inputField: {fileID: 0}
+    barFrame: {fileID: 0}
+    barFillHealth: {fileID: 0}
+    barFillMana: {fileID: 0}
+    barFillXp: {fileID: 0}
+    levelMedallion: {fileID: 0}
+    divider: {fileID: 0}
