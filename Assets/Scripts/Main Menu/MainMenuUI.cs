@@ -48,7 +48,7 @@ public class MainMenuUI : MonoBehaviour
             comingSoonPanel.SetActive(false);
 
         Cursor.lockState = CursorLockMode.None;
-        Cursor.visible   = true;
+        Cursor.visible = true;
     }
 
     private void OnStartClicked()
@@ -81,10 +81,22 @@ public class MainMenuUI : MonoBehaviour
         if (btn == null) return;
 
         // Mantener interactable para mostrar el mensaje,
-        // pero cambiar el color para indicar que no está disponible
+        // pero cambiar el color para indicar que no esta disponible.
         var colors = btn.colors;
-        colors.normalColor   = available ? Color.white : new Color(0.6f, 0.6f, 0.6f, 1f);
-        colors.disabledColor = new Color(0.4f, 0.4f, 0.4f, 0.5f);
+        var theme = UITheme.Current;
+
+        if (theme != null)
+        {
+            // Mismo estilo que el resto del UI; los no disponibles quedan mas apagados.
+            colors.normalColor = available ? theme.stoneMid : Color.Lerp(theme.stoneMid, theme.stoneDark, 0.6f);
+            colors.disabledColor = new Color(theme.textMuted.r, theme.textMuted.g, theme.textMuted.b, 0.5f);
+        }
+        else
+        {
+            colors.normalColor = available ? Color.white : new Color(0.6f, 0.6f, 0.6f, 1f);
+            colors.disabledColor = new Color(0.4f, 0.4f, 0.4f, 0.5f);
+        }
+
         btn.colors = colors;
     }
 
