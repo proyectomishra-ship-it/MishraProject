@@ -177,7 +177,7 @@ public static class PlayerAnimatorBuilder
 
                 Link(loco, fall, 0.12f)
                     .Cond(PlayerAnimatorParams.Grounded, false)
-                    .Cond(PlayerAnimatorParams.VerticalVelocity, AnimatorConditionMode.Less, 0.5f);
+                    .Cond(PlayerAnimatorParams.VerticalVelocity, AnimatorConditionMode.Less, -1.5f);
 
                 Link(jump, fall, 0.15f)
                     .Cond(PlayerAnimatorParams.Grounded, false)

@@ -72,7 +72,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 4136569635
+  GlobalObjectIdHash: 3131095716
   InScenePlacedSourceGlobalObjectIdHash: 2194876781
   DeferredDespawnTick: 0
   Ownership: 1
@@ -555,8 +555,8 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  groundCheckDistance: 0.2
-  airborneDelay: 0.1
+  groundCheckDistance: 0.4
+  airborneDelay: 0.2
   minTimeBetweenHits: 0.4
 --- !u!1 &6088325270206399613
 GameObject:
