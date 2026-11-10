@@ -13,17 +13,47 @@ MonoBehaviour:
   m_Name: ZitaAnimationSet
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimationSet
   baseClips:
-    idle: {fileID: 0}
-    walk: {fileID: 0}
-    run: {fileID: 0}
-    jump: {fileID: 0}
-    fall: {fileID: 0}
+    idle: {fileID: 2460472556546162936, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
+    walk: {fileID: -89737132427218500, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
+    run: {fileID: -8208218059213765083, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
+    jump: {fileID: 8806625251712591468, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
+    fall: {fileID: -4074576781695432549, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
     land: {fileID: 0}
-    attackLight: {fileID: 0}
-    attackHeavy: {fileID: 0}
-    attackSpecial: {fileID: 0}
-    hit: {fileID: 0}
-    death: {fileID: 0}
+    attackLight: {fileID: 828195468496435260, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
+    attackHeavy: {fileID: 7396356475210288339, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
+    attackSpecial: {fileID: -3429678379292853505, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
+    hit: {fileID: -6934110298315784994, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
+    death: {fileID: 6195685969288703285, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
     revive: {fileID: 0}
-  weaponOverrides: []
-  controller: {fileID: 0}
+  weaponOverrides:
+  - label: Override Bow, attackLight y attackHeavy
+    weaponTypes: 02000000
+    clips:
+      idle: {fileID: 0}
+      walk: {fileID: 0}
+      run: {fileID: 0}
+      jump: {fileID: 0}
+      fall: {fileID: 0}
+      land: {fileID: 0}
+      attackLight: {fileID: 717017027482361007, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
+      attackHeavy: {fileID: 717017027482361007, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
+      attackSpecial: {fileID: 717017027482361007, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
+      hit: {fileID: 0}
+      death: {fileID: 0}
+      revive: {fileID: 0}
+  - label: Grimore
+    weaponTypes: 06000000
+    clips:
+      idle: {fileID: 0}
+      walk: {fileID: 0}
+      run: {fileID: 0}
+      jump: {fileID: 0}
+      fall: {fileID: 0}
+      land: {fileID: 0}
+      attackLight: {fileID: -3801794267435671854, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
+      attackHeavy: {fileID: 1774411942259946656, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
+      attackSpecial: {fileID: 1774411942259946656, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
+      hit: {fileID: 0}
+      death: {fileID: 0}
+      revive: {fileID: 0}
+  controller: {fileID: 9100000, guid: d8b321cc69cb97442abefdb4d706dc0a, type: 2}

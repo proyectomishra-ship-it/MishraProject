@@ -555,8 +555,8 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  groundCheckDistance: 0.2
-  airborneDelay: 0.1
+  groundCheckDistance: 0.4
+  airborneDelay: 0.2
   minTimeBetweenHits: 0.4
 --- !u!1 &6088325270206399613
 GameObject:
