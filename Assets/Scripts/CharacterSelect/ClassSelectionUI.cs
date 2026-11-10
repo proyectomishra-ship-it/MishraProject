@@ -187,6 +187,7 @@ public class ClassSelectionUI : NetworkBehaviour
 
         selectedClass = className;
         PlayerPrefs.SetString("SelectedClass", className);
+        UpdateClassHighlight();
 
         if (selectedClassText != null)
             selectedClassText.text = $"Clase seleccionada: {className}";
@@ -196,6 +197,14 @@ public class ClassSelectionUI : NetworkBehaviour
         SetStatus($"Seleccionaste {className}. " +
                   (IsHost ? "Podés iniciar cuando todos estén listos."
                            : "Confirmá cuando estés listo."));
+    }
+
+    /// <summary>Resalta con el tema el boton de la clase elegida.</summary>
+    private void UpdateClassHighlight()
+    {
+        ThemedSelection.Set(warriorButton, selectedClass == "Warrior");
+        ThemedSelection.Set(mageButton, selectedClass == "Mage");
+        ThemedSelection.Set(hunterButton, selectedClass == "Hunter");
     }
 
     private void OnReadyClicked()

@@ -2399,6 +2399,7 @@ MonoBehaviour:
   loadingIndicator: {fileID: 5712632869679774146}
   roomCodePanel: {fileID: 0}
   roomCodeText: {fileID: 0}
+  startGameButton: {fileID: 0}
   maxPlayers: 4
   characterSelectScene: CharacterSelect
   mainMenuScene: MainMenu
@@ -2701,7 +2702,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1762953740848295779
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3581,6 +3582,7 @@ GameObject:
   - component: {fileID: 36459062570891986}
   - component: {fileID: 8401973438548335787}
   - component: {fileID: 2614179027761292425}
+  - component: {fileID: 2974856620500698228}
   m_Layer: 5
   m_Name: LoadingIndicator
   m_TagString: Untagged
@@ -3605,7 +3607,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 327.75, y: -443.15}
-  m_SizeDelta: {x: 35.2938, y: 40.7229}
+  m_SizeDelta: {x: 32, y: 32}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8401973438548335787
 CanvasRenderer:
@@ -3628,23 +3630,36 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.8509804, g: 0.69411767, b: 0.39607844, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
+  m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 3
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
-  m_FillAmount: 1
+  m_FillAmount: 0.3
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &2974856620500698228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5712632869679774146}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e348b6e36c3514429f92580f5b070f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISpinner
+  degreesPerSecond: -270
 --- !u!1 &5753979714232176901
 GameObject:
   m_ObjectHideFlags: 0
