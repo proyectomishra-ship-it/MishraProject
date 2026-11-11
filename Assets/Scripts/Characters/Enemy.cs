@@ -1,3 +1,4 @@
+
 using System;
 using UnityEngine;
 using Unity.Netcode;
@@ -8,7 +9,17 @@ public class Enemy : Character
     [SerializeField] private int experienceReward = 50;
     [SerializeField] private int goldReward = 10;
     [SerializeField] private float classMultiplier = 1f;
+
     public int GoldReward => goldReward;
+
+    [Header("Level Scaling")]
+    [Tooltip("Nivel inicial de este enemigo. 0 = usa el BaseLevel del EnemyData.")]
+    [Min(0)]
+    [SerializeField] private int initialLevel = 0;
+
+    [Tooltip("Activo: el nivel sigue al promedio de los jugadores (+-2). " +
+             "Desactivado: el enemigo mantiene siempre su nivel inicial.")]
+    [SerializeField] private bool scaleWithPlayers = true;
 
     [Header("Quest")]
     [Tooltip("Tipo de enemigo utilizado por el sistema de misiones.")]
@@ -20,6 +31,10 @@ public class Enemy : Character
     protected CombatController combatController;
 
     private bool deathProcessed;
+
+    // Desfase fijo (-N..+N) respecto al nivel promedio de los jugadores.
+    // Se sortea una vez por spawn.
+    private int levelOffset;
 
     public event Action<Enemy> OnEnemyDeath;
 
@@ -44,6 +59,11 @@ public class Enemy : Character
     protected override void Awake()
     {
         base.Awake();
+
+        // Nivel inicial configurado en el Inspector.
+        // 0 = conserva el BaseLevel del EnemyData.
+        if (initialLevel > 0 && stats is EnemyStats initialStats)
+            initialStats.SetEnemyLevel(initialLevel);
 
         combatController = GetComponent<CombatController>();
 
@@ -75,6 +95,67 @@ public class Enemy : Character
                 "[Enemy] Falta EnemyGroupMember",
                 this);
         }
+    }
+
+    // =========================================================
+    // STATS / LEVEL SCALING
+    // =========================================================
+
+    protected override CharacterStats CreateStats()
+    {
+        // EnemyStats permite subir el nivel del enemigo
+        // y escalar sus stats.
+        return characterData is EnemyData enemyData
+            ? new EnemyStats(enemyData)
+            : base.CreateStats();
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        if (!IsServer || !scaleWithPlayers)
+            return;
+
+        levelOffset = EnemyLevelScaler.RollLevelOffset();
+        EnemyLevelScaler.Register(this);
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        // Solo desregistramos enemigos que fueron registrados
+        // por el servidor para el escalado de nivel.
+        if (IsServer && scaleWithPlayers)
+            EnemyLevelScaler.Unregister(this);
+
+        base.OnNetworkDespawn();
+    }
+
+    /// <summary>
+    /// Fija el nivel como (promedio de jugadores + desfase propio)
+    /// y reescala los stats. Solo en el servidor.
+    /// </summary>
+    public void ApplyAverageLevel(int averagePlayerLevel)
+    {
+        if (!IsServer || deathProcessed || !scaleWithPlayers)
+            return;
+
+        if (stats is not EnemyStats enemyStats)
+            return;
+
+        int target = Mathf.Max(1, averagePlayerLevel + levelOffset);
+
+        if (target == enemyStats.Level)
+            return;
+
+        enemyStats.SetEnemyLevel(target);
+
+        Debug.Log(
+            $"[EnemyLevel] {name} -> nivel {target} " +
+            $"(promedio {averagePlayerLevel}, desfase {levelOffset:+#;-#;0}) | " +
+            $"HP:{enemyStats.MaxHealth.Value:F0} " +
+            $"ATK:{enemyStats.Attack.Value:F0} " +
+            $"DEF:{enemyStats.Defense.Value:F0}");
     }
 
     // =========================================================
@@ -143,8 +224,7 @@ public class Enemy : Character
                     GetExperienceReward(player.GetLevel());
 
                 int finalXP =
-                    Mathf.RoundToInt(
-                        baseXP * damageShare);
+                    Mathf.RoundToInt(baseXP * damageShare);
 
                 player.AddExp(finalXP);
 
@@ -153,9 +233,11 @@ public class Enemy : Character
             }
         }
     }
+
     // =========================================================
     // GOLD
     // =========================================================
+
     private void DistributeGold()
     {
         if (!IsServer)
@@ -226,9 +308,7 @@ public class Enemy : Character
                     totalGold - distributedGold;
 
                 playerGold =
-                    Mathf.Min(
-                        playerGold,
-                        remainingGold);
+                    Mathf.Min(playerGold, remainingGold);
             }
 
             if (playerGold > 0)
@@ -347,9 +427,11 @@ public class Enemy : Character
         // =====================================================
 
         DistributeExperience();
+
         // =====================================================
         // GOLD
         // =====================================================
+
         DistributeGold();
 
         // =====================================================
@@ -357,7 +439,7 @@ public class Enemy : Character
         // =====================================================
 
         DropController dropController =
-     GetComponent<DropController>();
+            GetComponent<DropController>();
 
         if (dropController == null)
         {
@@ -374,11 +456,12 @@ public class Enemy : Character
 
             dropController.OnEnemyDied();
         }
-            // =====================================================
-            // QUEST SYSTEM
-            // =====================================================
 
-            ReportQuestKill();
+        // =====================================================
+        // QUEST SYSTEM
+        // =====================================================
+
+        ReportQuestKill();
 
         // =====================================================
         // OTHER SYSTEMS
@@ -392,6 +475,4 @@ public class Enemy : Character
 
         base.Die();
     }
-
-
 }

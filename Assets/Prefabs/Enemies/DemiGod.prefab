@@ -193,6 +193,8 @@ MonoBehaviour:
   experienceReward: 500
   goldReward: 10
   classMultiplier: 1
+  initialLevel: 25
+  scaleWithPlayers: 0
   enemyType: {fileID: 11400000, guid: ac37f87c06a543c4faf9c7e637c22916, type: 2}
 --- !u!114 &8787552271937325525
 MonoBehaviour:
@@ -467,7 +469,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DropController
   ShowTopMostFoldoutHeaderGroup: 1
   lootTable: {fileID: 11400000, guid: 48271b5e1b67a524c93504193643d065, type: 2}
-  pickupPrefab: {fileID: 4273785195938979488, guid: 7d5da6c904456cd43a9650abe115ae80, type: 3}
   spreadRadius: 1.5
 --- !u!1 &6942961023349357977
 GameObject:

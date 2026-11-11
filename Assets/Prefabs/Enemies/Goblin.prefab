@@ -278,7 +278,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 12
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 80
@@ -307,6 +307,8 @@ MonoBehaviour:
   experienceReward: 100
   goldReward: 10
   classMultiplier: 1
+  initialLevel: 0
+  scaleWithPlayers: 1
   enemyType: {fileID: 11400000, guid: ba715031d42214d47bbf7b52e3834439, type: 2}
 --- !u!114 &86565851316333055
 MonoBehaviour:
@@ -570,7 +572,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DropController
   ShowTopMostFoldoutHeaderGroup: 1
   lootTable: {fileID: 11400000, guid: 48271b5e1b67a524c93504193643d065, type: 2}
-  pickupPrefab: {fileID: 4273785195938979488, guid: 7d5da6c904456cd43a9650abe115ae80, type: 3}
   spreadRadius: 1.5
 --- !u!1001 &4256796809999203180
 PrefabInstance:
