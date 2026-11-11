@@ -317,6 +317,10 @@ public class InventoryUI : MonoBehaviour
     {
         currentTab = tab;
 
+        // Resalta con el tema la pestaña activa (Objetos / Crafteo).
+        ThemedSelection.Set(itemsTabButton, tab == Tab.Items);
+        ThemedSelection.Set(craftingTabButton, tab == Tab.Crafting);
+
         itemsGridRoot?.SetActive(tab == Tab.Items);
         craftingGridRoot?.SetActive(tab == Tab.Crafting);
 
