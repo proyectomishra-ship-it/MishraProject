@@ -29,7 +29,7 @@ MonoBehaviour:
   attackSpeed: 2.09
   weaponVisualPrefab: {fileID: 3485906567957737707, guid: 8528f7f28d0fac2408ea415bb7312bb5, type: 3}
   projectilePrefab: {fileID: 3272488517719803676, guid: 81b95ce514956ff478d426dca39245a5, type: 3}
-  projectileSpeed: 20
+  projectileSpeed: 40
   specialProjectilePrefab: {fileID: 0}
   heavyMultiplier: 2
   specialMultiplier: 1.5

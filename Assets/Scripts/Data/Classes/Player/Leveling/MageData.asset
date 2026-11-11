@@ -21,6 +21,12 @@ MonoBehaviour:
     value: 1
   - stat: 10
     value: 1
+  - stat: 9
+    value: 2
+  - stat: 3
+    value: 1
+  - stat: 4
+    value: 1
   multipliers:
   - stat: 4
     value: 1.15
