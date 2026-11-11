@@ -174,7 +174,7 @@ MonoBehaviour:
   backgroundImage: {fileID: 6715650792173564823}
   slotLabel: {fileID: 8640032013421237022}
   emptyOverlay: {fileID: 646435839743617082}
-  occupiedColor: {r: 0.18039216, g: 0.16078432, b: 0.14117648, a: 0.9019608}
+  occupiedColor: {r: 0.18039216, g: 0.16078432, b: 0.14117648, a: 0.5882353}
   emptyColor: {r: 0.105882354, g: 0.09411765, b: 0.08627451, a: 0.6}
   placeholderTint: {r: 1, g: 1, b: 1, a: 0.35}
 --- !u!114 &2727996399638192250

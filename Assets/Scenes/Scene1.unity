@@ -92779,7 +92779,6 @@ GameObject:
   - component: {fileID: 1051955408}
   - component: {fileID: 1051955411}
   - component: {fileID: 1051955410}
-  - component: {fileID: 1051955409}
   m_Layer: 5
   m_Name: IngredientListContainer
   m_TagString: Untagged
@@ -92832,20 +92831,6 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
---- !u!114 &1051955409
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1051955406}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9893ed517d3ce7a478b593546302e0e3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ThemedImage
-  role: 0
-  useSliced: 1
 --- !u!114 &1051955410
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -92859,7 +92844,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.105882354, g: 0.09411765, b: 0.08627451, a: 0.9}
+  m_Color: {r: 0.105882354, g: 0.09411765, b: 0.08627451, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -152072,7 +152057,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: -30}
-  m_SizeDelta: {x: 700, y: 50}
+  m_SizeDelta: {x: 700, y: 70}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1595337330
 MonoBehaviour:
@@ -197877,8 +197862,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 45}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -17}
-  m_SizeDelta: {x: 10, y: 10}
+  m_AnchoredPosition: {x: 0, y: -22}
+  m_SizeDelta: {x: 15, y: 15}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1932478139
 MonoBehaviour:
