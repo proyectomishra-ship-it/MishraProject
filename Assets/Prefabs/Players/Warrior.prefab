@@ -186,7 +186,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   holdThreshold: 0.4
   fallbackHeavyMultiplier: 2
-  fallbackHeavyStaminaCost: 25
+  fallbackStaminaCost: 25
   fallbackMagicManaCost: 20
   attackConeAngle: 60
   sphereCastRadius: 0.8
@@ -415,7 +415,7 @@ MonoBehaviour:
   enableManaRegen: 0
   manaRegenPerIntelligence: 0.3
   enableStaminaRegen: 1
-  staminaRegenPerStamina: 0.5
+  staminaRegenPerSecond: 0.1
 --- !u!114 &3528034692115460981
 MonoBehaviour:
   m_ObjectHideFlags: 0
