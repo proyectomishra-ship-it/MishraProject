@@ -35,7 +35,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 489009162591161717}
+  - {fileID: 7164747000443723330}
   - {fileID: 7466308480703871834}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
@@ -116,9 +116,9 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.02
-  m_Height: 0.8360053
+  m_Height: 2.5507648
   m_Direction: 1
-  m_Center: {x: 0, y: 0.00071179867, z: 3.1763752e-18}
+  m_Center: {x: 0, y: 0.02083826, z: 7.408494e-17}
 --- !u!114 &4493285682520712481
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -157,7 +157,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkProjectile
   ShowTopMostFoldoutHeaderGroup: 1
-  speed: 30
+  speed: 60
   lifetime: 5
   damage: 10
 --- !u!54 &-6926427066828687187
@@ -203,7 +203,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7466308480703871834
 Transform:
   m_ObjectHideFlags: 0
@@ -268,7 +268,7 @@ TrailRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Time: 0.5
+  m_Time: 0.75
   m_PreviewTimeScale: 1
   m_Parameters:
     serializedVersion: 3
@@ -277,8 +277,8 @@ TrailRenderer:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
-        time: 0.0020637512
-        value: 0.13963795
+        time: 0
+        value: 0.2498064
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -338,7 +338,7 @@ TrailRenderer:
   m_Autodestruct: 1
   m_Emitting: 1
   m_ApplyActiveColorSpace: 1
---- !u!1001 &91187186888944286
+--- !u!1001 &7270201860898896297
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -346,18 +346,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 9003930170114891698}
     m_Modifications:
-    - target: {fileID: -8679921383154817045, guid: c4add94321ad308459e0470e38d4f669, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: c4add94321ad308459e0470e38d4f669, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: c4add94321ad308459e0470e38d4f669, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 40
-      objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c4add94321ad308459e0470e38d4f669, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -398,10 +386,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -7511558181221131132, guid: c4add94321ad308459e0470e38d4f669, type: 3}
-      propertyPath: m_RayTracingMode
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: c4add94321ad308459e0470e38d4f669, type: 3}
       propertyPath: m_Name
       value: 'Flecha '
@@ -411,8 +395,8 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c4add94321ad308459e0470e38d4f669, type: 3}
---- !u!4 &489009162591161717 stripped
+--- !u!4 &7164747000443723330 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: c4add94321ad308459e0470e38d4f669, type: 3}
-  m_PrefabInstance: {fileID: 91187186888944286}
+  m_PrefabInstance: {fileID: 7270201860898896297}
   m_PrefabAsset: {fileID: 0}

@@ -6071,6 +6071,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2562475826138162833, guid: 1b056b146a9c6804c89d74599dfdab57, type: 2}
     - target: {fileID: 622417588686498818, guid: 51293cb8a39a4a644904f13de3d0cbb4, type: 3}
+      propertyPath: m_TextWrappingMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 622417588686498818, guid: 51293cb8a39a4a644904f13de3d0cbb4, type: 3}
       propertyPath: m_characterSpacing
       value: 4
       objectReference: {fileID: 0}
