@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 5695802036115971266}
   - component: {fileID: 2766597107442292079}
   - component: {fileID: 5966782575080277556}
+  - component: {fileID: 3014219879788515635}
+  - component: {fileID: 862940936427283341}
   m_Layer: 5
   m_Name: InventoryItemUI
   m_TagString: Untagged
@@ -62,7 +64,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 0.105882354, g: 0.09411765, b: 0.08627451, a: 0.75}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -94,6 +96,35 @@ MonoBehaviour:
   iconImage: {fileID: 3627718994777788533}
   quantityText: {fileID: 8753066443043337263}
   selectionHighlight: {fileID: 7837615180718448711}
+--- !u!114 &3014219879788515635
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4763375137630688811}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9893ed517d3ce7a478b593546302e0e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ThemedImage
+  role: 4
+  useSliced: 1
+--- !u!114 &862940936427283341
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4763375137630688811}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.65882355, g: 0.47058824, b: 0.22745098, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 0
 --- !u!1 &6381673231500022353
 GameObject:
   m_ObjectHideFlags: 0
@@ -317,6 +348,7 @@ GameObject:
   - component: {fileID: 6591430655264279871}
   - component: {fileID: 3398736007058399056}
   - component: {fileID: 3627718994777788533}
+  - component: {fileID: 1907441861248106116}
   m_Layer: 5
   m_Name: 'IconImage '
   m_TagString: Untagged
@@ -364,7 +396,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.105882354, g: 0.09411765, b: 0.08627451, a: 0.75}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -381,3 +413,17 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &1907441861248106116
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9090554384370025035}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9893ed517d3ce7a478b593546302e0e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ThemedImage
+  role: 4
+  useSliced: 1
