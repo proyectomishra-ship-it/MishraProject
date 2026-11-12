@@ -188,11 +188,11 @@ MonoBehaviour:
   fallbackHeavyMultiplier: 2
   fallbackStaminaCost: 25
   fallbackMagicManaCost: 20
-  attackConeAngle: 60
-  sphereCastRadius: 0.8
+  attackConeAngle: 80
+  sphereCastRadius: 1
   enemyLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 72
 --- !u!114 &3579946603823942990
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -415,7 +415,7 @@ MonoBehaviour:
   enableManaRegen: 0
   manaRegenPerIntelligence: 0.3
   enableStaminaRegen: 1
-  staminaRegenPerSecond: 0.1
+  staminaRegenPerStamina: 0.5
 --- !u!114 &3528034692115460981
 MonoBehaviour:
   m_ObjectHideFlags: 0

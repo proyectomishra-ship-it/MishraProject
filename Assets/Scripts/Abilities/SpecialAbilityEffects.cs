@@ -74,6 +74,7 @@ public static class SpecialAbilityEffects
             if (!IsValidTarget(caster, candidate) || seen.Contains(candidate))
                 continue;
 
+
             // Punto del collider más cercano al jugador: enemigos grandes
             // (ej. el DemiGod) cuentan aunque su centro quede fuera del arco.
             Vector3 toTarget = hit.bounds.ClosestPoint(origin) - origin;
@@ -127,11 +128,24 @@ public static class SpecialAbilityEffects
     // HELPERS
     // =========================================================
 
+    //VERSION SIN DAÑO AMIGO
+
+
+    //private static bool IsValidTarget(Character caster, Character candidate)
+    //{
+    //    return candidate != null
+    //        && candidate != caster
+    //        && candidate is not Player          // el daño de habilidades no alcanza a aliados
+    //        && candidate.GetStats() != null
+    //        && candidate.GetStats().CurrentHealth > 0f;
+    //}
+
+    //VERSION CON DAÑO AMIGO
+
     private static bool IsValidTarget(Character caster, Character candidate)
     {
         return candidate != null
             && candidate != caster
-            && candidate is not Player          // el daño de habilidades no alcanza a aliados
             && candidate.GetStats() != null
             && candidate.GetStats().CurrentHealth > 0f;
     }

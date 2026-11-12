@@ -15,9 +15,13 @@ MonoBehaviour:
   cooldown: 10
   damageMultiplier: 2.5
   hitDelay: 0.12
+  damageLayers:
+    serializedVersion: 2
+    m_Bits: 72
   bladeLength: 8
   bladeWidth: 0.5
   sweepAngle: 140
+  enableVisualEffect: 1
   energyColor: {r: 1, g: 0.38, b: 0.12, a: 1}
   slashDuration: 0.45
   auraDuration: 1
