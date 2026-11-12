@@ -27869,6 +27869,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   enemyPrefab: {fileID: 8782805890344179306, guid: 19d9ac65c71e5ad4a948412c479ead42, type: 3}
   respawnDelaySeconds: 7200
+  useSpawnOffset: 0
+  spawnOffset: {x: 0, y: 0, z: 0}
 --- !u!43 &324031991
 Mesh:
   m_ObjectHideFlags: 0
@@ -77627,6 +77629,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   enemyPrefab: {fileID: 8782805890344179306, guid: 19d9ac65c71e5ad4a948412c479ead42, type: 3}
   respawnDelaySeconds: 7200
+  useSpawnOffset: 0
+  spawnOffset: {x: 0, y: 0, z: 0}
 --- !u!1 &864645203
 GameObject:
   m_ObjectHideFlags: 0
@@ -195858,6 +195862,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   enemyPrefab: {fileID: 8782805890344179306, guid: 19d9ac65c71e5ad4a948412c479ead42, type: 3}
   respawnDelaySeconds: 7200
+  useSpawnOffset: 0
+  spawnOffset: {x: 0, y: 0, z: 0}
 --- !u!1 &1912357496
 GameObject:
   m_ObjectHideFlags: 0
@@ -197564,6 +197570,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   enemyPrefab: {fileID: 8782805890344179306, guid: 19d9ac65c71e5ad4a948412c479ead42, type: 3}
   respawnDelaySeconds: 7200
+  useSpawnOffset: 0
+  spawnOffset: {x: 0, y: 0, z: 0}
 --- !u!43 &1926301535
 Mesh:
   m_ObjectHideFlags: 0
@@ -197860,6 +197868,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   enemyPrefab: {fileID: 8782805890344179306, guid: 19d9ac65c71e5ad4a948412c479ead42, type: 3}
   respawnDelaySeconds: 7200
+  useSpawnOffset: 0
+  spawnOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &1928982310
 MonoBehaviour:
   m_ObjectHideFlags: 0
