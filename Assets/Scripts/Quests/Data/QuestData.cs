@@ -25,6 +25,11 @@ public class QuestData : ScriptableObject
     [Header("Rewards")]
     public QuestRewardData[] rewards;
 
+    [Header("Side Quest")]
+    [Tooltip("Solo para misiones secundarias: si está activa desde el inicio sin tener que aceptarla. " +
+             "Útil hasta que exista un NPC/UI para aceptar misiones.")]
+    public bool startsActive = false;
+
     [Header("Quest Chain")]
     public QuestData nextQuest;
 }

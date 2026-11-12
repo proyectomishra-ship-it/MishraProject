@@ -147,7 +147,9 @@ public class NetworkQuestManager : NetworkBehaviour
             {
                 // Las side quests las dejaremos disponibles
                 // para cuando implementemos aceptaciÛn/rechazo.
-                initialState = QuestState.Available;
+                initialState = quest.startsActive
+                    ? QuestState.Active
+                    : QuestState.Available;
             }
 
             NetworkQuestState networkState =
@@ -257,7 +259,7 @@ public class NetworkQuestManager : NetworkBehaviour
     }
 
     // =========================================================
-    // KILL OBJECTIVE
+    // OBJECTIVE PROGRESS (kill / collect item / craft item)
     // =========================================================
 
     public void ReportEnemyKilled(
@@ -274,14 +276,67 @@ public class NetworkQuestManager : NetworkBehaviour
         if (enemyType == null)
         {
             Debug.LogWarning(
-                "ReportEnemyKilled recibiÛ un EnemyTypeData null.");
+                "ReportEnemyKilled received a null EnemyTypeData.");
 
             return;
         }
 
+        ReportProgress(
+            objective =>
+                objective is KillObjectiveData kill &&
+                kill.EnemyType == enemyType,
+            1);
+    }
+
+    /// <summary>
+    /// Un jugador encontr√≥ (recogi√≥) un item. Solo servidor.
+    /// </summary>
+    public void ReportItemCollected(
+        ItemData item,
+        int amount = 1)
+    {
+        if (!IsServer || item == null || amount <= 0)
+        {
+            return;
+        }
+
+        ReportProgress(
+            objective =>
+                objective is CollectItemObjectiveData collect &&
+                collect.Item == item,
+            amount);
+    }
+
+    /// <summary>
+    /// Un jugador crafte√≥ un item. Solo servidor.
+    /// </summary>
+    public void ReportItemCrafted(
+        ItemData item,
+        int amount = 1)
+    {
+        if (!IsServer || item == null || amount <= 0)
+        {
+            return;
+        }
+
+        ReportProgress(
+            objective =>
+                objective is CraftItemObjectiveData craft &&
+                craft.Item == item,
+            amount);
+    }
+
+    /// <summary>
+    /// Suma progreso a toda quest activa que tenga un objetivo que cumpla
+    /// la condicion. Logica comun a kill / collect / craft.
+    /// </summary>
+    private void ReportProgress(
+        Func<QuestObjectiveData, bool> matches,
+        int amount)
+    {
         foreach (QuestData quest in availableQuests)
         {
-            if (quest == null)
+            if (quest == null || quest.objectives == null)
             {
                 continue;
             }
@@ -305,39 +360,17 @@ public class NetworkQuestManager : NetworkBehaviour
 
             bool questChanged = false;
 
-            if (quest.objectives == null)
+            foreach (QuestObjectiveData objective in quest.objectives)
             {
-                continue;
-            }
-
-            for (
-                int i = 0;
-                i < quest.objectives.Length;
-                i++)
-            {
-                QuestObjectiveData objective =
-                    quest.objectives[i];
-
-                if (objective is not KillObjectiveData killObjective)
+                if (objective == null || !matches(objective))
                 {
                     continue;
                 }
-
-                if (killObjective.EnemyType != enemyType)
-                {
-                    continue;
-                }
-
-                int newProgress =
-                    networkState.Progress + 1;
-
-                newProgress =
-                    Mathf.Min(
-                        newProgress,
-                        networkState.RequiredAmount);
 
                 networkState.Progress =
-                    newProgress;
+                    Mathf.Min(
+                        networkState.Progress + amount,
+                        networkState.RequiredAmount);
 
                 questChanged = true;
 
@@ -354,8 +387,7 @@ public class NetworkQuestManager : NetworkBehaviour
                 continue;
             }
 
-            if (
-                networkState.Progress >=
+            if (networkState.Progress >=
                 networkState.RequiredAmount)
             {
                 CompleteQuest(

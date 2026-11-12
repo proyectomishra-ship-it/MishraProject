@@ -70,5 +70,19 @@ public class EnemyGroup
             .FirstOrDefault();
     }
 
+    /// <summary>
+    /// Alerta a todos los miembros vivos del grupo para que vayan a por el atacante.
+    /// </summary>
+    public void AlertAll(Character attacker)
+    {
+        foreach (var member in Members.ToList())
+        {
+            if (member == null || !member.IsAlive)
+                continue;
+
+            member.GetAIController()?.ReactToAttack(attacker);
+        }
+    }
+
     public bool IsEmpty => Members.Count == 0;
 }

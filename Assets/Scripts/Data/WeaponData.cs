@@ -81,7 +81,8 @@ public class WeaponData : ItemData, IEquippable
 
     [Header("Costos")]
 
-    [Tooltip("Costo de stamina/resistance para heavy attack")]
+    [Tooltip("Costo de stamina de un ataque liviano. El ataque pesado cuesta el triple. " +
+             "No se usa en armas mágicas (consumen maná).")]
     [SerializeField]
     private float staminaCost = 25f;
 

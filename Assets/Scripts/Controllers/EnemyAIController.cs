@@ -15,6 +15,11 @@ public class EnemyAIController : NetworkBehaviour
     [Header("Chase")]
     [SerializeField] private float lostTargetTime = 3f;
 
+    [Header("Reaction To Damage")]
+    [Tooltip("Segundos que sigue persiguiendo al atacante tras recibir un golpe, " +
+             "aunque esté fuera de su cono de visión o de su radio de alerta.")]
+    [SerializeField] private float hitAggroDuration = 8f;
+
     [Header("Idle")]
     [SerializeField] private float idleDuration = 2f;
 
@@ -44,6 +49,8 @@ public class EnemyAIController : NetworkBehaviour
 
     public Character CurrentTarget { get; private set; }
     public bool IsAlerted { get; private set; }
+
+    private float aggroUntil;
 
     private int currentWaypointIndex = 0;
     private Vector3 randomPatrolOrigin;
@@ -187,6 +194,56 @@ public class EnemyAIController : NetworkBehaviour
     public void SetAlerted(bool alerted)
     {
         IsAlerted = alerted;
+    }
+
+    /// <summary>
+    /// true mientras el enemigo deba seguir a su target aunque no lo "vea"
+    /// (porque lo golpearon hace poco).
+    /// </summary>
+    public bool HasForcedAggro =>
+        Time.time < aggroUntil
+        && CurrentTarget != null
+        && !(CurrentTarget is Player p && p.IsDead());
+
+    /// <summary>
+    /// Reacciona a un golpe recibido (propio o de un compañero de grupo):
+    /// se alerta y, si estaba tranquilo, pasa a perseguir al atacante.
+    /// Solo servidor.
+    /// </summary>
+    public void ReactToAttack(Character attacker)
+    {
+        if (!IsServer || !enabled || attacker == null)
+            return;
+
+        if (attacker is Player player && player.IsDead())
+            return;
+
+        // IA sin inicializar, dormida o sin NavMesh: no hacer nada.
+        if (StateMachine == null || StateMachine.CurrentState == null)
+            return;
+
+        if (Agent == null || !Agent.enabled || !Agent.isOnNavMesh)
+            return;
+
+        var current = StateMachine.CurrentState;
+
+        // Huyendo con poca vida: no interrumpir.
+        if (current is EnemyStateFlee)
+            return;
+
+        bool relaxed = current is EnemyStateIdle || current is EnemyStatePatrol;
+
+        if (relaxed || CurrentTarget == null)
+            SetTarget(attacker);
+
+        SetAlerted(true);
+        aggroUntil = Time.time + hitAggroDuration;
+
+        if (relaxed)
+        {
+            Debug.Log($"[{enemy.name}] Golpeado/alertado por {attacker.name} -> Chase");
+            StateMachine.ChangeState(ChaseState);
+        }
     }
 
     // -------------------------

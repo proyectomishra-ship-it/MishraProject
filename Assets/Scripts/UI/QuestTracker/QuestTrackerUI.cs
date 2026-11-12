@@ -10,6 +10,13 @@ public class QuestTrackerUI : MonoBehaviour
     [SerializeField] private TMP_Text questObjectivesText;
     [SerializeField] private TMP_Text questRewardsText;
 
+    [Header("Side Quest (opcional)")]
+    [Tooltip("Si se deja vacío, las misiones secundarias no se muestran.")]
+    [SerializeField] private GameObject sideQuestPanel;
+    [SerializeField] private TMP_Text sideQuestNameText;
+    [SerializeField] private TMP_Text sideQuestObjectivesText;
+    [SerializeField] private TMP_Text sideQuestRewardsText;
+
     private NetworkQuestManager questManager;
 
     private void OnEnable()
@@ -64,18 +71,63 @@ public class QuestTrackerUI : MonoBehaviour
         if (questManager == null)
         {
             ClearQuest();
+            ClearSideQuest();
             return;
         }
 
-        if (!questManager.TryGetActiveMainQuest(
+        if (questManager.TryGetActiveMainQuest(
             out QuestData questData,
             out NetworkQuestState questState))
         {
+            ShowQuest(questData, questState);
+        }
+        else
+        {
             ClearQuest();
-            return;
         }
 
-        ShowQuest(questData, questState);
+        if (questManager.TryGetActiveSideQuest(
+            out QuestData sideData,
+            out NetworkQuestState sideState))
+        {
+            ShowSideQuest(sideData, sideState);
+        }
+        else
+        {
+            ClearSideQuest();
+        }
+    }
+
+    private void ShowSideQuest(
+        QuestData questData,
+        NetworkQuestState questState)
+    {
+        if (sideQuestPanel != null && !sideQuestPanel.activeSelf)
+            sideQuestPanel.SetActive(true);
+
+        if (sideQuestNameText != null)
+            sideQuestNameText.text = questData.questName;
+
+        if (sideQuestObjectivesText != null)
+            sideQuestObjectivesText.text = BuildObjectiveText(questData, questState);
+
+        if (sideQuestRewardsText != null)
+            sideQuestRewardsText.text = BuildRewardText(questData);
+    }
+
+    private void ClearSideQuest()
+    {
+        if (sideQuestPanel != null && sideQuestPanel.activeSelf)
+            sideQuestPanel.SetActive(false);
+
+        if (sideQuestNameText != null)
+            sideQuestNameText.text = string.Empty;
+
+        if (sideQuestObjectivesText != null)
+            sideQuestObjectivesText.text = string.Empty;
+
+        if (sideQuestRewardsText != null)
+            sideQuestRewardsText.text = string.Empty;
     }
 
     private void ShowQuest(

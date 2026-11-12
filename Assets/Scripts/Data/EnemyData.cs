@@ -12,9 +12,9 @@ public enum EnemyAttackType
 public enum EnemyStrategyType
 {
     None,
-    Flank,
-    Cover,
-    Backstab
+    Flank,      
+    Cover,      
+    Backstab    
 }
 
 [Serializable]
@@ -22,7 +22,7 @@ public struct EnemyLevelScalingEntry
 {
     public StatType stat;
 
-    [Tooltip("Crecimiento por nivel sobre el BaseLevel, como fracción del valor base. " +
+    [Tooltip("Crecimiento por nivel sobre el BaseLevel, como fracciÃ³n del valor base. " +
              "0.1 = +10% del valor base por cada nivel.")]
     public float percentPerLevel;
 }

@@ -68,6 +68,11 @@ public class EnemyStateChase : EnemyState
         Character detected =
             ai.Perception.DetectPlayer(ai.IsAlerted);
 
+        // Si lo golpearon hace poco, sigue al atacante aunque esté
+        // a su espalda o fuera de rango de visión.
+        if (detected == null && ai.HasForcedAggro)
+            detected = ai.CurrentTarget;
+
         if (detected != null)
         {
             targetLost = false;

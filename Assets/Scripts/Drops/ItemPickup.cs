@@ -142,6 +142,10 @@ public class ItemPickup : NetworkBehaviour
 
         pickedUp = true;
 
+        // Misiones secundarias: cuenta como item encontrado.
+        if (NetworkQuestManager.Instance != null)
+            NetworkQuestManager.Instance.ReportItemCollected(itemData, quantity);
+
         if (itemCollider != null)
             itemCollider.enabled = false;
 
