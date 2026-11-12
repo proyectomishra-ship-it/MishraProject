@@ -12,6 +12,12 @@ public class NetworkQuestManager : NetworkBehaviour
     [SerializeField]
     private QuestData[] availableQuests;
 
+    [Header("Side Quests")]
+    [Tooltip("Máximo de misiones secundarias activas a la vez. 0 = sin límite.")]
+    [Min(0)]
+    [SerializeField]
+    private int maxActiveSideQuests = 1;
+
     private readonly Dictionary<string, QuestData> questDatabase = new();
 
     private readonly Dictionary<string, QuestRuntimeState> activeQuests = new();
@@ -244,6 +250,16 @@ public class NetworkQuestManager : NetworkBehaviour
             Debug.LogWarning(
                 $"Quest '{questID}' cannot be accepted " +
                 $"because its state is {currentState.State}.");
+
+            return;
+        }
+
+        if (quest.questType == QuestType.Side &&
+            !HasFreeSideQuestSlot())
+        {
+            Debug.LogWarning(
+                $"Quest '{questID}' cannot be accepted: " +
+                "the side quest limit was reached.");
 
             return;
         }
@@ -804,6 +820,84 @@ public class NetworkQuestManager : NetworkBehaviour
 
         quest = null;
         return false;
+    }
+
+    // ---------------------------------------------------------
+    // Side quests (usado por el NPC que entrega misiones)
+    // ---------------------------------------------------------
+
+    public int ActiveSideQuestCount
+    {
+        get
+        {
+            int count = 0;
+
+            foreach (QuestData candidate in availableQuests)
+            {
+                if (candidate == null ||
+                    candidate.questType != QuestType.Side)
+                {
+                    continue;
+                }
+
+                if (TryGetQuestState(
+                        candidate.questID,
+                        out NetworkQuestState s) &&
+                    s.State == QuestState.Active)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+    }
+
+    /// <summary>
+    /// true si se puede aceptar otra misión secundaria
+    /// (según maxActiveSideQuests).
+    /// </summary>
+    public bool HasFreeSideQuestSlot()
+    {
+        return maxActiveSideQuests <= 0 ||
+               ActiveSideQuestCount < maxActiveSideQuests;
+    }
+
+    /// <summary>
+    /// Elige al azar una misión secundaria en estado Available.
+    /// </summary>
+    public bool TryGetRandomAvailableSideQuest(
+        out QuestData quest)
+    {
+        var candidates = new List<QuestData>();
+
+        foreach (QuestData candidate in availableQuests)
+        {
+            if (candidate == null ||
+                candidate.questType != QuestType.Side)
+            {
+                continue;
+            }
+
+            if (TryGetQuestState(
+                    candidate.questID,
+                    out NetworkQuestState s) &&
+                s.State == QuestState.Available)
+            {
+                candidates.Add(candidate);
+            }
+        }
+
+        if (candidates.Count == 0)
+        {
+            quest = null;
+            return false;
+        }
+
+        quest = candidates[
+            UnityEngine.Random.Range(0, candidates.Count)];
+
+        return true;
     }
 
     public bool TryGetActiveMainQuest(

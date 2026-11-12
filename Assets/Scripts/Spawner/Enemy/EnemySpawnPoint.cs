@@ -1,4 +1,3 @@
-
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,13 +6,8 @@ using Unity.Netcode;
 
 public class EnemySpawnPoint : NetworkBehaviour
 {
-    [Header("Enemy Configuration")]
     [SerializeField] private GameObject enemyPrefab;
     [SerializeField] private float respawnDelaySeconds = 7200f;
-
-    [Header("Spawn Offset")]
-    [SerializeField] private bool useSpawnOffset = false;
-    [SerializeField] private Vector3 spawnOffset = Vector3.zero;
 
     // Tiempo maximo de espera al evento de "todos los clientes terminaron de
     // cargar la escena". Netcode lo dispara siempre (aun por timeout), asi que
@@ -70,8 +64,10 @@ public class EnemySpawnPoint : NetworkBehaviour
     private void OnLoadEventCompleted(string sceneName, LoadSceneMode loadSceneMode,
                                       List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
     {
+        // El spawn point pudo destruirse (cambio de escena) con el evento aun suscrito.
         if (this == null) return;
 
+        // Solo la carga de la escena a la que pertenece este spawn point.
         if (sceneName != gameObject.scene.name) return;
 
         Debug.Log($"[Spawner] Todos los clientes cargaron '{sceneName}'. Spawneando enemigo en {name}.");
@@ -112,6 +108,9 @@ public class EnemySpawnPoint : NetworkBehaviour
 
         if (currentEnemy == null)
         {
+            // El enemigo desapareció sin pasar por Enemy.Die() (despawn externo,
+            // objeto destruido...): arrancar igual el cooldown de respawn.
+            // Sin esto el punto quedaba vacío para siempre.
             if (initialSpawnDone && deathTime < 0)
             {
                 Debug.LogWarning($"[Spawner] {name}: el enemigo desapareció sin evento de muerte. Iniciando cooldown.");
@@ -138,19 +137,7 @@ public class EnemySpawnPoint : NetworkBehaviour
             return;
         }
 
-        // Calcular posición de aparición.
-        Vector3 spawnPosition = transform.position;
-
-        if (useSpawnOffset)
-        {
-            spawnPosition += transform.TransformVector(spawnOffset);
-        }
-
-        GameObject enemy = Instantiate(
-            enemyPrefab,
-            spawnPosition,
-            transform.rotation
-        );
+        GameObject enemy = Instantiate(enemyPrefab, transform.position, transform.rotation);
 
         NetworkObject netObj = enemy.GetComponent<NetworkObject>();
 
@@ -176,7 +163,7 @@ public class EnemySpawnPoint : NetworkBehaviour
             Debug.LogWarning("[Spawner] Enemy sin script Enemy");
         }
 
-        Debug.Log($"[Spawner] Enemy spawneado en {spawnPosition}");
+        Debug.Log($"[Spawner] Enemy spawneado en {transform.position}");
     }
 
     private void OnEnemyDeath(Enemy enemy)
