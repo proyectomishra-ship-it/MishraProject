@@ -158,8 +158,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NetworkProjectile
   ShowTopMostFoldoutHeaderGroup: 1
   speed: 60
-  lifetime: 5
+  lifetime: 3
   damage: 10
+  damageLayers:
+    serializedVersion: 2
+    m_Bits: 72
 --- !u!54 &-6926427066828687187
 Rigidbody:
   m_ObjectHideFlags: 0

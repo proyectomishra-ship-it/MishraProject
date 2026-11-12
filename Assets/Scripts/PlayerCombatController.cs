@@ -397,8 +397,7 @@ public class PlayerCombatController : NetworkBehaviour
 
         Vector3 center = player.transform.position;
 
-        var targets = SpecialAbilityEffects.FindEnemiesInRadius(
-            player, center, ability.Radius, enemyLayer);
+        var targets = SpecialAbilityEffects.FindEnemiesInRadius(player,center,ability.Radius,ability.DamageLayers);
 
         float damage = stats.Attack.Value * ability.DamageMultiplier;
 
@@ -438,12 +437,7 @@ public class PlayerCombatController : NetworkBehaviour
 
         // Los enemigos se buscan recién ahora: cuentan los que estén
         // en el arco en este momento.
-        var targets = SpecialAbilityEffects.FindEnemiesInCone(
-            player,
-            aimDirection,
-            ability.BladeLength,
-            ability.SweepAngle,
-            enemyLayer);
+        var targets = SpecialAbilityEffects.FindEnemiesInCone(player,aimDirection,ability.BladeLength,ability.SweepAngle,ability.DamageLayers);
 
         float damage = stats.Attack.Value * ability.DamageMultiplier;
 

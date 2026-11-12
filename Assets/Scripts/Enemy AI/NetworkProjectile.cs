@@ -1,41 +1,91 @@
-﻿using UnityEngine;
+﻿
+using UnityEngine;
 using Unity.Netcode;
 
 [RequireComponent(typeof(NetworkObject))]
 public class NetworkProjectile : NetworkBehaviour
 {
-    [Header("Config")]
-    [SerializeField] private float speed = 10f;
-    [SerializeField] private float lifetime = 5f;
-    [SerializeField] private float damage = 10f;
+    [Header("Configuración")]
+    [SerializeField, Min(0.1f)] private float speed = 10f;
+    [SerializeField, Min(0.1f)] private float lifetime = 5f;
+    [SerializeField, Min(0f)] private float damage = 10f;
+
+    [Header("Detección de impacto")]
+    [Tooltip("Capas cuyos colliders pueden recibir daño del proyectil.")]
+    [SerializeField] private LayerMask damageLayers = ~0;
 
     private float timer;
-
     private Character owner;
 
-    public void Initialize(Character owner, float damage, Vector3 direction)
+    private bool hasHit;
+    private bool isDespawning;
+
+    // =========================
+    // INITIALIZATION
+    // =========================
+
+    public void Initialize(
+        Character owner,
+        float damage,
+        Vector3 direction)
     {
         this.owner = owner;
         this.damage = damage;
 
-        transform.forward = direction;
+        timer = 0f;
+        hasHit = false;
+        isDespawning = false;
 
-        Debug.Log($"[Projectile] Inicializado por {owner.name} | Damage: {damage}");
+        if (direction.sqrMagnitude > 0.001f)
+            transform.forward = direction.normalized;
+
+        Debug.Log(
+            $"[Projectile] Inicializado por {owner.name} | Damage: {damage}");
     }
+
+    // =========================
+    // NETWORK LIFECYCLE
+    // =========================
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        // Cada Spawn comienza un nuevo ciclo de vida.
+        timer = 0f;
+        hasHit = false;
+        isDespawning = false;
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+
+        timer = 0f;
+        hasHit = false;
+        isDespawning = false;
+        owner = null;
+    }
+
+    // =========================
+    // MOVEMENT / LIFETIME
+    // =========================
 
     private void Update()
     {
-        // El movimiento corre en TODAS las instancias (servidor y clientes).
-        // El proyectil no tiene NetworkTransform, asi que si solo se movia en
-        // el servidor, los clientes lo veian quieto en el punto de disparo.
-        // La direccion ya llega con el spawn (Quaternion.LookRotation al
-        // instanciar), por lo que cada cliente simula el mismo recorrido.
-        // El dano, el lifetime y el despawn siguen siendo solo del servidor.
-        transform.position += transform.forward * speed * Time.deltaTime;
+        if (!IsSpawned)
+            return;
 
-        if (!IsServer) return;
+        // El movimiento se simula en todas las instancias.
+        transform.position +=
+            transform.forward * speed * Time.deltaTime;
+
+        // Lifetime exclusivamente del servidor.
+        if (!IsServer || isDespawning)
+            return;
 
         timer += Time.deltaTime;
+
         if (timer >= lifetime)
         {
             Debug.Log("[Projectile] Lifetime expirado");
@@ -43,46 +93,67 @@ public class NetworkProjectile : NetworkBehaviour
         }
     }
 
+    // =========================
+    // COLLISION
+    // =========================
+
     private void OnTriggerEnter(Collider other)
     {
-        if (!IsServer) return;
+        if (!IsServer || hasHit || isDespawning)
+            return;
 
-        Debug.Log($"[Projectile] Colision con {other.name}");
+        // Comprobar si el collider pertenece a una capa permitida.
+        int layerBit = 1 << other.gameObject.layer;
 
-        var target = other.GetComponentInParent<Character>();
+        if ((damageLayers.value & layerBit) == 0)
+            return;
+
+        Debug.Log($"[Projectile] Colisión con {other.name}");
+
+        Character target =
+            other.GetComponentInParent<Character>();
 
         if (target == null)
-        {
-            Debug.Log("[Projectile] Impacto sin Character");
             return;
-        }
 
         if (target == owner)
-        {
-            Debug.Log("[Projectile] Ignorado (self hit)");
             return;
-        }
 
-        var receiver = target.GetComponent<DamageReceiver>();
+        DamageReceiver receiver =
+            target.GetComponent<DamageReceiver>();
 
         if (receiver == null)
-        {
-            Debug.LogError("[Projectile] Target sin DamageReceiver");
             return;
-        }
 
-        Debug.Log($"<color=red>[Projectile] HIT  {target.name} recibe {damage}</color>");
+        // Evita procesar más de un impacto antes del despawn.
+        hasHit = true;
+
+        Debug.Log(
+            $"<color=red>[Projectile] HIT {target.name} recibe {damage}</color>");
 
         receiver.TakeDamage(damage, owner);
 
         Despawn();
     }
 
+    // =========================
+    // DESPAWN
+    // =========================
+
     private void Despawn()
     {
+        if (isDespawning)
+            return;
+
+        isDespawning = true;
+
         if (NetworkObject != null && NetworkObject.IsSpawned)
+        {
             NetworkObject.Despawn();
+        }
         else
+        {
             Destroy(gameObject);
+        }
     }
 }

@@ -13,8 +13,11 @@ MonoBehaviour:
   m_Name: MageShockwave
   m_EditorClassIdentifier: Assembly-CSharp::MageShockwaveAbility
   cooldown: 4
-  damageMultiplier: 2
-  radius: 14
+  damageMultiplier: 3
+  radius: 18
+  damageLayers:
+    serializedVersion: 2
+    m_Bits: 72
   manaCost: 15
   waveColor: {r: 0.8490566, g: 0.5836729, b: 0.22027414, a: 1}
   effectPrefab: {fileID: 0}

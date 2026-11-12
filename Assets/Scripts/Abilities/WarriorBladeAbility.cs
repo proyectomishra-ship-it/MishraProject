@@ -1,3 +1,4 @@
+
 using UnityEngine;
 
 /// <summary>
@@ -16,18 +17,23 @@ public class WarriorBladeAbility : SpecialAbility
     [Tooltip("Segundos entre el click y el daño.")]
     [SerializeField, Min(0f)] private float hitDelay = 0.12f;
 
+    [Tooltip("Capas de los objetos que pueden recibir daño.")]
+    [SerializeField] private LayerMask damageLayers = ~0;
+
     [Header("Tamaño de la hoja")]
     [Tooltip("LARGO: hasta dónde llega la hoja, en metros.")]
     [SerializeField, Min(1f)] private float bladeLength = 10f;
 
-    [Tooltip("ANCHO: grosor visual de la hoja, en metros. " +
-             "Un valor menor produce una espada más estilizada.")]
+    [Tooltip("ANCHO: grosor visual de la hoja, en metros.")]
     [SerializeField, Min(0.05f)] private float bladeWidth = 0.22f;
 
     [Tooltip("Apertura del arco que cubre el golpe, en grados.")]
     [SerializeField, Range(30f, 300f)] private float sweepAngle = 140f;
 
     [Header("Efecto visual")]
+    [Tooltip("Activa o desactiva todos los efectos visuales de esta habilidad.")]
+    [SerializeField] private bool enableVisualEffect = true;
+
     [Tooltip("Color de la hoja de energía y del aura del arma.")]
     [SerializeField]
     private Color energyColor =
@@ -51,12 +57,16 @@ public class WarriorBladeAbility : SpecialAbility
     public float HitDelay => hitDelay;
     public float BladeLength => bladeLength;
     public float SweepAngle => sweepAngle;
+    public LayerMask DamageLayers => damageLayers;
 
     public override void PlayVfx(
         Player caster,
         Vector3 position,
         Vector3 direction)
     {
+        if (!enableVisualEffect)
+            return;
+
         SpecialAbilityVfx.PlayWeaponAura(
             caster,
             energyColor,
