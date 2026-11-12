@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fcf4e89f4291944eae492c1e88103b6, type: 3}
+  m_Name: Craft_HealthPotion_01
+  m_EditorClassIdentifier: Assembly-CSharp::CraftItemObjectiveData
+  objectiveID: Craft_HealthPotion_01
+  description: "Crea una poci\xF3n de vida"
+  requiredAmount: 1
+  item: {fileID: 11400000, guid: f8aedb24151a47029c5f8343c7b2cdee, type: 2}
