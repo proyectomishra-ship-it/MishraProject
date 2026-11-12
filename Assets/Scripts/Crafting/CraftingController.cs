@@ -42,6 +42,10 @@ public class CraftingController : NetworkBehaviour
         if (result == CraftResult.Success && recipe.GoldCost > 0)
             gold?.RemoveGold(recipe.GoldCost);
 
+        // Misiones secundarias: cuenta como item crafteado.
+        if (result == CraftResult.Success && NetworkQuestManager.Instance != null)
+            NetworkQuestManager.Instance.ReportItemCrafted(recipe.Output, recipe.OutputQuantity);
+
         Debug.Log($"[Crafting] {name} intentó craftear '{recipe.name}': {result}");
 
         return result;

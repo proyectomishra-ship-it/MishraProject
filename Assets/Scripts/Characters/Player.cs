@@ -70,6 +70,11 @@ public class Player : Character
 
         if (IsServer)
         {
+            // Avisar al resto del juego (EnemyLevelScaler) de este jugador y de
+            // cada subida de nivel.
+            stats.OnLevelChanged += HandleLevelChanged;
+            PlayerLevelEvents.RaisePlayerJoined(this);
+
             // =================================================
             // ARMA INICIAL
             // =================================================
@@ -117,6 +122,22 @@ public class Player : Character
         // Inicializar HUD e inventario en coroutine para evitar
         // problemas de timing al cargar la escena.
         StartCoroutine(InitializeWhenReady());
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        if (IsServer && stats != null)
+        {
+            stats.OnLevelChanged -= HandleLevelChanged;
+            PlayerLevelEvents.RaisePlayerLeft(this);
+        }
+
+        base.OnNetworkDespawn();
+    }
+
+    private void HandleLevelChanged(int newLevel)
+    {
+        PlayerLevelEvents.RaiseLevelChanged(this, newLevel);
     }
 
     // =====================================================

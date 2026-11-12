@@ -26,8 +26,14 @@ public class PlayerClassData : ScriptableObject
              "Vacío = usa el especial del arma equipada (comportamiento anterior).")]
     [SerializeField] private SpecialAbility specialAbility;
 
+    [Header("Recursos")]
+    [Tooltip("Si está activo, los ataques básicos consumen stamina: liviano = costo de stamina del arma, " +
+             "pesado = el triple. Desactivar en clases que ya gastan maná (Mage).")]
+    [SerializeField] private bool consumesStaminaOnAttack = true;
+
     public List<StatModifier> LevelScaling => levelScaling;
     public List<StatModifier> Multipliers => multipliers;
     public WeaponData StartingWeapon => startingWeapon;
     public SpecialAbility SpecialAbility => specialAbility;
+    public bool ConsumesStaminaOnAttack => consumesStaminaOnAttack;
 }

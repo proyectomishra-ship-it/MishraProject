@@ -108,6 +108,15 @@ public class EnemySpawnPoint : NetworkBehaviour
 
         if (currentEnemy == null)
         {
+            // El enemigo desapareció sin pasar por Enemy.Die() (despawn externo,
+            // objeto destruido...): arrancar igual el cooldown de respawn.
+            // Sin esto el punto quedaba vacío para siempre.
+            if (initialSpawnDone && deathTime < 0)
+            {
+                Debug.LogWarning($"[Spawner] {name}: el enemigo desapareció sin evento de muerte. Iniciando cooldown.");
+                deathTime = NetworkManager.ServerTime.Time;
+            }
+
             if (deathTime < 0) return;
 
             double elapsed = NetworkManager.ServerTime.Time - deathTime;

@@ -1,4 +1,3 @@
-
 using System;
 using UnityEngine;
 using Unity.Netcode;
@@ -9,7 +8,6 @@ public class Enemy : Character
     [SerializeField] private int experienceReward = 50;
     [SerializeField] private int goldReward = 10;
     [SerializeField] private float classMultiplier = 1f;
-
     public int GoldReward => goldReward;
 
     [Header("Level Scaling")]
@@ -18,7 +16,7 @@ public class Enemy : Character
     [SerializeField] private int initialLevel = 0;
 
     [Tooltip("Activo: el nivel sigue al promedio de los jugadores (+-2). " +
-             "Desactivado: el enemigo mantiene siempre su nivel inicial.")]
+             "Desactivado: el enemigo mantiene siempre su nivel inicial (ej: Acolyte, DemiGod).")]
     [SerializeField] private bool scaleWithPlayers = true;
 
     [Header("Quest")]
@@ -33,7 +31,7 @@ public class Enemy : Character
     private bool deathProcessed;
 
     // Desfase fijo (-N..+N) respecto al nivel promedio de los jugadores.
-    // Se sortea una vez por spawn.
+    // Se sortea una vez por spawn, así un respawn puede salir con otro nivel.
     private int levelOffset;
 
     public event Action<Enemy> OnEnemyDeath;
@@ -60,8 +58,7 @@ public class Enemy : Character
     {
         base.Awake();
 
-        // Nivel inicial configurado en el Inspector.
-        // 0 = conserva el BaseLevel del EnemyData.
+        // Nivel inicial configurado en el Inspector (escala los stats desde el EnemyData).
         if (initialLevel > 0 && stats is EnemyStats initialStats)
             initialStats.SetEnemyLevel(initialLevel);
 
@@ -103,8 +100,7 @@ public class Enemy : Character
 
     protected override CharacterStats CreateStats()
     {
-        // EnemyStats permite subir el nivel del enemigo
-        // y escalar sus stats.
+        // EnemyStats permite subir el nivel del enemigo y escalar sus stats.
         return characterData is EnemyData enemyData
             ? new EnemyStats(enemyData)
             : base.CreateStats();
@@ -123,17 +119,15 @@ public class Enemy : Character
 
     public override void OnNetworkDespawn()
     {
-        // Solo desregistramos enemigos que fueron registrados
-        // por el servidor para el escalado de nivel.
-        if (IsServer && scaleWithPlayers)
+        if (IsServer)
             EnemyLevelScaler.Unregister(this);
 
         base.OnNetworkDespawn();
     }
 
     /// <summary>
-    /// Fija el nivel como (promedio de jugadores + desfase propio)
-    /// y reescala los stats. Solo en el servidor.
+    /// Fija el nivel como (promedio de jugadores + desfase propio) y
+    /// reescala los stats. Solo en el servidor.
     /// </summary>
     public void ApplyAverageLevel(int averagePlayerLevel)
     {
@@ -156,6 +150,31 @@ public class Enemy : Character
             $"HP:{enemyStats.MaxHealth.Value:F0} " +
             $"ATK:{enemyStats.Attack.Value:F0} " +
             $"DEF:{enemyStats.Defense.Value:F0}");
+    }
+
+    // =========================================================
+    // REACCIÓN AL DAÑO
+    // =========================================================
+
+    /// <summary>
+    /// Si un jugador golpea a este enemigo (melee o a distancia), todo su grupo
+    /// se alerta y va a atacarlo, aunque el golpe haya venido por la espalda
+    /// o desde fuera del cono de visión.
+    /// </summary>
+    protected override void OnDamaged(Character attacker)
+    {
+        base.OnDamaged(attacker);
+
+        if (!IsServer || attacker is not Player)
+            return;
+
+        var member = GetComponent<EnemyGroupMember>();
+        var group = member != null ? member.CurrentGroup : null;
+
+        if (group != null)
+            group.AlertAll(attacker);
+        else
+            aiController?.ReactToAttack(attacker);
     }
 
     // =========================================================
@@ -224,7 +243,8 @@ public class Enemy : Character
                     GetExperienceReward(player.GetLevel());
 
                 int finalXP =
-                    Mathf.RoundToInt(baseXP * damageShare);
+                    Mathf.RoundToInt(
+                        baseXP * damageShare);
 
                 player.AddExp(finalXP);
 
@@ -233,11 +253,9 @@ public class Enemy : Character
             }
         }
     }
-
     // =========================================================
     // GOLD
     // =========================================================
-
     private void DistributeGold()
     {
         if (!IsServer)
@@ -308,7 +326,9 @@ public class Enemy : Character
                     totalGold - distributedGold;
 
                 playerGold =
-                    Mathf.Min(playerGold, remainingGold);
+                    Mathf.Min(
+                        playerGold,
+                        remainingGold);
             }
 
             if (playerGold > 0)
@@ -427,11 +447,9 @@ public class Enemy : Character
         // =====================================================
 
         DistributeExperience();
-
         // =====================================================
         // GOLD
         // =====================================================
-
         DistributeGold();
 
         // =====================================================
@@ -439,7 +457,7 @@ public class Enemy : Character
         // =====================================================
 
         DropController dropController =
-            GetComponent<DropController>();
+     GetComponent<DropController>();
 
         if (dropController == null)
         {
@@ -456,12 +474,11 @@ public class Enemy : Character
 
             dropController.OnEnemyDied();
         }
+            // =====================================================
+            // QUEST SYSTEM
+            // =====================================================
 
-        // =====================================================
-        // QUEST SYSTEM
-        // =====================================================
-
-        ReportQuestKill();
+            ReportQuestKill();
 
         // =====================================================
         // OTHER SYSTEMS
@@ -475,4 +492,6 @@ public class Enemy : Character
 
         base.Die();
     }
+
+
 }

@@ -1,6 +1,7 @@
 ﻿
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Unity.Netcode;
 
 public class PlayerCombatController : NetworkBehaviour
@@ -15,7 +16,12 @@ public class PlayerCombatController : NetworkBehaviour
     [Header("Fallback")]
     [SerializeField] private float holdThreshold = 0.4f;
     [SerializeField] private float fallbackHeavyMultiplier = 2f;
-    [SerializeField] private float fallbackHeavyStaminaCost = 25f;
+    [Tooltip("Costo de stamina de un ataque liviano cuando no hay arma equipada (el pesado cuesta el triple).")]
+    [FormerlySerializedAs("fallbackHeavyStaminaCost")]
+    [SerializeField] private float fallbackStaminaCost = 8f;
+
+    // El ataque pesado cuesta el triple de stamina que el liviano.
+    private const float HeavyStaminaMultiplier = 3f;
     [SerializeField] private float fallbackMagicManaCost = 20f;
 
     [Header("Melee Hit Validation")]
@@ -55,6 +61,16 @@ public class PlayerCombatController : NetworkBehaviour
         return weapon == null || weapon.AttackSpeed <= 0f
             ? holdThreshold
             : holdThreshold / weapon.AttackSpeed;
+    }
+
+    /// <summary>
+    /// false para clases que gastan maná en vez de stamina (Mage).
+    /// Sin ClassData se mantiene el comportamiento de stamina.
+    /// </summary>
+    private bool UsesStaminaForAttacks()
+    {
+        return player.ClassData == null ||
+               player.ClassData.ConsumesStaminaOnAttack;
     }
 
     private float GetHeavyMultiplier()
@@ -190,15 +206,22 @@ public class PlayerCombatController : NetworkBehaviour
                 return;
             }
         }
-        else if (heavy)
+        else if (UsesStaminaForAttacks())
         {
-            float cost = weapon != null
+            // Hunter / Warrior: todo ataque básico gasta stamina.
+            // Liviano = costo del arma. Pesado = el triple.
+            float baseCost = weapon != null
                 ? weapon.StaminaCost
-                : fallbackHeavyStaminaCost;
+                : fallbackStaminaCost;
 
-            if (resources == null || !resources.UseStamina(cost))
+            float cost = baseCost * (heavy ? HeavyStaminaMultiplier : 1f);
+
+            if (cost > 0f &&
+                (resources == null || !resources.UseStamina(cost)))
             {
-                Debug.Log("[PlayerCombat] Not enough stamina");
+                Debug.Log(
+                    $"[PlayerCombat] Not enough stamina " +
+                    $"(necesita {cost:F0}, heavy:{heavy})");
                 return;
             }
         }
