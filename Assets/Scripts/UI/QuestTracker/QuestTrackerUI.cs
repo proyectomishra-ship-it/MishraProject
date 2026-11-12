@@ -11,7 +11,7 @@ public class QuestTrackerUI : MonoBehaviour
     [SerializeField] private TMP_Text questRewardsText;
 
     [Header("Side Quest (opcional)")]
-    [Tooltip("Si se deja vac√≠o, las misiones secundarias no se muestran.")]
+    [Tooltip("Si se deja vaci≠o, las misiones secundarias no se muestran.")]
     [SerializeField] private GameObject sideQuestPanel;
     [SerializeField] private TMP_Text sideQuestNameText;
     [SerializeField] private TMP_Text sideQuestObjectivesText;
