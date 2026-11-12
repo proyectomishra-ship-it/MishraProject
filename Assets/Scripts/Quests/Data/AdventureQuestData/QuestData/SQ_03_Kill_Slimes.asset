@@ -18,7 +18,7 @@ MonoBehaviour:
     ve y eliminalos
   questType: 1
   objectives:
-  - {fileID: 11400000, guid: 81722e4f8782fca46aa9ccd4fcfc70e3, type: 2}
+  - {fileID: 11400000, guid: 711ffcab59c3e194891de7e823368f36, type: 2}
   rewards:
   - {fileID: 11400000, guid: bdb6f83d78030f542b7d905dc7dcc42e, type: 2}
   - {fileID: 11400000, guid: 17cadaa11f5b73643baa497489965ff3, type: 2}

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d41b5554accf3d42855cc6496c0f5a6, type: 3}
   m_Name: Kill_Slimes_01
   m_EditorClassIdentifier: Assembly-CSharp::KillObjectiveData
-  objectiveID: Kill_Goblin_03
-  description: Elimina 3 Goblins
+  objectiveID: Kill_Slimes_01
+  description: Elimina 3 Slimes
   requiredAmount: 3
-  enemyType: {fileID: 11400000, guid: ba715031d42214d47bbf7b52e3834439, type: 2}
+  enemyType: {fileID: 11400000, guid: 8f3668046e51ba848a248d58b9968a6c, type: 2}
