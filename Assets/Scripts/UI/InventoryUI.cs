@@ -159,7 +159,7 @@ public class InventoryUI : MonoBehaviour
         // Un solo refresco por frame: la NetworkList del cliente dispara N+1
         // eventos por cada cambio (Clear + un Add por slot). Ver LateUpdate().
         inventory.OnChanged += QueueRefresh;
-        equipment.OnSlotChanged += (_, __) => RefreshEquipmentSlots();
+        equipment.OnSlotChanged += (_, __) => { RefreshEquipmentSlots(); QueueRefresh(); };
         if (gold != null) gold.OnGoldChanged += HandleGoldChanged;
         player.OnCraftResult += HandleCraftResult;
         player.OnConsumeResult += HandleConsumeResult;
@@ -412,6 +412,16 @@ public class InventoryUI : MonoBehaviour
     // GRILLA DE ITEMS
     // =========================
 
+    /// <summary>Cuantas unidades de este item estan equipadas ahora mismo.</summary>
+    private int EquippedCount(ItemData item)
+    {
+        int count = 0;
+        foreach (EquipmentSlot s in System.Enum.GetValues(typeof(EquipmentSlot)))
+            if (equipment.GetEquipped(s) is ItemData equipped && equipped == item)
+                count++;
+        return count;
+    }
+
     private void RefreshItemGrid()
     {
         // Recordar la seleccion: al reconstruir la grilla se pierde, y antes el panel
@@ -425,11 +435,15 @@ public class InventoryUI : MonoBehaviour
         int previousQty = 0;
         foreach (var (item, qty) in inventory.GetAll())
         {
+            // Los items equipados no se muestran en la grilla: se restan de la cantidad.
+            int shown = qty - EquippedCount(item);
+            if (shown <= 0) continue;
+
             var cell = Instantiate(itemCellPrefab, itemGridContainer);
-            cell.Setup(item, qty);
+            cell.Setup(item, shown);
             cell.OnSelected += ShowDetail;
             itemUIs.Add(cell);
-            if (item == previous) previousQty = qty;
+            if (item == previous) previousQty = shown;
         }
 
         // Si el item sigue en el inventario, restaurar el detalle (cantidad y texto del

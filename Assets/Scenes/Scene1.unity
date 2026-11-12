@@ -334202,7 +334202,10 @@ MonoBehaviour:
   inventoryPanel: {fileID: 129766450}
   hudToHideWhenOpen:
   - {fileID: 1337361941}
-  - {fileID: 1341320726}
+  - {fileID: 1526389517}
+  - {fileID: 1595337328}
+  - {fileID: 1306485654}
+  - {fileID: 1387507101}
   itemsTabButton: {fileID: 46656155}
   craftingTabButton: {fileID: 154554251}
   itemsGridRoot: {fileID: 1469095718}
