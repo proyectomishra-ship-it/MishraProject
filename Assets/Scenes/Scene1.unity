@@ -8121,6 +8121,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0fd8a95d07abcc4da5faa1d03bf349e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LocationZone
+--- !u!114 &106570996 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 296373496906449582, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
+  m_PrefabInstance: {fileID: 106570993}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57c3e8506d661d147ac485aa22b38f77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScenePortal
 --- !u!4 &106570997 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 217029042202127549, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
@@ -82735,7 +82746,7 @@ PrefabInstance:
     - target: {fileID: 2409731920041918956, guid: 4681b450cd02a0341bbaef35cbada2a6, type: 3}
       propertyPath: linkedPortal
       value: 
-      objectReference: {fileID: 425299820}
+      objectReference: {fileID: 1473157329}
     - target: {fileID: 3807087796076428828, guid: 4681b450cd02a0341bbaef35cbada2a6, type: 3}
       propertyPath: m_Name
       value: Entrada Cueva
@@ -143734,6 +143745,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 217029042202127549, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
   m_PrefabInstance: {fileID: 648603272}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &648603275 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 296373496906449582, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
+  m_PrefabInstance: {fileID: 648603272}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57c3e8506d661d147ac485aa22b38f77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScenePortal
 --- !u!43 &649711466
 Mesh:
   m_ObjectHideFlags: 0
@@ -163198,7 +163220,7 @@ PrefabInstance:
     - target: {fileID: 2409731920041918956, guid: 4681b450cd02a0341bbaef35cbada2a6, type: 3}
       propertyPath: linkedPortal
       value: 
-      objectReference: {fileID: 790245724}
+      objectReference: {fileID: 648603275}
     - target: {fileID: 3807087796076428828, guid: 4681b450cd02a0341bbaef35cbada2a6, type: 3}
       propertyPath: m_Name
       value: Entrada Cueva
@@ -206129,7 +206151,7 @@ PrefabInstance:
     - target: {fileID: 2409731920041918956, guid: 4681b450cd02a0341bbaef35cbada2a6, type: 3}
       propertyPath: linkedPortal
       value: 
-      objectReference: {fileID: 1175483240}
+      objectReference: {fileID: 1855310584}
     - target: {fileID: 3807087796076428828, guid: 4681b450cd02a0341bbaef35cbada2a6, type: 3}
       propertyPath: m_Name
       value: Entrada Cueva
@@ -279886,6 +279908,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 217029042202127549, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
   m_PrefabInstance: {fileID: 1473157326}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1473157329 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 296373496906449582, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
+  m_PrefabInstance: {fileID: 1473157326}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57c3e8506d661d147ac485aa22b38f77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScenePortal
 --- !u!1 &1473475418
 GameObject:
   m_ObjectHideFlags: 0
@@ -336685,7 +336718,7 @@ PrefabInstance:
     - target: {fileID: 2409731920041918956, guid: 4681b450cd02a0341bbaef35cbada2a6, type: 3}
       propertyPath: linkedPortal
       value: 
-      objectReference: {fileID: 1635551804}
+      objectReference: {fileID: 106570996}
     - target: {fileID: 2409731920041918956, guid: 4681b450cd02a0341bbaef35cbada2a6, type: 3}
       propertyPath: destinationOverride
       value: 
@@ -374094,6 +374127,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 217029042202127549, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
   m_PrefabInstance: {fileID: 1855310581}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1855310584 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 296373496906449582, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
+  m_PrefabInstance: {fileID: 1855310581}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57c3e8506d661d147ac485aa22b38f77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScenePortal
 --- !u!1 &1855477912
 GameObject:
   m_ObjectHideFlags: 0
