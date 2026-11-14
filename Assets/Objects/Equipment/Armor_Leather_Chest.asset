@@ -16,6 +16,7 @@ MonoBehaviour:
   itemType: 1
   icon: {fileID: 21300000, guid: d862f1dc24afd774cb4b0f230ccf7a8a, type: 3}
   description: Peto de cuero con remaches de cobre.
+  rarity: 1
   stackable: 1
   maxStack: 99
   healthRestore: 0
@@ -24,7 +25,9 @@ MonoBehaviour:
   modifiers:
   - stat: 2
     value: 4
+    percent: 0
   - stat: 6
     value: 3
+    percent: 0
   allowedClasses:
   - {fileID: 11400000, guid: 9f8dd043d02ed614b8fad63a6b764dd8, type: 2}

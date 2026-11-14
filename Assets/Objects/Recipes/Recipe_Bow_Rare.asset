@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0927619a7b3844f79ca6f8fa595261f9, type: 3}
+  m_Name: Recipe_Bow_Rare
+  m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipeData
+  outputItem: {fileID: 11400000, guid: da5ebfe4875848a43b4dcc7130b4dadc, type: 2}
+  outputQuantity: 1
+  ingredients:
+  - item: {fileID: 11400000, guid: b9d2b3c1713184c4298213b883c02366, type: 2}
+    quantity: 1
+  - item: {fileID: 11400000, guid: 6e53b340d0f75a54ab7ca2f6afd49623, type: 2}
+    quantity: 8
+  - item: {fileID: 11400000, guid: fabf90ecbb571cf418c8103d466ae449, type: 2}
+    quantity: 4
+  - item: {fileID: 11400000, guid: 3b1b495acc79755438201839b02cbff9, type: 2}
+    quantity: 2
+  goldCost: 120

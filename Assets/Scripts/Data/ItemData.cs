@@ -17,6 +17,9 @@ public class ItemData : ScriptableObject
     [TextArea(2, 4)]
     [SerializeField] private string description;
 
+    [Header("Rareza")]
+    [SerializeField] private ItemRarity rarity = ItemRarity.Common;
+
     [Header("Stack")]
     [SerializeField] private bool stackable = true;
     [SerializeField] private int maxStack = 99;
@@ -34,6 +37,7 @@ public class ItemData : ScriptableObject
     public bool IsUsableConsumable =>
         itemType == ItemType.Consumable && (healthRestore > 0f || manaRestore > 0f);
 
+    public ItemRarity Rarity => rarity;
     public string ItemName => itemName;
     public ItemType ItemType => itemType;
     public Sprite Icon => icon;

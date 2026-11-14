@@ -16,6 +16,7 @@ MonoBehaviour:
   itemType: 2
   icon: {fileID: 21300000, guid: 0c38f9fefcaa6f044b17298ae8c25f29, type: 3}
   description: Gema violeta afin a la magia.
+  rarity: 1
   stackable: 1
   maxStack: 99
   healthRestore: 0

@@ -16,6 +16,7 @@ MonoBehaviour:
   itemType: 1
   icon: {fileID: 21300000, guid: 8d7ae183e8b607c498839f84adbc423b, type: 3}
   description: Botas livianas para moverse rapido.
+  rarity: 1
   stackable: 1
   maxStack: 99
   healthRestore: 0
@@ -24,9 +25,12 @@ MonoBehaviour:
   modifiers:
   - stat: 2
     value: 2
+    percent: 0
   - stat: 6
     value: 2
+    percent: 0
   - stat: 5
     value: 1
+    percent: 0
   allowedClasses:
   - {fileID: 11400000, guid: 9f8dd043d02ed614b8fad63a6b764dd8, type: 2}

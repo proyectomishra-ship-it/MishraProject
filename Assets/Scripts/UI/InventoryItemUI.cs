@@ -36,6 +36,7 @@ public class InventoryItemUI : MonoBehaviour, IPointerClickHandler
             quantityText.enabled = qty > 1;
         }
 
+        RarityFrame.Apply(transform, item);
         SetSelected(false);
     }
 

@@ -16,6 +16,7 @@ MonoBehaviour:
   itemType: 2
   icon: {fileID: 21300000, guid: 410cadd3b4c93ca43bf9b201d3304428, type: 3}
   description: Cuero tratado, base de armaduras ligeras.
+  rarity: 0
   stackable: 1
   maxStack: 99
   healthRestore: 0

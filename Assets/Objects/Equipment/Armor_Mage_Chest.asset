@@ -16,6 +16,7 @@ MonoBehaviour:
   itemType: 1
   icon: {fileID: 21300000, guid: dcdd1997586bf1a4d8b68675d5a361c9, type: 3}
   description: Tunica con runas bordadas.
+  rarity: 1
   stackable: 1
   maxStack: 99
   healthRestore: 0
@@ -24,9 +25,12 @@ MonoBehaviour:
   modifiers:
   - stat: 2
     value: 3
+    percent: 0
   - stat: 4
     value: 20
+    percent: 0
   - stat: 9
     value: 4
+    percent: 0
   allowedClasses:
   - {fileID: 11400000, guid: 126daa4d55c3ced4a8c7f92e0785719c, type: 2}

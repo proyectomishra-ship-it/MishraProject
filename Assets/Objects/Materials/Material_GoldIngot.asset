@@ -16,6 +16,7 @@ MonoBehaviour:
   itemType: 2
   icon: {fileID: 21300000, guid: 9b397288cb9d3834ab2a20216e02fbaf, type: 3}
   description: Metal precioso para joyas y refuerzos.
+  rarity: 2
   stackable: 1
   maxStack: 99
   healthRestore: 0

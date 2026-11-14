@@ -16,6 +16,7 @@ MonoBehaviour:
   itemType: 1
   icon: {fileID: 21300000, guid: c99085bab080b434dbc07fdf1ef08fc3, type: 3}
   description: Casco ligero de cuero.
+  rarity: 1
   stackable: 1
   maxStack: 99
   healthRestore: 0
@@ -24,7 +25,9 @@ MonoBehaviour:
   modifiers:
   - stat: 2
     value: 2
+    percent: 0
   - stat: 6
     value: 2
+    percent: 0
   allowedClasses:
   - {fileID: 11400000, guid: 9f8dd043d02ed614b8fad63a6b764dd8, type: 2}

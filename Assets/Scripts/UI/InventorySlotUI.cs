@@ -85,6 +85,8 @@ public class InventorySlotUI : MonoBehaviour, IPointerClickHandler
         if (emptyOverlay != null)
             emptyOverlay.SetActive(!hasItem);
 
+        RarityFrame.Apply(transform, item as ItemData);
+
         if (iconImage != null)
         {
             iconImage.gameObject.SetActive(hasItem);

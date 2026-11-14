@@ -46,6 +46,7 @@ public class CraftingRecipeUI : MonoBehaviour, IPointerClickHandler
             quantityText.enabled = showQty;
         }
 
+        RarityFrame.Apply(transform, output);
         SetCraftable(canCraft);
         SetSelected(false);
     }

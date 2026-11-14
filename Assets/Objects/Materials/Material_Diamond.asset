@@ -16,6 +16,7 @@ MonoBehaviour:
   itemType: 2
   icon: {fileID: 21300000, guid: b5f4a016f383c994ab2e70c72f768d97, type: 3}
   description: La gema mas dura que se conoce.
+  rarity: 3
   stackable: 1
   maxStack: 99
   healthRestore: 0

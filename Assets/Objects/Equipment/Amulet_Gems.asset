@@ -16,6 +16,7 @@ MonoBehaviour:
   itemType: 1
   icon: {fileID: 21300000, guid: 5f8360d553407b345868e9eb5817bbaa, type: 3}
   description: Collar con varias gemas. Amplifica el mana.
+  rarity: 3
   stackable: 1
   maxStack: 99
   healthRestore: 0
@@ -24,7 +25,9 @@ MonoBehaviour:
   modifiers:
   - stat: 4
     value: 25
+    percent: 0
   - stat: 9
     value: 5
+    percent: 0
   allowedClasses:
   - {fileID: 11400000, guid: 126daa4d55c3ced4a8c7f92e0785719c, type: 2}

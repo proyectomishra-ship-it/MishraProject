@@ -16,6 +16,7 @@ MonoBehaviour:
   itemType: 1
   icon: {fileID: 21300000, guid: c961e18bdf15c1548874ee26f205e588, type: 3}
   description: Anillo con una amatista. Aumenta la inteligencia.
+  rarity: 2
   stackable: 1
   maxStack: 99
   healthRestore: 0
@@ -24,7 +25,9 @@ MonoBehaviour:
   modifiers:
   - stat: 9
     value: 5
+    percent: 0
   - stat: 4
     value: 10
+    percent: 0
   allowedClasses:
   - {fileID: 11400000, guid: 126daa4d55c3ced4a8c7f92e0785719c, type: 2}

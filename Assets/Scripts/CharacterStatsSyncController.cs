@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 using Unity.Netcode;
 
 public class CharacterStatsSyncController : NetworkBehaviour
@@ -23,6 +24,26 @@ public class CharacterStatsSyncController : NetworkBehaviour
 
     public NetworkVariable<int> NetXP = new();
     public NetworkVariable<int> NetXPRequired = new();
+
+    /// <summary>
+    /// Valor final de cada StatType (indice = (int)StatType). El equipo solo
+    /// se aplica en el servidor, asi que los clientes no pueden calcularlo:
+    /// lo leen de aca para mostrarlo (panel de estadisticas).
+    /// </summary>
+    private readonly NetworkList<float> netStats = new();
+
+    /// <summary>Se dispara en el cliente/host cuando cambia algun stat sincronizado.</summary>
+    public event Action OnStatsSynced;
+
+    /// <summary>Valor final del stat (base + equipo, con multiplicadores).</summary>
+    public float GetStatValue(StatType type)
+    {
+        if (IsServer && stats != null)
+            return stats.GetStat(type)?.Value ?? 0f;
+
+        int i = (int)type;
+        return i >= 0 && i < netStats.Count ? netStats[i] : 0f;
+    }
 
     // =========================
     // INIT
@@ -52,11 +73,30 @@ public class CharacterStatsSyncController : NetworkBehaviour
             return;
         }
 
+        netStats.OnListChanged += HandleNetStatsChanged;
+
         if (IsServer)
         {
             SubscribeToStats();
             ForceFullSync();
         }
+    }
+
+    private void HandleNetStatsChanged(NetworkListEvent<float> _) => OnStatsSynced?.Invoke();
+
+    private void OnStatChangedServer(StatType type, float value)
+    {
+        int i = (int)type;
+        if (i >= 0 && i < netStats.Count) netStats[i] = value;
+    }
+
+    private void SyncAllStats()
+    {
+        int count = Enum.GetValues(typeof(StatType)).Length;
+        while (netStats.Count < count) netStats.Add(0f);
+
+        foreach (StatType t in Enum.GetValues(typeof(StatType)))
+            netStats[(int)t] = stats.GetStat(t)?.Value ?? 0f;
     }
 
     // =========================
@@ -69,6 +109,7 @@ public class CharacterStatsSyncController : NetworkBehaviour
         stats.OnManaChanged += OnManaChanged;
         stats.OnStaminaChanged += OnStaminaChanged;
         stats.OnLevelChanged += OnLevelChanged;
+        stats.OnStatChanged += OnStatChangedServer;
 
         if (stats is PlayerStats playerStats)
         {
@@ -84,7 +125,7 @@ public class CharacterStatsSyncController : NetworkBehaviour
     {
         NetHealth.Value = current;
         NetMaxHealth.Value = max;
-     
+
     }
 
     private void OnManaChanged(float current, float max)
@@ -127,6 +168,8 @@ public class CharacterStatsSyncController : NetworkBehaviour
 
         NetLevel.Value = stats.Level;
 
+        SyncAllStats();
+
         if (stats is PlayerStats playerStats)
         {
             NetXP.Value = playerStats.Experience;
@@ -143,6 +186,8 @@ public class CharacterStatsSyncController : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
+        netStats.OnListChanged -= HandleNetStatsChanged;
+
         if (!IsServer || stats == null)
             return;
 
@@ -150,6 +195,7 @@ public class CharacterStatsSyncController : NetworkBehaviour
         stats.OnManaChanged -= OnManaChanged;
         stats.OnStaminaChanged -= OnStaminaChanged;
         stats.OnLevelChanged -= OnLevelChanged;
+        stats.OnStatChanged -= OnStatChangedServer;
 
         if (stats is PlayerStats playerStats)
         {
@@ -172,6 +218,7 @@ public class CharacterStatsSyncController : NetworkBehaviour
         stats.OnManaChanged -= OnManaChanged;
         stats.OnStaminaChanged -= OnStaminaChanged;
         stats.OnLevelChanged -= OnLevelChanged;
+        stats.OnStatChanged -= OnStatChangedServer;
 
         if (stats is PlayerStats playerStats)
         {

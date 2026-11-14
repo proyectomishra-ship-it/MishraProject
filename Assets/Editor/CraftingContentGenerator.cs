@@ -20,9 +20,26 @@ using UnityEngine;
 /// REQUISITO: instalar antes los scripts actualizados (IEquippable, EquipmentData,
 /// WeaponData, PlayerClassData, etc.); si no, la restriccion de clase no compila/aplica.
 ///
+/// RAREZAS Y MEJORAS DE ARMA
+/// - Cada clase tiene una cadena: arma base (Comun) -> Poco comun -> Raro -> Epico -> Legendario.
+///   Cada escalon consume el arma del escalon anterior + materiales + oro, y la
+///   dificultad crece: Poco comun solo pide materiales de la clase, Raro agrega una gema
+///   comun de la clase, Epico y Legendario piden mas material, gemas, oro y (Legendario)
+///   diamantes. Las gemas nunca se piden en el primer escalon.
+/// - Poco comun mejora solo el Ataque; Raro suma velocidad (%); Epico y Legendario suman,
+///   ademas, un bonus porcentual propio de la clase.
+/// - Los items equipados se tinen en los slots segun su rareza (ver ItemData.Rarity).
+///
+/// MENUS
+/// - "Generar ...": crea lo que falte y reaplica rareza, stats de armas y restricciones.
+///   Las recetas que ya existen se conservan (tus ajustes manuales).
+/// - "Generar ... (sobrescribir recetas)": ademas reescribe ingredientes y oro de TODAS las
+///   recetas generadas segun las tablas de abajo. Usalo una vez al migrar al sistema de rarezas.
+/// - Tambien limpia el contenido viejo (Sword_Jade, Bow_Reinforced, Bow_Amber, Staff_Amethyst,
+///   Staff_Ruby, Sword_Steel y sus recetas) y quita entradas vacias de las bases de datos.
+///
 /// NOTAS
-/// - Lo que ya existe NO se sobrescribe (se conservan tus ajustes manuales), salvo la
-///   restriccion de clase, que se reaplica en cada ejecucion segun las tablas.
+/// - Salvo en el modo "sobrescribir", lo que ya existe NO se toca.
 /// - Los items nuevos se AGREGAN AL FINAL de las bases. Nunca se reordena: el ID de red
 ///   de cada item es su indice en la lista.
 /// - Para cambiar stats/costos/loot: edita las tablas de abajo y borra el asset viejo
@@ -66,8 +83,9 @@ public static class CraftingContentGenerator
 
     private class Mod
     {
-        public StatType stat; public float value;
-        public Mod(StatType stat, float value) { this.stat = stat; this.value = value; }
+        public StatType stat; public float value; public bool percent;
+        public Mod(StatType stat, float value, bool percent = false)
+        { this.stat = stat; this.value = value; this.percent = percent; }
     }
 
     private class EquipDef
@@ -85,21 +103,36 @@ public static class CraftingContentGenerator
         }
     }
 
-    private class WeaponDef
+    /// <summary>Un escalon de la cadena de mejoras de un arma.</summary>
+    private class WeaponTier
     {
-        public string key, name, desc, basePath;
-        public float attack;
+        public string key, name, desc;
+        public ItemRarity rarity;
+        public float attackMultiplier;   // sobre el Ataque del arma base
+        public Mod[] extraMods;          // bonus extra (porcentuales)
         public int gold;
-        public Ing[] ingredients;
-        public WeaponDef(string key, string name, string basePath, string desc,
-                         float attack, int gold, Ing[] ingredients)
+        public Ing[] materials;          // ademas del arma del escalon anterior
+        public WeaponTier(string key, string name, string desc, ItemRarity rarity,
+                          float attackMultiplier, Mod[] extraMods, int gold, Ing[] materials)
         {
-            this.key = key; this.name = name; this.basePath = basePath; this.desc = desc;
-            this.attack = attack; this.gold = gold; this.ingredients = ingredients;
+            this.key = key; this.name = name; this.desc = desc; this.rarity = rarity;
+            this.attackMultiplier = attackMultiplier; this.extraMods = extraMods;
+            this.gold = gold; this.materials = materials;
         }
     }
 
+    /// <summary>Arma base de una clase + sus 4 mejoras (Poco comun, Raro, Epico, Legendario).</summary>
+    private class WeaponLine
+    {
+        public string baseKey, basePath;
+        public WeaponTier[] tiers;
+        public WeaponLine(string baseKey, string basePath, WeaponTier[] tiers)
+        { this.baseKey = baseKey; this.basePath = basePath; this.tiers = tiers; }
+    }
+
     private static Mod M(StatType s, float v) => new Mod(s, v);
+    /// <summary>Bonus porcentual: P(Speed, 0.08f) = +8 %.</summary>
+    private static Mod P(StatType s, float v) => new Mod(s, v, true);
     private static Ing I(string k, int q) => new Ing(k, q);
 
     // ---- MATERIALES (icon = nombre del PNG en Assets/Art/Icons; vacio = sin icono) ----
@@ -137,10 +170,10 @@ public static class CraftingContentGenerator
             new[]{ M(StatType.Defense,2), M(StatType.MaxHealth,5) }, new[]{ I("SteelIngot",2) }),
         new EquipDef("Amulet_Iron",       "Collar de Hierro", EquipmentSlot.Amulet, "collar de hierro",
             "Collar de eslabones de acero. Aumenta la vida.", 30,
-            new[]{ M(StatType.MaxHealth,30) }, new[]{ I("SteelIngot",2), I("GoldIngot",1) }),
+            new[]{ M(StatType.MaxHealth,30) }, new[]{ I("SteelIngot",3) }),
         new EquipDef("Ring_Warrior",      "Anillo de Guerrero", EquipmentSlot.Ring, "anillo de guerrero",
             "Anillo con un rubi. Aumenta el ataque.", 30,
-            new[]{ M(StatType.Attack,5), M(StatType.Vitality,3) }, new[]{ I("SteelIngot",1), I("GoldIngot",1), I("Ruby",1) }),
+            new[]{ M(StatType.Attack,5), M(StatType.Vitality,3) }, new[]{ I("SteelIngot",2), I("Ruby",1) }),
 
         // Set de Cuero (Cazador)
         new EquipDef("Armor_Leather_Helmet", "Casco de Cuero", EquipmentSlot.Helmet, "casco de cuero",
@@ -160,7 +193,7 @@ public static class CraftingContentGenerator
             new[]{ M(StatType.Attack,6), M(StatType.Dexterity,3) }, new[]{ I("WolfFang",4), I("TannedLeather",1) }),
         new EquipDef("Ring_Hunter",          "Anillo de Cazador", EquipmentSlot.Ring, "anillo de cazador",
             "Anillo con ambar. Mejora la punteria.", 30,
-            new[]{ M(StatType.Dexterity,4), M(StatType.Agility,3) }, new[]{ I("CopperIngot",1), I("GoldIngot",1), I("Amber",1) }),
+            new[]{ M(StatType.Dexterity,4), M(StatType.Agility,3) }, new[]{ I("CopperIngot",2), I("Amber",1) }),
 
         // Set de Mago
         new EquipDef("Armor_Mage_Helmet", "Casco de Mago", EquipmentSlot.Helmet, "casco de mago",
@@ -180,33 +213,87 @@ public static class CraftingContentGenerator
             new[]{ M(StatType.MaxMana,25), M(StatType.Intelligence,5) }, new[]{ I("GoldIngot",1), I("Ruby",1), I("Amethyst",1), I("Diamond",1) }),
         new EquipDef("Ring_Mage",         "Anillo de Mago", EquipmentSlot.Ring, "anillo de mago",
             "Anillo con una amatista. Aumenta la inteligencia.", 30,
-            new[]{ M(StatType.Intelligence,5), M(StatType.MaxMana,10) }, new[]{ I("GoldIngot",1), I("Amethyst",1) }),
+            new[]{ M(StatType.Intelligence,5), M(StatType.MaxMana,10) }, new[]{ I("ArcaneCloth",2), I("Amethyst",1) }),
     };
 
-    // ---- ARMAS: mejoras por personaje. Copian TODO del arma base (modelo, icono,
-    //      proyectil, costos) y solo cambian nombre, descripcion y Ataque. ----
-    private static readonly WeaponDef[] Weapons =
+    // ---- ARMAS: cadena de mejoras por clase. Cada escalon copia TODO del arma base
+    //      (modelo, icono, proyectil, costos) y solo cambia nombre, descripcion, rareza y stats. ----
+    //  Ataque = Ataque del arma base x multiplicador, redondeado.
+    //  Receta de cada escalon = arma del escalon anterior + materiales + oro.
+    private static readonly WeaponLine[] WeaponLines =
     {
-        // Guerrero
-        
-        new WeaponDef("Sword_Jade", "Espada de Jade", "Assets/Objects/Sword_Basic.asset",
-            "Hoja de acero con filo de jade.", 55, 150,
-            new[]{ I("SteelIngot",8), I("Jade",3), I("GoldIngot",2) }),
-        // Cazador
-        new WeaponDef("Bow_Reinforced", "Arco Reforzado", "Assets/Objects/Bow_Basic.asset",
-            "Arco con cuerda y refuerzos de cobre.", 40, 50,
-            new[]{ I("TannedLeather",4), I("CopperIngot",4) }),
-        new WeaponDef("Bow_Amber", "Arco de Ambar", "Assets/Objects/Bow_Basic.asset",
-            "Arco con incrustaciones de ambar.", 55, 150,
-            new[]{ I("TannedLeather",6), I("Amber",3), I("GoldIngot",2) }),
-        // Mago
-        new WeaponDef("Staff_Amethyst", "Baston de Amatista", "Assets/Objects/Grimoire_Basic.asset",
-            "Baston coronado con una amatista.", 40, 50,
-            new[]{ I("ArcaneCloth",4), I("Amethyst",3) }),
-        new WeaponDef("Staff_Ruby", "Baston de Rubi", "Assets/Objects/Grimoire_Basic.asset",
-            "Baston coronado con un rubi.", 55, 150,
-            new[]{ I("ArcaneCloth",6), I("Ruby",3), I("GoldIngot",2) }),
+        // Guerrero: acero, jade; bonus de clase = vida maxima %
+        new WeaponLine("Sword_Basic", "Assets/Objects/Sword_Basic.asset", new[]
+        {
+            new WeaponTier("Sword_Uncommon", "Espada Reforzada", "Hoja de acero templado, mas pesada y filosa.",
+                ItemRarity.Uncommon, 1.25f, new Mod[0], 50,
+                new[]{ I("SteelIngot",6) }),
+            new WeaponTier("Sword_Rare", "Espada de Jade", "Hoja de acero con filo de jade. Mas liviana en la mano.",
+                ItemRarity.Rare, 1.5f, new[]{ P(StatType.Speed,0.08f) }, 120,
+                new[]{ I("SteelIngot",10), I("Jade",2) }),
+            new WeaponTier("Sword_Epic", "Espada Runica", "Runas grabadas en el filo: golpea fuerte y resiste mas.",
+                ItemRarity.Epic, 1.8f, new[]{ P(StatType.Speed,0.10f), P(StatType.MaxHealth,0.10f) }, 250,
+                new[]{ I("SteelIngot",14), I("Jade",4), I("GoldIngot",2) }),
+            new WeaponTier("Sword_Legendary", "Filo del Alba", "Forjada con diamante y oro. Dicen que nunca se embota.",
+                ItemRarity.Legendary, 2.2f, new[]{ P(StatType.Speed,0.12f), P(StatType.MaxHealth,0.18f) }, 600,
+                new[]{ I("SteelIngot",20), I("Jade",6), I("GoldIngot",4), I("Diamond",2) }),
+        }),
+        // Cazador: cuero, cobre, ambar; bonus de clase = alcance de ataque %
+        new WeaponLine("Bow_Basic", "Assets/Objects/Bow_Basic.asset", new[]
+        {
+            new WeaponTier("Bow_Uncommon", "Arco Reforzado", "Arco con cuerda nueva y refuerzos de cobre.",
+                ItemRarity.Uncommon, 1.25f, new Mod[0], 50,
+                new[]{ I("TannedLeather",4), I("CopperIngot",4) }),
+            new WeaponTier("Bow_Rare", "Arco de Ambar", "Arco con incrustaciones de ambar. Tensa mas rapido.",
+                ItemRarity.Rare, 1.5f, new[]{ P(StatType.Speed,0.08f) }, 120,
+                new[]{ I("TannedLeather",8), I("CopperIngot",4), I("Amber",2) }),
+            new WeaponTier("Bow_Epic", "Arco del Cazador", "Madera curada y ambar: mayor alcance y punteria.",
+                ItemRarity.Epic, 1.8f, new[]{ P(StatType.Speed,0.10f), P(StatType.AttackRange,0.10f) }, 250,
+                new[]{ I("TannedLeather",12), I("CopperIngot",6), I("Amber",4), I("GoldIngot",2) }),
+            new WeaponTier("Bow_Legendary", "Arco Celeste", "Cada flecha parece seguir al viento.",
+                ItemRarity.Legendary, 2.2f, new[]{ P(StatType.Speed,0.12f), P(StatType.AttackRange,0.18f) }, 600,
+                new[]{ I("TannedLeather",16), I("CopperIngot",8), I("Amber",6), I("GoldIngot",4), I("Diamond",2) }),
+        }),
+        // Mago: tela arcana, amatista; bonus de clase = mana maximo %
+        new WeaponLine("Grimoire_Basic", "Assets/Objects/Grimoire_Basic.asset", new[]
+        {
+            new WeaponTier("Staff_Uncommon", "Grimorio Reforzado", "Paginas nuevas y encuadernado arcano.",
+                ItemRarity.Uncommon, 1.25f, new Mod[0], 50,
+                new[]{ I("ArcaneCloth",6) }),
+            new WeaponTier("Staff_Rare", "Grimorio de Amatista", "Una amatista en el lomo ordena el flujo de mana.",
+                ItemRarity.Rare, 1.5f, new[]{ P(StatType.Speed,0.08f) }, 120,
+                new[]{ I("ArcaneCloth",10), I("Amethyst",2) }),
+            new WeaponTier("Staff_Epic", "Grimorio Arcano", "Hechizos mas intensos y una reserva de mana mayor.",
+                ItemRarity.Epic, 1.8f, new[]{ P(StatType.Speed,0.10f), P(StatType.MaxMana,0.10f) }, 250,
+                new[]{ I("ArcaneCloth",14), I("Amethyst",4), I("GoldIngot",2) }),
+            new WeaponTier("Staff_Legendary", "Grimorio del Vacio", "Susurra hechizos que nadie le enseno.",
+                ItemRarity.Legendary, 2.2f, new[]{ P(StatType.Speed,0.12f), P(StatType.MaxMana,0.18f) }, 600,
+                new[]{ I("ArcaneCloth",20), I("Amethyst",6), I("Ruby",2), I("GoldIngot",4), I("Diamond",2) }),
+        }),
     };
+
+    // Contenido de versiones anteriores del generador: se borra (con sus recetas) al ejecutar.
+    private static readonly string[] LegacyWeaponKeys =
+    {
+        "Sword_Steel", "Sword_Jade", "Bow_Reinforced", "Bow_Amber", "Staff_Amethyst", "Staff_Ruby"
+    };
+
+    // ---- RAREZA de materiales y equipo (el resto queda Comun) ----
+    private static readonly Dictionary<string, ItemRarity> MaterialRarity = new Dictionary<string, ItemRarity>
+    {
+        { "SteelIngot", ItemRarity.Common }, { "CopperIngot", ItemRarity.Common },
+        { "TannedLeather", ItemRarity.Common }, { "ArcaneCloth", ItemRarity.Common },
+        { "WolfFang", ItemRarity.Common },
+        { "Amber", ItemRarity.Uncommon }, { "Jade", ItemRarity.Uncommon }, { "Amethyst", ItemRarity.Uncommon },
+        { "Ruby", ItemRarity.Uncommon }, { "GoldIngot", ItemRarity.Rare }, { "Diamond", ItemRarity.Epic },
+    };
+
+    private static ItemRarity EquipmentRarity(string key)
+    {
+        if (key == "Amulet_Gems") return ItemRarity.Epic;
+        if (key.StartsWith("Ring_")) return ItemRarity.Rare;
+        return ItemRarity.Uncommon; // armaduras y collares (a la espera de definir su cadena)
+    }
 
     // ---- RESTRICCION DE CLASE: nombre del asset PlayerClassData -> items (por prefijo de clave) ----
     private static readonly Dictionary<string, string[]> ClassKeyPrefixes = new Dictionary<string, string[]>
@@ -300,9 +387,17 @@ public static class CraftingContentGenerator
 
     private static Dictionary<string, Sprite> iconIndex;
 
+    private static bool overwriteRecipes;
+
     [MenuItem("RPG/Generar materiales, equipo, recetas y loot")]
-    public static void Generate()
+    public static void Generate() => Run(false);
+
+    [MenuItem("RPG/Generar materiales, equipo, recetas y loot (sobrescribir recetas)")]
+    public static void GenerateOverwriteRecipes() => Run(true);
+
+    private static void Run(bool overwrite)
     {
+        overwriteRecipes = overwrite;
         BuildIconIndex();
 
         EnsureFolder(ObjectsDir, "Materials");
@@ -318,6 +413,9 @@ public static class CraftingContentGenerator
         var missingIcons = new List<string>();
         int created = 0, kept = 0;
 
+        // ---- Limpieza de contenido de versiones anteriores ----
+        int removed = RemoveLegacyWeapons();
+
         // ---- Materiales ----
         foreach (var m in Materials)
         {
@@ -332,6 +430,7 @@ public static class CraftingContentGenerator
                 SetCommon(item, m.name, ItemType.Material, icon, m.desc);
                 created++;
             }
+            SetRarity(item, MaterialRarity.TryGetValue(m.key, out var mr) ? mr : ItemRarity.Common);
             items[m.key] = item;
             newItems.Add(item);
         }
@@ -362,48 +461,80 @@ public static class CraftingContentGenerator
                 so.ApplyModifiedPropertiesWithoutUndo();
                 created++;
             }
+            SetRarity(item, EquipmentRarity(e.key));
             items[e.key] = item;
             newItems.Add(item);
         }
 
-        // ---- Armas (mejoras) ----
-        foreach (var w in Weapons)
+        // ---- Armas: base (Comun) + cadena de mejoras ----
+        foreach (var line in WeaponLines)
         {
-            string path = $"{WeaponsDir}/{w.key}.asset";
-            var item = AssetDatabase.LoadAssetAtPath<WeaponData>(path);
-            if (item != null) { kept++; }
-            else
+            var baseWeapon = AssetDatabase.LoadAssetAtPath<WeaponData>(line.basePath);
+            if (baseWeapon == null)
             {
-                var baseWeapon = AssetDatabase.LoadAssetAtPath<WeaponData>(w.basePath);
-                if (baseWeapon == null)
+                Debug.LogError($"[CraftingContentGenerator] No se encontro el arma base '{line.basePath}'. Se omite su cadena.");
+                continue;
+            }
+
+            SetRarity(baseWeapon, ItemRarity.Common);
+            items[line.baseKey] = baseWeapon;
+            newItems.Add(baseWeapon);
+            float baseAttack = ReadFlatModifier(baseWeapon, StatType.Attack, 10f);
+
+            foreach (var t in line.tiers)
+            {
+                string path = $"{WeaponsDir}/{t.key}.asset";
+                var item = AssetDatabase.LoadAssetAtPath<WeaponData>(path);
+                if (item != null) { kept++; }
+                else
                 {
-                    Debug.LogError($"[CraftingContentGenerator] No se encontro el arma base '{w.basePath}'. Se omite '{w.name}'.");
-                    continue;
+                    item = Object.Instantiate(baseWeapon);
+                    item.name = t.key;
+                    AssetDatabase.CreateAsset(item, path);
+                    created++;
                 }
 
-                item = Object.Instantiate(baseWeapon);
-                item.name = w.key;
-                AssetDatabase.CreateAsset(item, path);
-
+                // Nombre, rareza y stats se reaplican siempre: la cadena es la fuente de verdad.
                 var so = new SerializedObject(item);
-                so.FindProperty("itemName").stringValue = w.name;
-                so.FindProperty("description").stringValue = w.desc;
-                SetModifier(so.FindProperty("modifiers"), StatType.Attack, w.attack);
+                so.FindProperty("itemName").stringValue = t.name;
+                so.FindProperty("description").stringValue = t.desc;
+                var mods = so.FindProperty("modifiers");
+                // Se quitan solo los bonus porcentuales viejos; los planos del arma base
+                // (alcance, etc.) se conservan y el Ataque se reescribe abajo.
+                for (int mi = mods.arraySize - 1; mi >= 0; mi--)
+                    if (mods.GetArrayElementAtIndex(mi).FindPropertyRelative("percent").boolValue)
+                        mods.DeleteArrayElementAtIndex(mi);
+                SetModifier(mods, StatType.Attack, Mathf.Round(baseAttack * t.attackMultiplier), false);
+                foreach (var m in t.extraMods) SetModifier(mods, m.stat, m.value, m.percent);
                 so.ApplyModifiedPropertiesWithoutUndo();
-                created++;
+                SetRarity(item, t.rarity);
+                EditorUtility.SetDirty(item);
+
+                items[t.key] = item;
+                newItems.Add(item);
             }
-            items[w.key] = item;
-            newItems.Add(item);
         }
 
         // ---- Recetas ----
         foreach (var e in Equipment)
             AddRecipe(e.key, e.ingredients, e.gold, items, newRecipes, ref created, ref kept);
-        foreach (var w in Weapons)
-            if (items.ContainsKey(w.key))
-                AddRecipe(w.key, w.ingredients, w.gold, items, newRecipes, ref created, ref kept);
+        foreach (var line in WeaponLines)
+        {
+            string previous = line.baseKey;
+            foreach (var t in line.tiers)
+            {
+                if (!items.ContainsKey(t.key) || !items.ContainsKey(previous)) break;
+
+                // Ingrediente 1: el arma del escalon anterior (se consume al mejorar).
+                var ings = new List<Ing> { I(previous, 1) };
+                ings.AddRange(t.materials);
+                AddRecipe(t.key, ings.ToArray(), t.gold, items, newRecipes, ref created, ref kept);
+                previous = t.key;
+            }
+        }
 
         // ---- Bases de datos (solo se agrega al final, nunca se reordena) ----
+        int compacted    = CompactDatabase(ItemDbPath, "allItems") + CompactDatabase(RecipeDbPath, "allRecipes");
         int addedItems   = AppendToDatabase(ItemDbPath,   "allItems",   newItems);
         int addedRecipes = AppendToDatabase(RecipeDbPath, "allRecipes", newRecipes);
 
@@ -432,7 +563,9 @@ public static class CraftingContentGenerator
         AssetDatabase.Refresh();
 
         Debug.Log($"[CraftingContentGenerator] Listo.\n" +
-                  $"  Assets creados: {created} (ya existian: {kept}).\n" +
+                  $"  Assets creados: {created} (ya existian: {kept}). Contenido viejo borrado: {removed}. " +
+                  $"Entradas vacias quitadas de las bases: {compacted}.\n" +
+                  $"  Recetas {(overwriteRecipes ? "SOBRESCRITAS" : "existentes conservadas")}.\n" +
                   $"  Agregados a ItemDatabase: {addedItems}. A CraftingRecipeDatabase: {addedRecipes}.\n" +
                   $"  Items con restriccion de clase aplicada: {restricted}.\n" +
                   $"  Pickups nuevos: {pickupsCreated}. Registrados en red: {netAdded}.\n" +
@@ -767,10 +900,14 @@ public static class CraftingContentGenerator
     {
         string path = $"{RecipesDir}/Recipe_{outputKey}.asset";
         var recipe = AssetDatabase.LoadAssetAtPath<CraftingRecipeData>(path);
-        if (recipe != null) { kept++; newRecipes.Add(recipe); return; }
+        bool isNew = recipe == null;
+        if (!isNew && !overwriteRecipes) { kept++; newRecipes.Add(recipe); return; }
 
-        recipe = ScriptableObject.CreateInstance<CraftingRecipeData>();
-        AssetDatabase.CreateAsset(recipe, path);
+        if (isNew)
+        {
+            recipe = ScriptableObject.CreateInstance<CraftingRecipeData>();
+            AssetDatabase.CreateAsset(recipe, path);
+        }
 
         var so = new SerializedObject(recipe);
         so.FindProperty("outputItem").objectReferenceValue = items[outputKey];
@@ -791,8 +928,9 @@ public static class CraftingContentGenerator
             el.FindPropertyRelative("quantity").intValue = ingredients[i].qty;
         }
         so.ApplyModifiedPropertiesWithoutUndo();
+        EditorUtility.SetDirty(recipe);
 
-        created++;
+        if (isNew) created++; else kept++;
         newRecipes.Add(recipe);
     }
 
@@ -810,12 +948,13 @@ public static class CraftingContentGenerator
         so.ApplyModifiedPropertiesWithoutUndo();
     }
 
-    private static void SetModifier(SerializedProperty mods, StatType stat, float value)
+    private static void SetModifier(SerializedProperty mods, StatType stat, float value, bool percent)
     {
         for (int i = 0; i < mods.arraySize; i++)
         {
             var el = mods.GetArrayElementAtIndex(i);
-            if (el.FindPropertyRelative("stat").enumValueIndex == (int)stat)
+            if (el.FindPropertyRelative("stat").enumValueIndex == (int)stat &&
+                el.FindPropertyRelative("percent").boolValue == percent)
             {
                 el.FindPropertyRelative("value").floatValue = value;
                 return;
@@ -826,6 +965,73 @@ public static class CraftingContentGenerator
         var added = mods.GetArrayElementAtIndex(mods.arraySize - 1);
         added.FindPropertyRelative("stat").enumValueIndex = (int)stat;
         added.FindPropertyRelative("value").floatValue = value;
+        added.FindPropertyRelative("percent").boolValue = percent;
+    }
+
+    /// <summary>Valor del modificador plano de ese stat en el item (o el valor por defecto).</summary>
+    private static float ReadFlatModifier(ItemData item, StatType stat, float fallback)
+    {
+        var so = new SerializedObject(item);
+        var mods = so.FindProperty("modifiers");
+        if (mods == null) return fallback;
+        for (int i = 0; i < mods.arraySize; i++)
+        {
+            var el = mods.GetArrayElementAtIndex(i);
+            if (el.FindPropertyRelative("stat").enumValueIndex == (int)stat &&
+                !el.FindPropertyRelative("percent").boolValue)
+                return el.FindPropertyRelative("value").floatValue;
+        }
+        return fallback;
+    }
+
+    private static void SetRarity(ItemData item, ItemRarity rarity)
+    {
+        var so = new SerializedObject(item);
+        var p = so.FindProperty("rarity");
+        if (p == null)
+        {
+            Debug.LogError("[CraftingContentGenerator] El campo 'rarity' no existe en ItemData. Instala primero los scripts actualizados.");
+            return;
+        }
+        p.enumValueIndex = (int)rarity;
+        so.ApplyModifiedPropertiesWithoutUndo();
+        EditorUtility.SetDirty(item);
+    }
+
+    /// <summary>Borra armas/recetas de versiones anteriores. Devuelve cuantos assets borro.</summary>
+    private static int RemoveLegacyWeapons()
+    {
+        int n = 0;
+        foreach (var key in LegacyWeaponKeys)
+        {
+            if (AssetDatabase.DeleteAsset($"{WeaponsDir}/{key}.asset")) n++;
+            if (AssetDatabase.DeleteAsset($"{RecipesDir}/Recipe_{key}.asset")) n++;
+        }
+        return n;
+    }
+
+    /// <summary>Quita entradas vacias (assets borrados). Seguro mientras no haya partidas guardadas.</summary>
+    private static int CompactDatabase(string dbPath, string listField)
+    {
+        var db = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(dbPath);
+        if (db == null) return 0;
+
+        var so = new SerializedObject(db);
+        var list = so.FindProperty(listField);
+        int removedCount = 0;
+        for (int i = list.arraySize - 1; i >= 0; i--)
+        {
+            if (list.GetArrayElementAtIndex(i).objectReferenceValue != null) continue;
+            list.DeleteArrayElementAtIndex(i);
+            removedCount++;
+        }
+
+        if (removedCount > 0)
+        {
+            so.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(db);
+        }
+        return removedCount;
     }
 
     /// <summary>Agrega al final de la lista los objetos que todavia no estan.</summary>

@@ -16,6 +16,7 @@ MonoBehaviour:
   itemType: 1
   icon: {fileID: 21300000, guid: f6411163e8eb3c244beeac7c25257152, type: 3}
   description: Talisman de cazador. Aumenta el ataque.
+  rarity: 1
   stackable: 1
   maxStack: 99
   healthRestore: 0
@@ -24,7 +25,9 @@ MonoBehaviour:
   modifiers:
   - stat: 0
     value: 6
+    percent: 0
   - stat: 8
     value: 3
+    percent: 0
   allowedClasses:
   - {fileID: 11400000, guid: 9f8dd043d02ed614b8fad63a6b764dd8, type: 2}

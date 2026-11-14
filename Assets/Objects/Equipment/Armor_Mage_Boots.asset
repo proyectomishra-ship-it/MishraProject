@@ -16,6 +16,7 @@ MonoBehaviour:
   itemType: 1
   icon: {fileID: 21300000, guid: b90f9e554c5c5ce4897c829fdb35f51b, type: 3}
   description: Botas ligeras de tela encantada.
+  rarity: 1
   stackable: 1
   maxStack: 99
   healthRestore: 0
@@ -24,9 +25,12 @@ MonoBehaviour:
   modifiers:
   - stat: 2
     value: 1
+    percent: 0
   - stat: 4
     value: 5
+    percent: 0
   - stat: 5
     value: 1
+    percent: 0
   allowedClasses:
   - {fileID: 11400000, guid: 126daa4d55c3ced4a8c7f92e0785719c, type: 2}

@@ -16,6 +16,7 @@ MonoBehaviour:
   itemType: 2
   icon: {fileID: 21300000, guid: 7ce610b47a8d2bd4b96dccf4e40aea20, type: 3}
   description: Metal blando y facil de trabajar.
+  rarity: 0
   stackable: 1
   maxStack: 99
   healthRestore: 0

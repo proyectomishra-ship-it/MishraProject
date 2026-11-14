@@ -16,6 +16,7 @@ MonoBehaviour:
   itemType: 2
   icon: {fileID: 21300000, guid: 9d8e09da57ce102478ee76be783b2a51, type: 3}
   description: Resina fosil de brillo calido.
+  rarity: 1
   stackable: 1
   maxStack: 99
   healthRestore: 0

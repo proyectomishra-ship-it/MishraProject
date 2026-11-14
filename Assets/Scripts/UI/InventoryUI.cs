@@ -100,6 +100,8 @@ public class InventoryUI : MonoBehaviour
     [Header("Cámara de preview")]
     [SerializeField] private InventoryPreviewCamera previewCamera;
 
+    private CharacterStatsPanelUI statsPanel;
+
     // Referencia al binder de la cámara del jugador para pausar el mouse look
     private PlayerCameraBinder cameraBinder;
 
@@ -143,8 +145,14 @@ public class InventoryUI : MonoBehaviour
         // el panel de crafteo funciona igual sin él.
         this.gold = player.GetComponent<GoldController>();
 
-        // Conectar la cámara de preview al jugador local
-        previewCamera?.SetTarget(player.transform);
+        // La camara de preview del personaje se reemplazo por la pantalla de
+        // estadisticas: ocupa el mismo rectangulo y el preview queda apagado.
+        if (characterPreview != null)
+        {
+            statsPanel = CharacterStatsPanelUI.Create(characterPreview.rectTransform, equipmentContainer, player);
+            if (statsPanel != null) characterPreview.gameObject.SetActive(false);
+        }
+        if (previewCamera != null) previewCamera.gameObject.SetActive(false);
 
         // Guardar referencia al PlayerCameraBinder para poder pausar el mouse look
         cameraBinder = player.GetComponent<PlayerCameraBinder>();
@@ -191,6 +199,8 @@ public class InventoryUI : MonoBehaviour
             craftingTabButton.onClick.AddListener(() => SetTab(Tab.Crafting));
         }
 
+        ApplyDetailLayouts();
+
         if (detailPanel != null) detailPanel.SetActive(false);
         if (craftingDetailPanel != null) craftingDetailPanel.SetActive(false);
         if (craftFeedbackText != null) craftFeedbackText.gameObject.SetActive(false);
@@ -198,6 +208,35 @@ public class InventoryUI : MonoBehaviour
         inventoryPanel?.SetActive(false);
 
         Debug.Log("[InventoryUI] Inicializado para jugador local.");
+    }
+
+    /// <summary>Layout limpio de los paneles de detalle (ver InventoryDetailLayout).</summary>
+    private void ApplyDetailLayouts()
+    {
+        if (detailPanel != null)
+            InventoryDetailLayout.ApplyItem(new InventoryDetailLayout.ItemRefs
+            {
+                panel = detailPanel.transform as RectTransform,
+                icon = detailIcon,
+                name = detailName,
+                quantity = detailQuantity,
+                stats = detailStats,
+                description = detailDescription,
+                button = equipButton
+            });
+
+        if (craftingDetailPanel != null)
+            InventoryDetailLayout.ApplyCraft(new InventoryDetailLayout.CraftRefs
+            {
+                panel = craftingDetailPanel.transform as RectTransform,
+                icon = craftingIcon,
+                name = craftingName,
+                description = craftingDescription,
+                gold = goldCostText,
+                feedback = craftFeedbackText,
+                ingredients = ingredientListContainer as RectTransform,
+                button = craftButton
+            });
     }
 
     private void OnDestroy()
@@ -273,8 +312,7 @@ public class InventoryUI : MonoBehaviour
         inventoryPanel?.SetActive(isOpen);
         SetHudVisible(!isOpen);
 
-        if (isOpen) previewCamera?.Show();
-        else previewCamera?.Hide();
+        if (isOpen) statsPanel?.Refresh();
 
         Cursor.lockState = isOpen ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = isOpen;
@@ -466,7 +504,16 @@ public class InventoryUI : MonoBehaviour
             detailIcon.sprite = item.Icon;
             detailIcon.enabled = item.Icon != null;
         }
-        if (detailName != null) detailName.text = item.ItemName;
+        RarityFrame.Apply(detailIcon != null ? detailIcon.transform : null, item);
+
+        if (detailName != null)
+        {
+            detailName.text = item.ItemName;
+            // El nombre toma el color de la rareza (los items comunes quedan neutros).
+            detailName.color = item.Rarity == ItemRarity.Common && UITheme.Current != null
+                ? UITheme.Current.textAccent
+                : RarityFrame.ColorOf(item.Rarity);
+        }
 
         // Estadisticas del item (armas y equipamiento). Vacio para el resto.
         string stats = BuildItemStats(item);
@@ -542,8 +589,8 @@ public class InventoryUI : MonoBehaviour
     private static string BuildConsumableStats(ItemData item)
     {
         var sb = new StringBuilder();
-        if (item.HealthRestore > 0f) AppendLine(sb, $"Restaura {item.HealthRestore:0} de vida");
-        if (item.ManaRestore > 0f) AppendLine(sb, $"Restaura {item.ManaRestore:0} de maná");
+        if (item.HealthRestore > 0f) AppendLine(sb, $"Vida<pos=62%>+{item.HealthRestore:0}");
+        if (item.ManaRestore > 0f) AppendLine(sb, $"Maná<pos=62%>+{item.ManaRestore:0}");
         return sb.ToString();
     }
 
@@ -559,12 +606,20 @@ public class InventoryUI : MonoBehaviour
         if (item is not IEquippable equippable) return "";
 
         var sb = new StringBuilder();
+        AppendLine(sb, RarityLine(item));
         AppendModifiers(sb, equippable.Modifiers);
 
         string classes = equippable.AllowedClassesLabel();
-        if (!string.IsNullOrEmpty(classes)) AppendLine(sb, $"Clase: {classes}");
+        if (!string.IsNullOrEmpty(classes)) AppendLine(sb, $"Clase<pos=62%>{classes}");
 
         return sb.ToString().TrimEnd('\n');
+    }
+
+    /// <summary>Linea de rareza con el color del tema (rich text de TMP).</summary>
+    private static string RarityLine(ItemData item)
+    {
+        string hex = ColorUtility.ToHtmlStringRGB(RarityFrame.ColorOf(item.Rarity));
+        return $"<color=#{hex}>{item.Rarity.DisplayName()}</color>";
     }
 
     private static void AppendModifiers(StringBuilder sb, List<StatModifier> modifiers)
@@ -575,7 +630,8 @@ public class InventoryUI : MonoBehaviour
         {
             if (mod == null) continue;
             string sign = mod.value >= 0f ? "+" : "";
-            AppendLine(sb, $"{StatLabel(mod.stat)}: {sign}{Fmt(mod.value)}");
+            string amount = mod.percent ? Fmt(mod.value * 100f) + " %" : Fmt(mod.value);
+            AppendLine(sb, $"{StatLabel(mod.stat)}<pos=62%><color=#{ColorUtility.ToHtmlStringRGB(UITheme.Current != null ? UITheme.Current.textAccent : Color.white)}>{sign}{amount}</color>");
         }
     }
 
@@ -711,7 +767,15 @@ public class InventoryUI : MonoBehaviour
             craftingIcon.sprite = output != null ? output.Icon : null;
             craftingIcon.enabled = output != null && output.Icon != null;
         }
-        if (craftingName != null) craftingName.text = output != null ? output.ItemName : "???";
+        RarityFrame.Apply(craftingIcon != null ? craftingIcon.transform : null, output);
+        if (craftingName != null)
+        {
+            craftingName.text = output != null ? output.ItemName : "???";
+            if (output != null)
+                craftingName.color = output.Rarity == ItemRarity.Common && UITheme.Current != null
+                    ? UITheme.Current.textAccent
+                    : RarityFrame.ColorOf(output.Rarity);
+        }
         if (craftingDescription != null) craftingDescription.text = output != null ? output.Description : "";
 
         BuildIngredientList(recipe);
