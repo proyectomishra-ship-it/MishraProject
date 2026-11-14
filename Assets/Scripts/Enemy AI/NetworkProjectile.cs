@@ -1,4 +1,5 @@
 ﻿
+using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 
@@ -19,6 +20,15 @@ public class NetworkProjectile : NetworkBehaviour
 
     private bool hasHit;
     private bool isDespawning;
+
+    // Mejoras de pasivas de clase (las configura la pasiva antes de hacer aparecer el proyectil).
+    private float explosionRadius;
+    private float explosionDamagePercent;
+    private Color explosionColor = Color.white;
+    private bool explosionHurtsPlayers;
+
+    private bool pierce;
+    private readonly HashSet<Character> piercedTargets = new HashSet<Character>();
 
     // =========================
     // INITIALIZATION
@@ -55,6 +65,7 @@ public class NetworkProjectile : NetworkBehaviour
         timer = 0f;
         hasHit = false;
         isDespawning = false;
+        piercedTargets.Clear();
     }
 
     public override void OnNetworkDespawn()
@@ -75,6 +86,8 @@ public class NetworkProjectile : NetworkBehaviour
     {
         if (!IsSpawned)
             return;
+        
+        Vector3 previousPosition = transform.position;   // <-- NUEVO (antes del movimiento)
 
         // El movimiento se simula en todas las instancias.
         transform.position +=
@@ -82,6 +95,10 @@ public class NetworkProjectile : NetworkBehaviour
 
         // Lifetime exclusivamente del servidor.
         if (!IsServer || isDespawning)
+            return;
+
+        // Flecha explosiva: detona al chocar con cualquier superficie sólida.   // <-- NUEVO
+        if (explosionRadius > 0f && !hasHit && CheckSurfaceImpact(previousPosition))
             return;
 
         timer += Time.deltaTime;
@@ -125,15 +142,110 @@ public class NetworkProjectile : NetworkBehaviour
         if (receiver == null)
             return;
 
-        // Evita procesar más de un impacto antes del despawn.
-        hasHit = true;
+        if (pierce)
+        {
+            // Atraviesa: cada enemigo recibe un solo impacto.
+            if (!piercedTargets.Add(target))
+                return;
+        }
+        else
+        {
+            // Evita procesar más de un impacto antes del despawn.
+            hasHit = true;
+        }
 
         Debug.Log(
             $"<color=red>[Projectile] HIT {target.name} recibe {damage}</color>");
 
         receiver.TakeDamage(damage, owner);
 
+        if (explosionRadius > 0f)
+            Explode(target);
+
+        if (!pierce)
+            Despawn();
+    }
+
+    // =========================
+    // PASIVAS DE CLASE
+    // =========================
+
+    /// <summary>Servidor: el proyectil explota al impactar dañando el área.</summary>
+    public void SetExplosion(float radius, float damagePercent, Color color, bool hurtPlayers)
+    {
+        explosionRadius = radius;
+        explosionDamagePercent = damagePercent;
+        explosionColor = color;
+        explosionHurtsPlayers = hurtPlayers;
+    }
+
+    /// <summary>Servidor: el proyectil atraviesa enemigos en vez de detenerse en el primero.</summary>
+    public void SetPierce(bool value)
+    {
+        pierce = value;
+    }
+
+    private void Explode(Character directTarget)
+    {
+        ExplodeAt(transform.position, directTarget);
+
+    }
+
+    private void ExplodeAt(Vector3 center, Character directTarget)
+    {
+        var targets = SpecialAbilityEffects.FindEnemiesInRadius(
+            owner, center, explosionRadius, damageLayers);
+
+        // El enemigo golpeado ya recibió el daño completo de la flecha.
+        if (directTarget != null)
+            targets.Remove(directTarget);
+
+        if (!explosionHurtsPlayers)
+            targets.RemoveAll(t => t is Player);
+
+        SpecialAbilityEffects.ApplyDamage(targets, owner, damage * explosionDamagePercent);
+
+        if (owner is Player shooter)
+            shooter.PlayImpactVfx(center, explosionRadius, explosionColor);
+    }
+
+    private bool CheckSurfaceImpact(Vector3 previousPosition)
+    {
+        Vector3 delta = transform.position - previousPosition;
+        float distance = delta.magnitude;
+
+        if (distance < 0.0001f)
+            return false;
+
+        RaycastHit[] hits = Physics.RaycastAll(
+            previousPosition, delta / distance, distance, ~0, QueryTriggerInteraction.Ignore);
+
+        bool found = false;
+        RaycastHit best = default;
+
+        foreach (RaycastHit hit in hits)
+        {
+            // Personajes (incluido el tirador): los maneja OnTriggerEnter.
+            if (hit.collider.GetComponentInParent<Character>() != null)
+                continue;
+
+            if (!found || hit.distance < best.distance)
+            {
+                best = hit;
+                found = true;
+            }
+        }
+
+        if (!found)
+            return false;
+
+        hasHit = true;
+
+        // Se separa un poco de la superficie para que el área no quede medio enterrada.
+        ExplodeAt(best.point + best.normal * 0.1f, null);
         Despawn();
+
+        return true;
     }
 
     // =========================

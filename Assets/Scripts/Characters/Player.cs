@@ -20,6 +20,7 @@ public class Player : Character
 
     private PlayerRespawnController respawnController;
     private PlayerAnimationController animationController;
+    private CharacterStatsSyncController levelSync;
 
     [Header("Efecto de subida de nivel")]
     [SerializeField] private bool levelUpVfxEnabled = true;
@@ -37,6 +38,25 @@ public class Player : Character
     /// <summary>Datos de la clase (stats por nivel, arma inicial, habilidad especial).</summary>
     public PlayerClassData ClassData => classData;
 
+    /// <summary>
+    /// Nivel actual, válido en servidor y en clientes
+    /// (en clientes se lee del valor sincronizado por red).
+    /// </summary>
+    public int CurrentLevel
+    {
+        get
+        {
+            if (stats == null)
+                return 1;
+
+            if (IsServer || levelSync == null)
+                return stats.Level;
+
+            int net = levelSync.NetLevel.Value;
+            return net > 0 ? net : stats.Level;
+        }
+    }
+
     // =====================================================
     // LIFECYCLE
     // =====================================================
@@ -52,6 +72,7 @@ public class Player : Character
         craftingController = GetComponent<CraftingController>();
         respawnController = GetComponent<PlayerRespawnController>();
         animationController = GetComponent<PlayerAnimationController>();
+        levelSync = GetComponent<CharacterStatsSyncController>();
 
         if (goldController == null)
             Debug.LogError("[Player] Falta GoldController");
@@ -159,6 +180,19 @@ public class Player : Character
             lastLevelUpLevel = newLevel;
             PlayLevelUpClientRpc(newLevel);
         }
+    }
+
+    /// <summary>Servidor: onda de choque visual en un punto (explosiones de pasivas), en todos los clientes.</summary>
+    public void PlayImpactVfx(Vector3 position, float radius, Color color)
+    {
+        if (IsServer)
+            PlayImpactVfxClientRpc(position, radius, color);
+    }
+
+    [ClientRpc]
+    private void PlayImpactVfxClientRpc(Vector3 position, float radius, Color color)
+    {
+        SpecialAbilityVfx.PlayShockwave(position, radius, color);
     }
 
     /// <summary>Efecto visual de subida de nivel, en todos los clientes.</summary>

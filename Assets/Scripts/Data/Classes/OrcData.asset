@@ -15,7 +15,7 @@ MonoBehaviour:
   attack: 55
   attackRange: 4
   defense: 30
-  maxHealth: 45
+  maxHealth: 200
   maxMana: 0
   speed: 7
   agility: 10
@@ -27,6 +27,13 @@ MonoBehaviour:
   luck: 0
   baseLevel: 5
   weaponType: 0
+  levelScaling:
+  - stat: 3
+    percentPerLevel: 0.1
+  - stat: 0
+    percentPerLevel: 0.06
+  - stat: 2
+    percentPerLevel: 0.04
   attackType: 0
   attackCooldown: 1.5
   heavyAttackCooldown: 1.8

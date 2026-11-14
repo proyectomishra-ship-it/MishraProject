@@ -79,6 +79,7 @@ public class RangedWeaponBehavior :
             attacker,
             direction,
             attacker.GetStats().Attack.Value,
+            true,
             true);
     }
 
@@ -92,6 +93,7 @@ public class RangedWeaponBehavior :
             attacker,
             direction,
             attacker.GetStats().Attack.Value * multiplier,
+            true,
             true);
     }
 
@@ -163,7 +165,8 @@ public class RangedWeaponBehavior :
         Character attacker,
         Vector3 direction,
         float damage,
-        bool isDirection)
+        bool isDirection,
+        bool allowClassPassive = false)
     {
         if (!NetworkManager.Singleton ||
             !NetworkManager.Singleton.IsServer)
@@ -200,6 +203,17 @@ public class RangedWeaponBehavior :
 
             Object.Destroy(obj);
             return;
+        }
+
+        // Pasiva de clase (flecha explosiva, bola de fuego grande...): solo ataques
+        // básicos y pesados del jugador, y solo si ya alcanzó el nivel de la pasiva.
+        if (allowClassPassive && attacker is Player shooter)
+        {
+            PassiveAbility passive =
+                shooter.ClassData != null ? shooter.ClassData.Passive : null;
+
+            if (passive != null && shooter.GetStats().Level >= passive.UnlockLevel)
+                passive.ConfigureProjectile(shooter, obj, projectile, ref damage);
         }
 
         netObj.Spawn();
