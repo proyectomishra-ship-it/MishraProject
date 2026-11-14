@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9796b53632579334da73cee39686182d, type: 3}
+  m_Name: Armor_Leather_Boots
+  m_EditorClassIdentifier: Assembly-CSharp::EquipmentData
+  itemName: Botas de Cuero
+  itemType: 1
+  icon: {fileID: 21300000, guid: 8d7ae183e8b607c498839f84adbc423b, type: 3}
+  description: Botas livianas para moverse rapido.
+  stackable: 1
+  maxStack: 99
+  healthRestore: 0
+  manaRestore: 0
+  slot: 4
+  modifiers:
+  - stat: 2
+    value: 2
+  - stat: 6
+    value: 2
+  - stat: 5
+    value: 1
+  allowedClasses:
+  - {fileID: 11400000, guid: 9f8dd043d02ed614b8fad63a6b764dd8, type: 2}

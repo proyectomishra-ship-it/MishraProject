@@ -17,7 +17,12 @@ public class EquipmentData : ItemData, IEquippable
     [Header("Stats")]
     [SerializeField] private List<StatModifier> modifiers = new();
 
+    [Header("Restricción de clase")]
+    [Tooltip("Clases que pueden equiparlo. Vacío = cualquier clase.")]
+    [SerializeField] private List<PlayerClassData> allowedClasses = new();
+
     // ── IEquippable ──────────────────────────────────────────────────────────
-    public EquipmentSlot      Slot      => slot;
+    public EquipmentSlot Slot => slot;
     public List<StatModifier> Modifiers => modifiers;
+    public IReadOnlyList<PlayerClassData> AllowedClasses => allowedClasses;
 }

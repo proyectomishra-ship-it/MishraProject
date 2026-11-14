@@ -20,6 +20,10 @@ public class WeaponData : ItemData, IEquippable
     [Header("Slot y Stats")]
     [SerializeField] private List<StatModifier> modifiers = new();
 
+    [Header("Restricción de clase")]
+    [Tooltip("Clases que pueden equiparla. Vacío = cualquier clase.")]
+    [SerializeField] private List<PlayerClassData> allowedClasses = new();
+
     // =========================================================
     // WEAPON TYPE
     // =========================================================
@@ -111,6 +115,8 @@ public class WeaponData : ItemData, IEquippable
     public EquipmentSlot Slot => EquipmentSlot.Weapon;
 
     public List<StatModifier> Modifiers => modifiers;
+
+    public IReadOnlyList<PlayerClassData> AllowedClasses => allowedClasses;
 
     public WeaponType WeaponType => weaponType;
 

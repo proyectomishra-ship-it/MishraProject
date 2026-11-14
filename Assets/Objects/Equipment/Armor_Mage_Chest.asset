@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9796b53632579334da73cee39686182d, type: 3}
+  m_Name: Armor_Mage_Chest
+  m_EditorClassIdentifier: Assembly-CSharp::EquipmentData
+  itemName: Peto de Mago
+  itemType: 1
+  icon: {fileID: 21300000, guid: dcdd1997586bf1a4d8b68675d5a361c9, type: 3}
+  description: Tunica con runas bordadas.
+  stackable: 1
+  maxStack: 99
+  healthRestore: 0
+  manaRestore: 0
+  slot: 2
+  modifiers:
+  - stat: 2
+    value: 3
+  - stat: 4
+    value: 20
+  - stat: 9
+    value: 4
+  allowedClasses:
+  - {fileID: 11400000, guid: 126daa4d55c3ced4a8c7f92e0785719c, type: 2}

@@ -25,6 +25,8 @@ MonoBehaviour:
     value: 25
   - stat: 1
     value: 2
+  allowedClasses:
+  - {fileID: 11400000, guid: 9f8dd043d02ed614b8fad63a6b764dd8, type: 2}
   weaponType: 2
   attackSpeed: 1
   weaponVisualPrefab: {fileID: 9020497846650794629, guid: 76ecdb02610e68c4e968b31ee42fa5ad, type: 3}

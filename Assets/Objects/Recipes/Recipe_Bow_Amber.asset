@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0927619a7b3844f79ca6f8fa595261f9, type: 3}
+  m_Name: Recipe_Bow_Amber
+  m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipeData
+  outputItem: {fileID: 11400000, guid: 35ce9499d297e4f4b84f860dd7956ebc, type: 2}
+  outputQuantity: 1
+  ingredients:
+  - item: {fileID: 11400000, guid: 6e53b340d0f75a54ab7ca2f6afd49623, type: 2}
+    quantity: 6
+  - item: {fileID: 11400000, guid: 3b1b495acc79755438201839b02cbff9, type: 2}
+    quantity: 3
+  - item: {fileID: 11400000, guid: ea25a7dee28fa9243af8eb0f2bcc05e1, type: 2}
+    quantity: 2
+  goldCost: 150

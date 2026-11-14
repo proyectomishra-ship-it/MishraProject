@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0927619a7b3844f79ca6f8fa595261f9, type: 3}
+  m_Name: Recipe_Armor_Leather_Helmet
+  m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipeData
+  outputItem: {fileID: 11400000, guid: 2d1e026e3b723b54c9a109d37d07c3ee, type: 2}
+  outputQuantity: 1
+  ingredients:
+  - item: {fileID: 11400000, guid: 6e53b340d0f75a54ab7ca2f6afd49623, type: 2}
+    quantity: 3
+  - item: {fileID: 11400000, guid: fabf90ecbb571cf418c8103d466ae449, type: 2}
+    quantity: 1
+  goldCost: 10

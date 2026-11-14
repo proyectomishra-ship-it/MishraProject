@@ -4,23 +4,23 @@ using Unity.Netcode;
 
 public class CombatController : NetworkBehaviour
 {
-    private Character           character;
-    private CharacterStats      stats;
+    private Character character;
+    private CharacterStats stats;
     private EquipmentController equipmentController;
 
     [Header("Fallback — sin arma equipada")]
     [SerializeField] private float heavyAttackMultiplier = 2f;
-    [SerializeField] private float holdThreshold         = 0.4f;
+    [SerializeField] private float holdThreshold = 0.4f;
 
     [Header("Validación de hit")]
-    [SerializeField] private float     attackConeAngle  = 60f;
-    [SerializeField] private float     sphereCastRadius = 0.8f;
+    [SerializeField] private float attackConeAngle = 60f;
+    [SerializeField] private float sphereCastRadius = 0.8f;
     [SerializeField] private LayerMask enemyLayer;
 
 
-    private float attackHeldTime  = 0f;
-    private bool  isHoldingAttack = false;
-    private bool  heavyConsumed   = false;
+    private float attackHeldTime = 0f;
+    private bool isHoldingAttack = false;
+    private bool heavyConsumed = false;
 
     // =========================
     // INIT
@@ -28,8 +28,8 @@ public class CombatController : NetworkBehaviour
 
     public void Initialize(Character character)
     {
-        this.character      = character;
-        this.stats          = character.GetStats();
+        this.character = character;
+        this.stats = character.GetStats();
         equipmentController = character.GetEquipment();
     }
 
@@ -65,8 +65,8 @@ public class CombatController : NetworkBehaviour
         if (!IsServer) return;
 
         isHoldingAttack = true;
-        attackHeldTime  = 0f;
-        heavyConsumed   = false;
+        attackHeldTime = 0f;
+        heavyConsumed = false;
     }
 
     public void OnAttackHeld(float deltaTime)
@@ -78,7 +78,7 @@ public class CombatController : NetworkBehaviour
         if (attackHeldTime >= GetEffectiveHoldThreshold())
         {
             PerformAttack(heavy: true);
-            heavyConsumed   = true;
+            heavyConsumed = true;
             isHoldingAttack = false;
         }
     }
@@ -127,6 +127,9 @@ public class CombatController : NetworkBehaviour
 
         var behavior = GetCurrentBehavior();
 
+        // Audio: avisa a todos los clientes para que suene el ataque (si el prefab tiene CharacterAudio).
+        GetComponent<CharacterAudio>()?.PlayAttackOnAllClients(heavy ? AttackSoundKind.Heavy : AttackSoundKind.Light);
+
         if (heavy)
             behavior.PerformHeavyAttack(character, target, GetHeavyMultiplier());
         else
@@ -149,6 +152,9 @@ public class CombatController : NetworkBehaviour
             Debug.LogWarning($"[Combat] {character.name}: SpecialAttack spherecast falló");
             return;
         }
+
+        // Audio: avisa a todos los clientes para que suene el ataque especial.
+        GetComponent<CharacterAudio>()?.PlayAttackOnAllClients(AttackSoundKind.Special);
 
         GetCurrentBehavior().PerformSpecialAttack(character, target);
         Debug.Log($"[Combat] SPECIAL {character.name} → {target.name}");
@@ -174,10 +180,10 @@ public class CombatController : NetworkBehaviour
 
     private bool ValidateHitWithSphereCast(Character target)
     {
-        Vector3 origin    = transform.position + Vector3.up * 1.0f;
+        Vector3 origin = transform.position + Vector3.up * 1.0f;
         Vector3 targetPos = target.transform.position + Vector3.up * 1.0f;
-        Vector3 dir       = (targetPos - origin).normalized;
-        float   distance  = Vector3.Distance(origin, targetPos);
+        Vector3 dir = (targetPos - origin).normalized;
+        float distance = Vector3.Distance(origin, targetPos);
 
         float castRange = distance + 0.5f;
 
@@ -190,7 +196,7 @@ public class CombatController : NetworkBehaviour
                 out RaycastHit hit,
                 castRange,
                 enemyLayer,
-                QueryTriggerInteraction.Collide))   
+                QueryTriggerInteraction.Collide))
         {
             Character hitChar = hit.collider.GetComponentInParent<Character>();
             Debug.Log($"[Combat] SphereCast hit: {hit.collider.name}");
@@ -217,6 +223,6 @@ public class CombatController : NetworkBehaviour
     // =========================
 
 
-    public void Attack()  => AttackDirect(heavy: false);
+    public void Attack() => AttackDirect(heavy: false);
     public void SpecialAttack() => SpecialAttackDirect();
 }

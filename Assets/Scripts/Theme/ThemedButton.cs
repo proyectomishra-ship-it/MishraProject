@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
@@ -10,7 +11,7 @@ using UnityEngine.UI;
 /// </summary>
 [RequireComponent(typeof(Button))]
 [ExecuteAlways]
-public class ThemedButton : MonoBehaviour
+public class ThemedButton : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler
 {
     private Button button;
 
@@ -24,6 +25,19 @@ public class ThemedButton : MonoBehaviour
 
     private void OnValidate() => Apply();
 
+    // Sonidos de interfaz (se configuran en Resources/AudioConfig.asset).
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (Application.isPlaying && button != null && button.IsInteractable())
+            AudioManager.PlayUI(UISound.Hover);
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (Application.isPlaying && button != null && button.IsInteractable())
+            AudioManager.PlayUI(UISound.Click);
+    }
+
     public void Apply()
     {
         var theme = UITheme.Current;
@@ -35,13 +49,13 @@ public class ThemedButton : MonoBehaviour
         button.transition = Selectable.Transition.ColorTint;
 
         var colors = button.colors;
-        colors.normalColor      = theme.stoneMid;
+        colors.normalColor = theme.stoneMid;
         colors.highlightedColor = theme.bronze;
-        colors.pressedColor     = theme.stoneDark;
-        colors.selectedColor    = theme.stoneMid;   // evita quedarse "iluminado" tras el click
-        colors.disabledColor    = new Color(theme.textMuted.r, theme.textMuted.g, theme.textMuted.b, 0.5f);
-        colors.colorMultiplier  = 1f;
-        colors.fadeDuration     = 0.1f;
+        colors.pressedColor = theme.stoneDark;
+        colors.selectedColor = theme.stoneMid;   // evita quedarse "iluminado" tras el click
+        colors.disabledColor = new Color(theme.textMuted.r, theme.textMuted.g, theme.textMuted.b, 0.5f);
+        colors.colorMultiplier = 1f;
+        colors.fadeDuration = 0.1f;
         button.colors = colors;
 
         // El Color Tint se multiplica por el color de la Image: debe ser blanco.

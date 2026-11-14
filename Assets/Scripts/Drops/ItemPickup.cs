@@ -153,8 +153,10 @@ public class ItemPickup : NetworkBehaviour
         {
             var equipment = player.GetEquipment();
 
+            // Solo se auto-equipa si la clase del jugador puede usarlo.
             if (equipment != null &&
-                !equipment.IsOccupied(equippable.Slot))
+                !equipment.IsOccupied(equippable.Slot) &&
+                equippable.CanBeUsedBy(player.ClassData))
             {
                 equipment.Equip(equippable);
             }
