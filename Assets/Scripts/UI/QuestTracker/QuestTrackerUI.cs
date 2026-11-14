@@ -1,8 +1,25 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+using UnityEngine.UI;
 using TMPro;
 
+/// <summary>
+/// Tablero de misiones (principal y secundaria).
+///
+/// Tiene dos vistas que se alternan con una tecla (por defecto J):
+///   - Compacta: título + objetivo con su progreso.
+///   - Completa: además el nombre de la misión y la recompensa.
+/// La vista elegida se recuerda entre sesiones (PlayerPrefs).
+///
+/// Los paneles se ajustan solos al contenido (VerticalLayoutGroup +
+/// ContentSizeFitter agregados en Awake si no existen) y el panel secundario
+/// se coloca justo debajo del principal, sin superponerse.
+/// </summary>
 public class QuestTrackerUI : MonoBehaviour
 {
+    private const string ExpandedPrefKey = "Mishra.QuestTracker.Expanded";
+
     [Header("UI References")]
     [SerializeField] private GameObject questTrackerPanel;
     [SerializeField] private TMP_Text questTitleText;
@@ -11,13 +28,50 @@ public class QuestTrackerUI : MonoBehaviour
     [SerializeField] private TMP_Text questRewardsText;
 
     [Header("Side Quest (opcional)")]
-    [Tooltip("Si se deja vaci­o, las misiones secundarias no se muestran.")]
+    [Tooltip("Si se deja vacío, las misiones secundarias no se muestran.")]
     [SerializeField] private GameObject sideQuestPanel;
     [SerializeField] private TMP_Text sideQuestNameText;
     [SerializeField] private TMP_Text sideQuestObjectivesText;
     [SerializeField] private TMP_Text sideQuestRewardsText;
 
+    [Header("Vista compacta / completa")]
+    [Tooltip("Tecla para alternar entre la vista compacta y la completa.")]
+    [SerializeField] private Key toggleKey = Key.J;
+
+    [Tooltip("Vista con la que arranca la primera vez. Después se recuerda la última elegida.")]
+    [SerializeField] private bool startExpanded = false;
+
+    [Header("Diseño")]
+    [SerializeField] private float paddingHorizontal = 15f;
+    [SerializeField] private float paddingVertical = 12f;
+    [SerializeField] private float lineSpacing = 4f;
+    [Tooltip("Separación entre el panel principal y el secundario.")]
+    [SerializeField] private float panelGap = 8f;
+
     private NetworkQuestManager questManager;
+    private bool expanded;
+    private RectTransform mainRect;
+    private RectTransform sideRect;
+
+    // =========================================================
+    // CICLO DE VIDA
+    // =========================================================
+
+    private void Awake()
+    {
+        expanded = PlayerPrefs.GetInt(ExpandedPrefKey, startExpanded ? 1 : 0) == 1;
+
+        mainRect = questTrackerPanel != null
+            ? questTrackerPanel.transform as RectTransform
+            : null;
+
+        sideRect = sideQuestPanel != null
+            ? sideQuestPanel.transform as RectTransform
+            : null;
+
+        EnsureAutoLayout(mainRect);
+        EnsureAutoLayout(sideRect);
+    }
 
     private void OnEnable()
     {
@@ -43,6 +97,13 @@ public class QuestTrackerUI : MonoBehaviour
         {
             TryInitialize();
         }
+
+        if (Keyboard.current != null &&
+            Keyboard.current[toggleKey].wasPressedThisFrame &&
+            !IsTypingInInputField())
+        {
+            SetExpanded(!expanded);
+        }
     }
 
     private void TryInitialize()
@@ -66,12 +127,144 @@ public class QuestTrackerUI : MonoBehaviour
         RefreshUI();
     }
 
+    // =========================================================
+    // VISTA COMPACTA / COMPLETA
+    // =========================================================
+
+    private void SetExpanded(bool value)
+    {
+        expanded = value;
+
+        PlayerPrefs.SetInt(ExpandedPrefKey, expanded ? 1 : 0);
+
+        RefreshUI();
+    }
+
+    private static bool IsTypingInInputField()
+    {
+        EventSystem es = EventSystem.current;
+
+        if (es == null || es.currentSelectedGameObject == null)
+        {
+            return false;
+        }
+
+        return es.currentSelectedGameObject.GetComponent<TMP_InputField>() != null;
+    }
+
+    private string BuildToggleHint()
+    {
+        UITheme theme = UITheme.Current;
+
+        string hex = theme != null
+            ? ColorUtility.ToHtmlStringRGB(theme.textMuted)
+            : "9C927C";
+
+        return "  <size=55%><color=#" + hex + ">[" + toggleKey + "] " +
+               (expanded ? "reducir" : "ampliar") +
+               "</color></size>";
+    }
+
+    // =========================================================
+    // LAYOUT
+    // =========================================================
+
+    private void EnsureAutoLayout(RectTransform panel)
+    {
+        if (panel == null)
+        {
+            return;
+        }
+
+        if (panel.GetComponent<VerticalLayoutGroup>() == null)
+        {
+            VerticalLayoutGroup group =
+                panel.gameObject.AddComponent<VerticalLayoutGroup>();
+
+            group.padding = new RectOffset(
+                Mathf.RoundToInt(paddingHorizontal),
+                Mathf.RoundToInt(paddingHorizontal),
+                Mathf.RoundToInt(paddingVertical),
+                Mathf.RoundToInt(paddingVertical));
+
+            group.spacing = lineSpacing;
+            group.childAlignment = TextAnchor.UpperLeft;
+            group.childControlWidth = true;
+            group.childControlHeight = true;
+            group.childForceExpandWidth = true;
+            group.childForceExpandHeight = false;
+        }
+
+        if (panel.GetComponent<ContentSizeFitter>() == null)
+        {
+            ContentSizeFitter fitter =
+                panel.gameObject.AddComponent<ContentSizeFitter>();
+
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        }
+    }
+
+    /// <summary>
+    /// Recalcula el tamaño de ambos paneles y coloca el secundario justo
+    /// debajo del principal (los dos están anclados arriba a la izquierda).
+    /// </summary>
+    private void RefreshLayout()
+    {
+        if (mainRect != null && mainRect.gameObject.activeInHierarchy)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(mainRect);
+        }
+
+        if (sideRect != null && sideRect.gameObject.activeInHierarchy)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(sideRect);
+        }
+
+        if (mainRect != null && sideRect != null)
+        {
+            Vector2 position = sideRect.anchoredPosition;
+
+            position.y = mainRect.anchoredPosition.y
+                         - mainRect.rect.height
+                         - panelGap;
+
+            sideRect.anchoredPosition = position;
+        }
+    }
+
+    /// <summary>
+    /// Asigna el texto y muestra u oculta la línea. Una línea oculta
+    /// no ocupa espacio en el layout.
+    /// </summary>
+    private static void SetLine(TMP_Text label, string text, bool visible)
+    {
+        if (label == null)
+        {
+            return;
+        }
+
+        label.text = text;
+
+        bool show = visible && !string.IsNullOrEmpty(text);
+
+        if (label.gameObject.activeSelf != show)
+        {
+            label.gameObject.SetActive(show);
+        }
+    }
+
+    // =========================================================
+    // REFRESCO
+    // =========================================================
+
     private void RefreshUI()
     {
         if (questManager == null)
         {
             ClearQuest();
             ClearSideQuest();
+            RefreshLayout();
             return;
         }
 
@@ -96,6 +289,8 @@ public class QuestTrackerUI : MonoBehaviour
         {
             ClearSideQuest();
         }
+
+        RefreshLayout();
     }
 
     private void ShowSideQuest(
@@ -105,14 +300,9 @@ public class QuestTrackerUI : MonoBehaviour
         if (sideQuestPanel != null && !sideQuestPanel.activeSelf)
             sideQuestPanel.SetActive(true);
 
-        if (sideQuestNameText != null)
-            sideQuestNameText.text = questData.questName;
-
-        if (sideQuestObjectivesText != null)
-            sideQuestObjectivesText.text = BuildObjectiveText(questData, questState);
-
-        if (sideQuestRewardsText != null)
-            sideQuestRewardsText.text = BuildRewardText(questData);
+        SetLine(sideQuestNameText, questData.questName, expanded);
+        SetLine(sideQuestObjectivesText, BuildObjectiveText(questData, questState), true);
+        SetLine(sideQuestRewardsText, BuildRewardText(questData), expanded);
     }
 
     private void ClearSideQuest()
@@ -120,14 +310,9 @@ public class QuestTrackerUI : MonoBehaviour
         if (sideQuestPanel != null && sideQuestPanel.activeSelf)
             sideQuestPanel.SetActive(false);
 
-        if (sideQuestNameText != null)
-            sideQuestNameText.text = string.Empty;
-
-        if (sideQuestObjectivesText != null)
-            sideQuestObjectivesText.text = string.Empty;
-
-        if (sideQuestRewardsText != null)
-            sideQuestRewardsText.text = string.Empty;
+        SetLine(sideQuestNameText, string.Empty, false);
+        SetLine(sideQuestObjectivesText, string.Empty, false);
+        SetLine(sideQuestRewardsText, string.Empty, false);
     }
 
     private void ShowQuest(
@@ -140,51 +325,23 @@ public class QuestTrackerUI : MonoBehaviour
             questTrackerPanel.SetActive(true);
         }
 
-        if (questTitleText != null)
-        {
-            questTitleText.text = "Misión principal";
-        }
-
-        if (questNameText != null)
-        {
-            questNameText.text = questData.questName;
-        }
-
-        if (questObjectivesText != null)
-        {
-            questObjectivesText.text = BuildObjectiveText(
-                questData,
-                questState);
-        }
-
-        if (questRewardsText != null)
-        {
-            questRewardsText.text = BuildRewardText(questData);
-        }
+        SetLine(questTitleText, "Misión principal" + BuildToggleHint(), true);
+        SetLine(questNameText, questData.questName, expanded);
+        SetLine(questObjectivesText, BuildObjectiveText(questData, questState), true);
+        SetLine(questRewardsText, BuildRewardText(questData), expanded);
     }
 
     private void ClearQuest()
     {
-        if (questTitleText != null)
-        {
-            questTitleText.text = "No hay misiones activas";
-        }
-
-        if (questNameText != null)
-        {
-            questNameText.text = string.Empty;
-        }
-
-        if (questObjectivesText != null)
-        {
-            questObjectivesText.text = string.Empty;
-        }
-
-        if (questRewardsText != null)
-        {
-            questRewardsText.text = string.Empty;
-        }
+        SetLine(questTitleText, "No hay misiones activas", true);
+        SetLine(questNameText, string.Empty, false);
+        SetLine(questObjectivesText, string.Empty, false);
+        SetLine(questRewardsText, string.Empty, false);
     }
+
+    // =========================================================
+    // TEXTOS
+    // =========================================================
 
     private string BuildObjectiveText(
         QuestData questData,
@@ -251,14 +408,16 @@ public class QuestTrackerUI : MonoBehaviour
                 case QuestRewardType.Item:
                     if (reward.item != null)
                     {
-                        result += reward.item.name +
-                                  " x" +
-                                  reward.amount;
+                        // ItemName es el nombre visible; .name es el del asset.
+                        string itemName = !string.IsNullOrEmpty(reward.item.ItemName)
+                            ? reward.item.ItemName
+                            : reward.item.name;
+
+                        result += itemName + " x" + reward.amount;
                     }
                     else
                     {
-                        result += "Objeto x" +
-                                  reward.amount;
+                        result += "Objeto x" + reward.amount;
                     }
 
                     break;

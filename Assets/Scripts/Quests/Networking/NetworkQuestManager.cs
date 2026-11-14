@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Netcode;
@@ -61,8 +61,8 @@ public class NetworkQuestManager : NetworkBehaviour
 
         networkQuests.OnListChanged += OnNetworkQuestListChanged;
 
-        // Avisamos a cualquier sistema que ya esté esperando
-        // información de las misiones.
+        // Avisamos a cualquier sistema que ya estï¿½ esperando
+        // informaciï¿½n de las misiones.
         OnQuestDataChanged?.Invoke();
     }
 
@@ -136,7 +136,7 @@ public class NetworkQuestManager : NetworkBehaviour
 
             if (quest.questType == QuestType.Main)
             {
-                // La primera misión principal comienza activa.
+                // La primera misiï¿½n principal comienza activa.
                 // Las siguientes quedan bloqueadas hasta que
                 // la anterior sea completada.
                 if (!mainQuestActivated)
@@ -152,7 +152,7 @@ public class NetworkQuestManager : NetworkBehaviour
             else
             {
                 // Las side quests las dejaremos disponibles
-                // para cuando implementemos aceptación/rechazo.
+                // para cuando implementemos aceptaciï¿½n/rechazo.
                 initialState = quest.startsActive
                     ? QuestState.Active
                     : QuestState.Available;
@@ -369,7 +369,18 @@ public class NetworkQuestManager : NetworkBehaviour
             NetworkQuestState networkState =
                 networkQuests[questIndex];
 
-            if (networkState.State != QuestState.Active)
+            // Las misiones principales todavia bloqueadas tambien acumulan
+            // progreso: si el jugador derrota al jefe antes de que le toque,
+            // esa baja cuenta cuando la mision se active. Las secundarias
+            // solo cuentan mientras estan activas.
+            bool isActive =
+                networkState.State == QuestState.Active;
+
+            bool isPreCredit =
+                networkState.State == QuestState.Locked &&
+                quest.questType == QuestType.Main;
+
+            if (!isActive && !isPreCredit)
             {
                 continue;
             }
@@ -403,7 +414,10 @@ public class NetworkQuestManager : NetworkBehaviour
                 continue;
             }
 
-            if (networkState.Progress >=
+            // Una mision bloqueada solo guarda el progreso; se completa
+            // al activarse (ver ActivateNextQuest).
+            if (isActive &&
+                networkState.Progress >=
                 networkState.RequiredAmount)
             {
                 CompleteQuest(
@@ -497,7 +511,7 @@ public class NetworkQuestManager : NetworkBehaviour
                 out NetworkClient client))
         {
             Debug.LogWarning(
-                $"No se encontró el NetworkClient " +
+                $"No se encontrï¿½ el NetworkClient " +
                 $"para el jugador {clientId}.");
 
             return;
@@ -552,7 +566,7 @@ public class NetworkQuestManager : NetworkBehaviour
 
                     Debug.Log(
                         $"[Quest Reward] Player {clientId} " +
-                        $"recibió realmente {reward.amount} XP.");
+                        $"recibiï¿½ realmente {reward.amount} XP.");
 
                     break;
 
@@ -583,7 +597,7 @@ public class NetworkQuestManager : NetworkBehaviour
 
                     Debug.Log(
                         $"[Quest Reward] Player {clientId} " +
-                        $"recibió realmente {reward.amount} Gold. " +
+                        $"recibiï¿½ realmente {reward.amount} Gold. " +
                         $"Total: {goldController.Gold}");
 
                     break;
@@ -635,7 +649,7 @@ public class NetworkQuestManager : NetworkBehaviour
 
                     Debug.Log(
                         $"[Quest Reward] Player {clientId} " +
-                        $"recibió {reward.amount}x " +
+                        $"recibiï¿½ {reward.amount}x " +
                         $"{reward.item.name}.");
 
                     break;
@@ -678,20 +692,39 @@ public class NetworkQuestManager : NetworkBehaviour
             return;
         }
 
+        // Una mision bloqueada puede traer progreso acumulado (jefe derrotado
+        // antes de tiempo): se conserva. En cualquier otro caso parte de cero.
+        bool wasLocked =
+            nextState.State == QuestState.Locked;
+
         nextState.State =
             QuestState.Active;
-
-        nextState.Progress = 0;
 
         nextState.RequiredAmount =
             GetTotalRequiredAmount(nextQuest);
 
-        networkQuests[index] =
-            nextState;
+        nextState.Progress = wasLocked
+            ? Mathf.Min(
+                nextState.Progress,
+                nextState.RequiredAmount)
+            : 0;
 
         Debug.Log(
             $"Next quest activated: " +
             $"{nextQuest.questName}");
+
+        // Si el objetivo ya estaba cumplido, se completa de inmediato y se
+        // encadena con la siguiente mision.
+        if (nextState.RequiredAmount > 0 &&
+            nextState.Progress >= nextState.RequiredAmount)
+        {
+            CompleteQuest(
+                nextQuest,
+                ref nextState);
+        }
+
+        networkQuests[index] =
+            nextState;
     }
 
     // =========================================================
