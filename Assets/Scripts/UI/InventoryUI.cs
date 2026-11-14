@@ -495,6 +495,8 @@ public class InventoryUI : MonoBehaviour
             // El mismo botón sirve para Equipar (armas/armaduras) y Usar (consumibles).
             equipButton.gameObject.SetActive(isEquippable || isUsable);
 
+            equipButton.interactable = true;
+
             if (isUsable)
             {
                 if (equipButtonText != null) equipButtonText.text = "Usar";
@@ -502,9 +504,20 @@ public class InventoryUI : MonoBehaviour
             else if (isEquippable)
             {
                 var equippable = item as IEquippable;
-                bool occupied = equipment.IsOccupied(equippable.Slot);
-                if (equipButtonText != null)
-                    equipButtonText.text = occupied ? "Reemplazar" : "Equipar";
+
+                if (!equippable.CanBeUsedBy(localPlayer != null ? localPlayer.ClassData : null))
+                {
+                    // Item de otra clase: el botón queda deshabilitado y dice para quién es.
+                    equipButton.interactable = false;
+                    if (equipButtonText != null)
+                        equipButtonText.text = $"Solo {equippable.AllowedClassesLabel()}";
+                }
+                else
+                {
+                    bool occupied = equipment.IsOccupied(equippable.Slot);
+                    if (equipButtonText != null)
+                        equipButtonText.text = occupied ? "Reemplazar" : "Equipar";
+                }
             }
         }
 
@@ -547,6 +560,9 @@ public class InventoryUI : MonoBehaviour
 
         var sb = new StringBuilder();
         AppendModifiers(sb, equippable.Modifiers);
+
+        string classes = equippable.AllowedClassesLabel();
+        if (!string.IsNullOrEmpty(classes)) AppendLine(sb, $"Clase: {classes}");
 
         return sb.ToString().TrimEnd('\n');
     }
@@ -598,6 +614,10 @@ public class InventoryUI : MonoBehaviour
             localPlayer.RequestUseItem(id);
             return;
         }
+
+        if (selectedItem is IEquippable equippable &&
+            !equippable.CanBeUsedBy(localPlayer.ClassData))
+            return;
 
         localPlayer.RequestEquip(id);
     }

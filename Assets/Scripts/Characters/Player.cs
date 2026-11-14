@@ -434,6 +434,18 @@ public class Player : Character
             return;
         }
 
+        // Restricción de clase: la UI ya lo bloquea, pero el servidor es la
+        // autoridad y no confía en el cliente.
+        if (!equippable.CanBeUsedBy(classData))
+        {
+            Debug.LogWarning(
+                $"[Player] {name} intentó equipar '{item.ItemName}', " +
+                $"que es solo para: {equippable.AllowedClassesLabel()}. Ignorado."
+            );
+
+            return;
+        }
+
         bool ok = equipmentController.Equip(equippable);
 
         Debug.Log(

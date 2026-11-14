@@ -12,6 +12,10 @@ public class PlayerClassData : ScriptableObject
         public float value;
     }
 
+    [Header("Nombre")]
+    [Tooltip("Nombre que ve el jugador (ej: Guerrero, Cazador, Mago). Vacío = usa el nombre del asset.")]
+    [SerializeField] private string displayName;
+
     [Header("Level Scaling")]
     [SerializeField] private List<StatModifier> levelScaling;
 
@@ -30,6 +34,9 @@ public class PlayerClassData : ScriptableObject
     [Tooltip("Si está activo, los ataques básicos consumen stamina: liviano = costo de stamina del arma, " +
              "pesado = el triple. Desactivar en clases que ya gastan maná (Mage).")]
     [SerializeField] private bool consumesStaminaOnAttack = true;
+
+    public string DisplayName =>
+        !string.IsNullOrEmpty(displayName) ? displayName : name.Replace("Data", "").Trim();
 
     public List<StatModifier> LevelScaling => levelScaling;
     public List<StatModifier> Multipliers => multipliers;
