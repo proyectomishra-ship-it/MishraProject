@@ -188,9 +188,7 @@ public static class CraftingContentGenerator
     private static readonly WeaponDef[] Weapons =
     {
         // Guerrero
-        new WeaponDef("Sword_Steel", "Espada de Acero", "Assets/Objects/Sword_Basic.asset",
-            "Espada forjada en acero.", 40, 50,
-            new[]{ I("SteelIngot",5), I("CopperIngot",2) }),
+        
         new WeaponDef("Sword_Jade", "Espada de Jade", "Assets/Objects/Sword_Basic.asset",
             "Hoja de acero con filo de jade.", 55, 150,
             new[]{ I("SteelIngot",8), I("Jade",3), I("GoldIngot",2) }),
