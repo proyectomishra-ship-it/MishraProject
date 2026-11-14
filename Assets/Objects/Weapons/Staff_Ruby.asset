@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5812cc73b37fbee44b1a8d58c750cf10, type: 3}
+  m_Name: Staff_Ruby
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponData
+  itemName: Baston de Rubi
+  itemType: 1
+  icon: {fileID: 21300000, guid: 18b044c2da4cb3c42b76868ba5b02331, type: 3}
+  description: Baston coronado con un rubi.
+  stackable: 1
+  maxStack: 99
+  healthRestore: 0
+  manaRestore: 0
+  modifiers:
+  - stat: 0
+    value: 55
+  - stat: 1
+    value: 2
+  allowedClasses:
+  - {fileID: 11400000, guid: 126daa4d55c3ced4a8c7f92e0785719c, type: 2}
+  weaponType: 6
+  attackSpeed: 2.09
+  weaponVisualPrefab: {fileID: 3485906567957737707, guid: 8528f7f28d0fac2408ea415bb7312bb5, type: 3}
+  projectilePrefab: {fileID: 3272488517719803676, guid: 81b95ce514956ff478d426dca39245a5, type: 3}
+  projectileSpeed: 40
+  specialProjectilePrefab: {fileID: 0}
+  heavyMultiplier: 2
+  specialMultiplier: 1.5
+  staminaCost: 0
+  manaCost: 6
+  meleeRange: 2
+  projectileRange: 20

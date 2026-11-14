@@ -326,6 +326,7 @@ MonoBehaviour:
   fieldOfViewAngle: 120
   alertRadius: 15
   lostTargetTime: 5
+  hitAggroDuration: 8
   idleDuration: 2
   waypoints: []
   useRandomPatrol: 0
@@ -572,5 +573,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DropController
   ShowTopMostFoldoutHeaderGroup: 1
-  lootTable: {fileID: 11400000, guid: 48271b5e1b67a524c93504193643d065, type: 2}
+  lootTable: {fileID: 11400000, guid: 4ecc53905a04ede47a229bc682716d03, type: 2}
   spreadRadius: 1.5

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98727d11479810f4687270010e84878e, type: 3}
   m_Name: MageData
   m_EditorClassIdentifier: Assembly-CSharp::PlayerClassData
+  displayName: Mago
   levelScaling:
   - stat: 0
     value: 3
@@ -31,5 +32,5 @@ MonoBehaviour:
   - stat: 11
     value: 1.05
   startingWeapon: {fileID: 11400000, guid: 5224577d8d7e9ac4fa971fc71b0027a3, type: 2}
-  consumesStaminaOnAttack: 0
   specialAbility: {fileID: 11400000, guid: e078d78893a540c5ad9e24fa37907755, type: 2}
+  consumesStaminaOnAttack: 0

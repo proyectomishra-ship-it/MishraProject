@@ -665,7 +665,11 @@ public static class CraftingContentGenerator
         foreach (var kv in pickups)
         {
             var no = kv.Value != null ? kv.Value.GetComponent<NetworkObject>() : null;
-            if (no == null || no.GlobalObjectIdHash == 0)
+            if (no == null) { bad.Add(kv.Key); continue; }
+
+            // GlobalObjectIdHash es interno en Netcode 2.x: se lee por SerializedObject.
+            var hash = new SerializedObject(no).FindProperty("GlobalObjectIdHash");
+            if (hash != null && hash.uintValue == 0)
                 bad.Add(kv.Key);
         }
 

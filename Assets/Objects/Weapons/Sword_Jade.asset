@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5812cc73b37fbee44b1a8d58c750cf10, type: 3}
+  m_Name: Sword_Jade
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponData
+  itemName: Espada de Jade
+  itemType: 1
+  icon: {fileID: 21300000, guid: 2649827e9a4dc124e9ce4d51b7f560ba, type: 3}
+  description: Hoja de acero con filo de jade.
+  stackable: 1
+  maxStack: 99
+  healthRestore: 0
+  manaRestore: 0
+  modifiers:
+  - stat: 0
+    value: 55
+  - stat: 1
+    value: 2
+  allowedClasses:
+  - {fileID: 11400000, guid: 108fef0c20c08d445af41a3f9e194691, type: 2}
+  weaponType: 0
+  attackSpeed: 1
+  weaponVisualPrefab: {fileID: 3804229124527717017, guid: 38f428cda54aa9f4487f931633ad63c6, type: 3}
+  projectilePrefab: {fileID: 0}
+  projectileSpeed: 20
+  specialProjectilePrefab: {fileID: 0}
+  heavyMultiplier: 2
+  specialMultiplier: 1.5
+  staminaCost: 25
+  manaCost: 20
+  meleeRange: 3
+  projectileRange: 25

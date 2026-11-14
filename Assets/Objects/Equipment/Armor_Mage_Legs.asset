@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9796b53632579334da73cee39686182d, type: 3}
+  m_Name: Armor_Mage_Legs
+  m_EditorClassIdentifier: Assembly-CSharp::EquipmentData
+  itemName: Falda de Mago
+  itemType: 1
+  icon: {fileID: 21300000, guid: b2c06aa24b277eb44b563cd3e7e2849a, type: 3}
+  description: Falda de tela arcana.
+  stackable: 1
+  maxStack: 99
+  healthRestore: 0
+  manaRestore: 0
+  slot: 3
+  modifiers:
+  - stat: 2
+    value: 2
+  - stat: 4
+    value: 10
+  - stat: 9
+    value: 3
+  allowedClasses:
+  - {fileID: 11400000, guid: 126daa4d55c3ced4a8c7f92e0785719c, type: 2}

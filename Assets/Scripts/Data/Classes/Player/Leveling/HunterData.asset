@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98727d11479810f4687270010e84878e, type: 3}
   m_Name: HunterData
   m_EditorClassIdentifier: Assembly-CSharp::PlayerClassData
+  displayName: Cazador
   levelScaling:
   - stat: 0
     value: 1
@@ -36,3 +37,4 @@ MonoBehaviour:
     value: 1.1
   startingWeapon: {fileID: 11400000, guid: d13aebf166f4c604f9db3105edc39cad, type: 2}
   specialAbility: {fileID: 11400000, guid: 37d775dbdb8c4b1199e0b493f7614803, type: 2}
+  consumesStaminaOnAttack: 1

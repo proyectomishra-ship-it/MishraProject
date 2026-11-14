@@ -160,6 +160,8 @@ MonoBehaviour:
   experienceReward: 150
   goldReward: 10
   classMultiplier: 1
+  initialLevel: 0
+  scaleWithPlayers: 1
   enemyType: {fileID: 11400000, guid: d5baa4c16c27ebb41af4754232bfec37, type: 2}
 --- !u!114 &2119158155385085822
 MonoBehaviour:
@@ -178,6 +180,7 @@ MonoBehaviour:
   fieldOfViewAngle: 180
   alertRadius: 15
   lostTargetTime: 10
+  hitAggroDuration: 8
   idleDuration: 2
   waypoints: []
   useRandomPatrol: 1
@@ -425,8 +428,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DropController
   ShowTopMostFoldoutHeaderGroup: 1
-  lootTable: {fileID: 11400000, guid: 48271b5e1b67a524c93504193643d065, type: 2}
-  pickupPrefab: {fileID: 4273785195938979488, guid: 7d5da6c904456cd43a9650abe115ae80, type: 3}
+  lootTable: {fileID: 11400000, guid: 5125992f9374c554293cbaa33fd822ac, type: 2}
   spreadRadius: 1.5
 --- !u!1 &4345575999677381695
 GameObject:

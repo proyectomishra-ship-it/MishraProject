@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9796b53632579334da73cee39686182d, type: 3}
+  m_Name: Armor_Iron_Chest
+  m_EditorClassIdentifier: Assembly-CSharp::EquipmentData
+  itemName: Peto de Hierro
+  itemType: 1
+  icon: {fileID: 21300000, guid: 0342dd7ade6840949a2d8ccfd129766f, type: 3}
+  description: Peto de acero que protege el torso.
+  stackable: 1
+  maxStack: 99
+  healthRestore: 0
+  manaRestore: 0
+  slot: 2
+  modifiers:
+  - stat: 2
+    value: 6
+  - stat: 3
+    value: 25
+  allowedClasses:
+  - {fileID: 11400000, guid: 108fef0c20c08d445af41a3f9e194691, type: 2}

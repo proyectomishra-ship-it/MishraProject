@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9796b53632579334da73cee39686182d, type: 3}
+  m_Name: Ring_Hunter
+  m_EditorClassIdentifier: Assembly-CSharp::EquipmentData
+  itemName: Anillo de Cazador
+  itemType: 1
+  icon: {fileID: 21300000, guid: 9383e1dda44709445ab1391899dcbd32, type: 3}
+  description: Anillo con ambar. Mejora la punteria.
+  stackable: 1
+  maxStack: 99
+  healthRestore: 0
+  manaRestore: 0
+  slot: 5
+  modifiers:
+  - stat: 8
+    value: 4
+  - stat: 6
+    value: 3
+  allowedClasses:
+  - {fileID: 11400000, guid: 9f8dd043d02ed614b8fad63a6b764dd8, type: 2}
