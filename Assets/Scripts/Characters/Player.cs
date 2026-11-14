@@ -21,6 +21,19 @@ public class Player : Character
     private PlayerRespawnController respawnController;
     private PlayerAnimationController animationController;
 
+    [Header("Efecto de subida de nivel")]
+    [SerializeField] private bool levelUpVfxEnabled = true;
+    [SerializeField] private Color levelUpColor = new Color(1f, 0.85f, 0.3f, 1f);
+    [Tooltip("Radio de la onda de choque en el suelo, en metros.")]
+    [SerializeField, Min(1f)] private float levelUpShockwaveRadius = 6f;
+    [Tooltip("Segundos que dura el aura alrededor del jugador.")]
+    [SerializeField, Min(0.5f)] private float levelUpAuraDuration = 1.6f;
+    [Tooltip("Opcional: prefab propio (sin NetworkObject). Si se asigna, reemplaza el efecto generado por código.")]
+    [SerializeField] private GameObject levelUpPrefab;
+
+    private int lastLevelUpLevel;
+    private float lastLevelUpVfxTime = -10f;
+
     /// <summary>Datos de la clase (stats por nivel, arma inicial, habilidad especial).</summary>
     public PlayerClassData ClassData => classData;
 
@@ -72,6 +85,7 @@ public class Player : Character
         {
             // Avisar al resto del juego (EnemyLevelScaler) de este jugador y de
             // cada subida de nivel.
+            lastLevelUpLevel = stats.Level;
             stats.OnLevelChanged += HandleLevelChanged;
             PlayerLevelEvents.RaisePlayerJoined(this);
 
@@ -138,6 +152,36 @@ public class Player : Character
     private void HandleLevelChanged(int newLevel)
     {
         PlayerLevelEvents.RaiseLevelChanged(this, newLevel);
+
+        // Solo cuando el nivel realmente sube (no por re-sincronizaciones).
+        if (newLevel > lastLevelUpLevel)
+        {
+            lastLevelUpLevel = newLevel;
+            PlayLevelUpClientRpc(newLevel);
+        }
+    }
+
+    /// <summary>Efecto visual de subida de nivel, en todos los clientes.</summary>
+    [ClientRpc]
+    private void PlayLevelUpClientRpc(int newLevel)
+    {
+        if (!levelUpVfxEnabled)
+            return;
+
+        // Varias subidas seguidas (mucha XP de golpe) = un solo efecto.
+        if (Time.time - lastLevelUpVfxTime < 0.3f)
+            return;
+
+        lastLevelUpVfxTime = Time.time;
+
+        if (levelUpPrefab != null)
+        {
+            GameObject fx = Instantiate(levelUpPrefab, transform.position, Quaternion.identity);
+            Destroy(fx, 6f);
+            return;
+        }
+
+        LevelUpVfx.Play(this, levelUpColor, levelUpShockwaveRadius, levelUpAuraDuration);
     }
 
     // =====================================================
@@ -429,18 +473,6 @@ public class Player : Character
             Debug.LogWarning(
                 $"[Player] {name} intentó equipar '{item.ItemName}' " +
                 "sin tenerlo en el inventario. Ignorado."
-            );
-
-            return;
-        }
-
-        // Restricción de clase: la UI ya lo bloquea, pero el servidor es la
-        // autoridad y no confía en el cliente.
-        if (!equippable.CanBeUsedBy(classData))
-        {
-            Debug.LogWarning(
-                $"[Player] {name} intentó equipar '{item.ItemName}', " +
-                $"que es solo para: {equippable.AllowedClassesLabel()}. Ignorado."
             );
 
             return;
