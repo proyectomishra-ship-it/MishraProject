@@ -57,10 +57,10 @@ public class CompassBar : MonoBehaviour
 
         var theme = UITheme.Current;
 
-        Color north    = theme != null ? theme.accent      : labelTemplate.color;
-        Color cardinal = theme != null ? theme.textAccent  : labelTemplate.color;
-        Color minor    = theme != null ? theme.textMuted   : labelTemplate.color;
-        Color tick     = minor;
+        Color north = theme != null ? theme.accent : labelTemplate.color;
+        Color cardinal = theme != null ? theme.textAccent : labelTemplate.color;
+        Color minor = theme != null ? theme.textMuted : labelTemplate.color;
+        Color tick = minor;
         tick.a *= 0.6f;
 
         labelTemplate.gameObject.SetActive(false);
@@ -84,8 +84,18 @@ public class CompassBar : MonoBehaviour
 
     private void AddItem(string text, float angle, float sizeScale, Color color)
     {
+        // El clon nace inactivo (la plantilla esta desactivada). Si trae ThemedText,
+        // aplicamos el estilo UNA vez y lo quitamos: si se quedara, cada vez que el
+        // HUD se reactiva (al cerrar el inventario) su OnEnable volveria a pisar
+        // el color y el tamano que fija esta brujula por letra.
         var label = Instantiate(labelTemplate, viewport);
-        label.gameObject.SetActive(true);      // ThemedText (si existe) aplica su estilo aqui
+        var themed = label.GetComponent<ThemedText>();
+        if (themed != null)
+        {
+            themed.Apply();
+            DestroyImmediate(themed);
+        }
+        label.gameObject.SetActive(true);
 
         label.text = text;
         label.alignment = TextAlignmentOptions.Center;
@@ -97,6 +107,9 @@ public class CompassBar : MonoBehaviour
         rect.anchorMin = new Vector2(0.5f, 0.5f);
         rect.anchorMax = new Vector2(0.5f, 0.5f);
         rect.pivot = new Vector2(0.5f, 0.5f);
+        // La plantilla puede venir con anclas estiradas (sizeDelta negativo) y al
+        // pasar a anclas centradas el ancho queda <= 0, lo que parte "NO" en dos lineas.
+        rect.sizeDelta = new Vector2(Mathf.Max(rect.sizeDelta.x, 20f), rect.sizeDelta.y);
 
         items.Add(new Item
         {
