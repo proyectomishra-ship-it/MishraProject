@@ -12,6 +12,7 @@ public class PlayerCombatController : NetworkBehaviour
     private ResourceController resources;
     private TargetingController targeting;
     private PlayerAnimationController anim;
+    private CharacterStatsSyncController levelSync;
 
     [Header("Fallback")]
     [SerializeField] private float holdThreshold = 0.4f;
@@ -47,6 +48,17 @@ public class PlayerCombatController : NetworkBehaviour
         targeting = player.GetComponent<TargetingController>();
         anim = player.GetComponent<PlayerAnimationController>();
     }
+
+    // =========================================================
+    // DESBLOQUEO DEL ESPECIAL
+    // =========================================================
+
+    /// <summary>Nivel al que se desbloquea el ataque especial (se edita en el PlayerClassData).</summary>
+    public int SpecialUnlockLevel =>
+        player != null && player.ClassData != null ? player.ClassData.SpecialUnlockLevel : 1;
+
+    public bool IsSpecialUnlocked =>
+        player != null && player.CurrentLevel >= SpecialUnlockLevel;
 
     private WeaponData GetCurrentWeapon()
         => equipment?.GetEquippedWeapon();
@@ -161,6 +173,12 @@ public class PlayerCombatController : NetworkBehaviour
     {
         if (!IsOwner || player == null || player.IsDead())
             return;
+
+        if (!IsSpecialUnlocked)
+        {
+            SkillNoticeUI.Show($"El ataque especial se desbloquea en el nivel {SpecialUnlockLevel}", 2f);
+            return;
+        }
 
         RequestSpecialAttackInternalServerRpc(GetAimDirection());
     }
@@ -278,6 +296,16 @@ public class PlayerCombatController : NetworkBehaviour
     {
         if (!CanAttackNow())
             return;
+
+        // El servidor es la autoridad: el especial no se usa antes de su nivel.
+        if (!IsSpecialUnlocked)
+        {
+            Debug.Log(
+                $"[PlayerCombat] Especial bloqueado hasta nivel {SpecialUnlockLevel} " +
+                $"(nivel actual {player.CurrentLevel})");
+
+            return;
+        }
 
         aimDirection = NormalizeAim(aimDirection);
 
@@ -557,6 +585,101 @@ public class PlayerCombatController : NetworkBehaviour
 
         if (ability != null)
             ability.PlayVfx(player, position, direction);
+    }
+
+    // =========================================================
+    // PASIVA DE CLASE
+    // Se activa sola al llegar al nivel de la pasiva. El servidor decide el estado
+    // y lo sincroniza (también a quien entre más tarde) para el efecto visual.
+    // =========================================================
+
+    private readonly NetworkVariable<bool> passiveActive = new NetworkVariable<bool>(false);
+
+    private PassiveRuntime passiveRuntime;
+    private float nextPassiveCheck;
+
+    private PassiveAbility Passive =>
+        player != null && player.ClassData != null ? player.ClassData.Passive : null;
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        passiveActive.OnValueChanged += HandlePassiveActiveChanged;
+
+        if (IsServer)
+            passiveRuntime = Passive?.CreateRuntime(player);
+
+        // Quien entra tarde recibe el valor ya sincronizado.
+        Passive?.SetVisualActive(player, passiveActive.Value);
+
+        // Avisos de desbloqueo (solo el dueño).
+        if (IsOwner)
+        {
+            levelSync = GetComponent<CharacterStatsSyncController>();
+
+            if (levelSync != null)
+                levelSync.NetLevel.OnValueChanged += HandleOwnerLevelChanged;
+        }
+    }
+
+    /// <summary>Dueño: avisa cuando se desbloquea la pasiva o el ataque especial.</summary>
+    private void HandleOwnerLevelChanged(int previous, int current)
+    {
+        if (previous <= 0 || current <= previous)
+            return;
+
+        // Se compara contra todo el rango por si se suben varios niveles de golpe.
+        PassiveAbility passive = Passive;
+
+        if (passive != null && passive.UnlockLevel > previous && passive.UnlockLevel <= current)
+            SkillNoticeUI.Show($"¡Pasiva desbloqueada: {passive.DisplayName}!");
+
+        if (SpecialUnlockLevel > previous && SpecialUnlockLevel <= current)
+            SkillNoticeUI.Show("¡Ataque especial desbloqueado!  (click derecho)");
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        passiveActive.OnValueChanged -= HandlePassiveActiveChanged;
+
+        if (levelSync != null)
+            levelSync.NetLevel.OnValueChanged -= HandleOwnerLevelChanged;
+
+        passiveRuntime?.Dispose();
+        passiveRuntime = null;
+
+        Passive?.SetVisualActive(player, false);
+
+        base.OnNetworkDespawn();
+    }
+
+    private void HandlePassiveActiveChanged(bool previous, bool current)
+    {
+        Passive?.SetVisualActive(player, current);
+    }
+
+    private void Update()
+    {
+        if (!IsServer || !IsSpawned || player == null)
+            return;
+
+        if (Time.time < nextPassiveCheck)
+            return;
+
+        nextPassiveCheck = Time.time + 0.25f;
+
+        PassiveAbility passive = Passive;
+
+        bool active =
+            passive != null &&
+            !player.IsDead() &&
+            stats.Level >= passive.UnlockLevel;
+
+        if (passiveActive.Value != active)
+            passiveActive.Value = active;
+
+        passiveRuntime?.Tick(active);
     }
 
     // =========================================================
