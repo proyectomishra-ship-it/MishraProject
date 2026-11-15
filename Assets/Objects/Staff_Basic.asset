@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5812cc73b37fbee44b1a8d58c750cf10, type: 3}
-  m_Name: Grimoire_Basic
+  m_Name: Staff_Basic
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   itemName: "Bast\xF3n M\xE1gico B\xE1sico"
   itemType: 1
@@ -34,11 +34,11 @@ MonoBehaviour:
   attackSpeed: 2.09
   weaponVisualPrefab: {fileID: 3485906567957737707, guid: 8528f7f28d0fac2408ea415bb7312bb5, type: 3}
   projectilePrefab: {fileID: 3272488517719803676, guid: 81b95ce514956ff478d426dca39245a5, type: 3}
-  projectileSpeed: 40
+  projectileSpeed: 45
   specialProjectilePrefab: {fileID: 0}
   heavyMultiplier: 2
   specialMultiplier: 1.5
   staminaCost: 0
-  manaCost: 6
+  manaCost: 4
   meleeRange: 2
   projectileRange: 20

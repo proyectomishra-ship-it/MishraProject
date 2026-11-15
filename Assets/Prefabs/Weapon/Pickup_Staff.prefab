@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7708075537511587251}
   - component: {fileID: 698712888502196615}
   m_Layer: 0
-  m_Name: Pickup_Grimoire
+  m_Name: Pickup_Staff
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
