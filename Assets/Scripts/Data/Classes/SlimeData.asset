@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SlimeData
   m_EditorClassIdentifier: Assembly-CSharp::OrcArcherData
   attack: 30
-  attackRange: 5
+  attackRange: 20
   defense: 25
   maxHealth: 200
   maxMana: 0
@@ -45,5 +45,5 @@ MonoBehaviour:
   fleeHealthThreshold: 0.25
   canFlee: 1
   availableStrategies: 
-  preferredCombatDistance: 8
+  preferredCombatDistance: 25
   projectilePrefab: {fileID: 2764292145914133879, guid: 96dbb245eb6b6a64e9a4ae0e33364180, type: 3}

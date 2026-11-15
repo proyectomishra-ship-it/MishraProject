@@ -45,5 +45,5 @@ MonoBehaviour:
   fleeHealthThreshold: 0.25
   canFlee: 0
   availableStrategies: 
-  preferredCombatDistance: 8
+  preferredCombatDistance: 2
   projectilePrefab: {fileID: 0}

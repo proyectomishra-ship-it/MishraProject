@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿
+using UnityEngine;
 using UnityEngine.AI;
 
 public class EnemyStateChase : EnemyState
@@ -26,9 +27,12 @@ public class EnemyStateChase : EnemyState
         targetLost = false;
 
         if (ai.Agent != null)
+        {
             ai.Agent.isStopped = false;
 
-      
+            // Frenar antes de alcanzar la posición del jugador.
+            ai.Agent.stoppingDistance = ai.ChaseStoppingDistance;
+        }
     }
 
     // =========================================================
@@ -43,8 +47,6 @@ public class EnemyStateChase : EnemyState
 
         if (ai.ShouldFlee)
         {
-          
-
             ai.StateMachine.ChangeState(ai.FleeState);
             return;
         }
@@ -55,8 +57,6 @@ public class EnemyStateChase : EnemyState
 
         if (ai.CurrentTarget == null)
         {
-           
-
             HandleLostTarget();
             return;
         }
@@ -78,20 +78,15 @@ public class EnemyStateChase : EnemyState
             targetLost = false;
             lostTargetTimer = 0f;
 
-            // -------------------------------------------------
-            // IMPORTANTE:
             // Mantener el target actual si sigue siendo válido.
-            // -------------------------------------------------
-
             if (detected != ai.CurrentTarget)
             {
-               
                 ai.SetTarget(detected);
             }
 
-            // -------------------------------------------------
+            // =================================================
             // MOVIMIENTO
-            // -------------------------------------------------
+            // =================================================
 
             if (ai.Agent != null &&
                 ai.Agent.isOnNavMesh &&
@@ -106,33 +101,19 @@ public class EnemyStateChase : EnemyState
             // RANGE CHECK
             // =================================================
 
-            float fullDistance =
-                Vector3.Distance(
-                    enemy.transform.position,
-                    ai.CurrentTarget.transform.position
-                );
-
-            // -------------------------------------------------
-            // Distancia horizontal.
-            //
-            // Esto evita que una diferencia de altura entre
-            // los pivots de los modelos impida entrar en melee.
-            // -------------------------------------------------
-
             Vector3 enemyPosition =
                 enemy.transform.position;
 
             Vector3 targetPosition =
                 ai.CurrentTarget.transform.position;
 
+            // Distancia horizontal.
+            // Evita problemas por diferencias de altura entre pivots.
             enemyPosition.y = 0f;
             targetPosition.y = 0f;
 
             float horizontalDistance =
-                Vector3.Distance(
-                    enemyPosition,
-                    targetPosition
-                );
+                Vector3.Distance(enemyPosition, targetPosition);
 
             float attackRange =
                 enemy.GetStats().AttackRange.Value;
@@ -140,16 +121,12 @@ public class EnemyStateChase : EnemyState
             bool inRange =
                 horizontalDistance <= attackRange;
 
-         
-
             // =================================================
             // ATTACK
             // =================================================
 
             if (inRange)
             {
-                
-
                 if (ai.AttackState == null)
                 {
                     Debug.LogError(
@@ -177,8 +154,6 @@ public class EnemyStateChase : EnemyState
             // PERCEPCIÓN PERDIDA
             // =================================================
 
-           
-
             HandleLostTarget();
         }
     }
@@ -196,34 +171,24 @@ public class EnemyStateChase : EnemyState
 
             if (ai.Agent != null)
                 ai.Agent.ResetPath();
-
-           
         }
 
         lostTargetTimer += Time.deltaTime;
 
-       
-
         if (lostTargetTimer >= lostTargetTime)
         {
-            
-
             ai.SetTarget(null);
             ai.SetAlerted(false);
 
             if (ai.HasPatrolPoints)
             {
-                Debug.Log(
-                    $"[{enemy.name}][CHASE] -> PATROL"
-                );
+                Debug.Log($"[{enemy.name}][CHASE] -> PATROL");
 
                 ai.StateMachine.ChangeState(ai.PatrolState);
             }
             else
             {
-                Debug.Log(
-                    $"[{enemy.name}][CHASE] -> IDLE"
-                );
+                Debug.Log($"[{enemy.name}][CHASE] -> IDLE");
 
                 ai.StateMachine.ChangeState(ai.IdleState);
             }
@@ -238,7 +203,5 @@ public class EnemyStateChase : EnemyState
     {
         if (ai.Agent != null)
             ai.Agent.ResetPath();
-
-     
     }
 }
