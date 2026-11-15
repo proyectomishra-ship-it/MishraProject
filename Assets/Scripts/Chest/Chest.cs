@@ -1,3 +1,4 @@
+
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
@@ -9,17 +10,13 @@ using UnityEngine.InputSystem;
 /// Una vez abierto no se puede volver a abrir.
 ///
 /// Autoridad del servidor:
-///   - El cliente solo PIDE abrir (ServerRpc).
+///   - El cliente solo PIDE abrir (Rpc).
 ///   - El servidor valida (no abierto, jugador vivo y cerca), marca el cofre
 ///     como abierto y spawnea el loot.
 ///   - El estado "abierto" es una NetworkVariable: los clientes que entran
 ///     tarde ven el cofre ya abierto y sin item.
 ///
-/// Reutiliza WeightedLootRoller + PickupSpawner, igual que DropController.
-/// La tabla es un LootTableData normal (ver Loot_Chest).
-///
-/// ANIMACIÓN FUTURA: ver la sección "Animación" más abajo. Para incorporar
-/// el arte real solo hay que asignar el Animator, no tocar código.
+/// Reutiliza WeightedLootRoller + PickupSpawner.
 /// </summary>
 [RequireComponent(typeof(NetworkObject))]
 public class Chest : NetworkBehaviour
@@ -35,15 +32,13 @@ public class Chest : NetworkBehaviour
     [Tooltip("Donde aparece el item. Si queda vacío, 1 m sobre el cofre.")]
     [SerializeField] private Transform spawnPoint;
 
-    [Tooltip("Segundos entre abrir el cofre y que aparezca el item. " +
-             "Ajustarlo para que coincida con la animación de apertura.")]
+    [Tooltip("Segundos entre abrir el cofre y que aparezca el item.")]
     [SerializeField, Min(0f)] private float lootSpawnDelay = 0.4f;
 
     [Tooltip("Separación entre items si la tabla suelta más de uno.")]
     [SerializeField] private float spreadRadius = 0.6f;
 
-    [Tooltip("Si la tirada sale vacía (dropChance < 1 o minDrops = 0), " +
-             "reintenta para que el cofre nunca quede vacío.")]
+    [Tooltip("Reintenta la tirada para evitar que el cofre quede vacío.")]
     [SerializeField] private bool guaranteeAtLeastOneItem = true;
 
     // =========================
@@ -55,8 +50,7 @@ public class Chest : NetworkBehaviour
     [SerializeField] private float interactionRange = 2.5f;
     [SerializeField] private Key interactKey = Key.E;
 
-    [Tooltip("Margen extra que acepta el servidor sobre el rango, para " +
-             "absorber la latencia del jugador.")]
+    [Tooltip("Margen extra aceptado por el servidor para absorber latencia.")]
     [SerializeField] private float serverRangeTolerance = 1f;
 
     // =========================
@@ -64,18 +58,14 @@ public class Chest : NetworkBehaviour
     // =========================
 
     [Header("Animación (arte futuro)")]
-    [Tooltip("Cuando exista el modelo del cofre: asignar su Animator acá. " +
-             "Al abrirse se dispara el Trigger 'Open Trigger'.")]
     [SerializeField] private Animator animator;
 
     [SerializeField] private string openTrigger = "Open";
 
-    [Tooltip("Nombre del estado final (cofre abierto). Se usa para mostrar " +
-             "el cofre ya abierto, sin animación, a quien entra tarde.")]
+    [Tooltip("Estado final del cofre abierto.")]
     [SerializeField] private string openedStateName = "Opened";
 
     [Header("Placeholder (se ignora si hay Animator)")]
-    [Tooltip("Pivote de la tapa del cofre placeholder. Rota al abrirse.")]
     [SerializeField] private Transform lidPivot;
     [SerializeField] private float lidOpenAngle = -110f;
     [SerializeField, Min(0.01f)] private float lidOpenDuration = 0.4f;
@@ -84,14 +74,14 @@ public class Chest : NetworkBehaviour
     // ESTADO
     // =========================
 
-    private readonly NetworkVariable<bool> isOpened = new NetworkVariable<bool>(
-        false,
-        NetworkVariableReadPermission.Everyone,
-        NetworkVariableWritePermission.Server);
+    private readonly NetworkVariable<bool> isOpened =
+        new NetworkVariable<bool>(
+            false,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
 
     public bool IsOpened => isOpened.Value;
 
-    // Cliente: evita mandar el pedido muchas veces mientras llega la respuesta.
     private float requestLockedUntil;
 
     private Player cachedLocalPlayer;
@@ -105,8 +95,7 @@ public class Chest : NetworkBehaviour
     {
         isOpened.OnValueChanged += OnOpenedChanged;
 
-        // Entró tarde (o se cargó la escena) con el cofre ya abierto:
-        // mostrarlo abierto directamente, sin animación.
+        // Jugador que entra tarde: mostrar el cofre abierto directamente.
         if (isOpened.Value)
             ApplyOpenedVisual(instant: true);
     }
@@ -137,7 +126,7 @@ public class Chest : NetworkBehaviour
         if (!IsSpawned || !IsClient)
             return;
 
-        // Ya abierto o pedido en camino: sin aviso, sin interacción.
+        // Ya abierto o solicitud en camino.
         if (isOpened.Value || Time.time < requestLockedUntil)
         {
             InteractionPromptUI.Hide(this);
@@ -146,13 +135,15 @@ public class Chest : NetworkBehaviour
 
         Player player = GetLocalPlayer();
 
-        if (player == null || player.IsDead() || !IsInRange(player, interactionRange))
+        if (player == null ||
+            player.IsDead() ||
+            !IsInRange(player, interactionRange))
         {
             InteractionPromptUI.Hide(this);
             return;
         }
 
-        // Inventario u otra interfaz abierta: no permitir interactuar.
+        // Bloquear interacción si hay otra interfaz abierta.
         var input = player.GetComponent<PlayerInputController>();
 
         if (input != null && input.IsInputBlocked)
@@ -167,8 +158,8 @@ public class Chest : NetworkBehaviour
         if (Keyboard.current != null &&
             Keyboard.current[interactKey].wasPressedThisFrame)
         {
-            // Bloqueo local breve; el servidor es quien decide de verdad.
             requestLockedUntil = Time.time + 1f;
+
             InteractionPromptUI.Hide(this);
 
             RequestOpenServerRpc();
@@ -191,6 +182,7 @@ public class Chest : NetworkBehaviour
             return null;
 
         cachedLocalPlayer = playerObject.GetComponent<Player>();
+
         return cachedLocalPlayer;
     }
 
@@ -209,22 +201,25 @@ public class Chest : NetworkBehaviour
     // APERTURA (SERVIDOR)
     // =========================================================
 
-    [ServerRpc(RequireOwnership = false)]
-    private void RequestOpenServerRpc(ServerRpcParams rpcParams = default)
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    private void RequestOpenServerRpc(RpcParams rpcParams = default)
     {
-        // Doble apertura (dos jugadores a la vez, spam, etc.): gana el primero.
+        // Evitar que dos jugadores abran el mismo cofre.
         if (isOpened.Value)
             return;
 
         if (lootTable == null)
         {
-            Debug.LogError($"[Chest] '{name}' no tiene LootTableData asignada.");
+            Debug.LogError(
+                $"[Chest] '{name}' no tiene LootTableData asignada.");
             return;
         }
 
+        // Identificar al cliente que envió la solicitud.
         ulong senderId = rpcParams.Receive.SenderClientId;
 
-        if (!NetworkManager.ConnectedClients.TryGetValue(senderId, out var client) ||
+        if (!NetworkManager.ConnectedClients.TryGetValue(
+                senderId, out var client) ||
             client.PlayerObject == null)
         {
             return;
@@ -235,11 +230,11 @@ public class Chest : NetworkBehaviour
         if (player == null || player.IsDead())
             return;
 
+        // Validación de distancia en el servidor.
         if (!IsInRange(player, interactionRange + serverRangeTolerance))
             return;
 
-        // Se marca como abierto ANTES de esperar el delay del loot, así no
-        // hay ninguna ventana en la que se pueda pedir de nuevo.
+        // Marcar como abierto antes de generar el loot.
         isOpened.Value = true;
 
         StartCoroutine(SpawnLootAfterDelay());
@@ -254,10 +249,15 @@ public class Chest : NetworkBehaviour
 
         var drops = roller.Roll();
 
+        // Garantizar al menos un item si está habilitado.
         if (guaranteeAtLeastOneItem)
         {
-            for (int attempt = 0; attempt < 10 && drops.Count == 0; attempt++)
+            for (int attempt = 0;
+                 attempt < 10 && drops.Count == 0;
+                 attempt++)
+            {
                 drops = roller.Roll();
+            }
         }
 
         if (drops.Count == 0)
@@ -265,6 +265,7 @@ public class Chest : NetworkBehaviour
             Debug.LogWarning(
                 $"[Chest] '{name}' se abrió pero la tabla no generó items. " +
                 "Revisá los pesos y los Pickup Prefab de la tabla.");
+
             yield break;
         }
 
@@ -274,7 +275,8 @@ public class Chest : NetworkBehaviour
 
         new PickupSpawner(spreadRadius).SpawnAll(drops, origin);
 
-        Debug.Log($"[Chest] '{name}' abierto: {drops.Count} item(s).");
+        Debug.Log(
+            $"[Chest] '{name}' abierto: {drops.Count} item(s).");
     }
 
     // =========================================================
@@ -283,7 +285,7 @@ public class Chest : NetworkBehaviour
 
     private void ApplyOpenedVisual(bool instant)
     {
-        // Con arte real: el Animator manda.
+        // Si existe Animator, utilizar la animación del modelo.
         if (animator != null)
         {
             if (instant)
@@ -294,36 +296,47 @@ public class Chest : NetworkBehaviour
             return;
         }
 
-        // Placeholder: girar la tapa.
+        // Placeholder: rotar la tapa del cofre.
         if (lidPivot == null)
             return;
 
         if (lidRoutine != null)
             StopCoroutine(lidRoutine);
 
-        Quaternion target = Quaternion.Euler(lidOpenAngle, 0f, 0f);
+        Quaternion target = Quaternion.Euler(
+            lidOpenAngle, 0f, 0f);
 
         if (instant)
+        {
             lidPivot.localRotation = target;
+        }
         else
+        {
             lidRoutine = StartCoroutine(AnimateLid(target));
+        }
     }
 
     private IEnumerator AnimateLid(Quaternion target)
     {
         Quaternion start = lidPivot.localRotation;
+
         float elapsed = 0f;
 
         while (elapsed < lidOpenDuration)
         {
-            float t = Mathf.SmoothStep(0f, 1f, elapsed / lidOpenDuration);
-            lidPivot.localRotation = Quaternion.Slerp(start, target, t);
+            float t = Mathf.SmoothStep(
+                0f, 1f, elapsed / lidOpenDuration);
+
+            lidPivot.localRotation = Quaternion.Slerp(
+                start, target, t);
 
             elapsed += Time.deltaTime;
+
             yield return null;
         }
 
         lidPivot.localRotation = target;
+
         lidRoutine = null;
     }
 
@@ -334,12 +347,16 @@ public class Chest : NetworkBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, interactionRange);
+
+        Gizmos.DrawWireSphere(
+            transform.position, interactionRange);
 
         if (spawnPoint != null)
         {
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(spawnPoint.position, 0.2f);
+
+            Gizmos.DrawWireSphere(
+                spawnPoint.position, 0.2f);
         }
     }
 }
