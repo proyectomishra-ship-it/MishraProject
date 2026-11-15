@@ -307,7 +307,7 @@ MonoBehaviour:
   experienceReward: 100
   goldReward: 10
   classMultiplier: 1
-  initialLevel: 0
+  initialLevel: 5
   scaleWithPlayers: 1
   enemyType: {fileID: 11400000, guid: 8f3668046e51ba848a248d58b9968a6c, type: 2}
 --- !u!114 &2949089841560888660
@@ -335,8 +335,8 @@ MonoBehaviour:
   fleeHealthThreshold: 0.25
   fleeDistance: 15
   canFlee: 1
-  preferredCombatDistance: 12
-  projectilePrefab: {fileID: 0}
+  preferredCombatDistance: 4
+  projectilePrefab: {fileID: 3272488517719803676, guid: 81b95ce514956ff478d426dca39245a5, type: 3}
 --- !u!114 &8260277821304529040
 MonoBehaviour:
   m_ObjectHideFlags: 0

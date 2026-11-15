@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: WarriorAura
   m_EditorClassIdentifier: Assembly-CSharp::WarriorAuraPassive
   unlockLevel: 3
-  radius: 8
+  radius: 5
   affectAllies: 1
   armorEnabled: 1
   armorBonus: 5
   damageEnabled: 0
   damageBonusPercent: 0.15
   showVisual: 1
-  color: {r: 1, g: 0.8, b: 0.25, a: 1}
+  color: {r: 0.25098038, g: 0.32053897, b: 1, a: 1}
