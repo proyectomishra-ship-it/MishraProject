@@ -450863,12 +450863,12 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2545204004371133031, guid: 0250b33cc9e715a4894827547ff427af, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2545204004371133031, guid: 0250b33cc9e715a4894827547ff427af, type: 3}
       propertyPath: characterData
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 11400000, guid: 536020a0c21c2154fae89a26139956d8, type: 2}
     - target: {fileID: 2587119790520319639, guid: 0250b33cc9e715a4894827547ff427af, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 4043067241
