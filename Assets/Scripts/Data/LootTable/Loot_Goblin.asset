@@ -21,7 +21,7 @@ MonoBehaviour:
     weight: 3
     minQty: 1
     maxQty: 2
-  - pickupPrefab: {fileID: 2694756543368021253, guid: a36202de0471dc04a8769581135a098d, type: 3}
+  - pickupPrefab: {fileID: 1893350640169282567, guid: f4a40bcdd8893434a94e9bfa83e347f9, type: 3}
     weight: 3
     minQty: 1
     maxQty: 2

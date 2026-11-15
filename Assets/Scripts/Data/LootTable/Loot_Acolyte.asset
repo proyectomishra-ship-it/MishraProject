@@ -21,15 +21,15 @@ MonoBehaviour:
     weight: 3
     minQty: 1
     maxQty: 2
-  - pickupPrefab: {fileID: 8623731511847888831, guid: e7de7d560bfbdb048bb02924767f2d9b, type: 3}
+  - pickupPrefab: {fileID: 7653522356007415419, guid: f2f63a5bef04f6d448992a5b87710d0e, type: 3}
     weight: 3
     minQty: 1
     maxQty: 2
-  - pickupPrefab: {fileID: 5275088636127453012, guid: f69d2e1e42fd3d243b7bd94c5d9d1d3c, type: 3}
+  - pickupPrefab: {fileID: 6242120685411157393, guid: 704dfc5701ab0f64c8b32196a9acd970, type: 3}
     weight: 2
     minQty: 1
     maxQty: 1
-  - pickupPrefab: {fileID: 3668105015484739885, guid: c623c0a9077646a448c7d68fed303d01, type: 3}
+  - pickupPrefab: {fileID: 2942249056150997869, guid: 1210bb893dbad9444891d0c8e2672bef, type: 3}
     weight: 1
     minQty: 1
     maxQty: 1

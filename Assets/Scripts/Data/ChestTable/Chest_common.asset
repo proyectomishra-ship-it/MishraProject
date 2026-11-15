@@ -13,15 +13,15 @@ MonoBehaviour:
   m_Name: Chest_common
   m_EditorClassIdentifier: Assembly-CSharp::LootTableData
   entries:
-  - pickupPrefab: {fileID: 2038815286787693634, guid: 2ffa1059775ad2c429d08713c3f51552, type: 3}
+  - pickupPrefab: {fileID: 2495156848697275963, guid: a41d9779a769b554bab4f3fa67fcdae2, type: 3}
     weight: 10
     minQty: 1
     maxQty: 2
-  - pickupPrefab: {fileID: 5275088636127453012, guid: f69d2e1e42fd3d243b7bd94c5d9d1d3c, type: 3}
+  - pickupPrefab: {fileID: 6242120685411157393, guid: 704dfc5701ab0f64c8b32196a9acd970, type: 3}
     weight: 10
     minQty: 1
     maxQty: 2
-  - pickupPrefab: {fileID: 8623731511847888831, guid: e7de7d560bfbdb048bb02924767f2d9b, type: 3}
+  - pickupPrefab: {fileID: 7653522356007415419, guid: f2f63a5bef04f6d448992a5b87710d0e, type: 3}
     weight: 20
     minQty: 1
     maxQty: 2
@@ -33,23 +33,23 @@ MonoBehaviour:
     weight: 10
     minQty: 1
     maxQty: 2
-  - pickupPrefab: {fileID: 5275088636127453012, guid: f69d2e1e42fd3d243b7bd94c5d9d1d3c, type: 3}
+  - pickupPrefab: {fileID: 6242120685411157393, guid: 704dfc5701ab0f64c8b32196a9acd970, type: 3}
     weight: 10
     minQty: 1
     maxQty: 3
-  - pickupPrefab: {fileID: 3668105015484739885, guid: c623c0a9077646a448c7d68fed303d01, type: 3}
+  - pickupPrefab: {fileID: 2942249056150997869, guid: 1210bb893dbad9444891d0c8e2672bef, type: 3}
     weight: 10
     minQty: 1
     maxQty: 3
-  - pickupPrefab: {fileID: 5565305636432822833, guid: 1420ae5229710744abb8f7dba2794375, type: 3}
+  - pickupPrefab: {fileID: 5151031602945827879, guid: f74aa5af7f2af60409e5ed2a25c6c296, type: 3}
     weight: 10
     minQty: 1
     maxQty: 3
-  - pickupPrefab: {fileID: 2396500419996243310, guid: 4fc5474a86a4d964d861ea2eff9d29da, type: 3}
+  - pickupPrefab: {fileID: 2971628546508817222, guid: 03706a8def8766c49aa06f3b65989cb5, type: 3}
     weight: 10
     minQty: 1
     maxQty: 1
-  - pickupPrefab: {fileID: 2457280801093177583, guid: 4c6bf57e56bf3fc4eab6fa6d716a2b08, type: 3}
+  - pickupPrefab: {fileID: 3297959165156917564, guid: 7b2076a730633d54d8dac01ff4e4b31f, type: 3}
     weight: 10
     minQty: 1
     maxQty: 3
