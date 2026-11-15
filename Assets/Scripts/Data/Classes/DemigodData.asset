@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DemigodData
   attack: 60
   attackRange: 5
-  defense: 40
+  defense: 30
   maxHealth: 400
   maxMana: 40
   speed: 11
@@ -22,14 +22,14 @@ MonoBehaviour:
   criticalChance: 0.5
   dexterity: 30
   intelligence: 20
-  vitality: 40
+  vitality: 20
   stamina: 0
   luck: 0
-  baseLevel: 50
+  baseLevel: 1
   weaponType: 0
   levelScaling:
   - stat: 3
-    percentPerLevel: 0.1
+    percentPerLevel: 0.3
   - stat: 0
     percentPerLevel: 0.06
   - stat: 2
@@ -40,10 +40,10 @@ MonoBehaviour:
   specialAttackCooldown: 8
   hasHeavyAttack: 1
   hasSpecialAttack: 1
-  baseExperienceReward: 300
+  baseExperienceReward: 200
   classMultiplier: 1
   fleeHealthThreshold: 0.25
   canFlee: 0
   availableStrategies: 
   preferredCombatDistance: 8
-  projectilePrefab: {fileID: 3272488517719803676, guid: 81b95ce514956ff478d426dca39245a5, type: 3}
+  projectilePrefab: {fileID: 6015217549420614491, guid: 32b834b8377618443860569511413a45, type: 3}

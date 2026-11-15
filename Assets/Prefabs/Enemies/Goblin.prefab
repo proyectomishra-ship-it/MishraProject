@@ -278,7 +278,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 12
+  m_Speed: 15
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 80
@@ -307,7 +307,7 @@ MonoBehaviour:
   experienceReward: 100
   goldReward: 10
   classMultiplier: 1
-  initialLevel: 0
+  initialLevel: 5
   scaleWithPlayers: 1
   enemyType: {fileID: 11400000, guid: ba715031d42214d47bbf7b52e3834439, type: 2}
 --- !u!114 &86565851316333055

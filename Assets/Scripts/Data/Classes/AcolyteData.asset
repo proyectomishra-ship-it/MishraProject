@@ -25,7 +25,7 @@ MonoBehaviour:
   vitality: 10
   stamina: 0
   luck: 0
-  baseLevel: 20
+  baseLevel: 1
   weaponType: 4
   levelScaling:
   - stat: 3
@@ -40,10 +40,10 @@ MonoBehaviour:
   specialAttackCooldown: 8
   hasHeavyAttack: 1
   hasSpecialAttack: 0
-  baseExperienceReward: 50
+  baseExperienceReward: 150
   classMultiplier: 1
   fleeHealthThreshold: 0.25
   canFlee: 1
   availableStrategies: 
-  preferredCombatDistance: 8
+  preferredCombatDistance: 15
   projectilePrefab: {fileID: 3272488517719803676, guid: 81b95ce514956ff478d426dca39245a5, type: 3}
