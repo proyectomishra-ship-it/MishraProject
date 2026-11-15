@@ -46,4 +46,4 @@ MonoBehaviour:
   canFlee: 0
   availableStrategies: 
   preferredCombatDistance: 8
-  projectilePrefab: {fileID: 3272488517719803676, guid: 81b95ce514956ff478d426dca39245a5, type: 3}
+  projectilePrefab: {fileID: 6015217549420614491, guid: 32b834b8377618443860569511413a45, type: 3}
