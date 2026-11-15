@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98727d11479810f4687270010e84878e, type: 3}
   m_Name: WarriorData
   m_EditorClassIdentifier: Assembly-CSharp::PlayerClassData
+  displayName: Guerrero
   levelScaling:
   - stat: 0
     value: 3

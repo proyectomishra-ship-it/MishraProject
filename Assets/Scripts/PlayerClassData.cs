@@ -12,6 +12,10 @@ public class PlayerClassData : ScriptableObject
         public float value;
     }
 
+    [Header("Nombre")]
+    [Tooltip("Nombre que ve el jugador (ej: Guerrero, Cazador, Mago). Vacío = usa el nombre del asset.")]
+    [SerializeField] private string displayName;
+
     [Header("Level Scaling")]
     [SerializeField] private List<StatModifier> levelScaling;
 
@@ -48,5 +52,6 @@ public class PlayerClassData : ScriptableObject
     public PassiveAbility Passive => passiveAbility;
     public bool ConsumesStaminaOnAttack => consumesStaminaOnAttack;
 
-    public string DisplayName { get; internal set; }
+    public string DisplayName =>
+        !string.IsNullOrEmpty(displayName) ? displayName : name.Replace("Data", "").Trim();
 }
