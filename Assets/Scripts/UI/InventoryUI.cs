@@ -101,6 +101,7 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private InventoryPreviewCamera previewCamera;
 
     private CharacterStatsPanelUI statsPanel;
+    private TextMeshProUGUI craftDescriptionLabel;
 
     // Referencia al binder de la cámara del jugador para pausar el mouse look
     private PlayerCameraBinder cameraBinder;
@@ -226,7 +227,7 @@ public class InventoryUI : MonoBehaviour
             });
 
         if (craftingDetailPanel != null)
-            InventoryDetailLayout.ApplyCraft(new InventoryDetailLayout.CraftRefs
+            craftDescriptionLabel = InventoryDetailLayout.ApplyCraft(new InventoryDetailLayout.CraftRefs
             {
                 panel = craftingDetailPanel.transform as RectTransform,
                 icon = craftingIcon,
@@ -237,6 +238,13 @@ public class InventoryUI : MonoBehaviour
                 ingredients = ingredientListContainer as RectTransform,
                 button = craftButton
             });
+    }
+
+    private void Awake()
+    {
+        // El panel esta activo en la escena y Initialize() (que lo oculta) solo corre cuando
+        // aparece el jugador: sin esto el inventario se ve un instante al iniciar la partida.
+        inventoryPanel?.SetActive(false);
     }
 
     private void OnDestroy()
@@ -517,6 +525,7 @@ public class InventoryUI : MonoBehaviour
 
         // Estadisticas del item (armas y equipamiento). Vacio para el resto.
         string stats = BuildItemStats(item);
+        SetItemDivider(!string.IsNullOrEmpty(item.Description));
         if (detailStats != null)
         {
             // Hay un texto dedicado debajo del nombre.
@@ -616,6 +625,22 @@ public class InventoryUI : MonoBehaviour
     }
 
     /// <summary>Linea de rareza con el color del tema (rich text de TMP).</summary>
+    /// <summary>Color de una cantidad: dorado si alcanza (como los valores de las stats), rojo si falta.</summary>
+    private string CountHex(bool enough)
+    {
+        Color c = enough
+            ? (UITheme.Current != null ? UITheme.Current.textAccent : sufficientColor)
+            : insufficientColor;
+        return ColorUtility.ToHtmlStringRGB(c);
+    }
+
+    /// <summary>El separador inferior solo se muestra si el item tiene descripcion.</summary>
+    private void SetItemDivider(bool show)
+    {
+        var d = detailPanel != null ? detailPanel.transform.Find("DividerBottom") : null;
+        if (d != null) d.gameObject.SetActive(show);
+    }
+
     private static string RarityLine(ItemData item)
     {
         string hex = ColorUtility.ToHtmlStringRGB(RarityFrame.ColorOf(item.Rarity));
@@ -776,7 +801,12 @@ public class InventoryUI : MonoBehaviour
                     ? UITheme.Current.textAccent
                     : RarityFrame.ColorOf(output.Rarity);
         }
-        if (craftingDescription != null) craftingDescription.text = output != null ? output.Description : "";
+        // Misma presentacion que el detalle de item: tabla (rareza, stats, clase) y descripcion.
+        string table = output != null ? BuildItemStats(output) : "";
+        if (output != null && string.IsNullOrEmpty(table)) table = RarityLine(output);
+        if (craftingDescription != null) craftingDescription.text = table;
+        if (craftDescriptionLabel != null)
+            craftDescriptionLabel.text = output != null ? output.Description : "";
 
         BuildIngredientList(recipe);
 
@@ -787,8 +817,8 @@ public class InventoryUI : MonoBehaviour
             if (hasCost)
             {
                 int have = gold != null ? gold.Gold : 0;
-                goldCostText.text = $"Oro: {have} / {recipe.GoldCost}";
-                goldCostText.color = have >= recipe.GoldCost ? sufficientColor : insufficientColor;
+                goldCostText.text = $"Oro<pos=62%><color=#{CountHex(have >= recipe.GoldCost)}>{have} / {recipe.GoldCost}</color>";
+                goldCostText.color = UITheme.Current != null ? UITheme.Current.textPrimary : sufficientColor;
             }
         }
 
@@ -830,8 +860,10 @@ public class InventoryUI : MonoBehaviour
             {
                 // Fallback: solo texto (comportamiento anterior)
                 var line = Instantiate(ingredientLinePrefab, ingredientListContainer);
-                line.text = $"{ing.item.ItemName}  {have} / {ing.quantity}";
-                line.color = color;
+                line.text = $"{ing.item.ItemName}<pos=62%><color=#{CountHex(have >= ing.quantity)}>{have} / {ing.quantity}</color>";
+                line.color = UITheme.Current != null ? UITheme.Current.textPrimary : sufficientColor;
+                line.fontSize = 22f;
+                line.alignment = TextAlignmentOptions.TopLeft;
                 ingredientLineInstances.Add(line.gameObject);
             }
         }

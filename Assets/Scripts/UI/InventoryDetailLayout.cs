@@ -50,7 +50,7 @@ public static class InventoryDetailLayout
         Divider(r.panel, "DividerTop", y); y += 12f;
 
         // Estadisticas en columnas: nombre a la izquierda, valor a 62 % del ancho.
-        PlaceText(r.stats, ref y, 200f, 24, FontStyles.Normal, TextAlignmentOptions.TopLeft, false, Primary());
+        PlaceText(r.stats, ref y, 190f, 22, FontStyles.Normal, TextAlignmentOptions.TopLeft, false, Primary());
         if (r.stats != null) r.stats.lineSpacing = 8f;
 
         Divider(r.panel, "DividerBottom", y); y += 12f;
@@ -63,17 +63,26 @@ public static class InventoryDetailLayout
     // RECETA
     // =========================
 
-    public static void ApplyCraft(CraftRefs r)
+    /// <summary>Devuelve la etiqueta de descripcion creada (la tabla de datos usa r.description).</summary>
+    public static TextMeshProUGUI ApplyCraft(CraftRefs r)
     {
-        if (r == null || r.panel == null) return;
+        if (r == null || r.panel == null) return null;
         Stretch(r.panel);
 
         float y = HeaderInset;
         PlaceIcon(r.icon, ref y);
 
         PlaceText(r.name, ref y, 46f, 34, FontStyles.Bold, TextAlignmentOptions.Center, true);
-        PlaceText(r.description, ref y, 70f, 20, FontStyles.Italic, TextAlignmentOptions.Top, false, Muted());
-        Divider(r.panel, "DividerTop", y); y += 10f;
+        y += 4f;
+        Divider(r.panel, "DividerTop", y); y += 12f;
+
+        // Misma tabla que el detalle de item: rareza, stats y clase en dos columnas.
+        PlaceText(r.description, ref y, 176f, 22, FontStyles.Normal, TextAlignmentOptions.TopLeft, false, Primary());
+        if (r.description != null) r.description.lineSpacing = 6f;
+
+        var desc = EnsureLabel(r.panel, "DescriptionText", "");
+        PlaceText(desc, ref y, 62f, 21, FontStyles.Italic, TextAlignmentOptions.TopLeft, false, Muted());
+        Divider(r.panel, "DividerMid", y); y += 10f;
 
         var header = EnsureLabel(r.panel, "IngredientsHeader", "INGREDIENTES");
         PlaceText(header, ref y, 30f, 19, FontStyles.Bold, TextAlignmentOptions.Left, false, Accent());
@@ -81,11 +90,11 @@ public static class InventoryDetailLayout
 
         if (r.ingredients != null)
         {
-            // Ocupa el hueco entre el encabezado y el pie (feedback + oro + boton).
+            // Ocupa el hueco entre el encabezado y el pie (oro + feedback + boton).
             r.ingredients.anchorMin = Vector2.zero;
             r.ingredients.anchorMax = Vector2.one;
             r.ingredients.pivot = new Vector2(0.5f, 1f);
-            r.ingredients.offsetMin = new Vector2(Side, 156f);
+            r.ingredients.offsetMin = new Vector2(Side, 186f);
             r.ingredients.offsetMax = new Vector2(-Side, -y);
 
             var group = r.ingredients.GetComponent<VerticalLayoutGroup>();
@@ -93,19 +102,20 @@ public static class InventoryDetailLayout
             {
                 group = r.ingredients.gameObject.AddComponent<VerticalLayoutGroup>();
                 group.childControlWidth = true;
-                group.childControlHeight = true;
                 group.childForceExpandWidth = true;
-                group.childForceExpandHeight = false;
             }
-            // Con un grupo ya existente solo se ajusta la alineacion y el espaciado.
+            group.childControlHeight = true;
+            group.childForceExpandHeight = false;
             group.childAlignment = TextAnchor.UpperLeft;
-            group.spacing = 6f;
+            group.spacing = 4f;
         }
 
-        // Pie del panel: feedback, costo en oro y boton.
-        PlaceFromBottom(r.feedback, 118f, 28f, 20, TextAlignmentOptions.Center);
-        PlaceFromBottom(r.gold, 86f, 30f, 22, TextAlignmentOptions.Center);
+        // Pie: separador, fila de oro (misma tabla), mensaje de resultado y boton.
+        DividerFromBottom(r.panel, "DividerBottom", 176f);
+        PlaceFromBottom(r.gold, 136f, 32f, 22, TextAlignmentOptions.Left);
+        PlaceFromBottom(r.feedback, 98f, 28f, 20, TextAlignmentOptions.Center);
         PlaceButton(r.button);
+        return desc;
     }
 
     // =========================
@@ -202,6 +212,16 @@ public static class InventoryDetailLayout
         rt.pivot = new Vector2(0.5f, 1f);
         rt.anchoredPosition = new Vector2(0f, -y);
         rt.sizeDelta = new Vector2(-2f * Side, 1f);
+    }
+
+    private static void DividerFromBottom(RectTransform panel, string name, float bottom)
+    {
+        Divider(panel, name, 0f);
+        var rt = (RectTransform)panel.Find(name);
+        rt.anchorMin = new Vector2(0f, 0f);
+        rt.anchorMax = new Vector2(1f, 0f);
+        rt.pivot = new Vector2(0.5f, 0f);
+        rt.anchoredPosition = new Vector2(0f, bottom);
     }
 
     private static TextMeshProUGUI EnsureLabel(RectTransform panel, string name, string text)

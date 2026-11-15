@@ -21,6 +21,9 @@ public class CraftingRecipeUI : MonoBehaviour, IPointerClickHandler
     [SerializeField] private Color canCraftColor = new Color(0.22f, 0.22f, 0.22f, 0.85f);
     [SerializeField] private Color cannotCraftColor = new Color(0.18f, 0.08f, 0.08f, 0.85f);
 
+    [Tooltip("Opacidad de la celda cuando faltan materiales u oro.")]
+    [SerializeField] private float unavailableAlpha = 0.4f;
+
     public CraftingRecipeData Recipe { get; private set; }
     private int recipeId;
 
@@ -55,6 +58,11 @@ public class CraftingRecipeUI : MonoBehaviour, IPointerClickHandler
     {
         if (backgroundImage != null)
             backgroundImage.color = canCraft ? canCraftColor : cannotCraftColor;
+
+        // Atenua toda la celda (fondo, icono y marco de rareza) cuando no se puede craftear.
+        var group = GetComponent<CanvasGroup>();
+        if (group == null) group = gameObject.AddComponent<CanvasGroup>();
+        group.alpha = canCraft ? 1f : unavailableAlpha;
     }
 
     public void SetSelected(bool selected)
