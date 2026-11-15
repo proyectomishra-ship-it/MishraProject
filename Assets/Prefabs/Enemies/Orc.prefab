@@ -160,7 +160,7 @@ MonoBehaviour:
   experienceReward: 150
   goldReward: 10
   classMultiplier: 1
-  initialLevel: 0
+  initialLevel: 6
   scaleWithPlayers: 1
   enemyType: {fileID: 11400000, guid: d5baa4c16c27ebb41af4754232bfec37, type: 2}
 --- !u!114 &2119158155385085822

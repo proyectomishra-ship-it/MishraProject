@@ -191,9 +191,9 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   characterData: {fileID: 11400000, guid: a6395c22e55074e4aad6759457c0308c, type: 2}
   experienceReward: 500
-  goldReward: 10
-  classMultiplier: 1
-  initialLevel: 35
+  goldReward: 500
+  classMultiplier: 3
+  initialLevel: 25
   scaleWithPlayers: 0
   enemyType: {fileID: 11400000, guid: ac37f87c06a543c4faf9c7e637c22916, type: 2}
 --- !u!114 &8787552271937325525

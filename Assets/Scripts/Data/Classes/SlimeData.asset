@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OrcArcherData
   attack: 30
   attackRange: 5
-  defense: 20
-  maxHealth: 100
+  defense: 25
+  maxHealth: 200
   maxMana: 0
   speed: 3.5
   agility: 5
@@ -25,7 +25,7 @@ MonoBehaviour:
   vitality: 20
   stamina: 0
   luck: 0
-  baseLevel: 5
+  baseLevel: 1
   weaponType: 2
   levelScaling:
   - stat: 3
