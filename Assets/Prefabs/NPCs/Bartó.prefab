@@ -114,6 +114,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NonPlayableCharacter
   ShowTopMostFoldoutHeaderGroup: 1
   characterData: {fileID: 11400000, guid: 536020a0c21c2154fae89a26139956d8, type: 2}
+  requireCombatComponents: 0
 --- !u!114 &635677477610642119
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -10,6 +10,11 @@ public abstract class Character : NetworkBehaviour
     [Header("Data")]
     [SerializeField] protected CharacterData characterData;
 
+    [Header("Componentes")]
+    [Tooltip("Desactivar en NPCs pacíficos (ej. Bartó) que no pelean ni tienen inventario: " +
+             "no se exigen DamageReceiver, ResourceController, Inventory, Equipment, Targeting ni Combat.")]
+    [SerializeField] protected bool requireCombatComponents = true;
+
     protected CharacterStats stats;
 
     // =========================
@@ -50,23 +55,26 @@ public abstract class Character : NetworkBehaviour
     {
         stats = CreateStats();
 
-        damageReceiver = GetComponent<DamageReceiver>();
-        resourceController = GetComponent<ResourceController>();
-        inventoryController = GetComponent<InventoryController>();
-        equipmentController = GetComponent<EquipmentController>();
-        targetingController = GetComponent<TargetingController>();
+        damageReceiver = GetOptional<DamageReceiver>();
+        resourceController = GetOptional<ResourceController>();
+        inventoryController = GetOptional<InventoryController>();
+        equipmentController = GetOptional<EquipmentController>();
+        targetingController = GetOptional<TargetingController>();
 
-        ValidateComponent(damageReceiver, nameof(DamageReceiver));
-        ValidateComponent(resourceController, nameof(ResourceController));
-        ValidateComponent(inventoryController, nameof(InventoryController));
-        ValidateComponent(equipmentController, nameof(EquipmentController));
-        ValidateComponent(targetingController, nameof(TargetingController));
+        if (requireCombatComponents)
+        {
+            ValidateComponent(damageReceiver, nameof(DamageReceiver));
+            ValidateComponent(resourceController, nameof(ResourceController));
+            ValidateComponent(inventoryController, nameof(InventoryController));
+            ValidateComponent(equipmentController, nameof(EquipmentController));
+            ValidateComponent(targetingController, nameof(TargetingController));
+        }
 
-        damageReceiver?.Initialize(this);
-        resourceController?.Initialize(this);
-        inventoryController?.Initialize(this);
-        equipmentController?.Initialize(this);
-        targetingController?.Initialize(this);
+        if (damageReceiver != null) damageReceiver.Initialize(this);
+        if (resourceController != null) resourceController.Initialize(this);
+        if (inventoryController != null) inventoryController.Initialize(this);
+        if (equipmentController != null) equipmentController.Initialize(this);
+        if (targetingController != null) targetingController.Initialize(this);
 
         Debug.Log(
             $"[Character.Awake] {gameObject.name} | SceneInstance: {gameObject.scene.IsValid()}");
@@ -74,7 +82,18 @@ public abstract class Character : NetworkBehaviour
 
     protected virtual CharacterStats CreateStats()
     {
+        if (characterData == null)
+            Debug.LogError($"[Character] {gameObject.name} no tiene CharacterData asignado.", this);
+
         return new CharacterStats(characterData);
+    }
+
+    // GetComponent en el Editor devuelve un "null falso" cuando falta el componente,
+    // y el operador ?. no lo detecta. Esto devuelve un null real.
+    protected T GetOptional<T>() where T : Component
+    {
+        var c = GetComponent<T>();
+        return c != null ? c : null;
     }
 
     private void ValidateComponent(Component comp, string name)

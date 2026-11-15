@@ -29,13 +29,13 @@ public class NonPlayableCharacter : Character
     {
         base.Awake();
 
-        combatController = GetComponent<CombatController>();
+        combatController = GetOptional<CombatController>();
 
-        if (combatController == null)
+        if (combatController != null)
+            combatController.Initialize(this);
+        else if (requireCombatComponents)
             Debug.LogError(
                 $"[NonPlayableCharacter] Falta CombatController en {gameObject.name}");
-        else
-            combatController.Initialize(this);
     }
 
     public override void OnNetworkSpawn()
