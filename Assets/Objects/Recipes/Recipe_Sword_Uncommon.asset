@@ -18,5 +18,5 @@ MonoBehaviour:
   - item: {fileID: 11400000, guid: 53a655d49feb5f64db24045bb94353b8, type: 2}
     quantity: 1
   - item: {fileID: 11400000, guid: 421e2b99da009a14692222994e09660b, type: 2}
-    quantity: 6
-  goldCost: 50
+    quantity: 3
+  goldCost: 25

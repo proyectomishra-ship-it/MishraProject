@@ -16,7 +16,7 @@ MonoBehaviour:
   outputQuantity: 1
   ingredients:
   - item: {fileID: 11400000, guid: 6e53b340d0f75a54ab7ca2f6afd49623, type: 2}
-    quantity: 4
+    quantity: 2
   - item: {fileID: 11400000, guid: fabf90ecbb571cf418c8103d466ae449, type: 2}
     quantity: 1
-  goldCost: 20
+  goldCost: 10

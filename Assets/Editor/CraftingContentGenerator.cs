@@ -255,7 +255,7 @@ public static class CraftingContentGenerator
                 new[]{ I("TannedLeather",16), I("CopperIngot",8), I("Amber",6), I("GoldIngot",4), I("Diamond",2) }),
         }),
         // Mago: tela arcana, amatista; bonus de clase = mana maximo %
-        new WeaponLine("Grimoire_Basic", "Assets/Objects/Grimoire_Basic.asset", new[]
+        new WeaponLine("Staff_Basic", "Assets/Objects/Staff_Basic.asset", new[]
         {
             new WeaponTier("Staff_Uncommon", "Grimorio Reforzado", "Paginas nuevas y encuadernado arcano.",
                 ItemRarity.Uncommon, 1.25f, new Mod[0], 50,
@@ -308,7 +308,7 @@ public static class CraftingContentGenerator
     {
         new[]{ "Assets/Objects/Sword_Basic.asset",    "WarriorData" },
         new[]{ "Assets/Objects/Bow_Basic.asset",      "HunterData"  },
-        new[]{ "Assets/Objects/Grimoire_Basic.asset", "MageData"    },
+        new[]{ "Assets/Objects/Staff_Basic.asset", "MageData"    },
     };
 
     // Nombre que ve el jugador (solo se escribe si el campo esta vacio).
@@ -388,6 +388,12 @@ public static class CraftingContentGenerator
     private static Dictionary<string, Sprite> iconIndex;
 
     private static bool overwriteRecipes;
+
+    /// <summary>
+    /// Escala los costos de las recetas (materiales y oro; minimo 1 de cada material).
+    /// 1 = costos de las tablas, 0.5 = la mitad. Se aplica al generar recetas.
+    /// </summary>
+    private const float RecipeCostScale = 0.5f;
 
     [MenuItem("RPG/Generar materiales, equipo, recetas y loot")]
     public static void Generate() => Run(false);
@@ -912,7 +918,7 @@ public static class CraftingContentGenerator
         var so = new SerializedObject(recipe);
         so.FindProperty("outputItem").objectReferenceValue = items[outputKey];
         so.FindProperty("outputQuantity").intValue = 1;
-        so.FindProperty("goldCost").intValue = gold;
+        so.FindProperty("goldCost").intValue = Mathf.RoundToInt(gold * RecipeCostScale);
 
         var list = so.FindProperty("ingredients");
         list.arraySize = ingredients.Length;
@@ -925,7 +931,8 @@ public static class CraftingContentGenerator
             }
             var el = list.GetArrayElementAtIndex(i);
             el.FindPropertyRelative("item").objectReferenceValue = mat;
-            el.FindPropertyRelative("quantity").intValue = ingredients[i].qty;
+            el.FindPropertyRelative("quantity").intValue =
+                Mathf.Max(1, Mathf.CeilToInt(ingredients[i].qty * RecipeCostScale));
         }
         so.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(recipe);

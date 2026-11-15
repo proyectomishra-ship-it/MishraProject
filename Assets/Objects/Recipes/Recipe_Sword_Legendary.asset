@@ -18,11 +18,11 @@ MonoBehaviour:
   - item: {fileID: 11400000, guid: 99afeaf9a35141d4eb6a94400b65fc8f, type: 2}
     quantity: 1
   - item: {fileID: 11400000, guid: 421e2b99da009a14692222994e09660b, type: 2}
-    quantity: 20
+    quantity: 10
   - item: {fileID: 11400000, guid: fbacf8544716e484fa45290e9138c54a, type: 2}
-    quantity: 6
+    quantity: 3
   - item: {fileID: 11400000, guid: ea25a7dee28fa9243af8eb0f2bcc05e1, type: 2}
-    quantity: 4
-  - item: {fileID: 11400000, guid: 5bde411035fd96a49be11b2b018a7875, type: 2}
     quantity: 2
-  goldCost: 600
+  - item: {fileID: 11400000, guid: 5bde411035fd96a49be11b2b018a7875, type: 2}
+    quantity: 1
+  goldCost: 300

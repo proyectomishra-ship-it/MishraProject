@@ -23,4 +23,4 @@ MonoBehaviour:
     quantity: 1
   - item: {fileID: 11400000, guid: 5bde411035fd96a49be11b2b018a7875, type: 2}
     quantity: 1
-  goldCost: 60
+  goldCost: 30
