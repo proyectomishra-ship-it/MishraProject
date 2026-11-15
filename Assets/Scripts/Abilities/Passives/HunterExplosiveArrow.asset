@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6f1ac87fb31c23244930653b6e60645a, type: 3}
-  m_Name: ExplosiveArrow
+  m_Name: HunterExplosiveArrow
   m_EditorClassIdentifier: Assembly-CSharp::ExplosiveArrowPassive
   unlockLevel: 8
-  explosionRadius: 5
+  explosionRadius: 7
   explosionDamagePercent: 0.6
   damagePlayers: 1
   explosionColor: {r: 1, g: 0.5, b: 0.1, a: 1}

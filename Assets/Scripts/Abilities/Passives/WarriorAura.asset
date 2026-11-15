@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f59735f6e145d2a49b5dbcb02b349acc, type: 3}
   m_Name: WarriorAura
   m_EditorClassIdentifier: Assembly-CSharp::WarriorAuraPassive
-  unlockLevel: 3
+  unlockLevel: 5
   radius: 5
   affectAllies: 1
   armorEnabled: 1

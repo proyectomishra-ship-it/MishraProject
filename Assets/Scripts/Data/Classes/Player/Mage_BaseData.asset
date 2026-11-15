@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d08779c0e155827439d110ec5d8bf5dd, type: 3}
   m_Name: Mage_BaseData
   m_EditorClassIdentifier: Assembly-CSharp::CharacterData
-  attack: 70
+  attack: 80
   attackRange: 30
   defense: 10
   maxHealth: 100

@@ -44,7 +44,7 @@ MonoBehaviour:
   specialProjectilePrefab: {fileID: 0}
   heavyMultiplier: 2
   specialMultiplier: 1.5
-  staminaCost: 0
+  staminaCost: 20
   manaCost: 0
   meleeRange: 2
   projectileRange: 25
