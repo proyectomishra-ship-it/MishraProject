@@ -278,7 +278,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 8
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 80
@@ -324,8 +324,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OrcArcherAIController
   ShowTopMostFoldoutHeaderGroup: 1
   detectionRadius: 30
-  fieldOfViewAngle: 120
-  alertRadius: 15
+  fieldOfViewAngle: 360
+  alertRadius: 30
   lostTargetTime: 5
   hitAggroDuration: 8
   idleDuration: 2
@@ -335,8 +335,8 @@ MonoBehaviour:
   fleeHealthThreshold: 0.25
   fleeDistance: 15
   canFlee: 1
-  preferredCombatDistance: 4
-  projectilePrefab: {fileID: 3272488517719803676, guid: 81b95ce514956ff478d426dca39245a5, type: 3}
+  preferredCombatDistance: 8
+  projectilePrefab: {fileID: 2764292145914133879, guid: 96dbb245eb6b6a64e9a4ae0e33364180, type: 3}
 --- !u!114 &8260277821304529040
 MonoBehaviour:
   m_ObjectHideFlags: 0

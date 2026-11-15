@@ -164,7 +164,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 8
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 80
@@ -223,7 +223,7 @@ MonoBehaviour:
   canFlee: 1
   phase2Threshold: 0.6
   phase3Threshold: 0.3
-  spellPrefab: {fileID: 3272488517719803676, guid: 81b95ce514956ff478d426dca39245a5, type: 3}
+  spellPrefab: {fileID: 6015217549420614491, guid: 32b834b8377618443860569511413a45, type: 3}
   specialPrefab: {fileID: 1565353264096764615, guid: c1fc3dc8764f5d345a3998de6089ea18, type: 3}
   orcPrefab: {fileID: 486879105537464321, guid: 1097584a67b829c4fa4f49e67d7f9ebb, type: 3}
   phase2SummonCount: 2
