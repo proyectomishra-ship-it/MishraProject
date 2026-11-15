@@ -66,6 +66,10 @@ public class GoldUI : MonoBehaviour
 
     private void HandleGoldChanged(int oldValue, int newValue)
     {
+        // Suena solo al ganar oro (no al gastarlo).
+        if (newValue > oldValue)
+            AudioManager.PlayUI(UISound.Gold);
+
         UpdateGoldText();
     }
 

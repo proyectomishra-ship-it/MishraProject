@@ -168,7 +168,17 @@ public class InventoryUI : MonoBehaviour
         // Un solo refresco por frame: la NetworkList del cliente dispara N+1
         // eventos por cada cambio (Clear + un Add por slot). Ver LateUpdate().
         inventory.OnChanged += QueueRefresh;
-        equipment.OnSlotChanged += (_, __) => { RefreshEquipmentSlots(); QueueRefresh(); };
+        equipment.OnSlotChanged += (_, item) =>
+        {
+            // Suena solo al equipar con el inventario abierto: asi no suena cuando
+            // el jugador aparece con su equipo inicial ni al auto-equipar un objeto
+            // recogido del suelo (ese ya tiene su propio sonido de recoger).
+            if (isOpen && item != null)
+                AudioManager.PlayUI(UISound.Equip);
+
+            RefreshEquipmentSlots();
+            QueueRefresh();
+        };
         if (gold != null) gold.OnGoldChanged += HandleGoldChanged;
         player.OnCraftResult += HandleCraftResult;
         player.OnConsumeResult += HandleConsumeResult;
@@ -317,6 +327,7 @@ public class InventoryUI : MonoBehaviour
     private void ToggleInventory()
     {
         isOpen = !isOpen;
+        AudioManager.PlayUI(isOpen ? UISound.PanelOpen : UISound.PanelClose);
         inventoryPanel?.SetActive(isOpen);
         SetHudVisible(!isOpen);
 
@@ -884,6 +895,8 @@ public class InventoryUI : MonoBehaviour
 
     private void HandleCraftResult(int recipeId, CraftResult result)
     {
+        AudioManager.PlayUI(result == CraftResult.Success ? UISound.Craft : UISound.Error);
+
         if (craftFeedbackText != null)
         {
             craftFeedbackText.text = result switch

@@ -1,3 +1,4 @@
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -8,8 +9,8 @@ using TMPro;
 /// Tablero de misiones (principal y secundaria).
 ///
 /// Tiene dos vistas que se alternan con una tecla (por defecto J):
-///   - Compacta: título + objetivo con su progreso.
-///   - Completa: además el nombre de la misión y la recompensa.
+///   - Compacta: tï¿½tulo + objetivo con su progreso.
+///   - Completa: ademï¿½s el nombre de la misiï¿½n y la recompensa.
 /// La vista elegida se recuerda entre sesiones (PlayerPrefs).
 ///
 /// Los paneles se ajustan solos al contenido (VerticalLayoutGroup +
@@ -28,7 +29,7 @@ public class QuestTrackerUI : MonoBehaviour
     [SerializeField] private TMP_Text questRewardsText;
 
     [Header("Side Quest (opcional)")]
-    [Tooltip("Si se deja vacío, las misiones secundarias no se muestran.")]
+    [Tooltip("Si se deja vacï¿½o, las misiones secundarias no se muestran.")]
     [SerializeField] private GameObject sideQuestPanel;
     [SerializeField] private TMP_Text sideQuestNameText;
     [SerializeField] private TMP_Text sideQuestObjectivesText;
@@ -38,20 +39,25 @@ public class QuestTrackerUI : MonoBehaviour
     [Tooltip("Tecla para alternar entre la vista compacta y la completa.")]
     [SerializeField] private Key toggleKey = Key.J;
 
-    [Tooltip("Vista con la que arranca la primera vez. Después se recuerda la última elegida.")]
+    [Tooltip("Vista con la que arranca la primera vez. Despuï¿½s se recuerda la ï¿½ltima elegida.")]
     [SerializeField] private bool startExpanded = false;
 
-    [Header("Diseño")]
+    [Header("Diseï¿½o")]
     [SerializeField] private float paddingHorizontal = 15f;
     [SerializeField] private float paddingVertical = 12f;
     [SerializeField] private float lineSpacing = 4f;
-    [Tooltip("Separación entre el panel principal y el secundario.")]
+    [Tooltip("Separaciï¿½n entre el panel principal y el secundario.")]
     [SerializeField] private float panelGap = 8f;
 
     private NetworkQuestManager questManager;
     private bool expanded;
     private RectTransform mainRect;
     private RectTransform sideRect;
+
+    // Misiones que este tablero mostro como activas. Sirve para detectar cuando
+    // una de ellas pasa a Completada y avisar con sonido (solo en este cliente).
+    private readonly HashSet<string> trackedQuestIds = new HashSet<string>();
+    private readonly List<string> completedBuffer = new List<string>();
 
     // =========================================================
     // CICLO DE VIDA
@@ -206,8 +212,8 @@ public class QuestTrackerUI : MonoBehaviour
     }
 
     /// <summary>
-    /// Recalcula el tamaño de ambos paneles y coloca el secundario justo
-    /// debajo del principal (los dos están anclados arriba a la izquierda).
+    /// Recalcula el tamaï¿½o de ambos paneles y coloca el secundario justo
+    /// debajo del principal (los dos estï¿½n anclados arriba a la izquierda).
     /// </summary>
     private void RefreshLayout()
     {
@@ -234,7 +240,7 @@ public class QuestTrackerUI : MonoBehaviour
     }
 
     /// <summary>
-    /// Asigna el texto y muestra u oculta la línea. Una línea oculta
+    /// Asigna el texto y muestra u oculta la lï¿½nea. Una lï¿½nea oculta
     /// no ocupa espacio en el layout.
     /// </summary>
     private static void SetLine(TMP_Text label, string text, bool visible)
@@ -268,10 +274,13 @@ public class QuestTrackerUI : MonoBehaviour
             return;
         }
 
+        PlayQuestCompletedSound();
+
         if (questManager.TryGetActiveMainQuest(
             out QuestData questData,
             out NetworkQuestState questState))
         {
+            trackedQuestIds.Add(questData.questID);
             ShowQuest(questData, questState);
         }
         else
@@ -283,6 +292,7 @@ public class QuestTrackerUI : MonoBehaviour
             out QuestData sideData,
             out NetworkQuestState sideState))
         {
+            trackedQuestIds.Add(sideData.questID);
             ShowSideQuest(sideData, sideState);
         }
         else
@@ -291,6 +301,36 @@ public class QuestTrackerUI : MonoBehaviour
         }
 
         RefreshLayout();
+    }
+
+    /// <summary>
+    /// Suena una vez cuando alguna de las misiones que se estaban mostrando
+    /// pasa a Completada (AudioConfig > Mision Completada). Una mision que ya
+    /// estaba completada al conectarse nunca se agrego, asi que no suena.
+    /// </summary>
+    private void PlayQuestCompletedSound()
+    {
+        if (trackedQuestIds.Count == 0)
+            return;
+
+        foreach (string id in trackedQuestIds)
+        {
+            if (questManager.TryGetQuestState(id, out NetworkQuestState state) &&
+                state.State == QuestState.Completed)
+            {
+                completedBuffer.Add(id);
+            }
+        }
+
+        if (completedBuffer.Count == 0)
+            return;
+
+        foreach (string id in completedBuffer)
+            trackedQuestIds.Remove(id);
+
+        completedBuffer.Clear();
+
+        AudioManager.PlayUI(UISound.QuestComplete);
     }
 
     private void ShowSideQuest(
@@ -325,7 +365,7 @@ public class QuestTrackerUI : MonoBehaviour
             questTrackerPanel.SetActive(true);
         }
 
-        SetLine(questTitleText, "Misión principal" + BuildToggleHint(), true);
+        SetLine(questTitleText, "Misiï¿½n principal" + BuildToggleHint(), true);
         SetLine(questNameText, questData.questName, expanded);
         SetLine(questObjectivesText, BuildObjectiveText(questData, questState), true);
         SetLine(questRewardsText, BuildRewardText(questData), expanded);

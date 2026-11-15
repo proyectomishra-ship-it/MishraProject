@@ -162,14 +162,18 @@ public class ItemPickup : NetworkBehaviour
             }
         }
 
-        PlayPickupAnimationClientRpc();
+        PlayPickupAnimationClientRpc(player.OwnerClientId);
 
         StartCoroutine(DespawnAfterAnimation());
     }
 
     [ClientRpc]
-    private void PlayPickupAnimationClientRpc()
+    private void PlayPickupAnimationClientRpc(ulong pickerClientId)
     {
+        // El sonido es solo para quien recoge el objeto (AudioConfig > Recoger Item).
+        if (NetworkManager != null && NetworkManager.LocalClientId == pickerClientId)
+            AudioManager.PlayUI(UISound.ItemPickup);
+
         if (itemCollider != null)
             itemCollider.enabled = false;
 

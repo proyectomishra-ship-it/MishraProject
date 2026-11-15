@@ -174,6 +174,7 @@ GameObject:
   - component: {fileID: -2547478260151408326}
   - component: {fileID: -3368698729655879383}
   - component: {fileID: 6353871848762795884}
+  - component: {fileID: -6572062482023137417}
   m_Layer: 6
   m_Name: Slime
   m_TagString: Untagged
@@ -304,6 +305,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OrcArcher
   ShowTopMostFoldoutHeaderGroup: 1
   characterData: {fileID: 11400000, guid: fe18f72878ce67b4ca5a960261132aeb, type: 2}
+  requireCombatComponents: 1
   experienceReward: 100
   goldReward: 10
   classMultiplier: 1
@@ -327,6 +329,7 @@ MonoBehaviour:
   fieldOfViewAngle: 360
   alertRadius: 30
   lostTargetTime: 5
+  chaseStoppingDistance: 1.2
   hitAggroDuration: 8
   idleDuration: 2
   waypoints: []
@@ -576,6 +579,101 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   lootTable: {fileID: 11400000, guid: 58728ca20c5f1e541890f4c964bfe617, type: 2}
   spreadRadius: 1.5
+--- !u!114 &-6572062482023137417
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6607487739926507352}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20888a68b91c5554fabe8e1c467f56ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterAudio
+  ShowTopMostFoldoutHeaderGroup: 1
+  ataqueLigero:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  ataquePesado:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  ataqueEspecial:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  ataquesDesdeAnimacion: 0
+  recibeDano:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  curacion:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  muerte:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  reaparece:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  curacionMinima: 0.15
+  paso:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  salto:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  aterrizaje:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  distanciaEntrePasos: 1.8
+  velocidadMinima: 0.6
+  distanciaAlSuelo: 0.35
+  capasDeSuelo:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  porEstadoDeAnimacion: []
+  conNombre: []
+  animator: {fileID: 0}
+  ignorarSegundosAlInicio: 0.75
 --- !u!1001 &2512222984759952799
 PrefabInstance:
   m_ObjectHideFlags: 0

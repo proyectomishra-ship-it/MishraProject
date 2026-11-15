@@ -34,6 +34,7 @@ GameObject:
   - component: {fileID: 5969363081704297594}
   - component: {fileID: 6925308233978318851}
   - component: {fileID: -3246550927044835811}
+  - component: {fileID: -2688300726589104659}
   m_Layer: 3
   m_Name: Warrior
   m_TagString: Player
@@ -99,7 +100,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Player
   ShowTopMostFoldoutHeaderGroup: 1
   characterData: {fileID: 11400000, guid: fe6076a9643238c4ab3051502915e26c, type: 2}
+  requireCombatComponents: 1
   classData: {fileID: 11400000, guid: 108fef0c20c08d445af41a3f9e194691, type: 2}
+  levelUpVfxEnabled: 1
+  levelUpColor: {r: 1, g: 0.85, b: 0.3, a: 1}
+  levelUpShockwaveRadius: 6
+  levelUpAuraDuration: 1.6
+  levelUpPrefab: {fileID: 0}
 --- !u!114 &6183835662724581460
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -558,6 +565,101 @@ MonoBehaviour:
   groundCheckDistance: 0.4
   airborneDelay: 0.2
   minTimeBetweenHits: 0.4
+--- !u!114 &-2688300726589104659
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2211492265159698303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20888a68b91c5554fabe8e1c467f56ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterAudio
+  ShowTopMostFoldoutHeaderGroup: 1
+  ataqueLigero:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  ataquePesado:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  ataqueEspecial:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  ataquesDesdeAnimacion: 1
+  recibeDano:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  curacion:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  muerte:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  reaparece:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  curacionMinima: 0.15
+  paso:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  salto:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  aterrizaje:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  distanciaEntrePasos: 1.8
+  velocidadMinima: 0.6
+  distanciaAlSuelo: 0.35
+  capasDeSuelo:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  porEstadoDeAnimacion: []
+  conNombre: []
+  animator: {fileID: 0}
+  ignorarSegundosAlInicio: 0.75
 --- !u!1 &6088325270206399613
 GameObject:
   m_ObjectHideFlags: 0

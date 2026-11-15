@@ -27,6 +27,7 @@ GameObject:
   - component: {fileID: 2495585097734856660}
   - component: {fileID: -7338421870450463850}
   - component: {fileID: 4749061441089400680}
+  - component: {fileID: -9070875843087644133}
   m_Layer: 6
   m_Name: Orc
   m_TagString: Untagged
@@ -62,7 +63,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3512895756
+  GlobalObjectIdHash: 1488730395
   InScenePlacedSourceGlobalObjectIdHash: 1488730395
   DeferredDespawnTick: 0
   Ownership: 1
@@ -157,6 +158,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Orc
   ShowTopMostFoldoutHeaderGroup: 1
   characterData: {fileID: 11400000, guid: da0f44b7b4a5f024d89f03065cf884be, type: 2}
+  requireCombatComponents: 1
   experienceReward: 150
   goldReward: 10
   classMultiplier: 1
@@ -431,6 +433,101 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   lootTable: {fileID: 11400000, guid: 5125992f9374c554293cbaa33fd822ac, type: 2}
   spreadRadius: 1.5
+--- !u!114 &-9070875843087644133
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 486879105537464321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20888a68b91c5554fabe8e1c467f56ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterAudio
+  ShowTopMostFoldoutHeaderGroup: 1
+  ataqueLigero:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  ataquePesado:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  ataqueEspecial:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  ataquesDesdeAnimacion: 0
+  recibeDano:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  curacion:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  muerte:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  reaparece:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  curacionMinima: 0.15
+  paso:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  salto:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  aterrizaje:
+    sonidos: []
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 1
+  distanciaEntrePasos: 1.8
+  velocidadMinima: 0.6
+  distanciaAlSuelo: 0.35
+  capasDeSuelo:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  porEstadoDeAnimacion: []
+  conNombre: []
+  animator: {fileID: 0}
+  ignorarSegundosAlInicio: 0.75
 --- !u!1 &4345575999677381695
 GameObject:
   m_ObjectHideFlags: 0

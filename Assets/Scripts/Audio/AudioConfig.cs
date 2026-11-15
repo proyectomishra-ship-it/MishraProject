@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public enum UISound { Hover, Click, PanelOpen, PanelClose, Error, Confirm }
+public enum UISound { Hover, Click, PanelOpen, PanelClose, Error, Confirm, Equip, Craft, ItemPickup, Gold, QuestComplete }
 
 /// <summary>
 /// Un solo archivo donde se configura el audio general del juego:
@@ -36,6 +36,18 @@ public class AudioConfig : ScriptableObject
     public SoundSlot error = new SoundSlot { sonido3D = false };
     public SoundSlot confirmar = new SoundSlot { sonido3D = false };
 
+    [Header("SONIDOS DE INVENTARIO Y MISIONES (suenan solo en el jugador que hace la accion)")]
+    [Tooltip("Al equipar un arma o armadura desde el inventario.")]
+    public SoundSlot equipar = new SoundSlot { sonido3D = false };
+    [Tooltip("Al craftear con exito. Si falla (faltan materiales, oro o espacio) suena Error.")]
+    public SoundSlot craftear = new SoundSlot { sonido3D = false };
+    [Tooltip("Al recoger un objeto del suelo.")]
+    public SoundSlot recogerItem = new SoundSlot { sonido3D = false };
+    [Tooltip("Al recibir oro (por derrotar enemigos o por recompensas de mision).")]
+    public SoundSlot ganarOro = new SoundSlot { sonido3D = false };
+    [Tooltip("Al completar una mision (principal o secundaria).")]
+    public SoundSlot misionCompletada = new SoundSlot { sonido3D = false };
+
     [Header("MUSICA POR ESCENA")]
     [Tooltip("Si una escena NO esta en la lista, sigue sonando la musica anterior " +
              "(util para que el tema del menu continue en las pantallas de red y de clase).")]
@@ -52,13 +64,18 @@ public class AudioConfig : ScriptableObject
     {
         switch (sound)
         {
-            case UISound.Hover:      return botonEncima;
-            case UISound.Click:      return botonClick;
-            case UISound.PanelOpen:  return abrirPanel;
+            case UISound.Hover: return botonEncima;
+            case UISound.Click: return botonClick;
+            case UISound.PanelOpen: return abrirPanel;
             case UISound.PanelClose: return cerrarPanel;
-            case UISound.Error:      return error;
-            case UISound.Confirm:    return confirmar;
-            default:                 return null;
+            case UISound.Error: return error;
+            case UISound.Confirm: return confirmar;
+            case UISound.Equip: return equipar;
+            case UISound.Craft: return craftear;
+            case UISound.ItemPickup: return recogerItem;
+            case UISound.Gold: return ganarOro;
+            case UISound.QuestComplete: return misionCompletada;
+            default: return null;
         }
     }
 }

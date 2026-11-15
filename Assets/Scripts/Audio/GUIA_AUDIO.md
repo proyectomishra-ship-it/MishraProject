@@ -14,9 +14,24 @@ No hace falta programar nada. Todo se hace arrastrando archivos de audio a casil
 Abrí `Assets/Resources/AudioConfig` y arrastrá audios a:
 - **Boton Encima**: al pasar el mouse por un botón.
 - **Boton Click**: al hacer clic.
-- **Abrir Panel / Cerrar Panel / Error / Confirmar**: quedan listos para usar.
+- **Abrir Panel / Cerrar Panel**: al abrir y cerrar el inventario (tecla Tab).
+- **Error**: cuando falla un crafteo (faltan materiales, oro o espacio).
+- **Confirmar**: queda listo para usar.
 
 Todos los botones que tienen **Themed Button** suenan solos. No hay que tocar cada botón.
+
+### Sonidos de inventario y misiones
+En el mismo `AudioConfig`, bloque **Sonidos De Inventario Y Misiones**:
+
+| Casillero | Cuándo suena |
+|---|---|
+| Equipar | al equipar un arma o armadura desde el inventario (no suena al aparecer con el equipo inicial) |
+| Craftear | al craftear con éxito (si falla suena **Error**) |
+| Recoger Item | al recoger un objeto del suelo |
+| Ganar Oro | al recibir oro (por derrotar enemigos o por recompensas); al gastarlo no suena |
+| Mision Completada | al completar una misión, principal o secundaria |
+
+Estos sonidos se oyen solo en el jugador que hace la acción, no en los demás. Los casilleros vacíos simplemente no suenan.
 
 ## 2. Música por escena
 En el mismo `AudioConfig`, en **Musica Por Escena**, agregá un elemento por escena:
