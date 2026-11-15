@@ -1,3 +1,4 @@
+
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
@@ -15,9 +16,14 @@ public class EnemyAIController : NetworkBehaviour
     [Header("Chase")]
     [SerializeField] private float lostTargetTime = 3f;
 
+    [Tooltip("Distancia a la que el enemigo se detiene antes de llegar al jugador.")]
+    [SerializeField] private float chaseStoppingDistance = 1.2f;
+
+    public float ChaseStoppingDistance => chaseStoppingDistance;
+
     [Header("Reaction To Damage")]
     [Tooltip("Segundos que sigue persiguiendo al atacante tras recibir un golpe, " +
-             "aunque estÃ© fuera de su cono de visiÃ³n o de su radio de alerta.")]
+             "aunque esté fuera de su cono de visión o de su radio de alerta.")]
     [SerializeField] private float hitAggroDuration = 8f;
 
     [Header("Idle")]
@@ -84,6 +90,7 @@ public class EnemyAIController : NetworkBehaviour
         if (!IsServer) return;
 
         Agent = GetComponent<NavMeshAgent>();
+
         if (Agent == null)
         {
             Debug.LogError($"[EnemyAIController] Falta NavMeshAgent en {enemy.name}");
@@ -96,12 +103,14 @@ public class EnemyAIController : NetworkBehaviour
     private IEnumerator InitializeAI()
     {
         // Esperar un frame para que el NetworkObject esté posicionado en el spawn point.
-        // Sin esta espera, la posición puede leerse como 0,0,0 o el origen de la escena.
         yield return null;
 
-        // Snap al NavMesh más cercano: seguridad si el enemigo está levemente
-        // fuera de la malla por imprecisión en el editor.
-        if (!NavMesh.SamplePosition(enemy.transform.position, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+        // Snap al NavMesh más cercano.
+        if (!NavMesh.SamplePosition(
+            enemy.transform.position,
+            out NavMeshHit hit,
+            2f,
+            NavMesh.AllAreas))
         {
             Debug.LogError($"[{enemy.name}] No hay NavMesh dentro de 2m. " +
                            "Verificá la posición del enemigo en la escena.");
@@ -133,7 +142,7 @@ public class EnemyAIController : NetworkBehaviour
         if (AttackState == null)
             Debug.LogError($"[EnemyAIController] CreateAttackState() devolvió null en {enemy.name}");
 
-        // Empezar en patrol si tiene puntos definidos, idle si no
+        // Empezar en patrol si tiene puntos definidos, idle si no.
         StateMachine.ChangeState(HasPatrolPoints ? PatrolState : IdleState);
     }
 
@@ -166,17 +175,22 @@ public class EnemyAIController : NetworkBehaviour
     public void AdvanceWaypoint()
     {
         if (waypoints == null || waypoints.Length == 0) return;
+
         currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
     }
 
     private Vector3 GetRandomNavMeshPoint()
     {
         Vector2 randomCircle = Random.insideUnitCircle * randomPatrolRadius;
+
         Vector3 randomPoint = randomPatrolOrigin +
             new Vector3(randomCircle.x, 0, randomCircle.y);
 
-        if (NavMesh.SamplePosition(randomPoint, out NavMeshHit hit,
-            randomPatrolRadius, NavMesh.AllAreas))
+        if (NavMesh.SamplePosition(
+            randomPoint,
+            out NavMeshHit hit,
+            randomPatrolRadius,
+            NavMesh.AllAreas))
             return hit.position;
 
         return enemy.transform.position;
@@ -197,8 +211,7 @@ public class EnemyAIController : NetworkBehaviour
     }
 
     /// <summary>
-    /// true mientras el enemigo deba seguir a su target aunque no lo "vea"
-    /// (porque lo golpearon hace poco).
+    /// true mientras el enemigo deba seguir a su target aunque no lo vea.
     /// </summary>
     public bool HasForcedAggro =>
         Time.time < aggroUntil
@@ -206,8 +219,7 @@ public class EnemyAIController : NetworkBehaviour
         && !(CurrentTarget is Player p && p.IsDead());
 
     /// <summary>
-    /// Reacciona a un golpe recibido (propio o de un compaÃ±ero de grupo):
-    /// se alerta y, si estaba tranquilo, pasa a perseguir al atacante.
+    /// Reacciona a un golpe recibido.
     /// Solo servidor.
     /// </summary>
     public void ReactToAttack(Character attacker)
@@ -218,7 +230,6 @@ public class EnemyAIController : NetworkBehaviour
         if (attacker is Player player && player.IsDead())
             return;
 
-        // IA sin inicializar, dormida o sin NavMesh: no hacer nada.
         if (StateMachine == null || StateMachine.CurrentState == null)
             return;
 
@@ -261,14 +272,20 @@ public class EnemyAIController : NetworkBehaviour
         Gizmos.DrawWireSphere(transform.position, Perception.AlertRadius);
 
         Gizmos.color = Color.cyan;
-        Vector3 fovLeft = Quaternion.Euler(0, -Perception.FieldOfViewAngle / 2f, 0)
+
+        Vector3 fovLeft = Quaternion.Euler(
+            0, -Perception.FieldOfViewAngle / 2f, 0)
             * transform.forward * Perception.DetectionRadius;
-        Vector3 fovRight = Quaternion.Euler(0, Perception.FieldOfViewAngle / 2f, 0)
+
+        Vector3 fovRight = Quaternion.Euler(
+            0, Perception.FieldOfViewAngle / 2f, 0)
             * transform.forward * Perception.DetectionRadius;
+
         Gizmos.DrawLine(transform.position, transform.position + fovLeft);
         Gizmos.DrawLine(transform.position, transform.position + fovRight);
 
         if (!canFlee) return;
+
         Gizmos.color = Color.magenta;
         Gizmos.DrawWireSphere(transform.position, fleeDistance);
     }
