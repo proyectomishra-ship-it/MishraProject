@@ -15,8 +15,8 @@ MonoBehaviour:
   attack: 80
   attackRange: 30
   defense: 10
-  maxHealth: 100
-  maxMana: 50
+  maxHealth: 50
+  maxMana: 100
   speed: 16
   agility: 25
   criticalChance: 0.5

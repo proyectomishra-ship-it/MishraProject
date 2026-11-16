@@ -32,6 +32,12 @@ public class PlayerStats : CharacterStats
 
         ApplyMultipliers();
 
+        // Los multiplicadores de clase pueden subir MaxMana despues de que el
+        // constructor base ya dejo CurrentMana en el valor sin multiplicar
+        // (HandleDerivedStats solo recorta hacia abajo, nunca sube). Se llena
+        // aca para que el jugador arranque con el mana al maximo.
+        CurrentMana = MaxMana.Value;
+
         Experience = 0;
         ExperienceRequired = CalculateRequiredXP(Level);
 
@@ -102,11 +108,31 @@ public class PlayerStats : CharacterStats
         }
     }
 
+    /// <summary>
+    /// Multiplicadores de clase. El valor se lee como el factor final sobre el
+    /// stat base: 1.2 = x1.2 (+20%), 0.9 = x0.9 (-10%).
+    ///
+    /// Stat.AddMultiplier es ADITIVO a proposito (lo usan el equipamiento y
+    /// las auras, que suman y restan porcentajes). Por eso el factor se pasa
+    /// como (valor - 1): 1.2 suma +0.2 al multiplicador y queda en x1.2, no x2.2.
+    /// Los porcentajes del equipamiento se siguen sumando encima de este.
+    /// </summary>
     private void ApplyMultipliers()
     {
         foreach (var mod in classData.Multipliers)
         {
-            AddMultiplier(mod.stat, mod.value);
+            // Un factor <= 0 dejaria el stat en cero o negativo. Suele ser un
+            // resto de la convencion vieja (ej: -0.05 para "-5%"). Se ignora.
+            if (mod.value <= 0f)
+            {
+                Debug.LogWarning(
+                    $"[PlayerStats] Multiplicador de clase invalido para {mod.stat}: " +
+                    $"{mod.value}. Debe ser el factor final (ej: 0.95 = -5%). Se ignora."
+                );
+                continue;
+            }
+
+            AddMultiplier(mod.stat, mod.value - 1f);
         }
     }
 
