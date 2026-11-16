@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.AI;
 using Unity.Netcode;
 
 public class Enemy : Character
@@ -25,6 +27,7 @@ public class Enemy : Character
 
     private EnemyAIController aiController;
     private EnemyGroupMember groupMember;
+    private EnemyAnimationController animationController;
 
     protected CombatController combatController;
 
@@ -83,6 +86,9 @@ public class Enemy : Character
         }
 
         aiController?.Initialize(this);
+
+        // Opcional: no todos los enemigos tienen animacion todavia.
+        animationController = GetOptional<EnemyAnimationController>();
 
         groupMember = GetComponent<EnemyGroupMember>();
 
@@ -165,6 +171,11 @@ public class Enemy : Character
     {
         base.OnDamaged(attacker);
 
+        // Reaccion de golpe con cualquier fuente de dano (solo servidor;
+        // el controller la replica a los clientes).
+        if (IsServer && animationController != null)
+            animationController.PlayHit();
+
         if (!IsServer || attacker is not Player)
             return;
 
@@ -183,6 +194,12 @@ public class Enemy : Character
 
     public override void OnAttackPressed()
     {
+        // Todos los estados de ataque de la IA (melee y a distancia) pasan por aca,
+        // asi que es el punto unico del ataque ligero. Los pesados y especiales se
+        // avisan desde CombatController.AttackDirect / SpecialAttackDirect.
+        if (IsServer && animationController != null)
+            animationController.PlayAttack(AttackAnimKind.Light);
+
         combatController?.OnAttackPressed();
     }
 
@@ -487,9 +504,56 @@ public class Enemy : Character
         OnEnemyDeath?.Invoke(this);
 
         // =====================================================
+        // DEATH ANIMATION
+        // =====================================================
+        // Con clip de muerte: el cuerpo queda quieto mientras se reproduce y recien
+        // despues se despawnea. Sin clip (o sin EnemyAnimationController): despawn
+        // inmediato, igual que antes.
+
+        float despawnDelay = animationController != null
+            ? animationController.BeginDeath()
+            : 0f;
+
+        if (despawnDelay > 0f)
+        {
+            FreezeAI();
+            StartCoroutine(FinishDeathAfter(despawnDelay));
+            return;
+        }
+
+        // =====================================================
         // BASE DEATH
         // =====================================================
 
+        base.Die();
+    }
+
+    // Apaga la IA y frena al agente para que el cadaver no siga atacando ni moviendose.
+    private void FreezeAI()
+    {
+        if (aiController == null)
+            return;
+
+        aiController.enabled = false;
+
+        NavMeshAgent agent = aiController.Agent;
+
+        if (agent != null && agent.enabled && agent.isOnNavMesh)
+        {
+            agent.isStopped = true;
+            agent.ResetPath();
+        }
+    }
+
+    private IEnumerator FinishDeathAfter(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        FinishDeath();
+    }
+
+    // base.Die() no se puede llamar desde dentro de un iterador (CS1911).
+    private void FinishDeath()
+    {
         base.Die();
     }
 

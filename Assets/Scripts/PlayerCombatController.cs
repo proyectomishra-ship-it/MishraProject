@@ -245,7 +245,7 @@ public class PlayerCombatController : NetworkBehaviour
         }
 
         PlayAttackFeedback(
-            heavy ? PlayerAttackAnim.Heavy : PlayerAttackAnim.Light);
+            heavy ? AttackAnimKind.Heavy : AttackAnimKind.Light);
 
         // Ranged: dispara incluso si target es null.
         if (isRanged)
@@ -323,7 +323,7 @@ public class PlayerCombatController : NetworkBehaviour
         // En melee no se consume maná si no hay un blanco válido.
         if (!isRanged && target == null)
         {
-            PlayAttackFeedback(PlayerAttackAnim.Special);
+            PlayAttackFeedback(AttackAnimKind.Special);
             return;
         }
 
@@ -337,7 +337,7 @@ public class PlayerCombatController : NetworkBehaviour
             return;
         }
 
-        PlayAttackFeedback(PlayerAttackAnim.Special);
+        PlayAttackFeedback(AttackAnimKind.Special);
 
         IWeaponBehavior behavior = GetCurrentBehavior();
 
@@ -567,7 +567,7 @@ public class PlayerCombatController : NetworkBehaviour
     private void CommitSpecial(SpecialAbility ability)
     {
         nextSpecialTime = Time.time + ability.Cooldown;
-        PlayAttackFeedback(PlayerAttackAnim.Special);
+        PlayAttackFeedback(AttackAnimKind.Special);
     }
 
     /// <summary>
@@ -794,7 +794,7 @@ public class PlayerCombatController : NetworkBehaviour
                Time.time >= nextAttackTime;
     }
 
-    private void PlayAttackFeedback(PlayerAttackAnim kind)
+    private void PlayAttackFeedback(AttackAnimKind kind)
     {
         WeaponData weapon = GetCurrentWeapon();
 

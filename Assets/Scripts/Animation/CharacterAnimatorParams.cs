@@ -1,11 +1,11 @@
 using UnityEngine;
 
 /// <summary>
-/// Nombres y hashes de los parámetros / tags / estados del Animator del jugador.
-/// Un único lugar para que el Builder (Editor) y PlayerAnimationController
-/// nunca queden desincronizados por un typo.
+/// Nombres y hashes de los parámetros / tags / estados del Animator de cualquier
+/// personaje (jugador y enemigos). Un único lugar para que el Builder (Editor),
+/// los controllers y CharacterAudio nunca queden desincronizados por un typo.
 /// </summary>
-public static class PlayerAnimatorParams
+public static class CharacterAnimatorParams
 {
     // ── Parámetros ───────────────────────────────────────────────────────────
     public const string Speed            = "Speed";            // float  0 = quieto, 1 = caminar, 2 = correr
@@ -23,7 +23,20 @@ public static class PlayerAnimatorParams
     public const string TagAction     = "Action";   // ataques: no se interrumpen con Hit
 
     // ── Nombres de estado ────────────────────────────────────────────────────
-    public const string StateDeath = "Death";
+    // Son DISTINTOS de los parámetros aunque hoy coincidan los textos: el Builder
+    // crea los estados con estos nombres y CharacterAudio los usa para detectar
+    // "entró al ataque". Antes CharacterAudio usaba las constantes de los triggers
+    // como si fueran nombres de estado, y solo funcionaba por coincidencia.
+    public const string StateLocomotion   = "Locomotion";
+    public const string StateJump         = "Jump";
+    public const string StateFall         = "Fall";
+    public const string StateLand         = "Land";
+    public const string StateAttackLight  = "AttackLight";
+    public const string StateAttackHeavy  = "AttackHeavy";
+    public const string StateAttackSpecial = "AttackSpecial";
+    public const string StateHit          = "Hit";
+    public const string StateDeath        = "Death";
+    public const string StateRevive       = "Revive";
 
     // ── Hashes ───────────────────────────────────────────────────────────────
     public static readonly int SpeedId            = Animator.StringToHash(Speed);

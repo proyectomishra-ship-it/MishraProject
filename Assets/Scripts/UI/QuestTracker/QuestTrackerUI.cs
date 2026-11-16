@@ -365,7 +365,7 @@ public class QuestTrackerUI : MonoBehaviour
             questTrackerPanel.SetActive(true);
         }
 
-        SetLine(questTitleText, "Misi�n principal" + BuildToggleHint(), true);
+        SetLine(questTitleText, "Mision principal" + BuildToggleHint(), true);
         SetLine(questNameText, questData.questName, expanded);
         SetLine(questObjectivesText, BuildObjectiveText(questData, questState), true);
         SetLine(questRewardsText, BuildRewardText(questData), expanded);

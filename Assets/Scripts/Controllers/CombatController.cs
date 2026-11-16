@@ -7,6 +7,7 @@ public class CombatController : NetworkBehaviour
     private Character character;
     private CharacterStats stats;
     private EquipmentController equipmentController;
+    private CharacterAnimationController animationController;
 
     [Header("Fallback — sin arma equipada")]
     [SerializeField] private float heavyAttackMultiplier = 2f;
@@ -31,6 +32,10 @@ public class CombatController : NetworkBehaviour
         this.character = character;
         this.stats = character.GetStats();
         equipmentController = character.GetEquipment();
+
+        // Opcional: personajes sin animacion (ej: NPCs) simplemente no animan el ataque.
+        var anim = character.GetComponent<CharacterAnimationController>();
+        animationController = anim != null ? anim : null;
     }
 
     // =========================
@@ -97,13 +102,24 @@ public class CombatController : NetworkBehaviour
     public void AttackDirect(bool heavy = false)
     {
         if (!IsServer) return;
+        PlayAttackAnimation(heavy ? AttackAnimKind.Heavy : AttackAnimKind.Light);
         PerformAttack(heavy);
     }
 
     public void SpecialAttackDirect()
     {
         if (!IsServer) return;
+        PlayAttackAnimation(AttackAnimKind.Special);
         PerformSpecialAttack();
+    }
+
+    // La animacion se dispara al decidir el ataque, antes de validar el golpe: si el
+    // golpe no conecta igual se ve el swing. El ataque ligero de la IA no pasa por
+    // aca sino por Enemy.OnAttackPressed (tambien lo usan los enemigos a distancia).
+    private void PlayAttackAnimation(AttackAnimKind kind)
+    {
+        if (animationController != null)
+            animationController.PlayAttack(kind);
     }
 
     // =========================

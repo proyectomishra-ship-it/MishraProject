@@ -246,9 +246,9 @@ public class CharacterAudio : NetworkBehaviour
 
         if (ataquesDesdeAnimacion)
         {
-            AddBinding(PlayerAnimatorParams.AttackLight, ataqueLigero, 0f);
-            AddBinding(PlayerAnimatorParams.AttackHeavy, ataquePesado, 0f);
-            AddBinding(PlayerAnimatorParams.AttackSpecial, ataqueEspecial, 0f);
+            AddBinding(CharacterAnimatorParams.StateAttackLight, ataqueLigero, 0f);
+            AddBinding(CharacterAnimatorParams.StateAttackHeavy, ataquePesado, 0f);
+            AddBinding(CharacterAnimatorParams.StateAttackSpecial, ataqueEspecial, 0f);
         }
 
         if (porEstadoDeAnimacion != null)
