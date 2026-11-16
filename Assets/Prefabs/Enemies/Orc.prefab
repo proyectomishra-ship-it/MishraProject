@@ -28,6 +28,7 @@ GameObject:
   - component: {fileID: -7338421870450463850}
   - component: {fileID: 4749061441089400680}
   - component: {fileID: -9070875843087644133}
+  - component: {fileID: 8773882219657714190}
   m_Layer: 6
   m_Name: Orc
   m_TagString: Untagged
@@ -49,6 +50,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5510326518764553437}
+  - {fileID: 7507769057056333496}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4299660590559096610
@@ -528,6 +530,29 @@ MonoBehaviour:
   conNombre: []
   animator: {fileID: 0}
   ignorarSegundosAlInicio: 0.75
+--- !u!114 &8773882219657714190
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 486879105537464321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07c37a15fbb34de1b76f18cea413a33d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAnimationController
+  ShowTopMostFoldoutHeaderGroup: 1
+  animationSet: {fileID: 11400000, guid: 9b5a3d524b8c995498b3d08945fe09a6, type: 2}
+  animator: {fileID: 0}
+  speedDampTime: 0.08
+  teleportDistance: 3
+  minMoveSpeed: 0.05
+  minTimeBetweenHits: 0.4
+  runSpeed: 0
+  walkSpeed: 0
+  walkRatio: 0.5
+  lingerAfterDeath: 0.75
 --- !u!1 &4345575999677381695
 GameObject:
   m_ObjectHideFlags: 0
@@ -638,10 +663,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 0.56978285
   m_Height: 2
   m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0.06978284, y: 0, z: 0}
 --- !u!1 &7334208958292842886
 GameObject:
   m_ObjectHideFlags: 0
@@ -739,6 +764,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ogro COMPLETO
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 6e533170134e60b4082239356ca0689d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -748,4 +777,66 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 6e533170134e60b4082239356ca0689d, type: 3}
   m_PrefabInstance: {fileID: 576480412530312278}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &8050832292207032659
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8438199157789711221}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: fd29210e552c61e43ac56fb0f749c0ce, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fd29210e552c61e43ac56fb0f749c0ce, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fd29210e552c61e43ac56fb0f749c0ce, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fd29210e552c61e43ac56fb0f749c0ce, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fd29210e552c61e43ac56fb0f749c0ce, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fd29210e552c61e43ac56fb0f749c0ce, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fd29210e552c61e43ac56fb0f749c0ce, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fd29210e552c61e43ac56fb0f749c0ce, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fd29210e552c61e43ac56fb0f749c0ce, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fd29210e552c61e43ac56fb0f749c0ce, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: fd29210e552c61e43ac56fb0f749c0ce, type: 3}
+      propertyPath: m_Name
+      value: OGRO UNITY1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: fd29210e552c61e43ac56fb0f749c0ce, type: 3}
+--- !u!4 &7507769057056333496 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: fd29210e552c61e43ac56fb0f749c0ce, type: 3}
+  m_PrefabInstance: {fileID: 8050832292207032659}
   m_PrefabAsset: {fileID: 0}

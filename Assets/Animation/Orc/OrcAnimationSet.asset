@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed49026646b34621af63f9392eba29f6, type: 3}
+  m_Name: OrcAnimationSet
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAnimationSet
+  baseClips:
+    idle: {fileID: 2659089659571040743, guid: fd29210e552c61e43ac56fb0f749c0ce, type: 3}
+    walk: {fileID: -6552826667971791173, guid: fd29210e552c61e43ac56fb0f749c0ce, type: 3}
+    run: {fileID: 2326357263153604979, guid: fd29210e552c61e43ac56fb0f749c0ce, type: 3}
+    jump: {fileID: 0}
+    fall: {fileID: 0}
+    land: {fileID: 0}
+    attackLight: {fileID: -4366042459291568564, guid: fd29210e552c61e43ac56fb0f749c0ce, type: 3}
+    attackHeavy: {fileID: 5516999453068135400, guid: fd29210e552c61e43ac56fb0f749c0ce, type: 3}
+    attackSpecial: {fileID: 0}
+    hit: {fileID: 0}
+    death: {fileID: 0}
+    revive: {fileID: 0}
+  controller: {fileID: 9100000, guid: 06f6c4a62184d5a4d8dd3aa00d837b1d, type: 2}
