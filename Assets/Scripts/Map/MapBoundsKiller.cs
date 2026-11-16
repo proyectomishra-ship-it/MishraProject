@@ -3,8 +3,10 @@ using Unity.Netcode;
 using UnityEngine;
 
 /// <summary>
-/// Mata a los jugadores que salen de los limites del mapa y los manda al
-/// SafePoint mas cercano (a traves del flujo normal de muerte/respawn).
+/// Mata a los jugadores que salen de los limites del mapa: les causa un dano
+/// letal enorme por la via normal de combate (DamageReceiver.TakeDamage). La
+/// muerte y el respawn en el SafePoint mas cercano los dispara el sistema
+/// existente, igual que cuando muere un jugador por un enemigo.
 ///
 /// USO: colocar UNA vez en la escena (GameObject vacio + este componente) y
 /// configurar los limites en el Inspector. La posicion del GameObject es solo
@@ -59,6 +61,10 @@ public class MapBoundsKiller : MonoBehaviour
     [Tooltip("Cada cuantos segundos se revisa la posicion de los jugadores.")]
     [SerializeField, Min(0.05f)] private float checkInterval = 0.25f;
 
+    [Tooltip("Dano que recibe el jugador al salirse de los limites. Debe superar " +
+             "su vida maxima; si es menor se usa el doble de su vida actual.")]
+    [SerializeField, Min(1f)] private float lethalDamage = 999999f;
+
     [Header("PRINCIPAL · LIMITES DE ALTURA (eje Y)")]
     [Tooltip("Eje Y. El jugador muere si su altura (Y) supera este valor.")]
     [SerializeField] private bool enableUpperLimit = false;
@@ -103,6 +109,8 @@ public class MapBoundsKiller : MonoBehaviour
     private bool warnedNoSafePoints;
     private bool safePointsValidated;
     private bool warnedConfigErrors;
+    private bool warnedMissingReceiver;
+    private bool warnedNotLethal;
 
     // =========================================================
     // API (tambien la usa el editor)
@@ -322,18 +330,50 @@ public class MapBoundsKiller : MonoBehaviour
             if (player == null || player.IsDead())
                 continue;
 
+            // Con la proteccion post-respawn el dano se ignoraria igual: se
+            // reintenta en el siguiente chequeo, cuando ya no la tenga.
+            if (player.IsInvulnerable())
+                continue;
+
             Vector3 position = player.transform.position;
 
             if (!IsOutside(position, out Limit exceeded))
                 continue;
 
-            Debug.Log(
-                $"[MapBoundsKiller] {player.name} fuera de los límites " +
-                $"({exceeded.Label}: {exceeded.Describe()}). Posición: {position}.", this);
+            DamageReceiver receiver = player.GetComponent<DamageReceiver>();
+            CharacterStats stats = player.GetStats();
 
-            // Mismo flujo que la muerte por daño: respawn en el SafePoint
-            // mas cercano. Ignora la invulnerabilidad post-respawn a proposito.
-            player.StartRespawn();
+            if (receiver == null || stats == null)
+            {
+                if (!warnedMissingReceiver)
+                {
+                    warnedMissingReceiver = true;
+                    Debug.LogError(
+                        $"[MapBoundsKiller] {player.name} no tiene DamageReceiver o stats: " +
+                        "no se le puede causar dano.", player);
+                }
+                continue;
+            }
+
+            float damage = Mathf.Max(lethalDamage, stats.CurrentHealth * 2f);
+
+            Debug.Log(
+                $"[MapBoundsKiller] {player.name} fuera de los limites " +
+                $"({exceeded.Label}: {exceeded.Describe()}). Posicion: {position}. " +
+                $"Dano letal: {damage}.", this);
+
+            // Via normal de combate: DamageReceiver baja la vida, y al llegar
+            // a 0 llama a HandleDeath -> Player.Die -> respawn en SafePoint.
+            // Sin atacante (null): no hay quien se lleve el credito.
+            receiver.TakeDamage(damage, null);
+
+            if (!player.IsDead() && stats.CurrentHealth > 0f && !warnedNotLethal)
+            {
+                warnedNotLethal = true;
+                Debug.LogWarning(
+                    $"[MapBoundsKiller] El dano ({damage}) no mato a {player.name} " +
+                    $"(vida restante: {stats.CurrentHealth}). Subi Lethal Damage.", this);
+            }
         }
     }
 
