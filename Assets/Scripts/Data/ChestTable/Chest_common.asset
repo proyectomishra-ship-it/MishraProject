@@ -54,5 +54,5 @@ MonoBehaviour:
     minQty: 1
     maxQty: 3
   dropChance: 1
-  minDrops: 1
-  maxDrops: 1
+  minDrops: 2
+  maxDrops: 8

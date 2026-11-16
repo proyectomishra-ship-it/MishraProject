@@ -431,7 +431,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DropController
   ShowTopMostFoldoutHeaderGroup: 1
-  lootTable: {fileID: 11400000, guid: 5125992f9374c554293cbaa33fd822ac, type: 2}
+  lootTable: {fileID: 11400000, guid: ae1cb5b519af925409f9d9c521236323, type: 2}
   spreadRadius: 1.5
 --- !u!114 &-9070875843087644133
 MonoBehaviour:
