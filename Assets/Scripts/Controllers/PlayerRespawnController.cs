@@ -26,6 +26,11 @@ public class PlayerRespawnController : NetworkBehaviour
     [Header("Protecci�n post-respawn")]
     [SerializeField] private float postRespawnInvulnerability = 1.5f;
 
+    [Header("Puntos seguros")]
+    [Tooltip("Al morir, revivir en el SafePoint mas cercano. Si no hay ninguno " +
+             "en la escena (o esta opcion esta apagada), revive donde murio.")]
+    [SerializeField] private bool respawnAtNearestSafePoint = true;
+
     [Header("Visual")]
     [Tooltip("Ocultar el modelo del jugador (y su arma) al morir y volver a mostrarlo al " +
              "respawnear. Se aplica en TODOS los clientes a partir de IsDead.")]
@@ -38,10 +43,12 @@ public class PlayerRespawnController : NetworkBehaviour
     private Player player;
     private MovementController movementController;
     private PlayerInputController inputController;
+    private PlayerTeleportController teleportController;
 
 
 
     private Vector3 respawnPosition;
+    private Quaternion respawnRotation;
 
     private Coroutine respawnCoroutine;
     private Coroutine hideCoroutine;
@@ -82,6 +89,7 @@ public class PlayerRespawnController : NetworkBehaviour
         player = GetComponent<Player>();
         movementController = GetComponent<MovementController>();
         inputController = GetComponent<PlayerInputController>();
+        teleportController = GetComponent<PlayerTeleportController>();
 
 
 
@@ -210,6 +218,30 @@ public class PlayerRespawnController : NetworkBehaviour
 
         // Guardamos la posici�n exacta donde muri�.
         respawnPosition = transform.position;
+        respawnRotation = transform.rotation;
+
+        // Con SafePoints en el mapa, se revive en el mas cercano al lugar de
+        // muerte (evita revivir en zonas peligrosas o inaccesibles).
+        if (respawnAtNearestSafePoint)
+        {
+            if (SafePoint.TryGetNearest(transform.position, out SafePoint safePoint))
+            {
+                respawnPosition = safePoint.Position;
+                respawnRotation = safePoint.Rotation;
+
+                Debug.Log(
+                    $"[PlayerRespawnController] {name} respawneara en el SafePoint "
+                    + $"'{safePoint.name}' ({respawnPosition})."
+                );
+            }
+            else
+            {
+                Debug.LogWarning(
+                    $"[PlayerRespawnController] No hay SafePoints en la escena. "
+                    + $"{name} respawneara donde murio."
+                );
+            }
+        }
 
         IsDead.Value = true;
         IsInvulnerable.Value = true;
@@ -267,14 +299,42 @@ public class PlayerRespawnController : NetworkBehaviour
         // Actualmente respawnPosition coincide con el lugar de muerte.
         // Lo mantenemos expl�cito para poder cambiar esta estrategia
         // posteriormente por checkpoints, spawn points, etc.
-        transform.position = respawnPosition;
+        // TeleportServer desactiva el CharacterController un instante, avisa al
+        // NetworkTransform (sin interpolar por todo el mapa) y a la camara.
+        // Asignar transform.position a secas no alcanza con esos sistemas.
+        // Si el teletransporte falla, igual se revive: lo peor que puede pasar
+        // es revivir donde murio, nunca quedar muerto para siempre.
+        try
+        {
+            if (teleportController != null)
+                teleportController.TeleportServer(respawnPosition, respawnRotation);
+            else
+                transform.position = respawnPosition;
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError(
+                $"[PlayerRespawnController] Fallo el teletransporte de {name}. "
+                + $"Revive igual en su lugar actual. Error: {e}"
+            );
+        }
 
         // Limpiar cualquier estado f�sico/movimiento residual.
         if (movementController != null)
             movementController.ResetMovementState();
 
         // Restaurar recursos al m�ximo.
-        RestoreResources();
+        try
+        {
+            RestoreResources();
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError(
+                $"[PlayerRespawnController] Fallo la restauracion de recursos de {name}. "
+                + $"Revive igual. Error: {e}"
+            );
+        }
 
         // Player vuelve a estar vivo.
         IsDead.Value = false;
