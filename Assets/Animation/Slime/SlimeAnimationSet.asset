@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed49026646b34621af63f9392eba29f6, type: 3}
+  m_Name: SlimeAnimationSet
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAnimationSet
+  baseClips:
+    idle: {fileID: 5193201764590763356, guid: 454e9d66e79c84d4dad682d193950056, type: 3}
+    walk: {fileID: 3292468497351465760, guid: 454e9d66e79c84d4dad682d193950056, type: 3}
+    run: {fileID: -5843010217453740799, guid: 454e9d66e79c84d4dad682d193950056, type: 3}
+    jump: {fileID: 8076129811126181134, guid: 454e9d66e79c84d4dad682d193950056, type: 3}
+    fall: {fileID: 0}
+    land: {fileID: 0}
+    attackLight: {fileID: 1990367500664906373, guid: 454e9d66e79c84d4dad682d193950056, type: 3}
+    attackHeavy: {fileID: -5142569494772537674, guid: 454e9d66e79c84d4dad682d193950056, type: 3}
+    attackSpecial: {fileID: 0}
+    hit: {fileID: 0}
+    death: {fileID: 0}
+    revive: {fileID: 0}
+  controller: {fileID: 9100000, guid: ba22cadd872b4fe42b4f369638e5a6f5, type: 2}

@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed49026646b34621af63f9392eba29f6, type: 3}
+  m_Name: EnemyAnimationSet
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAnimationSet
+  baseClips:
+    idle: {fileID: 0}
+    walk: {fileID: 0}
+    run: {fileID: 0}
+    jump: {fileID: 0}
+    fall: {fileID: 0}
+    land: {fileID: 0}
+    attackLight: {fileID: 0}
+    attackHeavy: {fileID: 0}
+    attackSpecial: {fileID: 0}
+    hit: {fileID: 0}
+    death: {fileID: 0}
+    revive: {fileID: 0}
+  controller: {fileID: 0}
