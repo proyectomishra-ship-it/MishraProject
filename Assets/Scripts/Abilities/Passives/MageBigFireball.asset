@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BigFireballPassive
   unlockLevel: 5
   sizeMultiplier: 2.5
-  damageMultiplier: 2
+  damageMultiplier: 1.25
   pierceEnemies: 1

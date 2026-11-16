@@ -14,15 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LootTableData
   entries:
   - pickupPrefab: {fileID: 2495156848697275963, guid: a41d9779a769b554bab4f3fa67fcdae2, type: 3}
-    weight: 10
+    weight: 20
     minQty: 1
     maxQty: 2
   - pickupPrefab: {fileID: 6242120685411157393, guid: 704dfc5701ab0f64c8b32196a9acd970, type: 3}
-    weight: 10
+    weight: 20
     minQty: 1
     maxQty: 2
   - pickupPrefab: {fileID: 7653522356007415419, guid: f2f63a5bef04f6d448992a5b87710d0e, type: 3}
-    weight: 20
+    weight: 40
     minQty: 1
     maxQty: 2
   - pickupPrefab: {fileID: 3813280284670933491, guid: af1dab377ad12384a80abf7e8136d1c1, type: 3}
