@@ -13,16 +13,16 @@ MonoBehaviour:
   m_Name: EnemyAnimationSet
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAnimationSet
   baseClips:
-    idle: {fileID: 0}
-    walk: {fileID: 0}
-    run: {fileID: 0}
-    jump: {fileID: 0}
+    idle: {fileID: -1630822519541602255, guid: fc01be01fc9ae2e47b936416b769bf22, type: 3}
+    walk: {fileID: 1360907691388188050, guid: fc01be01fc9ae2e47b936416b769bf22, type: 3}
+    run: {fileID: 8586997850377128340, guid: fc01be01fc9ae2e47b936416b769bf22, type: 3}
+    jump: {fileID: 3843967337506405315, guid: fc01be01fc9ae2e47b936416b769bf22, type: 3}
     fall: {fileID: 0}
     land: {fileID: 0}
-    attackLight: {fileID: 0}
-    attackHeavy: {fileID: 0}
-    attackSpecial: {fileID: 0}
+    attackLight: {fileID: -5952590009959407799, guid: fc01be01fc9ae2e47b936416b769bf22, type: 3}
+    attackHeavy: {fileID: -2119203741506859340, guid: fc01be01fc9ae2e47b936416b769bf22, type: 3}
+    attackSpecial: {fileID: 1465509492270130825, guid: fc01be01fc9ae2e47b936416b769bf22, type: 3}
     hit: {fileID: 0}
     death: {fileID: 0}
     revive: {fileID: 0}
-  controller: {fileID: 0}
+  controller: {fileID: 9100000, guid: be41803d762ea664cb60f074b062ecb9, type: 2}

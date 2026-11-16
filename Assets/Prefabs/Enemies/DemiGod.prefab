@@ -60,6 +60,7 @@ GameObject:
   - component: {fileID: -7363812818642782310}
   - component: {fileID: 6001794245436955104}
   - component: {fileID: 6800992583424226599}
+  - component: {fileID: 336513801957441663}
   m_Layer: 6
   m_Name: DemiGod
   m_TagString: Untagged
@@ -82,6 +83,7 @@ Transform:
   m_Children:
   - {fileID: 3510043934028720244}
   - {fileID: 563902403444650585}
+  - {fileID: 9095297662748873561}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8947290267462447755
@@ -569,6 +571,29 @@ MonoBehaviour:
   conNombre: []
   animator: {fileID: 0}
   ignorarSegundosAlInicio: 0.75
+--- !u!114 &336513801957441663
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6213672842236241244}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07c37a15fbb34de1b76f18cea413a33d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAnimationController
+  ShowTopMostFoldoutHeaderGroup: 1
+  animationSet: {fileID: 11400000, guid: fac730dfe8a030949ab4ceacd8b1ff78, type: 2}
+  animator: {fileID: 0}
+  speedDampTime: 0.08
+  teleportDistance: 3
+  minMoveSpeed: 0.05
+  minTimeBetweenHits: 0.4
+  runSpeed: 0
+  walkSpeed: 0
+  walkRatio: 0.5
+  lingerAfterDeath: 0.75
 --- !u!1 &6942961023349357977
 GameObject:
   m_ObjectHideFlags: 0
@@ -597,7 +622,7 @@ Transform:
   m_GameObject: {fileID: 6942961023349357977}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.0305, y: 1.6098, z: 0.1316}
+  m_LocalPosition: {x: 0, y: 1.43, z: 0}
   m_LocalScale: {x: 3.5756958, y: 1.5357151, z: 3.497216}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -679,10 +704,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 2
+  m_Radius: 0.57862514
+  m_Height: 2.6944938
   m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 0, z: -0.08038963}
 --- !u!1001 &25292353534416306
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -735,6 +760,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Demigod
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 5cd630ec017f05649a7e52dbfbaa4951, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -744,4 +773,96 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 5cd630ec017f05649a7e52dbfbaa4951, type: 3}
   m_PrefabInstance: {fileID: 25292353534416306}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &8769146691399660722
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 3431916634357982971}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: fc01be01fc9ae2e47b936416b769bf22, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fc01be01fc9ae2e47b936416b769bf22, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fc01be01fc9ae2e47b936416b769bf22, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fc01be01fc9ae2e47b936416b769bf22, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fc01be01fc9ae2e47b936416b769bf22, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fc01be01fc9ae2e47b936416b769bf22, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fc01be01fc9ae2e47b936416b769bf22, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fc01be01fc9ae2e47b936416b769bf22, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fc01be01fc9ae2e47b936416b769bf22, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fc01be01fc9ae2e47b936416b769bf22, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: fc01be01fc9ae2e47b936416b769bf22, type: 3}
+      propertyPath: m_Name
+      value: 'boos UNITY '
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: fc01be01fc9ae2e47b936416b769bf22, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3255897061798974931}
+  m_SourcePrefab: {fileID: 100100000, guid: fc01be01fc9ae2e47b936416b769bf22, type: 3}
+--- !u!1 &8463158313870559715 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: fc01be01fc9ae2e47b936416b769bf22, type: 3}
+  m_PrefabInstance: {fileID: 8769146691399660722}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &3255897061798974931
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8463158313870559715}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: fc01be01fc9ae2e47b936416b769bf22, type: 3}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!4 &9095297662748873561 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: fc01be01fc9ae2e47b936416b769bf22, type: 3}
+  m_PrefabInstance: {fileID: 8769146691399660722}
   m_PrefabAsset: {fileID: 0}
