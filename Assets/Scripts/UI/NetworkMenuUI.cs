@@ -49,7 +49,7 @@ public class NetworkMenuUI : MonoBehaviour
     [Header("Config")]
     [SerializeField] private int maxPlayers = 6;
     [SerializeField] private string characterSelectScene = "CharacterSelect";
-    [SerializeField] private string mainMenuScene = "MainMenu";
+    [SerializeField] private string mainMenuScene = "MainMenuScene";
     [SerializeField] private Button backButton;
 
     private const string DEFAULT_IP = "127.0.0.1";
@@ -431,7 +431,28 @@ public class NetworkMenuUI : MonoBehaviour
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
             NetworkManager.Singleton.Shutdown();
 
-        UnityEngine.SceneManagement.SceneManager.LoadScene(mainMenuScene);
+        UnityEngine.SceneManagement.SceneManager.LoadScene(ResolveMainMenuScene());
+    }
+
+    // La escena del menú principal se llama "MainMenuScene"; si el valor del Inspector
+    // no existe en el Build Settings se busca la correcta en lugar de fallar.
+    private string ResolveMainMenuScene()
+    {
+        string[] candidates = { mainMenuScene, "MainMenuScene", "MainMenu" };
+
+        foreach (string candidate in candidates)
+        {
+            if (string.IsNullOrEmpty(candidate)) continue;
+
+            for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCountInBuildSettings; i++)
+            {
+                string path = UnityEngine.SceneManagement.SceneUtility.GetScenePathByBuildIndex(i);
+                if (System.IO.Path.GetFileNameWithoutExtension(path) == candidate)
+                    return candidate;
+            }
+        }
+
+        return mainMenuScene;
     }
 
     private void OnClientDisconnected(ulong clientId)

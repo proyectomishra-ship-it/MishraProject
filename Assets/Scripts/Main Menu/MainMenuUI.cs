@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
@@ -34,15 +34,15 @@ public class MainMenuUI : MonoBehaviour
         startButton?.onClick.AddListener(OnStartClicked);
         quitButton?.onClick.AddListener(OnQuitClicked);
 
-        // Botones futuros — muestran "Próximamente"
+        // Cargar partida muestra "Próximamente"; Sobre nosotros y Configuraciones abren su panel
         loadButton?.onClick.AddListener(() => ShowComingSoon("Cargar Partida"));
-        aboutButton?.onClick.AddListener(() => ShowComingSoon("Sobre Nosotros"));
-        settingsButton?.onClick.AddListener(() => ShowComingSoon("Configuraciones"));
+        aboutButton?.onClick.AddListener(AboutPanel.Show);
+        settingsButton?.onClick.AddListener(SettingsPanel.Show);
 
-        // Visualmente distintos para indicar que no están disponibles
+        // Solo "Cargar Partida" sigue sin estar disponible (no hay sistema de guardado todavía)
         SetButtonAvailable(loadButton, false);
-        SetButtonAvailable(aboutButton, false);
-        SetButtonAvailable(settingsButton, false);
+        SetButtonAvailable(aboutButton, true);
+        SetButtonAvailable(settingsButton, true);
 
         if (comingSoonPanel != null)
             comingSoonPanel.SetActive(false);
