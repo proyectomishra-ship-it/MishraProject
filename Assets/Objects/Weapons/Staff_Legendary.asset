@@ -45,6 +45,6 @@ MonoBehaviour:
   heavyMultiplier: 2
   specialMultiplier: 1.5
   staminaCost: 0
-  manaCost: 2
+  manaCost: 3
   meleeRange: 2
   projectileRange: 20
