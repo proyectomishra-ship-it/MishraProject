@@ -21,6 +21,7 @@ public class ControlsPanel : MonoBehaviour
         { "Click derecho",      "Ataque especial" },
         { "E",                  "Interactuar (cofres, NPCs)" },
         { "Tab",                "Inventario, crafteo y estadísticas" },
+        { "J",                  "Ampliar / reducir misiones" },
         { "Esc",                "Pausa / cerrar ventanas" },
     };
 
@@ -52,7 +53,7 @@ public class ControlsPanel : MonoBehaviour
 
     private void Build(Transform canvas)
     {
-        RectTransform panel = MenuUIKit.NewModal(canvas, "ControlsPanel", 900f, 760f, out root);
+        RectTransform panel = MenuUIKit.NewModal(canvas, "ControlsPanel", 900f, 840f, out root);
 
         var title = MenuUIKit.NewText("Title", panel, "Controles", UITheme.TextStyle.Heading, 44f,
             MenuUIKit.Gold, TextAlignmentOptions.Center);
