@@ -52,6 +52,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6374234603001821250, guid: 54961ab0248ffad42a9c199c76202b75, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 3.29
+      objectReference: {fileID: 0}
     - target: {fileID: 7985415998251109689, guid: 54961ab0248ffad42a9c199c76202b75, type: 3}
       propertyPath: lootTable
       value: 
@@ -88,6 +92,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2862740513698594628}
     m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 0a56329bfc7e1a444bd4bad4db62844b, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0a56329bfc7e1a444bd4bad4db62844b, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0a56329bfc7e1a444bd4bad4db62844b, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0a56329bfc7e1a444bd4bad4db62844b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
