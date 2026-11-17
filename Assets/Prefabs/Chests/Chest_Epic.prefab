@@ -145,6 +145,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0a56329bfc7e1a444bd4bad4db62844b, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2941912751759409829}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0a56329bfc7e1a444bd4bad4db62844b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2575042633058969469}
   m_SourcePrefab: {fileID: 100100000, guid: 0a56329bfc7e1a444bd4bad4db62844b, type: 3}
 --- !u!4 &2502208263993788361 stripped
 Transform:
@@ -175,8 +178,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 2.6709483, y: 1.758606, z: 1.5456569}
+  m_Center: {x: -0.00842917, y: 0.81881714, z: 0.06845009}
 --- !u!114 &5756665910877266564
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -215,7 +218,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Chest
   ShowTopMostFoldoutHeaderGroup: 1
-  lootTable: {fileID: 11400000, guid: 150744feee1a48ccb52da17d31f4870c, type: 2}
+  lootTable: {fileID: 11400000, guid: e9afde78ef681b14296af6508e2f3c2b, type: 2}
   spawnPoint: {fileID: 6344307603254096813}
   lootSpawnDelay: 0.4
   spreadRadius: 0.6
@@ -224,9 +227,31 @@ MonoBehaviour:
   interactionRange: 6
   interactKey: 19
   serverRangeTolerance: 4
-  animator: {fileID: 0}
+  animator: {fileID: 2575042633058969469}
   openTrigger: Open
   openedStateName: Opened
   lidPivot: {fileID: 0}
   lidOpenAngle: -110
   lidOpenDuration: 0.4
+--- !u!95 &2575042633058969469
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3022603112538299763}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 8f83ce6ec138d6a4cb96a12638a6d09b, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
