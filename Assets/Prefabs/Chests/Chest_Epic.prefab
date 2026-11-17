@@ -61,7 +61,172 @@ PrefabInstance:
       value: Chest_Epic
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 7358217382824951423, guid: 54961ab0248ffad42a9c199c76202b75, type: 3}
+    - {fileID: 4003290279407895113, guid: 54961ab0248ffad42a9c199c76202b75, type: 3}
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 2865461355634734251, guid: 54961ab0248ffad42a9c199c76202b75, type: 3}
+      insertIndex: 0
+      addedObject: {fileID: 2502208263993788361}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 54961ab0248ffad42a9c199c76202b75, type: 3}
+--- !u!4 &2862740513698594628 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2865461355634734251, guid: 54961ab0248ffad42a9c199c76202b75, type: 3}
+  m_PrefabInstance: {fileID: 35561228208704495}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &6344307603254096813 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6374234603001821250, guid: 54961ab0248ffad42a9c199c76202b75, type: 3}
+  m_PrefabInstance: {fileID: 35561228208704495}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &2680512960188178466
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2862740513698594628}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 0a56329bfc7e1a444bd4bad4db62844b, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0a56329bfc7e1a444bd4bad4db62844b, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0a56329bfc7e1a444bd4bad4db62844b, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0a56329bfc7e1a444bd4bad4db62844b, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0a56329bfc7e1a444bd4bad4db62844b, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0a56329bfc7e1a444bd4bad4db62844b, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0a56329bfc7e1a444bd4bad4db62844b, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0a56329bfc7e1a444bd4bad4db62844b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0a56329bfc7e1a444bd4bad4db62844b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0a56329bfc7e1a444bd4bad4db62844b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 0a56329bfc7e1a444bd4bad4db62844b, type: 3}
+      propertyPath: m_Name
+      value: "Cofre-\xC9pico"
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0a56329bfc7e1a444bd4bad4db62844b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5894276040023000551}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0a56329bfc7e1a444bd4bad4db62844b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5756665910877266564}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0a56329bfc7e1a444bd4bad4db62844b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2941912751759409829}
+  m_SourcePrefab: {fileID: 100100000, guid: 0a56329bfc7e1a444bd4bad4db62844b, type: 3}
+--- !u!4 &2502208263993788361 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0a56329bfc7e1a444bd4bad4db62844b, type: 3}
+  m_PrefabInstance: {fileID: 2680512960188178466}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &3022603112538299763 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 0a56329bfc7e1a444bd4bad4db62844b, type: 3}
+  m_PrefabInstance: {fileID: 2680512960188178466}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &5894276040023000551
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3022603112538299763}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5756665910877266564
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3022603112538299763}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 0
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!114 &2941912751759409829
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3022603112538299763}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43e87e8936454e128cd634e688fb03fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Chest
+  ShowTopMostFoldoutHeaderGroup: 1
+  lootTable: {fileID: 11400000, guid: 150744feee1a48ccb52da17d31f4870c, type: 2}
+  spawnPoint: {fileID: 6344307603254096813}
+  lootSpawnDelay: 0.4
+  spreadRadius: 0.6
+  guaranteeAtLeastOneItem: 1
+  chestName: "Cofre \xC9pico"
+  interactionRange: 6
+  interactKey: 19
+  serverRangeTolerance: 4
+  animator: {fileID: 0}
+  openTrigger: Open
+  openedStateName: Opened
+  lidPivot: {fileID: 0}
+  lidOpenAngle: -110
+  lidOpenDuration: 0.4
