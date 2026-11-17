@@ -30,12 +30,12 @@ MonoBehaviour:
     value: 1
   multipliers:
   - stat: 4
-    value: 1.15
+    value: 1.2
   - stat: 6
     value: 0.9
   - stat: 9
-    value: 1.2
-  - stat: 11
+    value: 2.2
+  - stat: 10
     value: 1.05
   startingWeapon: {fileID: 11400000, guid: 5224577d8d7e9ac4fa971fc71b0027a3, type: 2}
   specialAbility: {fileID: 11400000, guid: e078d78893a540c5ad9e24fa37907755, type: 2}
