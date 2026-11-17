@@ -603,7 +603,8 @@ MonoBehaviour:
     sonido3D: 1
   ataquesDesdeAnimacion: 1
   recibeDano:
-    sonidos: []
+    sonidos:
+    - {fileID: 8300000, guid: 4aba4dff9a6daac4d9a351bc69c16f1f, type: 3}
     volumen: 1
     tonoMinimo: 0.95
     tonoMaximo: 1.05
@@ -617,7 +618,8 @@ MonoBehaviour:
     esperaMinima: 0.05
     sonido3D: 1
   muerte:
-    sonidos: []
+    sonidos:
+    - {fileID: 8300000, guid: 38ec1797cae92424cb1b992d4c00acc9, type: 3}
     volumen: 1
     tonoMinimo: 0.95
     tonoMaximo: 1.05
@@ -632,7 +634,8 @@ MonoBehaviour:
     sonido3D: 1
   curacionMinima: 0.15
   paso:
-    sonidos: []
+    sonidos:
+    - {fileID: 8300000, guid: c5b41e04f844c964cbba026715c1c285, type: 3}
     volumen: 1
     tonoMinimo: 0.95
     tonoMaximo: 1.05
@@ -646,7 +649,8 @@ MonoBehaviour:
     esperaMinima: 0.05
     sonido3D: 1
   aterrizaje:
-    sonidos: []
+    sonidos:
+    - {fileID: 8300000, guid: 0c86a4e19d5858044b22fe6fb3304f40, type: 3}
     volumen: 1
     tonoMinimo: 0.95
     tonoMaximo: 1.05
@@ -657,7 +661,7 @@ MonoBehaviour:
   distanciaAlSuelo: 0.35
   capasDeSuelo:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 256
   porEstadoDeAnimacion: []
   conNombre: []
   animator: {fileID: 0}
