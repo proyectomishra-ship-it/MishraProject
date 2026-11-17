@@ -210,6 +210,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 28d83713c3cf76446a98970c88cf2bc9, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4532804375336522844}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 28d83713c3cf76446a98970c88cf2bc9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2202525939672578243}
   m_SourcePrefab: {fileID: 100100000, guid: 28d83713c3cf76446a98970c88cf2bc9, type: 3}
 --- !u!1 &6262170028273993527 stripped
 GameObject:
@@ -235,8 +238,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 2.188507, y: 1.758606, z: 1.1766663}
+  m_Center: {x: 0.0131073, y: 0.81881714, z: -0.030593872}
 --- !u!114 &9109429656202321098
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -284,12 +287,34 @@ MonoBehaviour:
   interactionRange: 6
   interactKey: 19
   serverRangeTolerance: 4
-  animator: {fileID: 0}
+  animator: {fileID: 2202525939672578243}
   openTrigger: Open
   openedStateName: Opened
   lidPivot: {fileID: 0}
   lidOpenAngle: -110
   lidOpenDuration: 0.4
+--- !u!95 &2202525939672578243
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6262170028273993527}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 6857bae8f3862d140a20ecc694b7f8f6, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!4 &6749878633200803213 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 28d83713c3cf76446a98970c88cf2bc9, type: 3}
