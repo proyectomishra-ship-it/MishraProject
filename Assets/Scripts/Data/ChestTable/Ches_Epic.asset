@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c278709e6e717a4c957ec834362144b, type: 3}
+  m_Name: Ches_Epic
+  m_EditorClassIdentifier: Assembly-CSharp::LootTableData
+  entries:
+  - pickupPrefab: {fileID: 2495156848697275963, guid: a41d9779a769b554bab4f3fa67fcdae2, type: 3}
+    weight: 20
+    minQty: 1
+    maxQty: 2
+  - pickupPrefab: {fileID: 6242120685411157393, guid: 704dfc5701ab0f64c8b32196a9acd970, type: 3}
+    weight: 20
+    minQty: 1
+    maxQty: 2
+  - pickupPrefab: {fileID: 7653522356007415419, guid: f2f63a5bef04f6d448992a5b87710d0e, type: 3}
+    weight: 40
+    minQty: 1
+    maxQty: 2
+  - pickupPrefab: {fileID: 3813280284670933491, guid: af1dab377ad12384a80abf7e8136d1c1, type: 3}
+    weight: 10
+    minQty: 1
+    maxQty: 2
+  - pickupPrefab: {fileID: 1533955969879670812, guid: 988fe37f656375640b61eadedc72c4a0, type: 3}
+    weight: 10
+    minQty: 1
+    maxQty: 2
+  - pickupPrefab: {fileID: 6242120685411157393, guid: 704dfc5701ab0f64c8b32196a9acd970, type: 3}
+    weight: 10
+    minQty: 1
+    maxQty: 3
+  - pickupPrefab: {fileID: 2942249056150997869, guid: 1210bb893dbad9444891d0c8e2672bef, type: 3}
+    weight: 10
+    minQty: 1
+    maxQty: 3
+  - pickupPrefab: {fileID: 5151031602945827879, guid: f74aa5af7f2af60409e5ed2a25c6c296, type: 3}
+    weight: 10
+    minQty: 1
+    maxQty: 3
+  - pickupPrefab: {fileID: 2971628546508817222, guid: 03706a8def8766c49aa06f3b65989cb5, type: 3}
+    weight: 10
+    minQty: 1
+    maxQty: 1
+  - pickupPrefab: {fileID: 3297959165156917564, guid: 7b2076a730633d54d8dac01ff4e4b31f, type: 3}
+    weight: 10
+    minQty: 1
+    maxQty: 3
+  dropChance: 1
+  minDrops: 2
+  maxDrops: 8
