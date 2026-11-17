@@ -1,0 +1,209 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae9ce8c9d52bf504b85998d24e41f1aa, type: 3}
+  m_Name: SkillUpgradeDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::SkillUpgradeDatabase
+  firstPickLevel: 0
+  levelsPerUpgrade: 2
+  blockRepeatOfLastPick: 1
+  allowNumberKeys: 1
+  pauseGameWhenSolo: 1
+  entries:
+  - displayName: Onda devastadora
+    type: 9
+    skillLabel: Onda Expansiva
+    description: "+{0}% de da\xF1o de la Onda Expansiva"
+    valuePerStack: 0.1
+    isPercent: 1
+    maxStacks: 10
+    weight: 1
+    enabled: 1
+  - displayName: Onda ampliada
+    type: 10
+    skillLabel: Onda Expansiva
+    description: +{0}% de radio de la Onda Expansiva
+    valuePerStack: 0.1
+    isPercent: 1
+    maxStacks: 8
+    weight: 1
+    enabled: 1
+  - displayName: Onda frecuente
+    type: 11
+    skillLabel: Onda Expansiva
+    description: -{0}% de recarga de la Onda Expansiva
+    valuePerStack: 0.05
+    isPercent: 1
+    maxStacks: 8
+    weight: 1
+    enabled: 1
+  - displayName: Onda eficiente
+    type: 12
+    skillLabel: Onda Expansiva
+    description: "-{0}% de man\xE1 que cuesta la Onda Expansiva"
+    valuePerStack: 0.08
+    isPercent: 1
+    maxStacks: 6
+    weight: 1
+    enabled: 1
+  - displayName: Fuego intenso
+    type: 13
+    skillLabel: Gran Bola de Fuego
+    description: "+{0}% de da\xF1o de la Gran Bola de Fuego"
+    valuePerStack: 0.08
+    isPercent: 1
+    maxStacks: 10
+    weight: 1
+    enabled: 1
+  - displayName: Fuego veloz
+    type: 14
+    skillLabel: Gran Bola de Fuego
+    description: +{0}% de velocidad de la bola de fuego
+    valuePerStack: 0.1
+    isPercent: 1
+    maxStacks: 8
+    weight: 1
+    enabled: 1
+  - displayName: Fuego lejano
+    type: 15
+    skillLabel: Gran Bola de Fuego
+    description: +{0}% de alcance de la bola de fuego
+    valuePerStack: 0.15
+    isPercent: 1
+    maxStacks: 8
+    weight: 1
+    enabled: 1
+  - displayName: Fuego colosal
+    type: 16
+    skillLabel: Gran Bola de Fuego
+    description: "+{0}% de tama\xF1o de la bola de fuego"
+    valuePerStack: 0.1
+    isPercent: 1
+    maxStacks: 4
+    weight: 1
+    enabled: 1
+  - displayName: Filo letal
+    type: 17
+    skillLabel: "Hoja de Energ\xEDa"
+    description: "+{0}% de da\xF1o de la Hoja de Energ\xEDa"
+    valuePerStack: 0.1
+    isPercent: 1
+    maxStacks: 10
+    weight: 1
+    enabled: 1
+  - displayName: "Hoja m\xE1s larga"
+    type: 18
+    skillLabel: "Hoja de Energ\xEDa"
+    description: "+{0}% de largo de la Hoja de Energ\xEDa"
+    valuePerStack: 0.1
+    isPercent: 1
+    maxStacks: 8
+    weight: 1
+    enabled: 1
+  - displayName: Barrido amplio
+    type: 19
+    skillLabel: "Hoja de Energ\xEDa"
+    description: "+{0}% de apertura del arco de la Hoja de Energ\xEDa"
+    valuePerStack: 0.1
+    isPercent: 1
+    maxStacks: 6
+    weight: 1
+    enabled: 1
+  - displayName: Hoja frecuente
+    type: 20
+    skillLabel: "Hoja de Energ\xEDa"
+    description: "-{0}% de recarga de la Hoja de Energ\xEDa"
+    valuePerStack: 0.05
+    isPercent: 1
+    maxStacks: 8
+    weight: 1
+    enabled: 1
+  - displayName: Aura blindada
+    type: 21
+    skillLabel: Aura de Guerra
+    description: +{0}% de armadura que da el Aura de Guerra
+    valuePerStack: 0.1
+    isPercent: 1
+    maxStacks: 10
+    weight: 1
+    enabled: 1
+  - displayName: Aura furiosa
+    type: 22
+    skillLabel: Aura de Guerra
+    description: "+{0}% de da\xF1o que da el Aura de Guerra"
+    valuePerStack: 0.1
+    isPercent: 1
+    maxStacks: 10
+    weight: 1
+    enabled: 1
+  - displayName: Lluvia letal
+    type: 23
+    skillLabel: Lluvia de Flechas
+    description: "+{0}% de da\xF1o de cada flecha de la Lluvia de Flechas"
+    valuePerStack: 0.1
+    isPercent: 1
+    maxStacks: 10
+    weight: 1
+    enabled: 1
+  - displayName: "M\xE1s flechas"
+    type: 24
+    skillLabel: Lluvia de Flechas
+    description: +{0} flechas en la Lluvia de Flechas
+    valuePerStack: 2
+    isPercent: 0
+    maxStacks: 5
+    weight: 1
+    enabled: 1
+  - displayName: Lluvia frecuente
+    type: 25
+    skillLabel: Lluvia de Flechas
+    description: -{0}% de recarga de la Lluvia de Flechas
+    valuePerStack: 0.05
+    isPercent: 1
+    maxStacks: 8
+    weight: 1
+    enabled: 1
+  - displayName: "P\xF3lvora potente"
+    type: 26
+    skillLabel: Flecha Explosiva
+    description: "+{0}% de da\xF1o de la explosi\xF3n de tus flechas"
+    valuePerStack: 0.1
+    isPercent: 1
+    maxStacks: 10
+    weight: 1
+    enabled: 1
+  - displayName: "Explosi\xF3n amplia"
+    type: 27
+    skillLabel: Flecha Explosiva
+    description: "+{0}% de radio de la explosi\xF3n de tus flechas"
+    valuePerStack: 0.1
+    isPercent: 1
+    maxStacks: 8
+    weight: 1
+    enabled: 1
+  - displayName: Flecha veloz
+    type: 28
+    skillLabel: Flecha Explosiva
+    description: +{0}% de velocidad de tus flechas
+    valuePerStack: 0.1
+    isPercent: 1
+    maxStacks: 8
+    weight: 1
+    enabled: 1
+  - displayName: Flecha lejana
+    type: 29
+    skillLabel: Flecha Explosiva
+    description: +{0}% de alcance de tus flechas
+    valuePerStack: 0.15
+    isPercent: 1
+    maxStacks: 8
+    weight: 1
+    enabled: 1
