@@ -17,15 +17,17 @@ MonoBehaviour:
   volumenEfectos: 1
   volumenInterfaz: 1
   botonEncima:
-    sonidos: []
-    volumen: 1
+    sonidos:
+    - {fileID: 8300000, guid: fe46f0fd6cf96ab439ee9754cf142a8d, type: 3}
+    volumen: 0.75
     tonoMinimo: 0.95
     tonoMaximo: 1.05
     esperaMinima: 0.05
     sonido3D: 0
   botonClick:
-    sonidos: []
-    volumen: 1
+    sonidos:
+    - {fileID: 8300000, guid: a7c0e5dc66b47024aac03a9ef922a0e3, type: 3}
+    volumen: 0.1
     tonoMinimo: 0.95
     tonoMaximo: 1.05
     esperaMinima: 0.05
@@ -58,7 +60,56 @@ MonoBehaviour:
     tonoMaximo: 1.05
     esperaMinima: 0.05
     sonido3D: 0
-  musicaPorEscena: []
+  equipar:
+    sonidos:
+    - {fileID: 8300000, guid: b6cc049bb2e9da140bd6656506bd92be, type: 3}
+    volumen: 0.75
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 0
+  craftear:
+    sonidos:
+    - {fileID: 8300000, guid: 1cde4e5fe1550584b846419a414e5191, type: 3}
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 0
+  recogerItem:
+    sonidos:
+    - {fileID: 8300000, guid: 26adbe2c0bcca47468e721a0db24ef92, type: 3}
+    volumen: 0.75
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 0
+  ganarOro:
+    sonidos:
+    - {fileID: 8300000, guid: 938d113e62354d54bb97d785c344396f, type: 3}
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.01
+    sonido3D: 0
+  misionCompletada:
+    sonidos:
+    - {fileID: 8300000, guid: df14ec92859812744b2d6e55a4e8a61b, type: 3}
+    volumen: 1
+    tonoMinimo: 0.95
+    tonoMaximo: 1.05
+    esperaMinima: 0.05
+    sonido3D: 0
+  musicaPorEscena:
+  - escena: MainMenu
+    musica: {fileID: 8300000, guid: 7a8060ac9d8a9f743aa146964cf74e06, type: 3}
+    volumen: 1
+  - escena: CharacterSelect
+    musica: {fileID: 8300000, guid: 1263cfc3adc2e5b47a87b056eef6c79d, type: 3}
+    volumen: 0.1
+  - escena: Scene1
+    musica: {fileID: 8300000, guid: 5a80eb6890f82f54f92fa5a52d5681be, type: 3}
+    volumen: 0.1
   segundosDeTransicion: 2
   distanciaMinima: 3
   distanciaMaxima: 45

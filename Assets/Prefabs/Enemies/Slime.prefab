@@ -614,7 +614,7 @@ MonoBehaviour:
     tonoMaximo: 1.05
     esperaMinima: 0.05
     sonido3D: 1
-  ataquesDesdeAnimacion: 0
+  ataquesDesdeAnimacion: 1
   recibeDano:
     sonidos: []
     volumen: 1
@@ -630,7 +630,8 @@ MonoBehaviour:
     esperaMinima: 0.05
     sonido3D: 1
   muerte:
-    sonidos: []
+    sonidos:
+    - {fileID: 0}
     volumen: 1
     tonoMinimo: 0.95
     tonoMaximo: 1.05
@@ -645,7 +646,8 @@ MonoBehaviour:
     sonido3D: 1
   curacionMinima: 0.15
   paso:
-    sonidos: []
+    sonidos:
+    - {fileID: 0}
     volumen: 1
     tonoMinimo: 0.95
     tonoMaximo: 1.05
@@ -670,7 +672,7 @@ MonoBehaviour:
   distanciaAlSuelo: 0.35
   capasDeSuelo:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 256
   porEstadoDeAnimacion: []
   conNombre: []
   animator: {fileID: 0}

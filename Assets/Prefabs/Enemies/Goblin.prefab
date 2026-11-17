@@ -212,7 +212,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2838185071
+  GlobalObjectIdHash: 4249552721
   InScenePlacedSourceGlobalObjectIdHash: 4249552721
   DeferredDespawnTick: 0
   Ownership: 1
@@ -593,7 +593,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterAudio
   ShowTopMostFoldoutHeaderGroup: 1
   ataqueLigero:
-    sonidos: []
+    sonidos:
+    - {fileID: 8300000, guid: d9569b4c52176624fae8e12a2a194b13, type: 3}
     volumen: 1
     tonoMinimo: 0.95
     tonoMaximo: 1.05
@@ -613,7 +614,7 @@ MonoBehaviour:
     tonoMaximo: 1.05
     esperaMinima: 0.05
     sonido3D: 1
-  ataquesDesdeAnimacion: 0
+  ataquesDesdeAnimacion: 1
   recibeDano:
     sonidos: []
     volumen: 1
@@ -629,7 +630,8 @@ MonoBehaviour:
     esperaMinima: 0.05
     sonido3D: 1
   muerte:
-    sonidos: []
+    sonidos:
+    - {fileID: 0}
     volumen: 1
     tonoMinimo: 0.95
     tonoMaximo: 1.05
@@ -644,7 +646,8 @@ MonoBehaviour:
     sonido3D: 1
   curacionMinima: 0.15
   paso:
-    sonidos: []
+    sonidos:
+    - {fileID: 0}
     volumen: 1
     tonoMinimo: 0.95
     tonoMaximo: 1.05
@@ -669,7 +672,7 @@ MonoBehaviour:
   distanciaAlSuelo: 0.35
   capasDeSuelo:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 256
   porEstadoDeAnimacion: []
   conNombre: []
   animator: {fileID: 0}

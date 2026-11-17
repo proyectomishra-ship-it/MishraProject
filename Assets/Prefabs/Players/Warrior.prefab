@@ -581,11 +581,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterAudio
   ShowTopMostFoldoutHeaderGroup: 1
   ataqueLigero:
-    sonidos: []
+    sonidos:
+    - {fileID: 8300000, guid: 8de4e4e5d65f00741829451e91fab7d2, type: 3}
     volumen: 1
     tonoMinimo: 0.95
     tonoMaximo: 1.05
-    esperaMinima: 0.05
+    esperaMinima: 0.01
     sonido3D: 1
   ataquePesado:
     sonidos: []
@@ -603,11 +604,12 @@ MonoBehaviour:
     sonido3D: 1
   ataquesDesdeAnimacion: 1
   recibeDano:
-    sonidos: []
-    volumen: 1
+    sonidos:
+    - {fileID: 8300000, guid: 4aba4dff9a6daac4d9a351bc69c16f1f, type: 3}
+    volumen: 0.5
     tonoMinimo: 0.95
     tonoMaximo: 1.05
-    esperaMinima: 0.05
+    esperaMinima: 5
     sonido3D: 1
   curacion:
     sonidos: []
@@ -617,7 +619,8 @@ MonoBehaviour:
     esperaMinima: 0.05
     sonido3D: 1
   muerte:
-    sonidos: []
+    sonidos:
+    - {fileID: 8300000, guid: 38ec1797cae92424cb1b992d4c00acc9, type: 3}
     volumen: 1
     tonoMinimo: 0.95
     tonoMaximo: 1.05
@@ -632,12 +635,13 @@ MonoBehaviour:
     sonido3D: 1
   curacionMinima: 0.15
   paso:
-    sonidos: []
+    sonidos:
+    - {fileID: 8300000, guid: c5b41e04f844c964cbba026715c1c285, type: 3}
     volumen: 1
     tonoMinimo: 0.95
     tonoMaximo: 1.05
     esperaMinima: 0.05
-    sonido3D: 1
+    sonido3D: 0
   salto:
     sonidos: []
     volumen: 1
@@ -646,14 +650,15 @@ MonoBehaviour:
     esperaMinima: 0.05
     sonido3D: 1
   aterrizaje:
-    sonidos: []
+    sonidos:
+    - {fileID: 8300000, guid: 0c86a4e19d5858044b22fe6fb3304f40, type: 3}
     volumen: 1
     tonoMinimo: 0.95
     tonoMaximo: 1.05
     esperaMinima: 0.05
     sonido3D: 1
-  distanciaEntrePasos: 1.8
-  velocidadMinima: 0.6
+  distanciaEntrePasos: 1
+  velocidadMinima: 0.1
   distanciaAlSuelo: 0.35
   capasDeSuelo:
     serializedVersion: 2
