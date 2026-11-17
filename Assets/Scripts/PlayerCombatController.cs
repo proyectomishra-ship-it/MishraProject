@@ -418,16 +418,18 @@ public class PlayerCombatController : NetworkBehaviour
 
     private void CastMageShockwave(MageShockwaveAbility ability)
     {
-        if (!SpendSpecialMana(ability.ManaCost))
+        if (!SpendSpecialMana(ability.GetManaCost(player)))
             return;
 
         CommitSpecial(ability);
 
         Vector3 center = player.transform.position;
 
-        var targets = SpecialAbilityEffects.FindEnemiesInRadius(player,center,ability.Radius,ability.DamageLayers);
+        float radius = ability.GetRadius(player);
 
-        float damage = stats.Attack.Value * ability.DamageMultiplier;
+        var targets = SpecialAbilityEffects.FindEnemiesInRadius(player,center,radius,ability.DamageLayers);
+
+        float damage = stats.Attack.Value * ability.GetDamageMultiplier(player);
 
         int hits = SpecialAbilityEffects.ApplyDamage(targets, player, damage);
 
@@ -435,7 +437,7 @@ public class PlayerCombatController : NetworkBehaviour
 
         Debug.Log(
             $"[PlayerCombat] SHOCKWAVE {player.name} | " +
-            $"enemigos:{hits} dmg:{damage:F0} radio:{ability.Radius}");
+            $"enemigos:{hits} dmg:{damage:F0} radio:{radius}");
     }
 
     // ---------- Warrior ----------
@@ -465,15 +467,17 @@ public class PlayerCombatController : NetworkBehaviour
 
         // Los enemigos se buscan recién ahora: cuentan los que estén
         // en el arco en este momento.
-        var targets = SpecialAbilityEffects.FindEnemiesInCone(player,aimDirection,ability.BladeLength,ability.SweepAngle,ability.DamageLayers);
+        float bladeLength = ability.GetBladeLength(player);
 
-        float damage = stats.Attack.Value * ability.DamageMultiplier;
+        var targets = SpecialAbilityEffects.FindEnemiesInCone(player,aimDirection,bladeLength,ability.GetSweepAngle(player),ability.DamageLayers);
+
+        float damage = stats.Attack.Value * ability.GetDamageMultiplier(player);
 
         int hits = SpecialAbilityEffects.ApplyDamage(targets, player, damage);
 
         Debug.Log(
             $"[PlayerCombat] BLADE {player.name} | " +
-            $"enemigos:{hits} dmg:{damage:F0} largo:{ability.BladeLength}");
+            $"enemigos:{hits} dmg:{damage:F0} largo:{bladeLength}");
     }
 
     // ---------- Hunter ----------
@@ -501,7 +505,7 @@ public class PlayerCombatController : NetworkBehaviour
         // Mientras salen las flechas no se puede disparar el ataque normal encima.
         nextAttackTime = Mathf.Max(
             nextAttackTime,
-            Time.time + ability.TotalDuration + 0.2f);
+            Time.time + ability.GetTotalDuration(ability.GetTotalArrows(player)) + 0.2f);
 
         barrageRoutine = StartCoroutine(
             ArrowBarrageRoutine(weapon, ability, aimDirection));
@@ -517,12 +521,13 @@ public class PlayerCombatController : NetworkBehaviour
         Vector3 aimDirection)
     {
         var behavior = new RangedWeaponBehavior(weapon, transform);
-        float damage = stats.Attack.Value * ability.DamageMultiplier;
+        float damage = stats.Attack.Value * ability.GetDamageMultiplier(player);
+        int totalArrows = ability.GetTotalArrows(player);
 
         var betweenArrows = new WaitForSeconds(ability.DelayBetweenArrows);
         var betweenBursts = new WaitForSeconds(ability.DelayBetweenBursts);
 
-        for (int i = 0; i < ability.TotalArrows; i++)
+        for (int i = 0; i < totalArrows; i++)
         {
             // Si muere a mitad de la ráfaga, se corta.
             if (player == null || player.IsDead())
@@ -537,7 +542,7 @@ public class PlayerCombatController : NetworkBehaviour
 
             behavior.FireProjectile(player, direction, damage);
 
-            if (i == ability.TotalArrows - 1)
+            if (i == totalArrows - 1)
                 break;
 
             bool endOfBurst = (i + 1) % ability.ArrowsPerBurst == 0;
@@ -566,7 +571,10 @@ public class PlayerCombatController : NetworkBehaviour
     /// <summary>Inicia el cooldown de la habilidad y dispara la animación de ataque especial.</summary>
     private void CommitSpecial(SpecialAbility ability)
     {
-        nextSpecialTime = Time.time + ability.Cooldown;
+        // Las mejoras de recarga de CADA habilidad acortan el cooldown base de su asset.
+        float cooldown = ability.GetCooldown(player);
+
+        nextSpecialTime = Time.time + cooldown;
         PlayAttackFeedback(AttackAnimKind.Special);
     }
 

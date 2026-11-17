@@ -57,7 +57,22 @@ public class WarriorBladeAbility : SpecialAbility
     public float HitDelay => hitDelay;
     public float BladeLength => bladeLength;
     public float SweepAngle => sweepAngle;
+
+    /// <summary>Largo real de la hoja para este jugador (base + mejoras de alcance).</summary>
+    public float GetBladeLength(Character owner)
+        => bladeLength * PlayerSkillUpgrades.Mult(owner, SkillUpgradeType.WarriorBladeLength);
+
+    /// <summary>Apertura real del arco para este jugador (base + mejoras de área, máx. 300°).</summary>
+    public float GetSweepAngle(Character owner)
+        => Mathf.Min(300f, sweepAngle * PlayerSkillUpgrades.Mult(owner, SkillUpgradeType.WarriorBladeArc));
+
     public LayerMask DamageLayers => damageLayers;
+
+    public override float GetDamageMultiplier(Character owner)
+        => damageMultiplier * PlayerSkillUpgrades.Mult(owner, SkillUpgradeType.WarriorBladeDamage);
+
+    public override float GetCooldown(Character owner)
+        => Cooldown * PlayerSkillUpgrades.Mult(owner, SkillUpgradeType.WarriorBladeCooldown);
 
     public override void PlayVfx(
         Player caster,
@@ -91,9 +106,9 @@ public class WarriorBladeAbility : SpecialAbility
             caster.transform,
             visualOffset,
             direction,
-            bladeLength,
+            GetBladeLength(caster),
             bladeWidth,
-            sweepAngle,
+            GetSweepAngle(caster),
             slashDuration,
             energyColor);
     }

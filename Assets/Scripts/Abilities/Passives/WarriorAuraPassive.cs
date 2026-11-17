@@ -43,6 +43,8 @@ public class WarriorAuraPassive : PassiveAbility
     {
         public float armor;
         public float damage;
+        public float armorPower = 1f;    // mejoras de 'Aura blindada' con las que se calculó armor
+        public float damagePower = 1f;   // mejoras de 'Aura furiosa' con las que se calculó damage
     }
 
     private sealed class AuraRuntime : PassiveRuntime
@@ -103,31 +105,46 @@ public class WarriorAuraPassive : PassiveAbility
             foreach (Player p in toRemove)
                 Remove(p);
 
+            // Cada mejora escala una parte del aura: 'Aura blindada' la armadura y 'Aura furiosa' el daño.
+            float armorPower = PlayerSkillUpgrades.Mult(owner, SkillUpgradeType.WarriorAuraArmor);
+            float damagePower = PlayerSkillUpgrades.Mult(owner, SkillUpgradeType.WarriorAuraDamage);
+
             foreach (Player p in desired)
-                if (!applied.ContainsKey(p))
-                    Add(p);
+            {
+                if (!applied.TryGetValue(p, out Applied entry))
+                {
+                    Add(p, armorPower, damagePower);
+                }
+                else if (!Mathf.Approximately(entry.armorPower, armorPower) ||
+                         !Mathf.Approximately(entry.damagePower, damagePower))
+                {
+                    // El dueño eligió una mejora nueva: se reaplican los bonus con el valor actualizado.
+                    Remove(p);
+                    Add(p, armorPower, damagePower);
+                }
+            }
         }
 
         public override void Dispose() => RemoveAll();
 
-        private void Add(Player p)
+        private void Add(Player p, float armorPower, float damagePower)
         {
             CharacterStats stats = p.GetStats();
 
             if (stats == null)
                 return;
 
-            var entry = new Applied();
+            var entry = new Applied { armorPower = armorPower, damagePower = damagePower };
 
             if (aura.armorEnabled && aura.armorBonus != 0f)
             {
-                entry.armor = aura.armorBonus;
+                entry.armor = aura.armorBonus * armorPower;
                 stats.AddBonus(StatType.Defense, entry.armor);
             }
 
             if (aura.damageEnabled && aura.damageBonusPercent != 0f)
             {
-                entry.damage = aura.damageBonusPercent;
+                entry.damage = aura.damageBonusPercent * damagePower;
                 stats.AddMultiplier(StatType.Attack, entry.damage);
             }
 

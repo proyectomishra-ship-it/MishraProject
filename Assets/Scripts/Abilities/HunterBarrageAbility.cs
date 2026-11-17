@@ -35,21 +35,31 @@ public class HunterBarrageAbility : SpecialAbility
     public float DelayBetweenBursts => delayBetweenBursts;
     public float SpreadAngle => spreadAngle;
 
+    /// <summary>Flechas reales para este jugador (base + mejoras de 'Más flechas').</summary>
+    public int GetTotalArrows(Character owner)
+        => totalArrows + PlayerSkillUpgrades.Count(owner, SkillUpgradeType.HunterBarrageArrows);
+
+    public override float GetDamageMultiplier(Character owner)
+        => damageMultiplier * PlayerSkillUpgrades.Mult(owner, SkillUpgradeType.HunterBarrageDamage);
+
+    public override float GetCooldown(Character owner)
+        => Cooldown * PlayerSkillUpgrades.Mult(owner, SkillUpgradeType.HunterBarrageCooldown);
+
     /// <summary>Segundos que tarda en salir la última flecha desde la primera.</summary>
-    public float TotalDuration
+    public float TotalDuration => GetTotalDuration(totalArrows);
+
+    /// <summary>Lo mismo, para una cantidad de flechas concreta.</summary>
+    public float GetTotalDuration(int arrows)
     {
-        get
+        float time = 0f;
+
+        for (int i = 0; i < arrows - 1; i++)
         {
-            float time = 0f;
-
-            for (int i = 0; i < totalArrows - 1; i++)
-            {
-                bool endOfBurst = (i + 1) % arrowsPerBurst == 0;
-                time += endOfBurst ? delayBetweenBursts : delayBetweenArrows;
-            }
-
-            return time;
+            bool endOfBurst = (i + 1) % arrowsPerBurst == 0;
+            time += endOfBurst ? delayBetweenBursts : delayBetweenArrows;
         }
+
+        return time;
     }
 
     /// <summary>El efecto visual de esta habilidad son las propias flechas.</summary>

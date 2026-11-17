@@ -279,7 +279,8 @@ public class InventoryUI : MonoBehaviour
         // Solo responde si fue inicializado para el jugador local
         if (localPlayer == null) return;
 
-        if (Keyboard.current.tabKey.wasPressedThisFrame)
+        // Con el cartel de mejoras abierto el inventario no se abre encima (se pelearían por el mouse).
+        if (Keyboard.current.tabKey.wasPressedThisFrame && !SkillUpgradeOfferUI.IsOpen)
             ToggleInventory();
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD

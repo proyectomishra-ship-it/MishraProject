@@ -205,6 +205,30 @@ public class RangedWeaponBehavior :
             return;
         }
 
+        // Mejoras de habilidades del jugador (tamaño, velocidad, alcance): valen para todo proyectil suyo.
+        // Cada clase tiene las suyas; las del resto de las clases siempre valen 1, así que se pueden
+        // multiplicar todas sin preguntar la clase.
+        // OJO: la flecha del Hunter NO tiene mejora de tamaño a propósito (se deforma el modelo).
+        float speedMult = 1f;
+        float rangeMult = 1f;
+
+        if (attacker is Player upgradedShooter)
+        {
+            PlayerSkillUpgrades upgrades = PlayerSkillUpgrades.Of(upgradedShooter);
+
+            if (upgrades != null)
+            {
+                // Se escala antes del Spawn para que todos los clientes lo vean del mismo tamaño.
+                obj.transform.localScale *= upgrades.Multiplier(SkillUpgradeType.MageFireballSize);
+
+                speedMult = upgrades.Multiplier(SkillUpgradeType.MageFireballSpeed) *
+                            upgrades.Multiplier(SkillUpgradeType.HunterArrowSpeed);
+
+                rangeMult = upgrades.Multiplier(SkillUpgradeType.MageFireballRange) *
+                            upgrades.Multiplier(SkillUpgradeType.HunterArrowRange);
+            }
+        }
+
         // Pasiva de clase (flecha explosiva, bola de fuego grande...): solo ataques
         // básicos y pesados del jugador, y solo si ya alcanzó el nivel de la pasiva.
         if (allowClassPassive && attacker is Player shooter)
@@ -219,5 +243,8 @@ public class RangedWeaponBehavior :
         netObj.Spawn();
 
         projectile.Initialize(attacker, damage, direction);
+
+        if (speedMult != 1f || rangeMult != 1f)
+            projectile.SetUpgrades(speedMult, rangeMult);
     }
 }
