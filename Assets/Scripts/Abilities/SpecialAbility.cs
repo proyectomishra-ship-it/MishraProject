@@ -21,6 +21,18 @@ public abstract class SpecialAbility : ScriptableObject
     /// <summary>Maná que consume. Solo el Mage lo sobreescribe; el resto depende del cooldown.</summary>
     public virtual float ManaCost => 0f;
 
+    // Valores REALES para un jugador concreto: el base del asset más las mejoras que ese jugador eligió.
+    // Cada habilidad sobreescribe los que tengan mejoras propias.
+
+    /// <summary>Recarga real en segundos (base del asset x mejoras de recarga de esta habilidad).</summary>
+    public virtual float GetCooldown(Character owner) => cooldown;
+
+    /// <summary>Maná real que consume para este jugador.</summary>
+    public virtual float GetManaCost(Character owner) => ManaCost;
+
+    /// <summary>Multiplicador de daño real para este jugador (se multiplica por el Attack).</summary>
+    public virtual float GetDamageMultiplier(Character owner) => 1f;
+
     /// <summary>
     /// Reproduce el efecto visual. Se ejecuta en TODOS los clientes
     /// (lo dispara un ClientRpc) y no afecta al gameplay.

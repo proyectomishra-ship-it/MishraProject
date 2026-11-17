@@ -29,7 +29,7 @@ public class BigFireballPassive : PassiveAbility
         // Se escala antes de hacerlo aparecer en la red, así los clientes lo ven del mismo tamaño.
         instance.transform.localScale *= sizeMultiplier;
 
-        damage *= damageMultiplier;
+        damage *= damageMultiplier * PlayerSkillUpgrades.Mult(owner, SkillUpgradeType.MageFireballDamage);
         projectile.SetPierce(pierceEnemies);
     }
 }

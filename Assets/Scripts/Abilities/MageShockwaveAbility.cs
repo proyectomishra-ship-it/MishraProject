@@ -38,9 +38,23 @@ public class MageShockwaveAbility : SpecialAbility
 
     public float DamageMultiplier => damageMultiplier;
     public float Radius => radius;
+
+    /// <summary>Radio real para este jugador: el base más las mejoras de área elegidas.</summary>
+    public float GetRadius(Character owner)
+        => radius * PlayerSkillUpgrades.Mult(owner, SkillUpgradeType.MageShockwaveRadius);
+
     public LayerMask DamageLayers => damageLayers;
 
     public override float ManaCost => manaCost;
+
+    public override float GetDamageMultiplier(Character owner)
+        => damageMultiplier * PlayerSkillUpgrades.Mult(owner, SkillUpgradeType.MageShockwaveDamage);
+
+    public override float GetCooldown(Character owner)
+        => Cooldown * PlayerSkillUpgrades.Mult(owner, SkillUpgradeType.MageShockwaveCooldown);
+
+    public override float GetManaCost(Character owner)
+        => manaCost * PlayerSkillUpgrades.Mult(owner, SkillUpgradeType.MageShockwaveManaCost);
 
     // =========================
     // VISUAL EFFECT
@@ -62,7 +76,7 @@ public class MageShockwaveAbility : SpecialAbility
         {
             SpecialAbilityVfx.PlayShockwave(
                 position,
-                radius,
+                GetRadius(caster),
                 waveColor);
         }
     }

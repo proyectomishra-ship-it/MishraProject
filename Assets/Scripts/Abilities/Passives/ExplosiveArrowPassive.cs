@@ -28,6 +28,10 @@ public class ExplosiveArrowPassive : PassiveAbility
         NetworkProjectile projectile,
         ref float damage)
     {
-        projectile.SetExplosion(explosionRadius, explosionDamagePercent, explosionColor, damagePlayers);
+        // Mejoras propias de esta pasiva: radio y daño de la explosión.
+        float radiusMult = PlayerSkillUpgrades.Mult(owner, SkillUpgradeType.HunterExplosionRadius);
+        float damageMult = PlayerSkillUpgrades.Mult(owner, SkillUpgradeType.HunterExplosionDamage);
+
+        projectile.SetExplosion(explosionRadius * radiusMult, explosionDamagePercent * damageMult, explosionColor, damagePlayers);
     }
 }

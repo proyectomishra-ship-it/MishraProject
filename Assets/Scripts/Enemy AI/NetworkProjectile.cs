@@ -30,6 +30,11 @@ public class NetworkProjectile : NetworkBehaviour
     private bool pierce;
     private readonly HashSet<Character> piercedTargets = new HashSet<Character>();
 
+    // Mejoras de habilidades del jugador (velocidad y alcance). La velocidad se sincroniza porque
+    // el movimiento se simula en todos los clientes; el alcance solo lo usa el servidor.
+    private readonly NetworkVariable<float> speedMultiplier = new NetworkVariable<float>(1f);
+    private float lifetimeMultiplier = 1f;
+
     // =========================
     // INITIALIZATION
     // =========================
@@ -66,6 +71,11 @@ public class NetworkProjectile : NetworkBehaviour
         hasHit = false;
         isDespawning = false;
         piercedTargets.Clear();
+
+        lifetimeMultiplier = 1f;
+
+        if (IsServer)
+            speedMultiplier.Value = 1f;
     }
 
     public override void OnNetworkDespawn()
@@ -91,7 +101,7 @@ public class NetworkProjectile : NetworkBehaviour
 
         // El movimiento se simula en todas las instancias.
         transform.position +=
-            transform.forward * speed * Time.deltaTime;
+            transform.forward * speed * speedMultiplier.Value * Time.deltaTime;
 
         // Lifetime exclusivamente del servidor.
         if (!IsServer || isDespawning)
@@ -103,7 +113,7 @@ public class NetworkProjectile : NetworkBehaviour
 
         timer += Time.deltaTime;
 
-        if (timer >= lifetime)
+        if (timer >= lifetime * lifetimeMultiplier)
         {
             Debug.Log("[Projectile] Lifetime expirado");
             Despawn();
@@ -177,6 +187,23 @@ public class NetworkProjectile : NetworkBehaviour
         explosionDamagePercent = damagePercent;
         explosionColor = color;
         explosionHurtsPlayers = hurtPlayers;
+    }
+
+    /// <summary>
+    /// Servidor: mejoras de velocidad y alcance del jugador. Llamar después de Spawn().
+    /// El alcance (distancia recorrida) depende solo de 'rangeMultiplier': si el proyectil va más rápido,
+    /// su vida útil se acorta en la misma proporción.
+    /// </summary>
+    public void SetUpgrades(float speedMult, float rangeMult)
+    {
+        if (!IsServer)
+            return;
+
+        speedMult = Mathf.Max(0.1f, speedMult);
+        rangeMult = Mathf.Max(0.1f, rangeMult);
+
+        speedMultiplier.Value = speedMult;
+        lifetimeMultiplier = rangeMult / speedMult;
     }
 
     /// <summary>Servidor: el proyectil atraviesa enemigos en vez de detenerse en el primero.</summary>
