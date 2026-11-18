@@ -123,14 +123,31 @@ public class SettingsPanel : MonoBehaviour
         RefreshAll();
     }
 
+    private static bool IsFullscreen => Screen.fullScreenMode != FullScreenMode.Windowed;
+
     private void ToggleFullscreen()
     {
-        Screen.fullScreen = !Screen.fullScreen;
-        RefreshFullscreenLabel();
+        Resolution desktop = Screen.currentResolution;
+
+        if (IsFullscreen)
+        {
+            // A ventana: tamaño cómodo (80% del monitor, máximo 1280x720) y redimensionable con el mouse.
+            int w = Mathf.Min(1280, Mathf.RoundToInt(desktop.width * 0.8f));
+            int h = Mathf.Min(720, Mathf.RoundToInt(desktop.height * 0.8f));
+            Screen.SetResolution(w, h, FullScreenMode.Windowed);
+        }
+        else
+        {
+            // Pantalla completa sin bordes: cambia rápido y permite Alt+Tab sin problemas.
+            Screen.SetResolution(desktop.width, desktop.height, FullScreenMode.FullScreenWindow);
+        }
+
+        // El cambio se aplica al final del frame: se muestra el estado al que se va.
+        MenuUIKit.SetButtonLabel(fullscreenButton, "Pantalla completa: " + (IsFullscreen ? "No" : "Sí"));
     }
 
     private void RefreshFullscreenLabel()
     {
-        MenuUIKit.SetButtonLabel(fullscreenButton, "Pantalla completa: " + (Screen.fullScreen ? "Sí" : "No"));
+        MenuUIKit.SetButtonLabel(fullscreenButton, "Pantalla completa: " + (IsFullscreen ? "Sí" : "No"));
     }
 }
