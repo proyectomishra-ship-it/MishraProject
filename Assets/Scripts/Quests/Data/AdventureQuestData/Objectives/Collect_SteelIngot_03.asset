@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 53994a820cfa3a5478ecb670267f23e2, type: 3}
-  m_Name: Collect_HealingHerb_01
+  m_Name: Collect_SteelIngot_03
   m_EditorClassIdentifier: Assembly-CSharp::CollectItemObjectiveData
-  objectiveID: Collect_HealingHerb_01
+  objectiveID: Collect_SteelIngot_03
   description: Recolecta 3 hierbas curativas
   requiredAmount: 3
-  item: {fileID: 11400000, guid: 037694b6ce6745b4a5ac7201a5f26788, type: 2}
+  item: {fileID: 11400000, guid: 421e2b99da009a14692222994e09660b, type: 2}
