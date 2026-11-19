@@ -254,6 +254,13 @@ public class SpecialCooldownHUD : MonoBehaviour
             return;
         }
 
+        // Con el inventario abierto el indicador se oculta, como el resto del HUD.
+        if (InventoryUI.IsOpen)
+        {
+            if (panel.activeSelf) panel.SetActive(false);
+            return;
+        }
+
         SpecialAbility ability = combat.ClassSpecial;
 
         if (ability == null)

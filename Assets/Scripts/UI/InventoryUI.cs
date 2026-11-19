@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 using TMPro;
 
 /// <summary>
-/// UI principal del inventario. Se abre/cierra con Tab.
+/// UI principal del inventario. Se abre/cierra con Tab; Esc tambien lo cierra.
 ///
 /// LAYOUT:
 ///   Panel izquierdo   → modelo 3D del personaje + slots de equipamiento
@@ -124,6 +124,12 @@ public class InventoryUI : MonoBehaviour
 
     private Tab currentTab = Tab.Items;
     private bool isOpen = false;
+
+    /// <summary>
+    /// True mientras el inventario del jugador local esta abierto. Lo leen los HUD que se crean por codigo
+    /// (como SpecialCooldownHUD) y por eso no pueden ir en 'Hud To Hide When Open'.
+    /// </summary>
+    public static bool IsOpen { get; private set; }
     private float feedbackTimer = 0f;
 
     // =========================
@@ -255,10 +261,13 @@ public class InventoryUI : MonoBehaviour
         // El panel esta activo en la escena y Initialize() (que lo oculta) solo corre cuando
         // aparece el jugador: sin esto el inventario se ve un instante al iniciar la partida.
         inventoryPanel?.SetActive(false);
+        IsOpen = false;
     }
 
     private void OnDestroy()
     {
+        IsOpen = false;
+
         if (inventory != null)
             inventory.OnChanged -= QueueRefresh;
         if (gold != null)
@@ -281,6 +290,9 @@ public class InventoryUI : MonoBehaviour
 
         // Con el cartel de mejoras abierto el inventario no se abre encima (se pelearían por el mouse).
         if (Keyboard.current.tabKey.wasPressedThisFrame && !SkillUpgradeOfferUI.IsOpen)
+            ToggleInventory();
+        // Esc solo CIERRA (nunca abre). PauseMenu no se abre con este mismo Esc porque ve el input bloqueado.
+        else if (isOpen && Keyboard.current.escapeKey.wasPressedThisFrame)
             ToggleInventory();
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -328,6 +340,7 @@ public class InventoryUI : MonoBehaviour
     private void ToggleInventory()
     {
         isOpen = !isOpen;
+        IsOpen = isOpen;
         AudioManager.PlayUI(isOpen ? UISound.PanelOpen : UISound.PanelClose);
         inventoryPanel?.SetActive(isOpen);
         SetHudVisible(!isOpen);

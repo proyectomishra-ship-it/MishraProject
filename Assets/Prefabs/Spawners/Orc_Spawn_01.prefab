@@ -72,4 +72,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawnPoint
   ShowTopMostFoldoutHeaderGroup: 1
   enemyPrefab: {fileID: 486879105537464321, guid: 1097584a67b829c4fa4f49e67d7f9ebb, type: 3}
-  respawnDelaySeconds: 240
+  respawnDelaySeconds: 400
