@@ -16,12 +16,15 @@ MonoBehaviour:
     idle: {fileID: 2460472556546162936, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
     walk: {fileID: -89737132427218500, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
     run: {fileID: -8208218059213765083, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
-    jump: {fileID: -4074576781695432549, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
+    jump: {fileID: 7400000, guid: a77f309800783274398d7082c6b14aef, type: 2}
     fall: {fileID: 0}
     land: {fileID: 0}
     attackLight: {fileID: -3429678379292853505, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
     attackHeavy: {fileID: -3429678379292853505, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
     attackSpecial: {fileID: 0}
+    attackLightHitTime: 0
+    attackHeavyHitTime: 0
+    attackSpecialHitTime: 0
     hit: {fileID: -6934110298315784994, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
     death: {fileID: 6195685969288703285, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
     revive: {fileID: 0}
@@ -39,6 +42,9 @@ MonoBehaviour:
       attackLight: {fileID: 717017027482361007, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
       attackHeavy: {fileID: 717017027482361007, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
       attackSpecial: {fileID: 717017027482361007, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
+      attackLightHitTime: 0
+      attackHeavyHitTime: 0
+      attackSpecialHitTime: 0
       hit: {fileID: 0}
       death: {fileID: 0}
       revive: {fileID: 0}
@@ -54,6 +60,9 @@ MonoBehaviour:
       attackLight: {fileID: -3801794267435671854, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
       attackHeavy: {fileID: 1774411942259946656, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
       attackSpecial: {fileID: 1774411942259946656, guid: ada80ba2b6b9ce4449ee6b3c7d90cde7, type: 3}
+      attackLightHitTime: 0
+      attackHeavyHitTime: 0
+      attackSpecialHitTime: 0
       hit: {fileID: 0}
       death: {fileID: 0}
       revive: {fileID: 0}
