@@ -8292,29 +8292,41 @@ PrefabInstance:
       propertyPath: activationRadius
       value: 210
       objectReference: {fileID: 0}
+    - target: {fileID: 1364757340060652795, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1364757340060652795, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1364757340060652795, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 3.41
+      objectReference: {fileID: 0}
     - target: {fileID: 2801581343908645108, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 100.1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2801581343908645108, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 5.03
+      value: 3.57
       objectReference: {fileID: 0}
     - target: {fileID: 2801581343908645108, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 18
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 3524037918862594658, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 29.04
+      value: 128.81
       objectReference: {fileID: 0}
     - target: {fileID: 3524037918862594658, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.04
+      value: 2.09
       objectReference: {fileID: 0}
     - target: {fileID: 3524037918862594658, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -140.9
+      value: -120.32
       objectReference: {fileID: 0}
     - target: {fileID: 3524037918862594658, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
       propertyPath: m_LocalRotation.w
@@ -8453,17 +8465,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5973769559802262652, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
   m_PrefabInstance: {fileID: 106570993}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &106570995 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 857402064383383112, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
-  m_PrefabInstance: {fileID: 106570993}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f0fd8a95d07abcc4da5faa1d03bf349e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LocationZone
 --- !u!114 &106570996 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 296373496906449582, guid: 19d4f22fc6a0a3b4094389dbc923acc4, type: 3}
@@ -27253,7 +27254,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1764835217}
   m_HandleRect: {fileID: 1764835216}
   m_Direction: 0
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -169564,7 +169565,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1326918394}
   m_HandleRect: {fileID: 1326918393}
   m_Direction: 0
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -342347,11 +342348,11 @@ PrefabInstance:
     - target: {fileID: 2409731920041918956, guid: 4681b450cd02a0341bbaef35cbada2a6, type: 3}
       propertyPath: destinationOverride
       value: 
-      objectReference: {fileID: 106570994}
+      objectReference: {fileID: 0}
     - target: {fileID: 2409731920041918956, guid: 4681b450cd02a0341bbaef35cbada2a6, type: 3}
       propertyPath: destinationZoneOverride
       value: 
-      objectReference: {fileID: 106570995}
+      objectReference: {fileID: 0}
     - target: {fileID: 3807087796076428828, guid: 4681b450cd02a0341bbaef35cbada2a6, type: 3}
       propertyPath: m_Name
       value: Entrada Cueva
