@@ -34,6 +34,9 @@ public class PlayerCombatController : NetworkBehaviour
     private bool heavyTriggered;
     private float nextAttackTime;
 
+    // Ultima direccion de apunte (camara) usada por un ataque; la usa el movimiento para girar al personaje.
+    private Vector3 currentAim = Vector3.forward;
+
     // Habilidad especial de clase (Mage / Warrior / Hunter)
     private float nextSpecialTime;
 
@@ -282,6 +285,8 @@ public class PlayerCombatController : NetworkBehaviour
 
         aimDirection = NormalizeAim(aimDirection);
 
+        currentAim = aimDirection;
+
         WeaponData weapon = GetCurrentWeapon();
         bool isRanged = weapon != null && weapon.IsRanged;
 
@@ -439,6 +444,8 @@ public class PlayerCombatController : NetworkBehaviour
         }
 
         aimDirection = NormalizeAim(aimDirection);
+
+        currentAim = aimDirection;
 
         // Si la clase define una habilidad propia, reemplaza al especial del arma.
         if (TryPerformClassSpecial(aimDirection))
@@ -1028,7 +1035,12 @@ public class PlayerCombatController : NetworkBehaviour
 
         // El personaje no puede seguir corriendo a toda velocidad mientras balancea el arma:
         // se frena durante el golpe para que la animacion no se vea deslizando.
-        player.GetComponent<MovementController>()?.LimitMovementForAttack(swingSeconds);
+        MovementController movement = player.GetComponent<MovementController>();
+        if (movement != null)
+        {
+            movement.LimitMovementForAttack(swingSeconds);
+            movement.FaceAim(currentAim, swingSeconds);   // el cuerpo mira hacia donde sale el golpe
+        }
 
         anim?.PlayAttack(kind);
     }
