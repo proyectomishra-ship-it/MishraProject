@@ -130685,7 +130685,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 225670113}
   m_HandleRect: {fileID: 225670112}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -198965,12 +198965,20 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   availableQuests:
   - {fileID: 11400000, guid: 8801eca7cec7b3049b549dd93b50f91b, type: 2}
+  - {fileID: 11400000, guid: 70d14a87a9d11f4468e3b40b8450177d, type: 2}
+  - {fileID: 11400000, guid: 5b23fefb815d7a449b564ad8a7c8c5f4, type: 2}
   - {fileID: 11400000, guid: 4781e4efabf518a46a2913b8c7c50634, type: 2}
   - {fileID: 11400000, guid: 126e22455709dcf449439d4946178d99, type: 2}
   - {fileID: 11400000, guid: 4600d59138a3b8348bec93e544e6129a, type: 2}
   - {fileID: 11400000, guid: fc6254ffb48c4734eb2d9fe7761a078c, type: 2}
-  - {fileID: 11400000, guid: 5b23fefb815d7a449b564ad8a7c8c5f4, type: 2}
+  - {fileID: 11400000, guid: 5f76ef32851cf6b4096a5aacf024c8f2, type: 2}
   - {fileID: 11400000, guid: a3250c241c15cfe4d9d99e6e71ae0e90, type: 2}
+  - {fileID: 11400000, guid: d530575fdae473f4c8d7d7653d7e54e9, type: 2}
+  - {fileID: 11400000, guid: 0c4ca4e56bebec04697db0d76546affb, type: 2}
+  - {fileID: 11400000, guid: 040c2689b5e66c64bb774352a0d69301, type: 2}
+  - {fileID: 11400000, guid: 8ec0d7119f1757549ab924bde90d3d56, type: 2}
+  - {fileID: 11400000, guid: 5e44f0d1d9243af42a726844cf4c9743, type: 2}
+  - {fileID: 11400000, guid: 645e4fd12a66c1643b8140ab640f0257, type: 2}
   maxActiveSideQuests: 1
 --- !u!4 &1079892940
 Transform:
@@ -201787,7 +201795,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1907289601}
   m_HandleRect: {fileID: 1907289600}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:

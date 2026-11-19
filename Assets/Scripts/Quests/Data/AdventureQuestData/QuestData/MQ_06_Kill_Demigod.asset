@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ebb553c95b13a547bef685eee69972d, type: 3}
   m_Name: MQ_06_Kill_Demigod
   m_EditorClassIdentifier: Assembly-CSharp::QuestData
-  questID: MQ_04_Kill_Demigod
+  questID: MQ_06_Kill_Demigod
   questName: Derrota al Semi Dios
   description: "El semidios de un poderoso culto ha sido invocado, debes vencerlo
     o consumir\xE1 a tu pueblo"
