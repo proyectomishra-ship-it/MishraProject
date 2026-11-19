@@ -37,6 +37,10 @@ public class PlayerCombatController : NetworkBehaviour
 
     // Habilidad especial de clase (Mage / Warrior / Hunter)
     private float nextSpecialTime;
+
+    // Copia del cooldown para que el dueño pueda mostrarlo en el HUD (solo escribe el servidor).
+    private readonly NetworkVariable<double> specialReadyAt = new NetworkVariable<double>(0d);
+    private readonly NetworkVariable<float> specialCooldownTotal = new NetworkVariable<float>(0f);
     private Coroutine barrageRoutine;
 
     public void Initialize(Player player)
@@ -59,6 +63,38 @@ public class PlayerCombatController : NetworkBehaviour
 
     public bool IsSpecialUnlocked =>
         player != null && player.CurrentLevel >= SpecialUnlockLevel;
+
+    // ---- Datos para el HUD de recarga (se leen en el dueño) ----
+
+    /// <summary>Habilidad especial de la clase (null si la clase no tiene).</summary>
+    public SpecialAbility ClassSpecial =>
+        player != null && player.ClassData != null ? player.ClassData.SpecialAbility : null;
+
+    /// <summary>Segundos que faltan para poder volver a usar el especial.</summary>
+    public float SpecialCooldownRemaining
+    {
+        get
+        {
+            if (!IsSpawned || NetworkManager == null)
+                return 0f;
+
+            double now = NetworkManager.ServerTime.Time;
+            return Mathf.Max(0f, (float)(specialReadyAt.Value - now));
+        }
+    }
+
+    /// <summary>Duración total de la última recarga (ya con las mejoras aplicadas).</summary>
+    public float SpecialCooldownTotal => specialCooldownTotal.Value;
+
+    /// <summary>Maná que cuesta el especial (0 si no gasta).</summary>
+    public float SpecialManaCost
+    {
+        get
+        {
+            SpecialAbility a = ClassSpecial;
+            return a != null && player != null ? a.GetManaCost(player) : 0f;
+        }
+    }
 
     private WeaponData GetCurrentWeapon()
         => equipment?.GetEquippedWeapon();
@@ -244,19 +280,71 @@ public class PlayerCombatController : NetworkBehaviour
             }
         }
 
-        PlayAttackFeedback(
-            heavy ? AttackAnimKind.Heavy : AttackAnimKind.Light);
+        AttackAnimKind kind =
+            heavy ? AttackAnimKind.Heavy : AttackAnimKind.Light;
 
+        PlayAttackFeedback(kind);
+
+        // El efecto (daño o proyectil) se aplica en el momento del impacto de la
+        // animacion y no en el click: sin esto el golpe llegaba al arrancar el
+        // movimiento, mucho antes de que el arma conectara. El tiempo se configura
+        // por clip en el Animation Set (Momento del impacto). 0 = al instante.
+        float hitDelay = anim != null ? anim.GetAttackHitDelay(kind) : 0f;
+
+        // Se capturan ahora: el arma equipada puede cambiar durante la espera.
+        IWeaponBehavior behavior = GetCurrentBehavior();
+        float heavyMultiplier = GetHeavyMultiplier();
+
+        if (hitDelay <= 0f)
+        {
+            ApplyBasicAttack(
+                behavior, heavy, heavyMultiplier, isRanged, aimDirection, target);
+            return;
+        }
+
+        StartCoroutine(BasicAttackHitRoutine(
+            hitDelay, behavior, heavy, heavyMultiplier, isRanged, aimDirection));
+    }
+
+    private IEnumerator BasicAttackHitRoutine(
+        float delay,
+        IWeaponBehavior behavior,
+        bool heavy,
+        float heavyMultiplier,
+        bool isRanged,
+        Vector3 aimDirection)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (player == null || player.IsDead())
+            yield break;
+
+        // Mismo criterio que la hoja del Guerrero: el blanco se busca recien ahora,
+        // cuenta quien este al alcance y en el arco en el momento del impacto.
+        Character target = isRanged
+            ? null
+            : FindMeleeTarget(aimDirection);
+
+        ApplyBasicAttack(
+            behavior, heavy, heavyMultiplier, isRanged, aimDirection, target);
+    }
+
+    private void ApplyBasicAttack(
+        IWeaponBehavior behavior,
+        bool heavy,
+        float heavyMultiplier,
+        bool isRanged,
+        Vector3 aimDirection,
+        Character target)
+    {
         // Ranged: dispara incluso si target es null.
         if (isRanged)
         {
-            IWeaponBehavior behavior = GetCurrentBehavior();
-
             if (behavior is IAimedWeaponBehavior aimedBehavior)
             {
                 if (heavy)
                     aimedBehavior.PerformAimedHeavyAttack(
-                        player, aimDirection, GetHeavyMultiplier());
+                        player, aimDirection, heavyMultiplier);
                 else
                     aimedBehavior.PerformAimedAttack(
                         player, aimDirection);
@@ -275,13 +363,11 @@ public class PlayerCombatController : NetworkBehaviour
         if (target == null)
             return;
 
-        IWeaponBehavior meleeBehavior = GetCurrentBehavior();
-
         if (heavy)
-            meleeBehavior.PerformHeavyAttack(
-                player, target, GetHeavyMultiplier());
+            behavior.PerformHeavyAttack(
+                player, target, heavyMultiplier);
         else
-            meleeBehavior.PerformAttack(player, target);
+            behavior.PerformAttack(player, target);
 
         Debug.Log(
             $"[PlayerCombat] ATTACK {player.name} -> {target.name} " +
@@ -575,6 +661,13 @@ public class PlayerCombatController : NetworkBehaviour
         float cooldown = ability.GetCooldown(player);
 
         nextSpecialTime = Time.time + cooldown;
+
+        if (IsServer)
+        {
+            specialCooldownTotal.Value = cooldown;
+            specialReadyAt.Value = NetworkManager.ServerTime.Time + cooldown;
+        }
+
         PlayAttackFeedback(AttackAnimKind.Special);
     }
 
@@ -621,6 +714,10 @@ public class PlayerCombatController : NetworkBehaviour
         // Quien entra tarde recibe el valor ya sincronizado.
         Passive?.SetVisualActive(player, passiveActive.Value);
 
+        // Indicador de recarga del especial (solo el dueño).
+        if (IsOwner)
+            SpecialCooldownHUD.Attach(this);
+
         // Avisos de desbloqueo (solo el dueño).
         if (IsOwner)
         {
@@ -649,6 +746,8 @@ public class PlayerCombatController : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
+        SpecialCooldownHUD.Detach(this);
+
         passiveActive.OnValueChanged -= HandlePassiveActiveChanged;
 
         if (levelSync != null)
@@ -811,7 +910,12 @@ public class PlayerCombatController : NetworkBehaviour
                 ? weapon.AttackSpeed
                 : 1f;
 
-        nextAttackTime = Time.time + 1f / attackSpeed;
+        float swingSeconds = 1f / attackSpeed;
+        nextAttackTime = Time.time + swingSeconds;
+
+        // El personaje no puede seguir corriendo a toda velocidad mientras balancea el arma:
+        // se frena durante el golpe para que la animacion no se vea deslizando.
+        player.GetComponent<MovementController>()?.LimitMovementForAttack(swingSeconds);
 
         anim?.PlayAttack(kind);
     }

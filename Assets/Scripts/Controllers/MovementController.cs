@@ -16,6 +16,13 @@ public class MovementController : NetworkBehaviour
              "Debe ser un poco mayor que la altura de un escalon. 0 = desactivado.")]
     [SerializeField] private float groundSnapDistance = 0.35f;
 
+    [Header("Ataque")]
+    [Tooltip("Velocidad de movimiento mientras dura un golpe: 0 = clavado en el lugar, 1 = sin cambio.")]
+    [Range(0f, 1f)]
+    [SerializeField] private float attackMoveMultiplier = 0.2f;
+    [Tooltip("Maximo de segundos que un ataque limita el movimiento (un arma lenta no deja al personaje clavado mucho tiempo).")]
+    [SerializeField] private float attackMoveMaxSeconds = 0.6f;
+
     [Header("Rotación")]
     [SerializeField] private float rotationSpeed = 15f;
 
@@ -37,6 +44,9 @@ public class MovementController : NetworkBehaviour
 
     /// <summary>True desde que el jugador salta hasta que vuelve a tocar el suelo.</summary>
     public bool IsJumping => isJumping.Value;
+
+    // Hasta cuando dura la limitacion de movimiento por un ataque. Solo servidor.
+    private float attackMoveUntil;
 
     // Empuje externo (ej: golpe de area del boss). Solo servidor.
     private Vector3 knockbackVelocity;
@@ -96,7 +106,9 @@ public class MovementController : NetworkBehaviour
                 _desiredRotation,
                 rotationSpeed * Time.deltaTime
             );
-            motion += _desiredDirection * _desiredSpeed;
+            // Mientras se balancea el arma no se corre a toda velocidad (se veria deslizar).
+            float speedScale = Time.time < attackMoveUntil ? attackMoveMultiplier : 1f;
+            motion += _desiredDirection * _desiredSpeed * speedScale;
         }
 
         // Empuje: arranca rapido y frena hasta 0, recorriendo exactamente la distancia pedida.
@@ -187,6 +199,19 @@ public class MovementController : NetworkBehaviour
 
     public void ApplyGravity() { }
 
+    /// <summary>
+    /// Frena el movimiento durante un ataque (ver attackMoveMultiplier). Lo llama el combate
+    /// cada vez que inicia un golpe. Solo servidor.
+    /// </summary>
+    public void LimitMovementForAttack(float seconds)
+    {
+        if (!IsServer) return;
+
+        float until = Time.time + Mathf.Min(seconds, attackMoveMaxSeconds);
+        if (until > attackMoveUntil)
+            attackMoveUntil = until;
+    }
+
     private void SetMovementState(Vector3 worldDirection, Quaternion targetRotation, float speed)
     {
         worldDirection.y = 0f;
@@ -214,6 +239,7 @@ public class MovementController : NetworkBehaviour
         verticalVelocity = 0f;
         knockbackTimeLeft = 0f;
         isJumping.Value = false;
+        attackMoveUntil = 0f;
 
         Debug.Log($"[MovementController] {name} — estado de movimiento reseteado.");
     }

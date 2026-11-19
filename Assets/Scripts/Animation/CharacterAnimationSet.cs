@@ -35,6 +35,14 @@ public class CharacterClipSet
     [Tooltip("Opcional. Sin este clip se usa 'attackHeavy', o en su defecto 'attackLight'.")]
     public AnimationClip attackSpecial;
 
+    [Header("Momento del impacto (solo jugador)")]
+    [Tooltip("Segundos, contados desde el inicio del clip a velocidad 1, en que el golpe conecta o se suelta " +
+             "la flecha / el hechizo. El daño o el proyectil se aplica en ese instante para quedar sincronizado " +
+             "con la animacion. Se divide solo por la velocidad de ataque del arma. 0 = al instante.")]
+    [Min(0f)] public float attackLightHitTime;
+    [Min(0f)] public float attackHeavyHitTime;
+    [Min(0f)] public float attackSpecialHitTime;
+
     [Header("Reacciones")]
     [Tooltip("Opcional. Sin este clip no hay reacción al recibir un golpe.")]
     public AnimationClip hit;
@@ -43,6 +51,18 @@ public class CharacterClipSet
     public AnimationClip death;
     [Tooltip("Opcional. Levantarse tras el respawn (solo jugador).")]
     public AnimationClip revive;
+
+    /// <summary>Segundos (a velocidad 1) hasta el impacto del ataque de ese hueco. 0 si no aplica.</summary>
+    public float GetHitTime(AnimSlot slot)
+    {
+        switch (slot)
+        {
+            case AnimSlot.AttackLight:   return attackLightHitTime;
+            case AnimSlot.AttackHeavy:   return attackHeavyHitTime;
+            case AnimSlot.AttackSpecial: return attackSpecialHitTime;
+            default:                     return 0f;
+        }
+    }
 
     public AnimationClip Get(AnimSlot slot)
     {

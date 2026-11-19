@@ -216,6 +216,18 @@ public class PlayerAnimationController : CharacterAnimationController
         ApplyWeapon(item as WeaponData);
     }
 
+    // El tiempo de impacto acompana al clip: si el arma equipada reemplaza el clip de ese
+    // hueco, vale el tiempo de su override; si no, el del set base.
+    protected override float GetHitTime(AnimSlot slot)
+    {
+        CharacterClipSet overrideClips = appliedOverride != null ? appliedOverride.clips : null;
+
+        if (overrideClips != null && overrideClips.Get(slot) != null)
+            return overrideClips.GetHitTime(slot);
+
+        return base.GetHitTime(slot);
+    }
+
     private void ApplyWeapon(WeaponData weapon)
     {
         if (!Ready) return;

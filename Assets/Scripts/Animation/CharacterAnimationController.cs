@@ -335,6 +335,37 @@ public abstract class CharacterAnimationController : NetworkBehaviour
         }
     }
 
+    /// <summary>
+    /// Segundos reales entre que arranca la animacion de ataque y su momento de impacto
+    /// (el tiempo configurado en el clip dividido por la velocidad de ataque actual).
+    /// 0 si el clip no tiene tiempo configurado: el ataque se aplica al instante, como antes.
+    /// </summary>
+    public float GetAttackHitDelay(AttackAnimKind kind)
+    {
+        if (!ready || animationSet == null) return 0f;
+
+        // Mismo criterio que PlayAttackClientRpc: si falta el clip se usa el mas parecido.
+        if (!TryResolveAttack(kind, out AttackAnimKind resolved)) return 0f;
+
+        AnimSlot slot;
+        switch (resolved)
+        {
+            case AttackAnimKind.Heavy:   slot = AnimSlot.AttackHeavy;   break;
+            case AttackAnimKind.Special: slot = AnimSlot.AttackSpecial; break;
+            default:                     slot = AnimSlot.AttackLight;   break;
+        }
+
+        float hitTime = GetHitTime(slot);
+        if (hitTime <= 0f) return 0f;
+
+        float speed = currentAttackSpeed > 0.01f ? currentAttackSpeed : 1f;
+        return hitTime / speed;
+    }
+
+    /// <summary>Tiempo de impacto (a velocidad 1) del hueco indicado. El jugador lo redefine por arma.</summary>
+    protected virtual float GetHitTime(AnimSlot slot)
+        => animationSet.baseClips != null ? animationSet.baseClips.GetHitTime(slot) : 0f;
+
     /// <summary>Velocidad de las animaciones de ataque (ej: la del arma equipada). 1 = normal.</summary>
     protected void SetAttackSpeed(float value)
     {
