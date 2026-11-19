@@ -43,7 +43,7 @@ MonoBehaviour:
   baseExperienceReward: 80
   classMultiplier: 1.2
   fleeHealthThreshold: 0.3
-  canFlee: 1
+  canFlee: 0
   availableStrategies: 
   preferredCombatDistance: 15
   projectilePrefab: {fileID: 0}

@@ -1,24 +1,24 @@
-using UnityEngine;
+﻿using UnityEngine;
 using Unity.Netcode;
 
+/// <summary>
+/// Crea la barra de vida flotante del enemigo en cada cliente (ver EnemyOverheadBar).
+/// La barra se arma por código: el campo "healthBarPrefab" quedó solo para no perder
+/// la referencia de los prefabs y ya no se usa.
+/// </summary>
 public class EnemyHealthBarSpawner : NetworkBehaviour
 {
+    [Tooltip("OBSOLETO: la barra ahora se arma por código. Se puede ignorar.")]
     [SerializeField]
     private EnemyHealthBarController healthBarPrefab;
 
-
-private EnemyHealthBarController instance;
+    private EnemyOverheadBar instance;
 
     public override void OnNetworkSpawn()
     {
         if (!IsClient)
             return;
 
-        CreateBar();
-    }
-
-    private void CreateBar()
-    {
         CharacterStatsSyncController sync =
             GetComponent<CharacterStatsSyncController>();
 
@@ -29,35 +29,25 @@ private EnemyHealthBarController instance;
             return;
         }
 
-        // Crear la barra como hija del Player del enemigo.
-        instance = Instantiate(
-            healthBarPrefab,
-            transform
-        );
-
-        instance.Initialize(sync);
-
-        EnemyHealthBarFollow follow =
-            instance.GetComponent<EnemyHealthBarFollow>();
-
-        if (follow != null)
-        {
-            follow.SetTarget(transform);
-        }
-        else
-        {
-            Debug.LogError(
-                $"[{name}] Falta EnemyHealthBarFollow en la barra");
-        }
+        instance = EnemyOverheadBar.Create(sync, transform);
     }
 
     public override void OnNetworkDespawn()
     {
-        if (instance != null)
-        {
-            Destroy(instance.gameObject);
-        }
+        DestroyBar();
     }
 
+    public override void OnDestroy()
+    {
+        DestroyBar();
+        base.OnDestroy();
+    }
 
+    private void DestroyBar()
+    {
+        if (instance != null)
+            Destroy(instance.gameObject);
+
+        instance = null;
+    }
 }

@@ -11,10 +11,37 @@ public class MovementController : NetworkBehaviour
     [SerializeField] private float gravity = -9.81f;
     [SerializeField] private float runMultiplier = 5f;
 
+    [Header("Suelo")]
+    [Tooltip("Al bajar escaleras o rampas, cuanto se pega el personaje al suelo en lugar de caer escalon por escalon. " +
+             "Debe ser un poco mayor que la altura de un escalon. 0 = desactivado.")]
+    [SerializeField] private float groundSnapDistance = 0.35f;
+
     [Header("Rotación")]
     [SerializeField] private float rotationSpeed = 15f;
 
     private float verticalVelocity = 0f;
+
+    // ── Salto real ────────────────────────────────────────────────────────────
+    // Lo escribe el servidor al saltar y lo leen todos los clientes. Sirve para
+    // que la animacion de salto/caida solo se active cuando el jugador SALTA y no
+    // cada vez que se separa un poco del suelo (escalones, pendientes, terreno).
+    private readonly NetworkVariable<bool> isJumping = new(
+        false,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
+
+    // Margen antes de poder dar el salto por terminado (isGrounded sigue en true
+    // el primer frame despues de saltar).
+    private const float JumpLandingGrace = 0.15f;
+    private float jumpStartTime;
+
+    /// <summary>True desde que el jugador salta hasta que vuelve a tocar el suelo.</summary>
+    public bool IsJumping => isJumping.Value;
+
+    // Empuje externo (ej: golpe de area del boss). Solo servidor.
+    private Vector3 knockbackVelocity;
+    private float knockbackTimeLeft;
+    private float knockbackDuration;
 
     /// <summary>Multiplicador de velocidad al correr. Lo lee PlayerAnimationController.</summary>
     public float RunMultiplier => runMultiplier;
@@ -43,6 +70,9 @@ public class MovementController : NetworkBehaviour
     {
         if (!IsSpawned || controller == null || !IsServer) return;
 
+        // Estado de suelo del frame anterior (resultado de la ultima Move).
+        bool wasGrounded = controller.isGrounded;
+
         // Gravedad
         if (controller.isGrounded && verticalVelocity < 0f)
             verticalVelocity = -2f;
@@ -69,7 +99,49 @@ public class MovementController : NetworkBehaviour
             motion += _desiredDirection * _desiredSpeed;
         }
 
+        // Empuje: arranca rapido y frena hasta 0, recorriendo exactamente la distancia pedida.
+        if (knockbackTimeLeft > 0f)
+        {
+            motion += knockbackVelocity * (knockbackTimeLeft / knockbackDuration);
+            knockbackTimeLeft -= Time.deltaTime;
+        }
+
         controller.Move(motion * Time.deltaTime);
+
+        // Pegar al suelo. Al bajar escaleras o rampas rapido, el personaje se pasa del borde del
+        // escalon y "cae" varios frames (la gravedad parte de -2 m/s), y la animacion lo toma como un
+        // salto. Si hace un instante estaba apoyado y ahora no esta saltando, se lo baja hasta el
+        // suelo cercano en este mismo frame. La ultima Move sigue siendo vertical, asi que
+        // isGrounded queda bien para Jump().
+        if (groundSnapDistance > 0f && wasGrounded && !controller.isGrounded && verticalVelocity <= 0f)
+            controller.Move(Vector3.down * groundSnapDistance);
+
+        // Fin del salto: ya paso el despegue y el controlador volvio a tocar suelo.
+        // (Va despues del "pegar al suelo" para leer el isGrounded final del frame.)
+        if (isJumping.Value &&
+            Time.time - jumpStartTime > JumpLandingGrace &&
+            controller.isGrounded)
+        {
+            isJumping.Value = false;
+        }
+    }
+
+    /// <summary>
+    /// Empuja al personaje 'distance' metros en 'direction' (plano horizontal) durante 'duration' segundos.
+    /// Solo servidor. El jugador puede seguir moviendose mientras tanto.
+    /// </summary>
+    public void ApplyKnockback(Vector3 direction, float distance, float duration)
+    {
+        if (!IsServer || controller == null) return;
+
+        direction.y = 0f;
+
+        if (direction.sqrMagnitude < 0.001f || distance <= 0f) return;
+
+        knockbackDuration = Mathf.Max(0.05f, duration);
+        knockbackTimeLeft = knockbackDuration;
+        // Velocidad inicial 2*d/T con caida lineal a 0: el area bajo la curva es 'distance'.
+        knockbackVelocity = direction.normalized * (2f * distance / knockbackDuration);
     }
 
     /// <summary>
@@ -106,7 +178,11 @@ public class MovementController : NetworkBehaviour
     {
         if (!IsServer || controller == null) return;
         if (controller.isGrounded)
+        {
             verticalVelocity = jumpForce;
+            jumpStartTime = Time.time;
+            isJumping.Value = true;
+        }
     }
 
     public void ApplyGravity() { }
@@ -136,6 +212,8 @@ public class MovementController : NetworkBehaviour
         _desiredSpeed = 0f;
         _isMoving = false;
         verticalVelocity = 0f;
+        knockbackTimeLeft = 0f;
+        isJumping.Value = false;
 
         Debug.Log($"[MovementController] {name} — estado de movimiento reseteado.");
     }

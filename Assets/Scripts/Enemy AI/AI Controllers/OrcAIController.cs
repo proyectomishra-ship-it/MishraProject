@@ -10,6 +10,10 @@ public class OrcAIController : EnemyAIController
 
     [SerializeField] private float regenPerSecond = 5f;
 
+    [Tooltip("Si esta apagado el orco pelea hasta el final y nunca se retira.")]
+    [SerializeField] private bool canRetreat = false;
+
+    public bool CanRetreat => canRetreat;
     public float RetreatThreshold => retreatThreshold;
     public float RallyThreshold => rallyThreshold;
     public float RegenPerSecond => regenPerSecond;

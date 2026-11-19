@@ -142,6 +142,9 @@ public class OrcAttackState : EnemyStateAttack
         if (ai is not OrcAIController orc)
             return false;
 
+        if (!orc.CanRetreat)
+            return false;
+
         var stats = enemy.GetStats();
 
         if (stats == null)

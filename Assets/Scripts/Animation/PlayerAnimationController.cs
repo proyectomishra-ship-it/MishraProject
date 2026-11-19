@@ -19,6 +19,10 @@ public class PlayerAnimationController : CharacterAnimationController
     [SerializeField] private float groundCheckDistance = 0.2f;
     [Tooltip("Tiempo en el aire antes de contar como 'no grounded' (evita parpadeo en escalones).")]
     [SerializeField] private float airborneDelay = 0.1f;
+    [Tooltip("Segundos tras iniciar un salto en los que se fuerza la pose de aire (al despegar el suelo todavia esta al alcance del chequeo).")]
+    [SerializeField] private float jumpTakeoffHold = 0.2f;
+    [Tooltip("Caida (en metros) a partir de la cual se muestra la pose de caida aunque no se haya saltado. 0 = nunca: el aire solo se anima cuando el jugador salta.")]
+    [SerializeField] private float fallAnimationMinHeight = 0f;
 
     // ── Referencias ──────────────────────────────────────────────────────────
     private Player player;
@@ -34,6 +38,9 @@ public class PlayerAnimationController : CharacterAnimationController
 
     private bool grounded = true;
     private float airTime;
+    private bool wasJumping;
+    private float takeoffTimer;
+    private float lastGroundedY;
 
     private static readonly RaycastHit[] groundHits = new RaycastHit[8];
 
@@ -50,6 +57,8 @@ public class PlayerAnimationController : CharacterAnimationController
         characterController = GetComponent<CharacterController>();
         respawn = GetComponent<PlayerRespawnController>();
         equipment = GetComponent<EquipmentController>();
+
+        lastGroundedY = transform.position.y;
     }
 
     protected override void OnAnimatorReady()
@@ -104,10 +113,29 @@ public class PlayerAnimationController : CharacterAnimationController
 
     protected override bool ComputeGrounded(float dt)
     {
+        bool jumping = movement != null && movement.IsJumping;
+
+        // Despegue de un salto real: pose de aire inmediata. En los primeros
+        // centimetros el suelo sigue al alcance del chequeo y lo marcaria
+        // como "en el suelo", asi que se ignora durante un instante.
+        if (jumping && !wasJumping)
+            takeoffTimer = jumpTakeoffHold;
+
+        wasJumping = jumping;
+
+        if (takeoffTimer > 0f)
+        {
+            takeoffTimer -= dt;
+            airTime = airborneDelay;
+            grounded = false;
+            return false;
+        }
+
         if (IsOnGround())
         {
             airTime = 0f;
             grounded = true;
+            lastGroundedY = transform.position.y;
         }
         else
         {
@@ -116,7 +144,19 @@ public class PlayerAnimationController : CharacterAnimationController
                 grounded = false;
         }
 
+        // Separarse un poco del suelo (escalones, pendientes, terreno irregular)
+        // NO es un salto: se mantiene la pose de suelo. El aire solo se anima si
+        // el jugador salto o, opcionalmente, si cae desde bastante altura.
+        if (!grounded && !jumping && !IsFallingFromHeight())
+            return true;
+
         return grounded;
+    }
+
+    private bool IsFallingFromHeight()
+    {
+        return fallAnimationMinHeight > 0f &&
+               lastGroundedY - transform.position.y >= fallAnimationMinHeight;
     }
 
     private bool IsOnGround()
