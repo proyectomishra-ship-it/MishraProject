@@ -1089,18 +1089,6 @@ PrefabInstance:
       value: Templo (1)
       objectReference: {fileID: 0}
     - target: {fileID: 3446245014922976828, guid: 131542661133a9e418c81629f06ed18e, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 30
-      objectReference: {fileID: 0}
-    - target: {fileID: 3446245014922976828, guid: 131542661133a9e418c81629f06ed18e, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 40
-      objectReference: {fileID: 0}
-    - target: {fileID: 3446245014922976828, guid: 131542661133a9e418c81629f06ed18e, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 37.562
-      objectReference: {fileID: 0}
-    - target: {fileID: 3446245014922976828, guid: 131542661133a9e418c81629f06ed18e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 54.18
       objectReference: {fileID: 0}
