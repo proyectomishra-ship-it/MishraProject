@@ -616,8 +616,9 @@ MonoBehaviour:
     sonido3D: 1
   ataquesDesdeAnimacion: 1
   recibeDano:
-    sonidos: []
-    volumen: 1
+    sonidos:
+    - {fileID: 8300000, guid: cf7c22e5fffb72a49ae20440c2f7e348, type: 3}
+    volumen: 0.807
     tonoMinimo: 0.95
     tonoMaximo: 1.05
     esperaMinima: 0.05
@@ -646,8 +647,7 @@ MonoBehaviour:
     sonido3D: 1
   curacionMinima: 0.15
   paso:
-    sonidos:
-    - {fileID: 0}
+    sonidos: []
     volumen: 1
     tonoMinimo: 0.95
     tonoMaximo: 1.05

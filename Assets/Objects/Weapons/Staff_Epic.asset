@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5812cc73b37fbee44b1a8d58c750cf10, type: 3}
   m_Name: Staff_Epic
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
-  itemName: Grimorio Arcano
+  itemName: "Bast\xF3n Arcano"
   itemType: 1
   icon: {fileID: 21300000, guid: 18b044c2da4cb3c42b76868ba5b02331, type: 3}
   description: Hechizos mas intensos y una reserva de mana mayor.

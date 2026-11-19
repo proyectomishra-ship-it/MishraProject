@@ -450,7 +450,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   ataqueLigero:
     sonidos:
-    - {fileID: 8300000, guid: d9569b4c52176624fae8e12a2a194b13, type: 3}
+    - {fileID: 8300000, guid: 4aba4dff9a6daac4d9a351bc69c16f1f, type: 3}
     volumen: 1
     tonoMinimo: 0.95
     tonoMaximo: 1.05
@@ -472,8 +472,9 @@ MonoBehaviour:
     sonido3D: 1
   ataquesDesdeAnimacion: 1
   recibeDano:
-    sonidos: []
-    volumen: 1
+    sonidos:
+    - {fileID: 8300000, guid: 4aba4dff9a6daac4d9a351bc69c16f1f, type: 3}
+    volumen: 0.5
     tonoMinimo: 0.95
     tonoMaximo: 1.05
     esperaMinima: 0.05

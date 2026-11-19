@@ -581,15 +581,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterAudio
   ShowTopMostFoldoutHeaderGroup: 1
   ataqueLigero:
-    sonidos: []
-    volumen: 1
+    sonidos:
+    - {fileID: 8300000, guid: 0c619f09da78f524480e36fea0cfc090, type: 3}
+    volumen: 0.35
     tonoMinimo: 0.95
     tonoMaximo: 1.05
     esperaMinima: 0.05
-    sonido3D: 1
+    sonido3D: 0
   ataquePesado:
-    sonidos: []
-    volumen: 1
+    sonidos:
+    - {fileID: 8300000, guid: 0c619f09da78f524480e36fea0cfc090, type: 3}
+    volumen: 0.45
     tonoMinimo: 0.95
     tonoMaximo: 1.05
     esperaMinima: 0.05
@@ -605,7 +607,7 @@ MonoBehaviour:
   recibeDano:
     sonidos:
     - {fileID: 8300000, guid: 4aba4dff9a6daac4d9a351bc69c16f1f, type: 3}
-    volumen: 1
+    volumen: 0.2
     tonoMinimo: 0.95
     tonoMaximo: 1.05
     esperaMinima: 0.05
@@ -661,7 +663,7 @@ MonoBehaviour:
   distanciaAlSuelo: 0.35
   capasDeSuelo:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 4294967295
   porEstadoDeAnimacion: []
   conNombre: []
   animator: {fileID: 0}

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5812cc73b37fbee44b1a8d58c750cf10, type: 3}
   m_Name: Staff_Rare
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
-  itemName: Grimorio de Amatista
+  itemName: "Bast\xF3n de Amatista"
   itemType: 1
   icon: {fileID: 21300000, guid: 18b044c2da4cb3c42b76868ba5b02331, type: 3}
   description: Una amatista en el lomo ordena el flujo de mana.
