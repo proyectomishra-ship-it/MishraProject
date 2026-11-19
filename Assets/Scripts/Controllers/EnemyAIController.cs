@@ -64,7 +64,7 @@ public class EnemyAIController : NetworkBehaviour
     public bool HasPatrolPoints =>
         (waypoints != null && waypoints.Length > 0) || useRandomPatrol;
 
-    public bool ShouldFlee
+    public virtual bool ShouldFlee
     {
         get
         {
