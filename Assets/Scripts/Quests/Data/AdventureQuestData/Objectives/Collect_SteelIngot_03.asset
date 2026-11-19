@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Collect_SteelIngot_03
   m_EditorClassIdentifier: Assembly-CSharp::CollectItemObjectiveData
   objectiveID: Collect_SteelIngot_03
-  description: Recolecta 3 hierbas curativas
+  description: Recolecta 3 Lingotes de acero
   requiredAmount: 3
   item: {fileID: 11400000, guid: 421e2b99da009a14692222994e09660b, type: 2}
