@@ -98,7 +98,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1105868317
+  GlobalObjectIdHash: 991419302
   InScenePlacedSourceGlobalObjectIdHash: 991419302
   DeferredDespawnTick: 0
   Ownership: 1
@@ -252,10 +252,10 @@ MonoBehaviour:
     farDistance: 12
     engageDistance: 22
     leashDistance: 45
-    chargeSpeed: 20
+    chargeSpeed: 30
     chargeRecovery: 1.3
-    knockbackDistance: 7
-    knockbackDuration: 0.35
+    knockbackDistance: 16
+    knockbackDuration: 0.5
     animationLead: 0.3
     maxAliveAdds: 6
     retargetChance: 0.4
@@ -331,7 +331,7 @@ MonoBehaviour:
       weight: 3
       cooldown: 2.5
       minDistance: 0
-      maxDistance: 6.5
+      maxDistance: 8
       windup: 0.7
       damageMultiplier: 2.5
       size: 4.5
@@ -341,14 +341,14 @@ MonoBehaviour:
     - type: 6
       enabled: 1
       minPhase: 1
-      weight: 1.5
+      weight: 3
       cooldown: 8
       minDistance: 0
-      maxDistance: 8
+      maxDistance: 16
       windup: 0.9
       damageMultiplier: 2
-      size: 6
-      length: 6
+      size: 14
+      length: 8
       count: 1
       animation: 2
     - type: 7
@@ -360,8 +360,8 @@ MonoBehaviour:
       maxDistance: 0
       windup: 0.9
       damageMultiplier: 2
-      size: 3
-      length: 22
+      size: 6
+      length: 30
       count: 1
       animation: 0
 --- !u!114 &8518145205451863783

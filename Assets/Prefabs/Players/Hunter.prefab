@@ -583,7 +583,7 @@ MonoBehaviour:
   ataqueLigero:
     sonidos:
     - {fileID: 8300000, guid: 0c619f09da78f524480e36fea0cfc090, type: 3}
-    volumen: 1
+    volumen: 0.35
     tonoMinimo: 0.95
     tonoMaximo: 1.05
     esperaMinima: 0.05
@@ -591,7 +591,7 @@ MonoBehaviour:
   ataquePesado:
     sonidos:
     - {fileID: 8300000, guid: 0c619f09da78f524480e36fea0cfc090, type: 3}
-    volumen: 1
+    volumen: 0.45
     tonoMinimo: 0.95
     tonoMaximo: 1.05
     esperaMinima: 0.05

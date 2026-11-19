@@ -252,5 +252,9 @@ public class DemiGodAIController : EnemyAIController
     private void PlayImpactClientRpc(Vector3 center, float radius)
     {
         SpecialAbilityVfx.PlayShockwave(center, radius, ImpactColor);
+
+        // Impactos grandes (Slam): segunda onda interior más clara para que se sienta más contundente.
+        if (radius >= 5f)
+            SpecialAbilityVfx.PlayShockwave(center, radius * 0.65f, Color.Lerp(ImpactColor, Color.white, 0.5f));
     }
 }
