@@ -1,5 +1,4 @@
-﻿
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Unity.Netcode;
@@ -34,6 +33,9 @@ public class PlayerCombatController : NetworkBehaviour
     private bool isHoldingAttack;
     private bool heavyTriggered;
     private float nextAttackTime;
+
+    // Ultima direccion de apunte (camara) usada por un ataque; la usa el movimiento para girar al personaje.
+    private Vector3 currentAim = Vector3.forward;
 
     // Habilidad especial de clase (Mage / Warrior / Hunter)
     private float nextSpecialTime;
@@ -227,6 +229,52 @@ public class PlayerCombatController : NetworkBehaviour
     }
 
     // =========================================================
+    // DEBUG: ESPECIAL SIN LIMITES (solo editor)
+    // =========================================================
+    // En un build BypassSpecialLimits es una constante false y estos metodos no hacen nada.
+
+#if UNITY_EDITOR
+    private bool debugBypassSpecialLimits;
+    private bool BypassSpecialLimits => debugBypassSpecialLimits;
+#else
+    private const bool BypassSpecialLimits = false;
+#endif
+
+    /// <summary>
+    /// DEBUG (solo editor): lanza el especial ignorando nivel de desbloqueo, recarga y mana.
+    /// Lo llama SpecialDebugHotkey. En un build no hace nada.
+    /// </summary>
+    public void DebugRequestUnlimitedSpecial()
+    {
+#if UNITY_EDITOR
+        if (!IsOwner || player == null || player.IsDead())
+            return;
+
+        DebugUnlimitedSpecialServerRpc(GetAimDirection());
+#endif
+    }
+
+    [ServerRpc]
+    private void DebugUnlimitedSpecialServerRpc(Vector3 aimDirection)
+    {
+#if UNITY_EDITOR
+        if (player == null || player.IsDead())
+            return;
+
+        debugBypassSpecialLimits = true;
+
+        try
+        {
+            PerformSpecialAttack(aimDirection);
+        }
+        finally
+        {
+            debugBypassSpecialLimits = false;
+        }
+#endif
+    }
+
+    // =========================================================
     // ATTACK
     // =========================================================
 
@@ -236,6 +284,8 @@ public class PlayerCombatController : NetworkBehaviour
             return;
 
         aimDirection = NormalizeAim(aimDirection);
+
+        currentAim = aimDirection;
 
         WeaponData weapon = GetCurrentWeapon();
         bool isRanged = weapon != null && weapon.IsRanged;
@@ -380,11 +430,11 @@ public class PlayerCombatController : NetworkBehaviour
 
     private void PerformSpecialAttack(Vector3 aimDirection)
     {
-        if (!CanAttackNow())
+        if (!BypassSpecialLimits && !CanAttackNow())
             return;
 
         // El servidor es la autoridad: el especial no se usa antes de su nivel.
-        if (!IsSpecialUnlocked)
+        if (!BypassSpecialLimits && !IsSpecialUnlocked)
         {
             Debug.Log(
                 $"[PlayerCombat] Especial bloqueado hasta nivel {SpecialUnlockLevel} " +
@@ -394,6 +444,8 @@ public class PlayerCombatController : NetworkBehaviour
         }
 
         aimDirection = NormalizeAim(aimDirection);
+
+        currentAim = aimDirection;
 
         // Si la clase define una habilidad propia, reemplaza al especial del arma.
         if (TryPerformClassSpecial(aimDirection))
@@ -417,7 +469,7 @@ public class PlayerCombatController : NetworkBehaviour
             ? weapon.ManaCost
             : fallbackMagicManaCost;
 
-        if (resources == null || !resources.UseMana(manaCost))
+        if (!BypassSpecialLimits && (resources == null || !resources.UseMana(manaCost)))
         {
             Debug.Log("[PlayerCombat] Not enough mana");
             return;
@@ -426,25 +478,36 @@ public class PlayerCombatController : NetworkBehaviour
         PlayAttackFeedback(AttackAnimKind.Special);
 
         IWeaponBehavior behavior = GetCurrentBehavior();
+        float impactDelay = GetSpecialHitDelay();
 
-        if (isRanged)
+        // El efecto sale en el momento del impacto de la animacion (ver GetSpecialHitDelay).
+        RunAtImpact(impactDelay, () =>
         {
-            if (behavior is IAimedWeaponBehavior aimedBehavior)
+            if (isRanged)
             {
-                aimedBehavior.PerformAimedSpecialAttack(
-                    player, aimDirection);
-            }
-            else
-            {
-                Debug.LogError(
-                    "[PlayerCombat] El arma especial no implementa " +
-                    "IAimedWeaponBehavior.");
+                if (behavior is IAimedWeaponBehavior aimedBehavior)
+                {
+                    aimedBehavior.PerformAimedSpecialAttack(
+                        player, aimDirection);
+                }
+                else
+                {
+                    Debug.LogError(
+                        "[PlayerCombat] El arma especial no implementa " +
+                        "IAimedWeaponBehavior.");
+                }
+
+                return;
             }
 
-            return;
-        }
+            // Con espera, el blanco se busca recien ahora (cuenta quien este al alcance).
+            Character hitTarget = impactDelay > 0f
+                ? FindMeleeTarget(aimDirection)
+                : target;
 
-        behavior.PerformSpecialAttack(player, target);
+            if (hitTarget != null)
+                behavior.PerformSpecialAttack(player, hitTarget);
+        });
     }
 
     // =========================================================
@@ -468,7 +531,7 @@ public class PlayerCombatController : NetworkBehaviour
         if (ability == null)
             return false;
 
-        if (Time.time < nextSpecialTime)
+        if (!BypassSpecialLimits && Time.time < nextSpecialTime)
         {
             Debug.Log(
                 $"[PlayerCombat] Special en cooldown " +
@@ -509,6 +572,12 @@ public class PlayerCombatController : NetworkBehaviour
 
         CommitSpecial(ability);
 
+        // La onda sale cuando la animacion llega al golpe, no en el click.
+        RunAtImpact(GetSpecialHitDelay(), () => ApplyMageShockwave(ability));
+    }
+
+    private void ApplyMageShockwave(MageShockwaveAbility ability)
+    {
         Vector3 center = player.transform.position;
 
         float radius = ability.GetRadius(player);
@@ -535,9 +604,15 @@ public class PlayerCombatController : NetworkBehaviour
         // Sin maná: solo cooldown. Se lanza aunque no haya enemigos al frente.
         CommitSpecial(ability);
 
-        PlaySpecialVfxClientRpc(player.transform.position, aimDirection);
+        // El barrido de energia empieza cuando la animacion llega al golpe. Lo que
+        // configures en el HitDelay de la habilidad sigue siendo el tiempo entre
+        // el inicio del barrido y el daño, como antes.
+        RunAtImpact(GetSpecialHitDelay(), () =>
+        {
+            PlaySpecialVfxClientRpc(player.transform.position, aimDirection);
 
-        StartCoroutine(WarriorBladeHitRoutine(ability, aimDirection));
+            StartCoroutine(WarriorBladeHitRoutine(ability, aimDirection));
+        });
     }
 
     private IEnumerator WarriorBladeHitRoutine(
@@ -591,7 +666,8 @@ public class PlayerCombatController : NetworkBehaviour
         // Mientras salen las flechas no se puede disparar el ataque normal encima.
         nextAttackTime = Mathf.Max(
             nextAttackTime,
-            Time.time + ability.GetTotalDuration(ability.GetTotalArrows(player)) + 0.2f);
+            Time.time + GetSpecialHitDelay() +
+            ability.GetTotalDuration(ability.GetTotalArrows(player)) + 0.2f);
 
         barrageRoutine = StartCoroutine(
             ArrowBarrageRoutine(weapon, ability, aimDirection));
@@ -609,6 +685,12 @@ public class PlayerCombatController : NetworkBehaviour
         var behavior = new RangedWeaponBehavior(weapon, transform);
         float damage = stats.Attack.Value * ability.GetDamageMultiplier(player);
         int totalArrows = ability.GetTotalArrows(player);
+
+        // La primera flecha sale cuando la animacion llega al disparo.
+        float impactDelay = GetSpecialHitDelay();
+
+        if (impactDelay > 0f)
+            yield return new WaitForSeconds(impactDelay);
 
         var betweenArrows = new WaitForSeconds(ability.DelayBetweenArrows);
         var betweenBursts = new WaitForSeconds(ability.DelayBetweenBursts);
@@ -644,7 +726,7 @@ public class PlayerCombatController : NetworkBehaviour
     /// <summary>Cobra el maná de la habilidad. Con costo 0 (Warrior, Hunter) siempre pasa.</summary>
     private bool SpendSpecialMana(float manaCost)
     {
-        if (manaCost <= 0f)
+        if (BypassSpecialLimits || manaCost <= 0f)
             return true;
 
         if (resources != null && resources.UseMana(manaCost))
@@ -654,18 +736,50 @@ public class PlayerCombatController : NetworkBehaviour
         return false;
     }
 
+    /// <summary>
+    /// Segundos hasta el impacto de la animacion de ataque especial, segun el "Momento del
+    /// impacto" configurado en el Animation Set. 0 = al instante, como antes.
+    /// </summary>
+    private float GetSpecialHitDelay()
+        => anim != null ? anim.GetAttackHitDelay(AttackAnimKind.Special) : 0f;
+
+    /// <summary>Ejecuta la accion ya, o tras 'delay' segundos si el jugador sigue vivo.</summary>
+    private void RunAtImpact(float delay, System.Action action)
+    {
+        if (delay <= 0f)
+        {
+            action();
+            return;
+        }
+
+        StartCoroutine(RunAtImpactRoutine(delay, action));
+    }
+
+    private IEnumerator RunAtImpactRoutine(float delay, System.Action action)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (player == null || player.IsDead())
+            yield break;
+
+        action();
+    }
+
     /// <summary>Inicia el cooldown de la habilidad y dispara la animación de ataque especial.</summary>
     private void CommitSpecial(SpecialAbility ability)
     {
         // Las mejoras de recarga de CADA habilidad acortan el cooldown base de su asset.
-        float cooldown = ability.GetCooldown(player);
-
-        nextSpecialTime = Time.time + cooldown;
-
-        if (IsServer)
+        if (!BypassSpecialLimits)
         {
-            specialCooldownTotal.Value = cooldown;
-            specialReadyAt.Value = NetworkManager.ServerTime.Time + cooldown;
+            float cooldown = ability.GetCooldown(player);
+
+            nextSpecialTime = Time.time + cooldown;
+
+            if (IsServer)
+            {
+                specialCooldownTotal.Value = cooldown;
+                specialReadyAt.Value = NetworkManager.ServerTime.Time + cooldown;
+            }
         }
 
         PlayAttackFeedback(AttackAnimKind.Special);
@@ -717,6 +831,12 @@ public class PlayerCombatController : NetworkBehaviour
         // Indicador de recarga del especial (solo el dueño).
         if (IsOwner)
             SpecialCooldownHUD.Attach(this);
+
+#if UNITY_EDITOR
+        // DEBUG: Alt = especial sin limites (solo editor, ver SpecialDebugHotkey).
+        if (IsOwner && GetComponent<SpecialDebugHotkey>() == null)
+            gameObject.AddComponent<SpecialDebugHotkey>();
+#endif
 
         // Avisos de desbloqueo (solo el dueño).
         if (IsOwner)
@@ -915,7 +1035,12 @@ public class PlayerCombatController : NetworkBehaviour
 
         // El personaje no puede seguir corriendo a toda velocidad mientras balancea el arma:
         // se frena durante el golpe para que la animacion no se vea deslizando.
-        player.GetComponent<MovementController>()?.LimitMovementForAttack(swingSeconds);
+        MovementController movement = player.GetComponent<MovementController>();
+        if (movement != null)
+        {
+            movement.LimitMovementForAttack(swingSeconds);
+            movement.FaceAim(currentAim, swingSeconds);   // el cuerpo mira hacia donde sale el golpe
+        }
 
         anim?.PlayAttack(kind);
     }

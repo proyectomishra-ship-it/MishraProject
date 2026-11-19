@@ -347,19 +347,24 @@ public abstract class CharacterAnimationController : NetworkBehaviour
         // Mismo criterio que PlayAttackClientRpc: si falta el clip se usa el mas parecido.
         if (!TryResolveAttack(kind, out AttackAnimKind resolved)) return 0f;
 
-        AnimSlot slot;
-        switch (resolved)
-        {
-            case AttackAnimKind.Heavy:   slot = AnimSlot.AttackHeavy;   break;
-            case AttackAnimKind.Special: slot = AnimSlot.AttackSpecial; break;
-            default:                     slot = AnimSlot.AttackLight;   break;
-        }
-
-        float hitTime = GetHitTime(slot);
+        // Primero el tiempo propio del ataque pedido (asi el especial se puede ajustar aunque
+        // reutilice el clip del ligero); si no tiene, el del clip que realmente se reproduce.
+        float hitTime = GetHitTime(SlotOf(kind));
+        if (hitTime <= 0f) hitTime = GetHitTime(SlotOf(resolved));
         if (hitTime <= 0f) return 0f;
 
         float speed = currentAttackSpeed > 0.01f ? currentAttackSpeed : 1f;
         return hitTime / speed;
+    }
+
+    private static AnimSlot SlotOf(AttackAnimKind kind)
+    {
+        switch (kind)
+        {
+            case AttackAnimKind.Heavy:   return AnimSlot.AttackHeavy;
+            case AttackAnimKind.Special: return AnimSlot.AttackSpecial;
+            default:                     return AnimSlot.AttackLight;
+        }
     }
 
     /// <summary>Tiempo de impacto (a velocidad 1) del hueco indicado. El jugador lo redefine por arma.</summary>

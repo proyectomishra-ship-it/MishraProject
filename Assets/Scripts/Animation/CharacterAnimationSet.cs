@@ -55,13 +55,22 @@ public class CharacterClipSet
     /// <summary>Segundos (a velocidad 1) hasta el impacto del ataque de ese hueco. 0 si no aplica.</summary>
     public float GetHitTime(AnimSlot slot)
     {
+        float time;
+
         switch (slot)
         {
             case AnimSlot.AttackLight:   return attackLightHitTime;
-            case AnimSlot.AttackHeavy:   return attackHeavyHitTime;
-            case AnimSlot.AttackSpecial: return attackSpecialHitTime;
+            case AnimSlot.AttackHeavy:   time = attackHeavyHitTime;   break;
+            case AnimSlot.AttackSpecial: time = attackSpecialHitTime; break;
             default:                     return 0f;
         }
+
+        // Si este ataque reutiliza el clip del ligero (mismo clip, por presupuesto) y no
+        // tiene tiempo propio, hereda el del ligero: asi alcanza con configurar uno solo.
+        if (time <= 0f && attackLight != null && Get(slot) == attackLight)
+            return attackLightHitTime;
+
+        return time;
     }
 
     public AnimationClip Get(AnimSlot slot)

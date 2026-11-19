@@ -22,6 +22,8 @@ public class MovementController : NetworkBehaviour
     [SerializeField] private float attackMoveMultiplier = 0.2f;
     [Tooltip("Maximo de segundos que un ataque limita el movimiento (un arma lenta no deja al personaje clavado mucho tiempo).")]
     [SerializeField] private float attackMoveMaxSeconds = 0.6f;
+    [Tooltip("Velocidad con que el personaje se gira hacia donde apunta al atacar (mayor = mas rapido).")]
+    [SerializeField] private float attackTurnSpeed = 30f;
 
     [Header("Rotación")]
     [SerializeField] private float rotationSpeed = 15f;
@@ -47,6 +49,10 @@ public class MovementController : NetworkBehaviour
 
     // Hasta cuando dura la limitacion de movimiento por un ataque. Solo servidor.
     private float attackMoveUntil;
+
+    // Mientras dura un ataque el personaje mira hacia donde apunta (camara), no hacia donde camina.
+    private float attackFaceUntil;
+    private Quaternion attackFaceRotation = Quaternion.identity;
 
     // Empuje externo (ej: golpe de area del boss). Solo servidor.
     private Vector3 knockbackVelocity;
@@ -99,13 +105,27 @@ public class MovementController : NetworkBehaviour
 
         // Movimiento horizontal — se aplica UNA vez por frame del servidor,
         // sin importar cuántos RPCs hayan llegado desde el cliente.
-        if (_isMoving && _desiredDirection.sqrMagnitude > 0.01f)
+        // Al atacar, el cuerpo se gira hacia el apunte para que el golpe o el disparo salga de frente.
+        bool facingAim = Time.time < attackFaceUntil;
+        if (facingAim)
         {
             character.transform.rotation = Quaternion.Slerp(
                 character.transform.rotation,
-                _desiredRotation,
-                rotationSpeed * Time.deltaTime
+                attackFaceRotation,
+                attackTurnSpeed * Time.deltaTime
             );
+        }
+
+        if (_isMoving && _desiredDirection.sqrMagnitude > 0.01f)
+        {
+            if (!facingAim)
+            {
+                character.transform.rotation = Quaternion.Slerp(
+                    character.transform.rotation,
+                    _desiredRotation,
+                    rotationSpeed * Time.deltaTime
+                );
+            }
             // Mientras se balancea el arma no se corre a toda velocidad (se veria deslizar).
             float speedScale = Time.time < attackMoveUntil ? attackMoveMultiplier : 1f;
             motion += _desiredDirection * _desiredSpeed * speedScale;
@@ -212,6 +232,21 @@ public class MovementController : NetworkBehaviour
             attackMoveUntil = until;
     }
 
+    /// <summary>
+    /// Gira al personaje hacia donde apunta durante un ataque (solo el plano horizontal).
+    /// Lo llama el combate cada vez que inicia un golpe. Solo servidor.
+    /// </summary>
+    public void FaceAim(Vector3 aimDirection, float seconds)
+    {
+        if (!IsServer) return;
+
+        aimDirection.y = 0f;
+        if (aimDirection.sqrMagnitude < 0.001f) return;
+
+        attackFaceRotation = Quaternion.LookRotation(aimDirection.normalized, Vector3.up);
+        attackFaceUntil = Time.time + Mathf.Min(seconds, attackMoveMaxSeconds);
+    }
+
     private void SetMovementState(Vector3 worldDirection, Quaternion targetRotation, float speed)
     {
         worldDirection.y = 0f;
@@ -240,6 +275,7 @@ public class MovementController : NetworkBehaviour
         knockbackTimeLeft = 0f;
         isJumping.Value = false;
         attackMoveUntil = 0f;
+        attackFaceUntil = 0f;
 
         Debug.Log($"[MovementController] {name} — estado de movimiento reseteado.");
     }
