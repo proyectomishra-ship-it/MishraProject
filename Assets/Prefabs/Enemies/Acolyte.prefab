@@ -209,7 +209,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 920782438
+  GlobalObjectIdHash: 4050394893
   InScenePlacedSourceGlobalObjectIdHash: 4050394893
   DeferredDespawnTick: 0
   Ownership: 1
@@ -592,7 +592,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterAudio
   ShowTopMostFoldoutHeaderGroup: 1
   ataqueLigero:
-    sonidos: []
+    sonidos:
+    - {fileID: 8300000, guid: 4aba4dff9a6daac4d9a351bc69c16f1f, type: 3}
     volumen: 1
     tonoMinimo: 0.95
     tonoMaximo: 1.05
@@ -614,8 +615,9 @@ MonoBehaviour:
     sonido3D: 1
   ataquesDesdeAnimacion: 0
   recibeDano:
-    sonidos: []
-    volumen: 1
+    sonidos:
+    - {fileID: 8300000, guid: 4aba4dff9a6daac4d9a351bc69c16f1f, type: 3}
+    volumen: 0.5
     tonoMinimo: 0.95
     tonoMaximo: 1.05
     esperaMinima: 0.05

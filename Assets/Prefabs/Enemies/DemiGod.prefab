@@ -490,7 +490,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterAudio
   ShowTopMostFoldoutHeaderGroup: 1
   ataqueLigero:
-    sonidos: []
+    sonidos:
+    - {fileID: 8300000, guid: 4aba4dff9a6daac4d9a351bc69c16f1f, type: 3}
     volumen: 1
     tonoMinimo: 0.95
     tonoMaximo: 1.05
@@ -513,7 +514,7 @@ MonoBehaviour:
   ataquesDesdeAnimacion: 1
   recibeDano:
     sonidos:
-    - {fileID: 8300000, guid: 4aba4dff9a6daac4d9a351bc69c16f1f, type: 3}
+    - {fileID: 8300000, guid: cf7c22e5fffb72a49ae20440c2f7e348, type: 3}
     volumen: 1
     tonoMinimo: 0.95
     tonoMaximo: 1.05

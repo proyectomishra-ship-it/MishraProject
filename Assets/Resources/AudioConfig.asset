@@ -103,13 +103,16 @@ MonoBehaviour:
   musicaPorEscena:
   - escena: MainMenuScene
     musica: {fileID: 8300000, guid: 7a8060ac9d8a9f743aa146964cf74e06, type: 3}
-    volumen: 1
+    volumen: 0.5
+  - escena: NetworkMenu
+    musica: {fileID: 8300000, guid: 7a8060ac9d8a9f743aa146964cf74e06, type: 3}
+    volumen: 0.5
   - escena: CharacterSelect
     musica: {fileID: 8300000, guid: 1263cfc3adc2e5b47a87b056eef6c79d, type: 3}
-    volumen: 0.1
+    volumen: 0.5
   - escena: Scene1
     musica: {fileID: 8300000, guid: 5a80eb6890f82f54f92fa5a52d5681be, type: 3}
-    volumen: 0.1
-  segundosDeTransicion: 2
+    volumen: 0.2
+  segundosDeTransicion: 3
   distanciaMinima: 3
   distanciaMaxima: 45
