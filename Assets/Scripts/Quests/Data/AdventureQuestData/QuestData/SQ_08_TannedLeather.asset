@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SQ_08_TannedLeather
   m_EditorClassIdentifier: Assembly-CSharp::QuestData
   questID: SQ_08_TannedLeather
-  questName: Recolecta 3 lingotes de acero
+  questName: Recolecta 3 tiras de cuero
   description: 
   questType: 1
   objectives:

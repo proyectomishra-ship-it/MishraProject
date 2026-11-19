@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: GainGold_150
   m_EditorClassIdentifier: Assembly-CSharp::QuestRewardData
   rewardType: 1
-  amount: 100
+  amount: 150
   item: {fileID: 0}
