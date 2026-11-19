@@ -16,6 +16,11 @@ public class MovementController : NetworkBehaviour
 
     private float verticalVelocity = 0f;
 
+    // Empuje externo (ej: golpe de area del boss). Solo servidor.
+    private Vector3 knockbackVelocity;
+    private float knockbackTimeLeft;
+    private float knockbackDuration;
+
     /// <summary>Multiplicador de velocidad al correr. Lo lee PlayerAnimationController.</summary>
     public float RunMultiplier => runMultiplier;
 
@@ -69,7 +74,32 @@ public class MovementController : NetworkBehaviour
             motion += _desiredDirection * _desiredSpeed;
         }
 
+        // Empuje: arranca rapido y frena hasta 0, recorriendo exactamente la distancia pedida.
+        if (knockbackTimeLeft > 0f)
+        {
+            motion += knockbackVelocity * (knockbackTimeLeft / knockbackDuration);
+            knockbackTimeLeft -= Time.deltaTime;
+        }
+
         controller.Move(motion * Time.deltaTime);
+    }
+
+    /// <summary>
+    /// Empuja al personaje 'distance' metros en 'direction' (plano horizontal) durante 'duration' segundos.
+    /// Solo servidor. El jugador puede seguir moviendose mientras tanto.
+    /// </summary>
+    public void ApplyKnockback(Vector3 direction, float distance, float duration)
+    {
+        if (!IsServer || controller == null) return;
+
+        direction.y = 0f;
+
+        if (direction.sqrMagnitude < 0.001f || distance <= 0f) return;
+
+        knockbackDuration = Mathf.Max(0.05f, duration);
+        knockbackTimeLeft = knockbackDuration;
+        // Velocidad inicial 2*d/T con caida lineal a 0: el area bajo la curva es 'distance'.
+        knockbackVelocity = direction.normalized * (2f * distance / knockbackDuration);
     }
 
     /// <summary>
@@ -136,6 +166,7 @@ public class MovementController : NetworkBehaviour
         _desiredSpeed = 0f;
         _isMoving = false;
         verticalVelocity = 0f;
+        knockbackTimeLeft = 0f;
 
         Debug.Log($"[MovementController] {name} — estado de movimiento reseteado.");
     }
