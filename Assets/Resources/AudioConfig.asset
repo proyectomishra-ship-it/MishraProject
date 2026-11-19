@@ -101,7 +101,7 @@ MonoBehaviour:
     esperaMinima: 0.05
     sonido3D: 0
   musicaPorEscena:
-  - escena: MainMenu
+  - escena: MainMenuScene
     musica: {fileID: 8300000, guid: 7a8060ac9d8a9f743aa146964cf74e06, type: 3}
     volumen: 1
   - escena: CharacterSelect
