@@ -22,4 +22,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: bdb6f83d78030f542b7d905dc7dcc42e, type: 2}
   - {fileID: 11400000, guid: bdb6f83d78030f542b7d905dc7dcc42e, type: 2}
   startsActive: 0
-  nextQuest: {fileID: 11400000, guid: 126e22455709dcf449439d4946178d99, type: 2}
+  nextQuest: {fileID: 11400000, guid: 4781e4efabf518a46a2913b8c7c50634, type: 2}

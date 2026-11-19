@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ebb553c95b13a547bef685eee69972d, type: 3}
   m_Name: SQ_06_Kill_Orcs
   m_EditorClassIdentifier: Assembly-CSharp::QuestData
-  questID: SQ_04_Kill_Orcs
+  questID: SQ_06_Kill_Orcs
   questName: Elimina 3 orcos
   description: 
   questType: 1

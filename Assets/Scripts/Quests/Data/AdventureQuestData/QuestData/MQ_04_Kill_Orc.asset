@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ebb553c95b13a547bef685eee69972d, type: 3}
   m_Name: MQ_04_Kill_Orc
   m_EditorClassIdentifier: Assembly-CSharp::QuestData
-  questID: MQ_03_Kill_Orcs
+  questID: MQ_04_Kill_Orcs
   questName: Elimina Orcos
   description: Un poderoso clan orco esta asaltando las rutas comerciales, debes
     detenerlo de inmediato
