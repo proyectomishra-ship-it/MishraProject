@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::QuestData
   questID: SQ_03_Kill_Slimes
   questName: Eliminar Slimes
-  description: Una horda de Goblins ha estado asechando a los aventureros del bosque,
-    ve y eliminalos
+  description: Un grupo de slimes ha sido visto atacando las granjas, eliminalos
   questType: 1
   objectives:
   - {fileID: 11400000, guid: 711ffcab59c3e194891de7e823368f36, type: 2}
