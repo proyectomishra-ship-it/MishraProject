@@ -17,7 +17,7 @@ MonoBehaviour:
   description: Un cazador resulto herido, crea y llevale una pocion de vida
   questType: 1
   objectives:
-  - {fileID: 11400000, guid: d387f3d6fa199ed43a756d2682d281ae, type: 2}
+  - {fileID: 11400000, guid: a268a0a51f42c394e92798d22453f33c, type: 2}
   rewards:
   - {fileID: 11400000, guid: 17cadaa11f5b73643baa497489965ff3, type: 2}
   - {fileID: 11400000, guid: eb3a06a803e597449a8c5220044a6b55, type: 2}
