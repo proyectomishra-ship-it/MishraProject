@@ -70,7 +70,28 @@ public class DemiGodAIController : EnemyAIController
     {
         if (!IsServer) return;
         CheckPhaseTransition();
+        EngageFromDistance();
         StateMachine?.Update();
+    }
+
+    private void EngageFromDistance()
+    {
+        if (StateMachine == null || AttackState == null || ChaseState == null)
+            return;
+
+        if (StateMachine.CurrentState != ChaseState || CurrentTarget == null)
+            return;
+
+        Vector3 a = transform.position;
+        Vector3 b = CurrentTarget.transform.position;
+        a.y = 0f;
+        b.y = 0f;
+
+        if (Vector3.Distance(a, b) <= combat.engageDistance)
+        {
+            Debug.Log("[DemiGod] Entra en combate a distancia");
+            StateMachine.ChangeState(AttackState);
+        }
     }
 
     protected override EnemyStateAttack CreateAttackState()

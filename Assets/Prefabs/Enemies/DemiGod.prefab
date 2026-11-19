@@ -98,7 +98,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 991419302
+  GlobalObjectIdHash: 1105868317
   InScenePlacedSourceGlobalObjectIdHash: 991419302
   DeferredDespawnTick: 0
   Ownership: 1
@@ -250,6 +250,7 @@ MonoBehaviour:
     meleeDistance: 3.5
     panicDistance: 4.5
     farDistance: 12
+    engageDistance: 22
     leashDistance: 45
     chargeSpeed: 20
     chargeRecovery: 1.3

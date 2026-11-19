@@ -144,6 +144,9 @@ public class DemiGodCombatSettings
     [Tooltip("Cuerpo a cuerpo: si el jugador se aleja más de esto, el boss embiste o dispara.")]
     public float farDistance = 12f;
 
+    [Tooltip("Distancia a la que el boss deja de perseguir y empieza a pelear (hechizos, embestidas, golpes). " + "Debe ser mayor que 'Ranged Max Distance' y menor que 'Leash Distance'.")]
+    public float engageDistance = 22f;
+
     [Tooltip("Si el jugador se aleja más que esto, el boss vuelve a perseguirlo.")]
     public float leashDistance = 45f;
 
