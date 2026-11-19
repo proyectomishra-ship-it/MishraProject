@@ -17,7 +17,7 @@ MonoBehaviour:
   description: "Necesitaras curarte en tus aventuras, crea una poci\xF3n de vida"
   questType: 0
   objectives:
-  - {fileID: 11400000, guid: a268a0a51f42c394e92798d22453f33c, type: 2}
+  - {fileID: 11400000, guid: d387f3d6fa199ed43a756d2682d281ae, type: 2}
   rewards:
   - {fileID: 11400000, guid: bdb6f83d78030f542b7d905dc7dcc42e, type: 2}
   - {fileID: 11400000, guid: bdb6f83d78030f542b7d905dc7dcc42e, type: 2}
