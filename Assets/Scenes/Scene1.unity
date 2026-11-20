@@ -8069,63 +8069,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5492125859996630685, guid: ffc8658cf302ae2488b5ff989264ed36, type: 3}
   m_PrefabInstance: {fileID: 270059450}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &278238154
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 3634364612930394703, guid: 902d19ee038584d45bfd22b067f8e4f5, type: 3}
-      propertyPath: m_Name
-      value: Conjunto de hongos suelo
-      objectReference: {fileID: 0}
-    - target: {fileID: 4117429086946001141, guid: 902d19ee038584d45bfd22b067f8e4f5, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 450.52454
-      objectReference: {fileID: 0}
-    - target: {fileID: 4117429086946001141, guid: 902d19ee038584d45bfd22b067f8e4f5, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 111.7688
-      objectReference: {fileID: 0}
-    - target: {fileID: 4117429086946001141, guid: 902d19ee038584d45bfd22b067f8e4f5, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 698.8136
-      objectReference: {fileID: 0}
-    - target: {fileID: 4117429086946001141, guid: 902d19ee038584d45bfd22b067f8e4f5, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4117429086946001141, guid: 902d19ee038584d45bfd22b067f8e4f5, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4117429086946001141, guid: 902d19ee038584d45bfd22b067f8e4f5, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4117429086946001141, guid: 902d19ee038584d45bfd22b067f8e4f5, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4117429086946001141, guid: 902d19ee038584d45bfd22b067f8e4f5, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4117429086946001141, guid: 902d19ee038584d45bfd22b067f8e4f5, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4117429086946001141, guid: 902d19ee038584d45bfd22b067f8e4f5, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 902d19ee038584d45bfd22b067f8e4f5, type: 3}
 --- !u!1001 &278955670
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -51799,15 +51742,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6554613928196364806, guid: 0250b33cc9e715a4894827547ff427af, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 710.7
+      value: 729.29
       objectReference: {fileID: 0}
     - target: {fileID: 6554613928196364806, guid: 0250b33cc9e715a4894827547ff427af, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 112.459
+      value: 116.05
       objectReference: {fileID: 0}
     - target: {fileID: 6554613928196364806, guid: 0250b33cc9e715a4894827547ff427af, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1038.2
+      value: 1025.7
       objectReference: {fileID: 0}
     - target: {fileID: 6554613928196364806, guid: 0250b33cc9e715a4894827547ff427af, type: 3}
       propertyPath: m_LocalRotation.w
@@ -52104,7 +52047,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5890815043761910894, guid: e928250cdd45d1143ae3885001a9209e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.71635437
+      value: 0.19
       objectReference: {fileID: 0}
     - target: {fileID: 5890815043761910894, guid: e928250cdd45d1143ae3885001a9209e, type: 3}
       propertyPath: m_LocalPosition.z
@@ -53280,4 +53223,3 @@ SceneRoots:
   - {fileID: 1094295876}
   - {fileID: 913885394}
   - {fileID: 1598571557}
-  - {fileID: 278238154}
