@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SkillUpgradeDatabase
   m_EditorClassIdentifier: Assembly-CSharp::SkillUpgradeDatabase
   firstPickLevel: 0
-  levelsPerUpgrade: 2
+  levelsPerUpgrade: 1
   blockRepeatOfLastPick: 1
   allowNumberKeys: 1
   pauseGameWhenSolo: 1
