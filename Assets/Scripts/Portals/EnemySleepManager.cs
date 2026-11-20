@@ -74,6 +74,12 @@ public class EnemySleepManager : MonoBehaviour
     [Tooltip("Además de apagar la IA, desactiva el NavMeshAgent mientras duerme.")]
     [SerializeField] private bool disableNavMeshAgentWhileAsleep = true;
 
+    [Header("Combate")]
+    [Tooltip("Segundos que un enemigo despertado por un golpe se mantiene despierto aunque el jugador " +
+             "siga lejos (ej: lo alcanzas con el arco desde mas de sleepDistance). Se renueva con cada golpe. " +
+             "Sin esto el manager lo volveria a dormir a los pocos decimas de segundo.")]
+    [SerializeField] private float combatAwakeSeconds = 12f;
+
     [Header("Frecuencia")]
     [SerializeField] private float checkInterval = 0.5f;
 
@@ -85,6 +91,8 @@ public class EnemySleepManager : MonoBehaviour
     private readonly Dictionary<EnemyAIController, bool> sleeping = new();
     // enemigo que quiere dormir pero su IA todavía se inicializa -> desde cuándo
     private readonly Dictionary<EnemyAIController, float> pendingSince = new();
+    // enemigo golpeado -> hasta cuando no se lo duerme aunque el jugador este lejos
+    private readonly Dictionary<EnemyAIController, float> combatAwakeUntil = new();
     private readonly List<EnemyAIController> toRemove = new();
     private readonly List<Vector3> playerPositions = new();
 
@@ -103,6 +111,25 @@ public class EnemySleepManager : MonoBehaviour
     public static void RequestEvaluation()
     {
         if (Instance != null) Instance.evaluateRequested = true;
+    }
+
+    /// <summary>
+    /// Un golpe recibido despierta al enemigo y lo mantiene despierto un rato. Lo llama
+    /// EnemyAIController.ReactToAttack cuando la IA esta apagada. Sin manager no hace nada.
+    /// </summary>
+    public static void WakeForDamage(EnemyAIController ai)
+    {
+        if (Instance != null) Instance.WakeForDamageInternal(ai);
+    }
+
+    private void WakeForDamageInternal(EnemyAIController ai)
+    {
+        if (ai == null) return;
+
+        combatAwakeUntil[ai] = Time.time + combatAwakeSeconds;
+
+        if (sleeping.ContainsKey(ai))
+            Wake(ai);
     }
 
     private void OnValidate()
@@ -185,14 +212,17 @@ public class EnemySleepManager : MonoBehaviour
             // Sin jugadores: todos están "infinitamente lejos".
             float d = noPlayers ? float.MaxValue : NearestSqrDistance(ai.transform.position);
 
+            // Golpeado hace poco: no se duerme ni se lo mantiene dormido aunque el jugador este lejos.
+            bool inCombat = combatAwakeUntil.TryGetValue(ai, out float awakeUntil) && Time.time < awakeUntil;
+
             if (sleeping.ContainsKey(ai))
             {
-                if (d <= wakeSqr)
+                if (d <= wakeSqr || inCombat)
                     Wake(ai);
                 else
                     EnforceSleep(ai); // alguien lo reactivó por fuera: volver a dormirlo
             }
-            else if (d > sleepSqr)
+            else if (d > sleepSqr && !inCombat)
             {
                 if (IsReadyToSleep(ai))
                     Sleep(ai);
@@ -394,6 +424,14 @@ public class EnemySleepManager : MonoBehaviour
                 toRemove.Add(kv.Key);
         foreach (var key in toRemove)
             pendingSince.Remove(key);
+
+        // Entradas de combate de enemigos que ya no existen o cuyo plazo vencio.
+        toRemove.Clear();
+        foreach (var kv in combatAwakeUntil)
+            if (kv.Key == null || !kv.Key.IsSpawned || Time.time >= kv.Value)
+                toRemove.Add(kv.Key);
+        foreach (var key in toRemove)
+            combatAwakeUntil.Remove(key);
     }
 
     private void OnGUI()

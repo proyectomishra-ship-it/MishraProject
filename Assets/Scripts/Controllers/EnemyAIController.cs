@@ -1,4 +1,3 @@
-
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
@@ -23,7 +22,7 @@ public class EnemyAIController : NetworkBehaviour
 
     [Header("Reaction To Damage")]
     [Tooltip("Segundos que sigue persiguiendo al atacante tras recibir un golpe, " +
-             "aunque estÈ fuera de su cono de visiÛn o de su radio de alerta.")]
+             "aunque est√© fuera de su cono de visi√≥n o de su radio de alerta.")]
     [SerializeField] private float hitAggroDuration = 8f;
 
     [Header("Idle")]
@@ -102,10 +101,10 @@ public class EnemyAIController : NetworkBehaviour
 
     private IEnumerator InitializeAI()
     {
-        // Esperar un frame para que el NetworkObject estÈ posicionado en el spawn point.
+        // Esperar un frame para que el NetworkObject est√© posicionado en el spawn point.
         yield return null;
 
-        // Snap al NavMesh m·s cercano.
+        // Snap al NavMesh m√°s cercano.
         if (!NavMesh.SamplePosition(
             enemy.transform.position,
             out NavMeshHit hit,
@@ -113,7 +112,7 @@ public class EnemyAIController : NetworkBehaviour
             NavMesh.AllAreas))
         {
             Debug.LogError($"[{enemy.name}] No hay NavMesh dentro de 2m. " +
-                           "Verific· la posiciÛn del enemigo en la escena.");
+                           "Verific√° la posici√≥n del enemigo en la escena.");
             yield break;
         }
 
@@ -121,7 +120,7 @@ public class EnemyAIController : NetworkBehaviour
 
         if (!Agent.isOnNavMesh)
         {
-            Debug.LogError($"[{enemy.name}] Warp fallÛ ó el agente no quedÛ en NavMesh.");
+            Debug.LogError($"[{enemy.name}] Warp fall√≥ ‚Äî el agente no qued√≥ en NavMesh.");
             yield break;
         }
 
@@ -140,7 +139,7 @@ public class EnemyAIController : NetworkBehaviour
         AttackState = CreateAttackState();
 
         if (AttackState == null)
-            Debug.LogError($"[EnemyAIController] CreateAttackState() devolviÛ null en {enemy.name}");
+            Debug.LogError($"[EnemyAIController] CreateAttackState() devolvi√≥ null en {enemy.name}");
 
         // Empezar en patrol si tiene puntos definidos, idle si no.
         StateMachine.ChangeState(HasPatrolPoints ? PatrolState : IdleState);
@@ -224,17 +223,39 @@ public class EnemyAIController : NetworkBehaviour
     /// </summary>
     public void ReactToAttack(Character attacker)
     {
-        if (!IsServer || !enabled || attacker == null)
+        if (!IsServer || attacker == null)
             return;
+
+        if (!enabled)
+        {
+            // Dormido por EnemySleepManager (el jugador esta lejos, ej: lo alcanzo con el arco):
+            // un golpe lo despierta y lo mantiene despierto, si no moriria sin reaccionar.
+            EnemySleepManager.WakeForDamage(this);
+
+            if (!enabled)
+            {
+                Debug.Log($"[{name}] ReactToAttack ignorado: la IA esta apagada " +
+                          "(enemigo muriendo, o no hay EnemySleepManager que lo despierte).");
+                return;
+            }
+        }
 
         if (attacker is Player player && player.IsDead())
             return;
 
         if (StateMachine == null || StateMachine.CurrentState == null)
+        {
+            Debug.LogWarning($"[{name}] ReactToAttack ignorado: la IA no termino de inicializar " +
+                             "(StateMachine sin crear).");
             return;
+        }
 
         if (Agent == null || !Agent.enabled || !Agent.isOnNavMesh)
+        {
+            Debug.LogWarning($"[{name}] ReactToAttack ignorado: el NavMeshAgent no esta activo " +
+                             "o no esta sobre el NavMesh.");
             return;
+        }
 
         var current = StateMachine.CurrentState;
 
