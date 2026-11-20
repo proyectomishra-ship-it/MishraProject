@@ -16,3 +16,4 @@ MonoBehaviour:
   description: "Crea una poci\xF3n de vida"
   requiredAmount: 1
   item: {fileID: 11400000, guid: f8aedb24151a47029c5f8343c7b2cdee, type: 2}
+  consumeOnComplete: 0
