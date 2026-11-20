@@ -12,7 +12,7 @@ using UnityEngine;
 [RequireComponent(typeof(InventoryNetworkSync))]
 public class InventoryController : NetworkBehaviour, IInventory, IBatchable
 {
-    [SerializeField] private int maxSlots = 20;
+    [SerializeField] private int maxSlots = 30;
 
     private InventoryStore       store;
     private InventoryNetworkSync sync;
