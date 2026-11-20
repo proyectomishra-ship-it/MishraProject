@@ -26,9 +26,12 @@ public class EnemyPerceptionSystem
 
     public Character DetectPlayer(bool isAlerted)
     {
+        // Un enemigo alertado nunca debe ver MENOS que uno tranquilo. En Goblin, Orc y
+        // Acolyte alertRadius (15) es menor que detectionRadius (30-35): tras un golpe
+        // perdian al atacante en cuanto terminaba el aggro forzado si estaba a mas de 15 m.
         float radius =
             isAlerted
-                ? alertRadius
+                ? Mathf.Max(alertRadius, detectionRadius)
                 : detectionRadius;
 
         Collider[] hits =
@@ -74,7 +77,7 @@ public class EnemyPerceptionSystem
             // =================================================
             // ALERTED
             //
-            // Si est· alertado no necesitamos FOV.
+            // Si est√° alertado no necesitamos FOV.
             // =================================================
 
             if (isAlerted && distance < closestDistance)
