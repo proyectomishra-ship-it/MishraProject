@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SQ_04_Kill_Orc
   m_EditorClassIdentifier: Assembly-CSharp::QuestData
   questID: SQ_04_Kill_Orc
-  questName: Eliminar Slimes
+  questName: Elimina un orco
   description: 
   questType: 1
   objectives:

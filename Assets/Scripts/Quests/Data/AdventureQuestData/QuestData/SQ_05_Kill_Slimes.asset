@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ebb553c95b13a547bef685eee69972d, type: 3}
   m_Name: SQ_05_Kill_Slimes
   m_EditorClassIdentifier: Assembly-CSharp::QuestData
-  questID: SQ_05_Kill_Orc
+  questID: SQ_05_Kill_Slimes
   questName: Eliminar Slimes
   description: 
   questType: 1
