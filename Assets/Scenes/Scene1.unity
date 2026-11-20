@@ -35237,13 +35237,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: Safepoint
       objectReference: {fileID: 0}
+    - target: {fileID: 4075055050678046481, guid: 541b738b05b0e8c4abe33dd96ff34027, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4988247516026202571, guid: 541b738b05b0e8c4abe33dd96ff34027, type: 3}
       propertyPath: m_LocalPosition.x
       value: -298.25784
       objectReference: {fileID: 0}
     - target: {fileID: 4988247516026202571, guid: 541b738b05b0e8c4abe33dd96ff34027, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 151.34027
+      value: 112.3
       objectReference: {fileID: 0}
     - target: {fileID: 4988247516026202571, guid: 541b738b05b0e8c4abe33dd96ff34027, type: 3}
       propertyPath: m_LocalPosition.z
