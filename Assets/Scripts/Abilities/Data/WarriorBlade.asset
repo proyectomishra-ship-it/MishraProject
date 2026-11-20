@@ -21,7 +21,7 @@ MonoBehaviour:
   bladeLength: 8
   bladeWidth: 0.5
   sweepAngle: 140
-  enableVisualEffect: 1
+  enableVisualEffect: 0
   energyColor: {r: 1, g: 0.38, b: 0.12, a: 1}
   slashDuration: 0.45
   auraDuration: 1
