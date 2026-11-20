@@ -1,4 +1,3 @@
-
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
@@ -229,9 +228,16 @@ public class EnemyAIController : NetworkBehaviour
 
         if (!enabled)
         {
-            Debug.Log($"[{name}] ReactToAttack ignorado: la IA esta apagada " +
-                      "(dormida por EnemySleepManager, o enemigo muriendo).");
-            return;
+            // Dormido por EnemySleepManager (el jugador esta lejos, ej: lo alcanzo con el arco):
+            // un golpe lo despierta y lo mantiene despierto, si no moriria sin reaccionar.
+            EnemySleepManager.WakeForDamage(this);
+
+            if (!enabled)
+            {
+                Debug.Log($"[{name}] ReactToAttack ignorado: la IA esta apagada " +
+                          "(enemigo muriendo, o no hay EnemySleepManager que lo despierte).");
+                return;
+            }
         }
 
         if (attacker is Player player && player.IsDead())

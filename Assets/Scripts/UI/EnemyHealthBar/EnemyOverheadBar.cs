@@ -22,6 +22,11 @@ public class EnemyOverheadBar : MonoBehaviour
 
     private const float ShowNearDistance = 14f;
     private const float ShowHurtDistance = 30f;
+    // Recien golpeado (ver HurtLinger): la barra se ve desde mas lejos, para quien ataca a distancia.
+    private const float ShowRecentHitDistance = 120f;
+    // Tope del escalado por distancia: debe cubrir ShowRecentHitDistance / 9 para que la barra
+    // no se encoja hasta ser ilegible.
+    private const float MaxDistanceScale = 14f;
     private const float BossDistance = 80f;
     private const float HurtLinger = 5f;
 
@@ -266,7 +271,7 @@ public class EnemyOverheadBar : MonoBehaviour
         }
 
         // Tamaño aparente casi constante: crece con la distancia, con límites.
-        float scale = PixelsToMeters * Mathf.Clamp(distance / 9f, 0.8f, 3f) * (isBoss ? 1.2f : 1f);
+        float scale = PixelsToMeters * Mathf.Clamp(distance / 9f, 0.8f, MaxDistanceScale) * (isBoss ? 1.2f : 1f);
         transform.localScale = Vector3.one * scale;
 
         // --- Visibilidad ---
@@ -279,7 +284,9 @@ public class EnemyOverheadBar : MonoBehaviour
         bool want;
         if (dead || cam == null) want = false;
         else if (isBoss) want = distance <= BossDistance;
-        else want = distance <= ShowHurtDistance && (hurt || hurtTimer > 0f || distance <= ShowNearDistance);
+        else want = distance <= ShowNearDistance
+                 || (hurt && distance <= ShowHurtDistance)
+                 || (hurtTimer > 0f && distance <= ShowRecentHitDistance);
 
         alpha = Mathf.MoveTowards(alpha, want ? 1f : 0f, dt * (dead ? 8f : 4f));
         group.alpha = alpha;
