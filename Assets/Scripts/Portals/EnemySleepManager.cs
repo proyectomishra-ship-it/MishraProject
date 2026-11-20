@@ -434,6 +434,9 @@ public class EnemySleepManager : MonoBehaviour
             combatAwakeUntil.Remove(key);
     }
 
+    // El contador en pantalla solo existe en el Editor y en builds de desarrollo
+    // (Development Build). En la build final este codigo ni se compila.
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
     private void OnGUI()
     {
         if (!debugInfo) return;
@@ -441,4 +444,5 @@ public class EnemySleepManager : MonoBehaviour
             $"Enemigos dormidos: {sleeping.Count} | despiertos: {Mathf.Max(0, lastAwake)} | " +
             $"inicializando: {lastPending} | jugadores: {lastPlayers}");
     }
+#endif
 }
