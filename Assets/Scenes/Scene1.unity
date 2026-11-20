@@ -13540,7 +13540,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 225670113}
   m_HandleRect: {fileID: 225670112}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -27163,6 +27163,9 @@ Transform:
   - {fileID: 859473617}
   - {fileID: 1521166609}
   - {fileID: 1329973503}
+  - {fileID: 5321909173603835533}
+  - {fileID: 4095003233877414836}
+  - {fileID: 71177462713283509}
   - {fileID: 205289366}
   - {fileID: 478550761}
   - {fileID: 734582279}
@@ -27528,7 +27531,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1907289601}
   m_HandleRect: {fileID: 1907289600}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -51101,6 +51104,68 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3928277297675293206, guid: 857c307e74d2d1d4984e65e9bf1d7567, type: 3}
   m_PrefabInstance: {fileID: 2146821508}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &71177462713283508
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1098273796}
+    m_Modifications:
+    - target: {fileID: 1356619359776232691, guid: 3d26e23a494841946b19a68feee79501, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -6.9529724
+      objectReference: {fileID: 0}
+    - target: {fileID: 1356619359776232691, guid: 3d26e23a494841946b19a68feee79501, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.54572296
+      objectReference: {fileID: 0}
+    - target: {fileID: 1356619359776232691, guid: 3d26e23a494841946b19a68feee79501, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 258.62534
+      objectReference: {fileID: 0}
+    - target: {fileID: 1356619359776232691, guid: 3d26e23a494841946b19a68feee79501, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.76091254
+      objectReference: {fileID: 0}
+    - target: {fileID: 1356619359776232691, guid: 3d26e23a494841946b19a68feee79501, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1356619359776232691, guid: 3d26e23a494841946b19a68feee79501, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.64885455
+      objectReference: {fileID: 0}
+    - target: {fileID: 1356619359776232691, guid: 3d26e23a494841946b19a68feee79501, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1356619359776232691, guid: 3d26e23a494841946b19a68feee79501, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1356619359776232691, guid: 3d26e23a494841946b19a68feee79501, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -80.911
+      objectReference: {fileID: 0}
+    - target: {fileID: 1356619359776232691, guid: 3d26e23a494841946b19a68feee79501, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1844363350919679561, guid: 3d26e23a494841946b19a68feee79501, type: 3}
+      propertyPath: m_Name
+      value: Armadura de mago completa  (con pedestal)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 3d26e23a494841946b19a68feee79501, type: 3}
+--- !u!4 &71177462713283509 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1356619359776232691, guid: 3d26e23a494841946b19a68feee79501, type: 3}
+  m_PrefabInstance: {fileID: 71177462713283508}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &387337110770415201
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -51720,6 +51785,68 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0250b33cc9e715a4894827547ff427af, type: 3}
+--- !u!1001 &4095003233877414835
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1098273796}
+    m_Modifications:
+    - target: {fileID: 7419319215604301731, guid: c08614ce882d15448b38d31d469ef0a2, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -18.821747
+      objectReference: {fileID: 0}
+    - target: {fileID: 7419319215604301731, guid: c08614ce882d15448b38d31d469ef0a2, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.20802307
+      objectReference: {fileID: 0}
+    - target: {fileID: 7419319215604301731, guid: c08614ce882d15448b38d31d469ef0a2, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 243.77438
+      objectReference: {fileID: 0}
+    - target: {fileID: 7419319215604301731, guid: c08614ce882d15448b38d31d469ef0a2, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.99762875
+      objectReference: {fileID: 0}
+    - target: {fileID: 7419319215604301731, guid: c08614ce882d15448b38d31d469ef0a2, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7419319215604301731, guid: c08614ce882d15448b38d31d469ef0a2, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.068826266
+      objectReference: {fileID: 0}
+    - target: {fileID: 7419319215604301731, guid: c08614ce882d15448b38d31d469ef0a2, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7419319215604301731, guid: c08614ce882d15448b38d31d469ef0a2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7419319215604301731, guid: c08614ce882d15448b38d31d469ef0a2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -7.893
+      objectReference: {fileID: 0}
+    - target: {fileID: 7419319215604301731, guid: c08614ce882d15448b38d31d469ef0a2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7907589946186310937, guid: c08614ce882d15448b38d31d469ef0a2, type: 3}
+      propertyPath: m_Name
+      value: armadura de hierro completa (con pedestal)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: c08614ce882d15448b38d31d469ef0a2, type: 3}
+--- !u!4 &4095003233877414836 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7419319215604301731, guid: c08614ce882d15448b38d31d469ef0a2, type: 3}
+  m_PrefabInstance: {fileID: 4095003233877414835}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &4185027083039117983
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -51905,6 +52032,68 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 3433013211187391005, guid: 0aaba493a33bc6045b631be2cdce1b86, type: 3}
   m_PrefabInstance: {fileID: 4604339004926874105}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &5321909173603835532
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1098273796}
+    m_Modifications:
+    - target: {fileID: 5890815043761910894, guid: e928250cdd45d1143ae3885001a9209e, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -6.472992
+      objectReference: {fileID: 0}
+    - target: {fileID: 5890815043761910894, guid: e928250cdd45d1143ae3885001a9209e, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.71635437
+      objectReference: {fileID: 0}
+    - target: {fileID: 5890815043761910894, guid: e928250cdd45d1143ae3885001a9209e, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 242.00284
+      objectReference: {fileID: 0}
+    - target: {fileID: 5890815043761910894, guid: e928250cdd45d1143ae3885001a9209e, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.84221125
+      objectReference: {fileID: 0}
+    - target: {fileID: 5890815043761910894, guid: e928250cdd45d1143ae3885001a9209e, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5890815043761910894, guid: e928250cdd45d1143ae3885001a9209e, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.5391478
+      objectReference: {fileID: 0}
+    - target: {fileID: 5890815043761910894, guid: e928250cdd45d1143ae3885001a9209e, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5890815043761910894, guid: e928250cdd45d1143ae3885001a9209e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5890815043761910894, guid: e928250cdd45d1143ae3885001a9209e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -65.251
+      objectReference: {fileID: 0}
+    - target: {fileID: 5890815043761910894, guid: e928250cdd45d1143ae3885001a9209e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6524503918305930964, guid: e928250cdd45d1143ae3885001a9209e, type: 3}
+      propertyPath: m_Name
+      value: Armadura de cuero completa (con pedestal)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: e928250cdd45d1143ae3885001a9209e, type: 3}
+--- !u!4 &5321909173603835533 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5890815043761910894, guid: e928250cdd45d1143ae3885001a9209e, type: 3}
+  m_PrefabInstance: {fileID: 5321909173603835532}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &5420242760880910823
 PrefabInstance:
