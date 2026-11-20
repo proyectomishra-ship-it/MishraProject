@@ -19,8 +19,8 @@ MonoBehaviour:
     jump: {fileID: 0}
     fall: {fileID: 0}
     land: {fileID: 0}
-    attackLight: {fileID: 4403661298115100025, guid: a84a15144268ff3439c08e1a37769a89, type: 3}
-    attackHeavy: {fileID: 4403661298115100025, guid: a84a15144268ff3439c08e1a37769a89, type: 3}
+    attackLight: {fileID: 7400000, guid: 1640886af7841744e9ea5973e500985c, type: 2}
+    attackHeavy: {fileID: 7400000, guid: 1640886af7841744e9ea5973e500985c, type: 2}
     attackSpecial: {fileID: 0}
     attackLightHitTime: 0
     attackHeavyHitTime: 0

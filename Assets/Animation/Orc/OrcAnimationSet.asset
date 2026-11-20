@@ -25,7 +25,7 @@ MonoBehaviour:
     attackLightHitTime: 0
     attackHeavyHitTime: 0
     attackSpecialHitTime: 0
-    hit: {fileID: 7424931755195621442, guid: f803be6de4bb86f4787f7c885d0ae69c, type: 3}
-    death: {fileID: -6539304658414629578, guid: f803be6de4bb86f4787f7c885d0ae69c, type: 3}
+    hit: {fileID: 0}
+    death: {fileID: 0}
     revive: {fileID: 0}
   controller: {fileID: 9100000, guid: 06f6c4a62184d5a4d8dd3aa00d837b1d, type: 2}
