@@ -24,6 +24,10 @@ public class NetworkQuestManager : NetworkBehaviour
 
     private NetworkList<NetworkQuestState> networkQuests;
 
+    // Solo servidor: quien aporto cuantas unidades de cada item a cada mision (collect / craft).
+    // questID -> clientId -> item -> cantidad contada. Se usa para retirar los items al completar.
+    private readonly Dictionary<string, Dictionary<ulong, Dictionary<ItemData, int>>> contributions = new();
+
     // Evento utilizado por la UI para saber que debe actualizarse.
     public event Action OnQuestDataChanged;
 
@@ -122,6 +126,7 @@ public class NetworkQuestManager : NetworkBehaviour
     private void InitializeQuests()
     {
         networkQuests.Clear();
+        contributions.Clear();
 
         bool mainQuestActivated = false;
 
@@ -309,7 +314,8 @@ public class NetworkQuestManager : NetworkBehaviour
     /// </summary>
     public void ReportItemCollected(
         ItemData item,
-        int amount = 1)
+        int amount = 1,
+        Player contributor = null)
     {
         if (!IsServer || item == null || amount <= 0)
         {
@@ -320,7 +326,9 @@ public class NetworkQuestManager : NetworkBehaviour
             objective =>
                 objective is CollectItemObjectiveData collect &&
                 collect.Item == item,
-            amount);
+            amount,
+            item,
+            contributor);
     }
 
     /// <summary>
@@ -328,7 +336,8 @@ public class NetworkQuestManager : NetworkBehaviour
     /// </summary>
     public void ReportItemCrafted(
         ItemData item,
-        int amount = 1)
+        int amount = 1,
+        Player contributor = null)
     {
         if (!IsServer || item == null || amount <= 0)
         {
@@ -339,7 +348,9 @@ public class NetworkQuestManager : NetworkBehaviour
             objective =>
                 objective is CraftItemObjectiveData craft &&
                 craft.Item == item,
-            amount);
+            amount,
+            item,
+            contributor);
     }
 
     /// <summary>
@@ -348,7 +359,9 @@ public class NetworkQuestManager : NetworkBehaviour
     /// </summary>
     private void ReportProgress(
         Func<QuestObjectiveData, bool> matches,
-        int amount)
+        int amount,
+        ItemData item = null,
+        Player contributor = null)
     {
         foreach (QuestData quest in availableQuests)
         {
@@ -394,10 +407,24 @@ public class NetworkQuestManager : NetworkBehaviour
                     continue;
                 }
 
+                int progressBefore = networkState.Progress;
+
                 networkState.Progress =
                     Mathf.Min(
-                        networkState.Progress + amount,
+                        progressBefore + amount,
                         networkState.RequiredAmount);
+
+                // Solo se registra lo que realmente conto (sin el excedente).
+                int credited = networkState.Progress - progressBefore;
+
+                if (credited > 0 && item != null && contributor != null)
+                {
+                    RecordContribution(
+                        quest.questID,
+                        contributor.OwnerClientId,
+                        item,
+                        credited);
+                }
 
                 questChanged = true;
 
@@ -444,6 +471,9 @@ public class NetworkQuestManager : NetworkBehaviour
         Debug.Log(
             $"QUEST COMPLETED: {quest.questName}");
 
+        // Primero se retiran los items (libera espacio) y despues se entregan las recompensas.
+        ConsumeObjectiveItems(quest);
+
         GiveRewardsToAllPlayers(quest);
 
         if (quest.nextQuest != null)
@@ -451,6 +481,170 @@ public class NetworkQuestManager : NetworkBehaviour
             ActivateNextQuest(
                 quest.nextQuest);
         }
+    }
+
+    // =========================================================
+    // CONSUMO DE ITEMS (collect / craft)
+    // =========================================================
+
+    private void RecordContribution(
+        string questID,
+        ulong clientId,
+        ItemData item,
+        int amount)
+    {
+        if (!contributions.TryGetValue(questID, out var byPlayer))
+        {
+            byPlayer = new Dictionary<ulong, Dictionary<ItemData, int>>();
+            contributions[questID] = byPlayer;
+        }
+
+        if (!byPlayer.TryGetValue(clientId, out var byItem))
+        {
+            byItem = new Dictionary<ItemData, int>();
+            byPlayer[clientId] = byItem;
+        }
+
+        byItem.TryGetValue(item, out int current);
+        byItem[item] = current + amount;
+    }
+
+    /// <summary>
+    /// Al completarse una mision, retira del inventario de cada jugador que aporto las unidades
+    /// que se contaron para los objetivos de recoger / craftear (hasta lo requerido por el objetivo).
+    /// Si el jugador ya no tiene alguna unidad (la uso, la crafteo en otra cosa), se retira lo que tenga.
+    /// </summary>
+    private void ConsumeObjectiveItems(QuestData quest)
+    {
+        if (!IsServer || quest == null || quest.objectives == null)
+        {
+            return;
+        }
+
+        if (!contributions.TryGetValue(quest.questID, out var byPlayer))
+        {
+            return;
+        }
+
+        foreach (QuestObjectiveData objective in quest.objectives)
+        {
+            ItemData item = null;
+            bool consume = false;
+
+            if (objective is CollectItemObjectiveData collect)
+            {
+                item = collect.Item;
+                consume = collect.ConsumeOnComplete;
+            }
+            else if (objective is CraftItemObjectiveData craft)
+            {
+                item = craft.Item;
+                consume = craft.ConsumeOnComplete;
+            }
+
+            if (!consume || item == null)
+            {
+                continue;
+            }
+
+            int remaining = objective.requiredAmount;
+
+            foreach (var pair in byPlayer)
+            {
+                if (remaining <= 0)
+                {
+                    break;
+                }
+
+                if (!pair.Value.TryGetValue(item, out int contributed) ||
+                    contributed <= 0)
+                {
+                    continue;
+                }
+
+                Player player = FindPlayer(pair.Key);
+
+                if (player == null)
+                {
+                    continue;
+                }
+
+                InventoryController inventory = player.GetInventory();
+
+                if (inventory == null)
+                {
+                    continue;
+                }
+
+                int amount = Mathf.Min(
+                    contributed,
+                    remaining,
+                    inventory.GetQuantity(item));
+
+                if (amount <= 0)
+                {
+                    continue;
+                }
+
+                if (!inventory.RemoveItem(item, amount))
+                {
+                    continue;
+                }
+
+                remaining -= amount;
+
+                UnequipIfGone(player, inventory, item);
+
+                Debug.Log(
+                    $"[Quest] Se retiraron {amount}x {item.name} " +
+                    $"del jugador {pair.Key} por completar '{quest.questName}'.");
+            }
+
+            if (remaining > 0)
+            {
+                Debug.LogWarning(
+                    $"[Quest] '{quest.questName}': faltaron retirar {remaining}x " +
+                    $"{item.name} (los jugadores ya no los tenian).");
+            }
+        }
+
+        contributions.Remove(quest.questID);
+    }
+
+    /// <summary>Los items equipados cuentan en el inventario: si ya no queda ninguno, se desequipa.</summary>
+    private static void UnequipIfGone(
+        Player player,
+        InventoryController inventory,
+        ItemData item)
+    {
+        if (item is not IEquippable equippable ||
+            inventory.GetQuantity(item) > 0)
+        {
+            return;
+        }
+
+        EquipmentController equipment = player.GetEquipment();
+
+        if (equipment != null &&
+            equipment.GetEquipped(equippable.Slot) is ItemData equipped &&
+            equipped == item)
+        {
+            equipment.Unequip(equippable.Slot);
+        }
+    }
+
+    private static Player FindPlayer(ulong clientId)
+    {
+        if (NetworkManager.Singleton == null ||
+            !NetworkManager.Singleton.ConnectedClients.TryGetValue(
+                clientId,
+                out NetworkClient client) ||
+            client.PlayerObject == null)
+        {
+            return null;
+        }
+
+        return client.PlayerObject.GetComponent<Player>();
     }
 
     // =========================================================
