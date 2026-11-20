@@ -5,10 +5,10 @@ using UnityEngine.UI;
 
 /// <summary>
 /// Gestiona la mira visual del jugador local.
-/// Intenta mostrar un prefab UI y, si no es válido,
-/// dibuja una mira básica centrada en la pantalla.
-/// El apuntado se calcula desde el centro de la cámara.
-/// El offset modifica únicamente la posición visual de la mira.
+/// Intenta mostrar un prefab UI y, si no es vï¿½lido,
+/// dibuja una mira bï¿½sica centrada en la pantalla.
+/// El apuntado se calcula desde el centro de la cï¿½mara.
+/// El offset modifica ï¿½nicamente la posiciï¿½n visual de la mira.
 /// </summary>
 public class PlayerCrosshair : NetworkBehaviour
 {
@@ -16,7 +16,7 @@ public class PlayerCrosshair : NetworkBehaviour
     [SerializeField] private GameObject crosshairPrefab;
 
     [Header("Visual Offset")]
-    [Tooltip("Desplazamiento visual de la mira en píxeles. " +
+    [Tooltip("Desplazamiento visual de la mira en pï¿½xeles. " +
              "X positivo mueve a la derecha e Y positivo hacia arriba.")]
     [SerializeField] private Vector2 visualOffset = Vector2.zero;
 
@@ -31,6 +31,7 @@ public class PlayerCrosshair : NetworkBehaviour
     private Image crosshairImage;
     private Texture2D fallbackTexture;
     private bool useFallback;
+    private PlayerInputController inputController;
 
     public override void OnNetworkSpawn()
     {
@@ -38,6 +39,8 @@ public class PlayerCrosshair : NetworkBehaviour
 
         if (!IsOwner)
             return;
+
+        inputController = GetComponent<PlayerInputController>();
 
         InitializeCrosshair();
     }
@@ -61,7 +64,7 @@ public class PlayerCrosshair : NetworkBehaviour
                 crosshairImage =
                     crosshairInstance.GetComponent<Image>();
 
-                // El prefab necesita un Image con un Sprite válido.
+                // El prefab necesita un Image con un Sprite vï¿½lido.
                 if (crosshairImage != null &&
                     crosshairImage.sprite != null)
                 {
@@ -77,7 +80,7 @@ public class PlayerCrosshair : NetworkBehaviour
                     rectTransform.pivot =
                         new Vector2(0.5f, 0.5f);
 
-                    // El offset modifica solamente la posición visual.
+                    // El offset modifica solamente la posiciï¿½n visual.
                     rectTransform.anchoredPosition = visualOffset;
 
                     crosshairImage.enabled = true;
@@ -91,7 +94,7 @@ public class PlayerCrosshair : NetworkBehaviour
 
                 Debug.LogWarning(
                     "[PlayerCrosshair] El prefab no contiene un " +
-                    "Image con Sprite válido. Se utilizará la mira básica.");
+                    "Image con Sprite vï¿½lido. Se utilizarï¿½ la mira bï¿½sica.");
 
                 Destroy(crosshairInstance);
                 crosshairInstance = null;
@@ -100,15 +103,15 @@ public class PlayerCrosshair : NetworkBehaviour
             else
             {
                 Debug.LogWarning(
-                    "[PlayerCrosshair] No se encontró un Canvas. " +
-                    "Se utilizará la mira básica.");
+                    "[PlayerCrosshair] No se encontrï¿½ un Canvas. " +
+                    "Se utilizarï¿½ la mira bï¿½sica.");
             }
         }
         else
         {
             Debug.LogWarning(
                 "[PlayerCrosshair] No hay prefab asignado. " +
-                "Se utilizará la mira básica.");
+                "Se utilizarï¿½ la mira bï¿½sica.");
         }
 
         InitializeFallback();
@@ -129,12 +132,29 @@ public class PlayerCrosshair : NetworkBehaviour
         fallbackTexture.hideFlags = HideFlags.HideAndDontSave;
     }
 
+    /// <summary>
+    /// La mira se oculta cuando hay un menu abierto (inventario, pausa, misiones, mejoras...):
+    /// en esos casos el input del jugador esta bloqueado y el cursor liberado.
+    /// OnGUI se dibuja SIEMPRE por encima de cualquier Canvas, por eso hay que ocultarla a mano.
+    /// </summary>
+    private bool ShouldHide()
+    {
+        if (Cursor.lockState != CursorLockMode.Locked)
+            return true;
+
+        return inputController != null && inputController.IsInputBlocked;
+    }
+
     private void OnGUI()
     {
+        if (Event.current.type != EventType.Repaint)
+            return;
+
         if (!IsSpawned ||
             !IsOwner ||
             !useFallback ||
-            fallbackTexture == null)
+            fallbackTexture == null ||
+            ShouldHide())
         {
             return;
         }
@@ -234,6 +254,13 @@ public class PlayerCrosshair : NetworkBehaviour
             fallbackTexture);
 
         GUI.color = previousColor;
+    }
+
+    private void Update()
+    {
+        // Mira basada en prefab (Canvas): se oculta igual que la basica.
+        if (IsOwner && crosshairImage != null)
+            crosshairImage.enabled = !ShouldHide();
     }
 
     public override void OnNetworkDespawn()
