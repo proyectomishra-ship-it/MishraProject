@@ -26,8 +26,6 @@ MonoBehaviour:
     value: 2
   - stat: 10
     value: 2
-  - stat: 5
-    value: 1
   multipliers:
   - stat: 2
     value: 0.85
