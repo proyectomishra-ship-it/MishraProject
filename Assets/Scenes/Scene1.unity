@@ -10843,7 +10843,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 225670113}
   m_HandleRect: {fileID: 225670112}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -21162,7 +21162,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1907289601}
   m_HandleRect: {fileID: 1907289600}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -28152,7 +28152,7 @@ Camera:
     serializedVersion: 2
     m_Bits: 8
   m_RenderingPath: -1
-  m_TargetTexture: {fileID: 8400000, guid: 052ad687a431b174885e1b93b65cf7ec, type: 2}
+  m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
@@ -30918,7 +30918,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1268373497297025086, guid: 637b0e25712f413468b30416453d99c4, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 4.0600014
+      value: 1.72
       objectReference: {fileID: 0}
     - target: {fileID: 1268373497297025086, guid: 637b0e25712f413468b30416453d99c4, type: 3}
       propertyPath: m_LocalPosition.z
