@@ -5530,7 +5530,7 @@ Terrain:
   m_TreeDistance: 1000
   m_TreeBillboardDistance: 2000
   m_TreeCrossFadeLength: 0
-  m_TreeMaximumFullLODCount: 10000
+  m_TreeMaximumFullLODCount: 3000
   m_DetailObjectDistance: 80
   m_DetailObjectDensity: 1
   m_HeightmapPixelError: 5
@@ -8403,7 +8403,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1764835216}
   m_Direction: 0
   m_Value: 0
-  m_Size: 0.9999999
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -13540,7 +13540,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 225670113}
   m_HandleRect: {fileID: 225670112}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -20417,7 +20417,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1326918393}
   m_Direction: 0
   m_Value: 0
-  m_Size: 0.9999999
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -23906,7 +23906,7 @@ Terrain:
   m_TreeDistance: 1000
   m_TreeBillboardDistance: 2000
   m_TreeCrossFadeLength: 0
-  m_TreeMaximumFullLODCount: 10000
+  m_TreeMaximumFullLODCount: 3000
   m_DetailObjectDistance: 80
   m_DetailObjectDensity: 1
   m_HeightmapPixelError: 5
@@ -27531,7 +27531,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1907289601}
   m_HandleRect: {fileID: 1907289600}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -37360,7 +37360,7 @@ Terrain:
   m_TreeDistance: 1000
   m_TreeBillboardDistance: 2000
   m_TreeCrossFadeLength: 0
-  m_TreeMaximumFullLODCount: 10000
+  m_TreeMaximumFullLODCount: 3000
   m_DetailObjectDistance: 80
   m_DetailObjectDensity: 1
   m_HeightmapPixelError: 5
@@ -47726,7 +47726,7 @@ Terrain:
   m_TreeDistance: 1000
   m_TreeBillboardDistance: 2000
   m_TreeCrossFadeLength: 0
-  m_TreeMaximumFullLODCount: 10000
+  m_TreeMaximumFullLODCount: 3000
   m_DetailObjectDistance: 80
   m_DetailObjectDensity: 1
   m_HeightmapPixelError: 5
