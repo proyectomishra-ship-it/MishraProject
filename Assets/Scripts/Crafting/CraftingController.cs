@@ -49,7 +49,7 @@ public class CraftingController : NetworkBehaviour
 
         // Misiones secundarias: cuenta como item crafteado.
         if (result == CraftResult.Success && NetworkQuestManager.Instance != null)
-            NetworkQuestManager.Instance.ReportItemCrafted(recipe.Output, recipe.OutputQuantity);
+            NetworkQuestManager.Instance.ReportItemCrafted(recipe.Output, recipe.OutputQuantity, owner as Player);
 
         Debug.Log($"[Crafting] {name} intentó craftear '{recipe.name}': {result}");
 

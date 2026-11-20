@@ -12,4 +12,11 @@ public class CraftItemObjectiveData : QuestObjectiveData
     [SerializeField] private ItemData item;
 
     public ItemData Item => item;
+
+    [Header("Al completar")]
+    [Tooltip("Si esta activo, al completarse la mision se retiran del inventario de cada jugador que "
+             + "aporto, las unidades que se contaron para el objetivo.")]
+    [SerializeField] private bool consumeOnComplete = true;
+
+    public bool ConsumeOnComplete => consumeOnComplete;
 }

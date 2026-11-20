@@ -142,10 +142,6 @@ public class ItemPickup : NetworkBehaviour
 
         pickedUp = true;
 
-        // Misiones secundarias: cuenta como item encontrado.
-        if (NetworkQuestManager.Instance != null)
-            NetworkQuestManager.Instance.ReportItemCollected(itemData, quantity);
-
         if (itemCollider != null)
             itemCollider.enabled = false;
 
@@ -161,6 +157,11 @@ public class ItemPickup : NetworkBehaviour
                 equipment.Equip(equippable);
             }
         }
+
+        // Misiones: cuenta como item encontrado. Va despues del auto-equipado porque, si la mision
+        // se completa, retira el item del inventario (y lo desequipa si hace falta).
+        if (NetworkQuestManager.Instance != null)
+            NetworkQuestManager.Instance.ReportItemCollected(itemData, quantity, player);
 
         PlayPickupAnimationClientRpc(player.OwnerClientId);
 
