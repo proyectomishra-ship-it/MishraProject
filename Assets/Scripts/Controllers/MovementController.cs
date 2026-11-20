@@ -16,6 +16,11 @@ public class MovementController : NetworkBehaviour
              "Debe ser un poco mayor que la altura de un escalon. 0 = desactivado.")]
     [SerializeField] private float groundSnapDistance = 0.35f;
 
+    [Tooltip("Maximo de metros que el controlador avanza por cada Move. Si el personaje va muy rapido, " +
+             "el movimiento del frame se parte en pasos de este tamano para no 'saltarse' los escalones " +
+             "ni salir despedido al subirlos. Debe ser menor que el radio del personaje (0.5). 0 = desactivado.")]
+    [SerializeField] private float maxStepDistance = 0.25f;
+
     [Header("Ataque")]
     [Tooltip("Velocidad de movimiento mientras dura un golpe: 0 = clavado en el lugar, 1 = sin cambio.")]
     [Range(0f, 1f)]
@@ -138,15 +143,35 @@ public class MovementController : NetworkBehaviour
             knockbackTimeLeft -= Time.deltaTime;
         }
 
-        controller.Move(motion * Time.deltaTime);
+        // El movimiento del frame se parte en pasos cortos (ver maxStepDistance). A velocidades altas
+        // (correr = velocidad x runMultiplier) un solo Move puede avanzar mas que un escalon entero y el
+        // CharacterController resuelve mal la colision: se "sube" de golpe y el personaje sale volando.
+        Vector3 frameMove = motion * Time.deltaTime;
+        float horizontalDistance = new Vector2(frameMove.x, frameMove.z).magnitude;
+
+        int steps = 1;
+        if (maxStepDistance > 0.01f)
+            steps = Mathf.Clamp(Mathf.CeilToInt(horizontalDistance / maxStepDistance), 1, 12);
+
+        Vector3 stepMove = frameMove / steps;
+
+        for (int i = 0; i < steps; i++)
+        {
+            bool groundedBefore = i == 0 ? wasGrounded : controller.isGrounded;
+
+            controller.Move(stepMove);
+
+            // Pegar al suelo (ver mas abajo), ahora por cada paso.
+            if (groundSnapDistance > 0f && groundedBefore && !controller.isGrounded && verticalVelocity <= 0f)
+                controller.Move(Vector3.down * groundSnapDistance);
+        }
 
         // Pegar al suelo. Al bajar escaleras o rampas rapido, el personaje se pasa del borde del
         // escalon y "cae" varios frames (la gravedad parte de -2 m/s), y la animacion lo toma como un
         // salto. Si hace un instante estaba apoyado y ahora no esta saltando, se lo baja hasta el
         // suelo cercano en este mismo frame. La ultima Move sigue siendo vertical, asi que
         // isGrounded queda bien para Jump().
-        if (groundSnapDistance > 0f && wasGrounded && !controller.isGrounded && verticalVelocity <= 0f)
-            controller.Move(Vector3.down * groundSnapDistance);
+        // (se aplica dentro del bucle de pasos de arriba)
 
         // Fin del salto: ya paso el despegue y el controlador volvio a tocar suelo.
         // (Va despues del "pegar al suelo" para leer el isGrounded final del frame.)
