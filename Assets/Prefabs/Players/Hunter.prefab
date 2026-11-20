@@ -217,6 +217,11 @@ MonoBehaviour:
   jumpForce: 9
   gravity: -20.81
   runMultiplier: 2
+  groundSnapDistance: 0.35
+  maxStepDistance: 0.25
+  attackMoveMultiplier: 0.2
+  attackMoveMaxSeconds: 0.6
+  attackTurnSpeed: 30
   rotationSpeed: 10
 --- !u!114 &7074213057654002025
 MonoBehaviour:
@@ -567,6 +572,8 @@ MonoBehaviour:
     m_Bits: 4294967295
   groundCheckDistance: 0.4
   airborneDelay: 0.2
+  jumpTakeoffHold: 0.2
+  fallAnimationMinHeight: 0
 --- !u!114 &-3556833721585328035
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -830,7 +837,7 @@ MonoBehaviour:
     FieldOfView: 60.000004
     OrthographicSize: 5
     NearClipPlane: 0.3
-    FarClipPlane: 1000
+    FarClipPlane: 3000
     Dutch: 0
     ModeOverride: 0
     PhysicalProperties:

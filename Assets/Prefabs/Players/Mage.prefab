@@ -74,7 +74,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 244935067
+  GlobalObjectIdHash: 3322466722
   InScenePlacedSourceGlobalObjectIdHash: 2194876781
   DeferredDespawnTick: 0
   Ownership: 1
@@ -217,6 +217,11 @@ MonoBehaviour:
   jumpForce: 9
   gravity: -20.81
   runMultiplier: 2
+  groundSnapDistance: 0.35
+  maxStepDistance: 0.25
+  attackMoveMultiplier: 0.2
+  attackMoveMaxSeconds: 0.6
+  attackTurnSpeed: 30
   rotationSpeed: 10
 --- !u!114 &7074213057654002025
 MonoBehaviour:
@@ -567,6 +572,8 @@ MonoBehaviour:
     m_Bits: 4294967295
   groundCheckDistance: 0.4
   airborneDelay: 0.2
+  jumpTakeoffHold: 0.2
+  fallAnimationMinHeight: 0
 --- !u!114 &4533926019743109250
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -830,7 +837,7 @@ MonoBehaviour:
     FieldOfView: 60.000004
     OrthographicSize: 5
     NearClipPlane: 0.3
-    FarClipPlane: 1000
+    FarClipPlane: 3000
     Dutch: 0
     ModeOverride: 0
     PhysicalProperties:
