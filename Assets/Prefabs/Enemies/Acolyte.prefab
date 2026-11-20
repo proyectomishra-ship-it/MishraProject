@@ -29,6 +29,7 @@ GameObject:
   - component: {fileID: 2480105816610240165}
   - component: {fileID: -2613122563677266522}
   - component: {fileID: 4922796350928362191}
+  - component: {fileID: 751061562379050197}
   m_Layer: 6
   m_Name: Acolyte
   m_TagString: Untagged
@@ -50,6 +51,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5384103174424188447}
+  - {fileID: 4703315669096433734}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1065152746560861680
@@ -64,7 +66,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 4050394893
+  GlobalObjectIdHash: 920782438
   InScenePlacedSourceGlobalObjectIdHash: 4050394893
   DeferredDespawnTick: 0
   Ownership: 1
@@ -553,6 +555,121 @@ CapsuleCollider:
   m_Height: 9.2881975
   m_Direction: 1
   m_Center: {x: -0.025639176, y: 5.6531205, z: 0}
+--- !u!114 &751061562379050197
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6198892723797869818}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07c37a15fbb34de1b76f18cea413a33d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAnimationController
+  ShowTopMostFoldoutHeaderGroup: 1
+  animationSet: {fileID: 11400000, guid: 43251b9cc2d4cfc43b7084727baf5427, type: 2}
+  animator: {fileID: 0}
+  speedDampTime: 0.08
+  teleportDistance: 3
+  minMoveSpeed: 0.05
+  minTimeBetweenHits: 0.4
+  runSpeed: 0
+  walkSpeed: 0
+  walkRatio: 0.5
+  lingerAfterDeath: 0.75
+--- !u!1001 &5102351689264459693
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2144722308014494052}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: a84a15144268ff3439c08e1a37769a89, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: a84a15144268ff3439c08e1a37769a89, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: a84a15144268ff3439c08e1a37769a89, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: a84a15144268ff3439c08e1a37769a89, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: a84a15144268ff3439c08e1a37769a89, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: a84a15144268ff3439c08e1a37769a89, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: a84a15144268ff3439c08e1a37769a89, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: a84a15144268ff3439c08e1a37769a89, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: a84a15144268ff3439c08e1a37769a89, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: a84a15144268ff3439c08e1a37769a89, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: a84a15144268ff3439c08e1a37769a89, type: 3}
+      propertyPath: m_Name
+      value: acolito actualizacion animaciones 20-11
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: a84a15144268ff3439c08e1a37769a89, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8710378347100813439}
+  m_SourcePrefab: {fileID: 100100000, guid: a84a15144268ff3439c08e1a37769a89, type: 3}
+--- !u!4 &4703315669096433734 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a84a15144268ff3439c08e1a37769a89, type: 3}
+  m_PrefabInstance: {fileID: 5102351689264459693}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5336299374390924028 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: a84a15144268ff3439c08e1a37769a89, type: 3}
+  m_PrefabInstance: {fileID: 5102351689264459693}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &8710378347100813439
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5336299374390924028}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1001 &5562671436103299572
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -616,6 +733,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: cb30a0d18ec96f743bea8bedd78d71e4, type: 3}
       propertyPath: m_Name
       value: ACOLITO
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: cb30a0d18ec96f743bea8bedd78d71e4, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 4246262453219016752, guid: cb30a0d18ec96f743bea8bedd78d71e4, type: 3}
